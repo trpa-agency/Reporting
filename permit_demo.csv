@@ -1,0 +1,19 @@
+Permit_Type,Permit_Submittal_Method,Permit_Outcome,Total_Permits,Total_Dummy_Column
+Littoral,Electronic,Approved,50,Total
+Littoral,In Person,Approved,20,Total
+Littoral,Other,Approved,15,Total
+Littoral,Electronic,Denied,5,Total
+Littoral,In Person,Denied,3,Total
+Littoral,Other,Denied,2,Total
+Littoral,Electronic,In Review,4,Total
+Littoral,In Person,In Review,5,Total
+Littoral,Other,In Review,6,Total
+Development,Electronic,Approved,30,Total
+Development,In Person,Approved,50,Total
+Development,Other,Approved,20,Total
+Development,Electronic,Denied,8,Total
+Development,In Person,Denied,9,Total
+Development,Other,Denied,4,Total
+Development,Electronic,In Review,8,Total
+Development,In Person,In Review,6,Total
+Development,Other,In Review,4,Total
