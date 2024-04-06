@@ -16,7 +16,6 @@
 *
 *
 
-
 ### Inactive Parcels to Current APN
 
 ### Count of Permit by Category
