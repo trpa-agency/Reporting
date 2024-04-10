@@ -2,7 +2,7 @@
 from pathlib import Path
 import pandas as pd
 import plotly.express as px
-from arcgis.features import FeatureLayer
+from arcgis.features import FeatureLayer, GeoAccessor, GeoSeriesAccessor
 import arcpy
 import pytz
 from datetime import datetime
@@ -12,7 +12,7 @@ from time import strftime
 def read_file(path_file):
     p = Path(path_file)
     p.expanduser()
-    data = pd.read_csv(p)
+    data = pd.read_csv(p, low_memory=False)
     return data
 
 # Reads in excel file with sheet index
@@ -44,17 +44,23 @@ def get_fs_data(service_url):
     # return data frame
     return all_data
 
+# # Gets feature service data as spatially enabled dataframe
+# def get_fs_data_spatial(service_url):
+#     feature_layer = FeatureLayer(service_url)
+#     df = feature_layer.query().sdf
+#     return df
+
 # Gets feature service data as spatially enabled dataframe
 def get_fs_data_spatial(service_url):
     feature_layer = FeatureLayer(service_url)
-    query_result = feature_layer.query().sdf
-    return query_result
+    sdf = pd.DataFrame.spatial.from_layer(feature_layer)
+    return sdf
 
 # Gets feature service as spatially enabled dataframe with query
 def get_fs_data_spatial_query(service_url, query_params):
     feature_layer = FeatureLayer(service_url)
-    query_result = feature_layer.query(query_params).sdf
-    return query_result
+    sdf = feature_layer.query(query_params).sdf
+    return sdf
 
 # rename columns in a dataframe
 def renamecolumns(df, column_mapping,drop_columns):
@@ -146,6 +152,23 @@ def merge_dataframes_both(left_df, right_df, left_key, right_key):
     merged_df = pd.merge(left_df, right_df, how='outer', left_on=left_key, right_on=right_key, indicator=True)
     return merged_df[merged_df['_merge'] == 'both']
 
+
+# function to merge dataframes and filter to records only in the right dataframe
+def merge_dataframes_right(left_df, right_df, left_key, right_key):
+    merged_df = pd.merge(left_df, right_df, how='right', left_on=left_key, right_on=right_key)
+    return merged_df
+
+# function to merge dataframes and filter to records in both dataframes
+def merge_dataframes_inner(left_df, right_df, left_key, right_key):
+    merged_df = pd.merge(left_df, right_df, how='inner', left_on=left_key, right_on=right_key)
+    return merged_df
+
+# function to merge dataframes and filter to records in either dataframe
+def merge_dataframes_outer(left_df, right_df, left_key, right_key):
+    merged_df = pd.merge(left_df, right_df, how='outer', left_on=left_key, right_on=right_key)
+    return merged_df
+
+#
 # Helper function to transform regular data to sankey format
 # Returns data and layout as dictionary
 def genSankey(df,category_cols=[],value_cols='',title='Sankey Diagram'):
