@@ -1,0 +1,9 @@
+APN,YEAR,_merge,CommercialFloorArea_SqFt_x,Residential_Units_x,TouristAccommodation_Units_x,CommercialFloorArea_SqFt_y,Residential_Units_y,TouristAccommodation_Units_y
+1318-22-002-110,2012.0,left_only,0.0,0.0,24.0,,,
+1318-22-002-111,2012.0,left_only,0.0,0.0,25.0,,,
+1318-22-002-112,2012.0,left_only,0.0,0.0,25.0,,,
+031-241-24,2012.0,left_only,5443.0,0.0,0.0,,,
+031-241-25,2012.0,left_only,146.0,0.0,0.0,,,
+031-241-26,,right_only,,,,0.0,,
+031-241-025,,right_only,,,,0.0,,
+031-241-024,,right_only,,,,0.0,,
