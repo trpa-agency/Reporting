@@ -1,0 +1,91 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no" />
+    <title>Units Summary</title>
+
+    <link rel="stylesheet" href="https://js.arcgis.com/4.30/esri/themes/light/main.css" />
+    <script src="https://js.arcgis.com/4.30/"></script>
+
+    <style>
+      html,
+      body {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+    <script>
+      require([
+        "esri/layers/FeatureLayer",
+        "esri/widgets/FeatureTable"
+      ], (FeatureLayer, FeatureTable) => {
+
+        const featureLayer = new FeatureLayer({
+          url: "https://maps.trpa.org/server/rest/services/LTInfo_Monitoring/MapServer/66",
+          title: "Units Summary"
+        });
+
+        // Create the FeatureTable from the provided FeatureLayer
+        const featureTable = new FeatureTable({
+          layer: featureLayer,
+          multiSortEnabled: true,
+          visibleElements: {selectionColumn: false},
+          tableTemplate: { // autocastable to TableTemplate
+          // The table template's columnTemplates are used to determine which attributes are shown in the table
+					  columnTemplates: [ // Array of either FieldColumnTemplates or GroupColumnTemplates
+            { // autocastable to FieldColumnTemplate
+              type: "field",
+              fieldName: "OBJECTID",
+              label: "ID",
+              // This field will not be shown in the table
+              visible: false
+            },
+            {
+              type: "field",
+              fieldName: "Type",
+              label: "Type"
+            },
+            {
+              type: "field",
+              fieldName: "Existing",
+              label: "Existing",
+            // The table will be sorted by this column
+              // in ascending order
+              direction: "asc", // This is required for initial sorting
+              initialSortPriority: 0 // This columns get priority
+            //   visible: false
+            },
+            {
+              type: "field",
+              fieldName: "Banked",
+              label: "Banked"
+            },
+            {
+              type: "field",
+              fieldName: "Remaining",
+              label: "Remaining"
+            },
+            {
+              type: "field",
+              fieldName: "Year",
+              label: "Year"
+            }
+          ]
+          },
+          container: document.getElementById("tableDiv")
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <div id="tableDiv"></div>
+    </div>
+  </body>
+</html>
