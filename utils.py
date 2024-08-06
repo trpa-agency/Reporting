@@ -2,7 +2,7 @@
 from pathlib import Path
 import pandas as pd
 import plotly.express as px
-from arcgis.features import FeatureLayer, GeoAccessor, GeoSeriesAccessor
+# from arcgis.features import FeatureLayer, GeoAccessor, GeoSeriesAccessor
 import arcpy
 import pytz
 from datetime import datetime
