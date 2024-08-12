@@ -2,11 +2,23 @@
 from pathlib import Path
 import pandas as pd
 import plotly.express as px
-# from arcgis.features import FeatureLayer, GeoAccessor, GeoSeriesAccessor
+from arcgis.features import FeatureLayer, GeoAccessor
 import arcpy
 import pytz
 from datetime import datetime
-from time import strftime 
+from time import strftime
+
+### Functions ###
+# time a function function
+## use as decorator @timer
+def timer(func):
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        print(f"Function {func.__name__} took {end_time - start_time} seconds to execute.")
+        return result
+    return wrapper
 
 # Reads in csv file
 def read_file(path_file):
@@ -233,3 +245,25 @@ def genSankey(df,category_cols=[],value_cols='',title='Sankey Diagram'):
        
     fig = dict(data=[data], layout=layout)
     return fig
+
+@timer
+def fieldJoinCalc_multikey(updateFC, updateFieldsList_key, updateFieldsList_value, sourceFC, sourceFieldsList_key, sourceFieldsList_value):
+    from time import strftime  
+    print ("Started data transfer: " + strftime("%Y-%m-%d %H:%M:%S"))
+    # Use list comprehension to build a dictionary from arcpy SearchCursor  
+    total_count=0
+    valueDict = {(r[0]+r[1]):(r[2]) for r in arcpy.da.SearchCursor(sourceFC, (sourceFieldsList_key + sourceFieldsList_value)) if r[0] is not None and r[1] is not None}  
+    with arcpy.da.UpdateCursor(updateFC, (updateFieldsList_key+ updateFieldsList_value)) as updateRows:  
+        for updateRow in updateRows:  
+            # store the Join value of the row being updated in a keyValue variable  
+            if updateRow[0] is not None and updateRow[1] is not None:
+                keyValue = updateRow[0]+updateRow[1]
+                # verify that the keyValue is in the Dictionary  
+                if keyValue in valueDict:
+                    total_count +=1
+                    if (total_count%1000)==0:
+                        print (f"Updating row {total_count}")
+                    # transfer the value stored under the keyValue from the dictionary to the updated field.  
+                    updateRow[2] = valueDict[keyValue]  
+                    updateRows.updateRow(updateRow)    
+    del valueDict
