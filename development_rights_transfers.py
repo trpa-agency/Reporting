@@ -30,10 +30,11 @@ sdeCollect = os.path.join(filePath, "Collection.sde")
 
 # web service and database paths
 # portal_ParcelMaster = 'https://maps.trpa.org/server/rest/services/Parcel_Master/FeatureServer/0'
-sde_ParcelMaster    = Path(sdeBase) / "sde.SDE.Parcels\\sde.SDE.Parcel_Master"
+sdeParcelMaster  = Path(sdeBase) / "sde.SDE.Parcels\\sde.SDE.Parcel_Master"
+sdeParcelHistory = Path(sdeBase) / "sde.SDE.Parcels\\sde.SDE.Parcel_History"
 # get spatially enabled dataframes
-sdfParcels = pd.DataFrame.spatial.from_featureclass(sde_ParcelMaster)
-
+sdfParcels       = pd.DataFrame.spatial.from_featureclass(sdeParcelMaster)
+sdfParcelHistory = pd.DataFrame.spatial.from_featureclass(sdeParcelHistory)
 # Development Rights Transacted and Banked as a DataFrame
 dfDevRightTransacted = pd.read_json("https://www.laketahoeinfo.org/WebServices/GetTransactedAndBankedDevelopmentRights/JSON/e17aeb86-85e3-4260-83fd-a2b32501c476")
 
