@@ -1,10 +1,7 @@
 import pandas as pd
-import os
 import pathlib
 import arcpy
-from arcgis.features import GeoAccessor
-from utils import *
-from datetime import datetime
+from arcgis.features import FeatureLayer, GeoAccessor
 
 # Set up environment
 arcpy.env.workspace = 'memory'
@@ -12,23 +9,109 @@ arcpy.env.overwriteOutput = True
 arcpy.env.outputCoordinateSystem = arcpy.SpatialReference(26910)
 
 # Paths
-local_path = pathlib.Path().absolute()
-data_dir   = local_path.parents[0] / 'Reporting/data/raw_data'
-out_dir    = local_path.parents[0] / 'Reporting/data/processed_data'
+# local_path = pathlib.Path().absolute()
+# data_dir   = local_path.parents[0] / 'Reporting/data/raw_data'
+# out_dir    = local_path.parents[0] / 'Reporting/data/processed_data'
 local_gdb = pathlib.Path(r"C:\GIS\Scratch.gdb")
-filePath = "F:/GIS/PARCELUPDATE/Workspace/"
-sdeBase    = os.path.join(filePath, "Vector.sde")
-
+# sdeBase   = pathlib.Path(r"F:\GIS\DB_CONNECT\Vector.sde")
 # Feature class paths
-sdeParcelMaster  = pathlib.Path(sdeBase) / "sde.SDE.Parcels\\sde.SDE.Parcel_Master"
-sdeParcelHistory = pathlib.Path(sdeBase) / "sde.SDE.Parcels\\sde.SDE.Parcel_History"
+# sdeParcelMaster  = pathlib.Path(sdeBase) / "sde.SDE.Parcels\\sde.SDE.Parcel_Master"
+# sdeParcelHistory = pathlib.Path(sdeBase) / "sde.SDE.Parcels\\sde.SDE.Parcel_History"
 
-# Load data
-sdfParcels       = pd.DataFrame.spatial.from_featureclass(sdeParcelMaster)
-sdfParcelHistory = pd.DataFrame.spatial.from_featureclass(sdeParcelHistory)
+# feature service urls
+parcel_master  = "https://maps.trpa.org/server/rest/services/Parcels/FeatureServer/0"
+parcel_history = "https://maps.trpa.org/server/rest/services/AllParcels/MapServer/3"
 
+## Functions ##
+
+# Gets spatially enabled dataframe from TRPA server
+# Gets data from the TRPA server
+def get_fs_data(service_url):
+    feature_layer = FeatureLayer(service_url)
+    query_result = feature_layer.query()
+    # Convert the query result to a list of dictionaries
+    feature_list = query_result.features
+    # Create a pandas DataFrame from the list of dictionaries
+    all_data = pd.DataFrame([feature.attributes for feature in feature_list])
+    # return data frame
+    return all_data
+
+def get_sdf_from_feature_layer(url: str, where: str = "1=1", out_fields: str = "*", spatial_reference: int = 26910):
+    try:
+        fl = FeatureLayer(url)
+        features = fl.query(where=where, out_fields=out_fields, out_sr=spatial_reference, return_geometry=True)
+        return features.sdf
+    except Exception as e:
+        print(f"Error fetching data from feature layer: {e}")
+        return pd.DataFrame()
+
+# sending recieving field
+def classify_sending_receiving(record_type):
+    if "Receiving Parcel" in record_type:
+        return "Receiving"
+    elif "Sending Parcel" in record_type:
+        return "Sending"
+    return "Unknown"
+
+# Define APN update logic
+def get_new_apn(old_apn, parcel_history):
+    row = parcel_history[parcel_history['APN'] == old_apn]
+    if row.empty:
+        return None
+    row = row.iloc[0]
+    if pd.notna(row['APN_Current']):
+        return row['APN_Current']
+    if pd.notna(row['APNs_Current']):
+        apns = [apn.strip() for apn in row['APNs_Current'].split(',')]
+        return apns if len(apns) > 1 else apns[0]
+    return None
+
+def get_new_apns(df, parcel_history):
+    df['NewAPN'] = df['APN'].apply(lambda x: get_new_apn(x, parcel_history))
+    return df
+def get_counterpart_sensitivity(row):
+    if row['SendingVsReceiving'] == 'Receiving':
+        return apn_to_sensitivity.get(row['SendingParcel'], 'Unknown')
+    elif row['SendingVsReceiving'] == 'Sending':
+        return apn_to_sensitivity.get(row['ReceivingParcel'], 'Unknown')
+    return 'Unknown'
+
+def classify_sensitivity_transition(row):
+    if row['SendingVsReceiving'] == 'Sending':
+        return f"From {row['LandCapabilityCategory']} to {row['CounterpartSensitivity']}"
+    elif row['SendingVsReceiving'] == 'Receiving':
+        return f"From {row['CounterpartSensitivity']} to {row['LandCapabilityCategory']}"
+    return 'Unknown'
+
+def get_counterpart_towncenter(row):
+    if row['SendingVsReceiving'] == 'Receiving':
+        return apn_to_towncenter.get(row['SendingParcel'], 'Unknown')
+    elif row['SendingVsReceiving'] == 'Sending':
+        return apn_to_towncenter.get(row['ReceivingParcel'], 'Unknown')
+    return 'Unknown'
+
+def classify_towncenter_transition(row):
+    if row['SendingVsReceiving'] == 'Sending':
+        return f"From {row['LOCATION_TO_TOWNCENTER']} to {row['CounterpartTownCenter']}"
+    elif row['SendingVsReceiving'] == 'Receiving':
+        return f"From {row['CounterpartTownCenter']} to {row['LOCATION_TO_TOWNCENTER']}"
+    return 'Unknown'
+
+def build_land_towncenter_combo(row):
+    sending_sens = row['LandCapabilityCategory']
+    sending_loc = row['LOCATION_TO_TOWNCENTER']
+    receiving_sens = row['CounterpartSensitivity']
+    receiving_loc = row['CounterpartTownCenter']
+    if pd.isna(sending_sens) or pd.isna(sending_loc) or pd.isna(receiving_sens) or pd.isna(receiving_loc):
+        return 'Unknown'
+    return f"Sending: {sending_sens} ({sending_loc}) → Receiving: {receiving_sens} ({receiving_loc})"
+
+# Load data to dataframes
+sdfParcels           = get_fs_data(parcel_master)
+sdfParcelHistory     = get_fs_data(parcel_history)
 dfDevRightTransacted = pd.read_json("https://www.laketahoeinfo.org/WebServices/GetTransactedAndBankedDevelopmentRights/JSON/e17aeb86-85e3-4260-83fd-a2b32501c476")
 
+# dataframe of development rights transactions
 df = dfDevRightTransacted[['APN',
                            'RecordType',
                            'DevelopmentRight',
@@ -69,6 +152,7 @@ record_types = ['Conversion With Transfer Receiving Parcel',
                 'Conversion With Transfer Sending Parcel',
                 'Transfer Receiving Parcel', 
                 'Transfer Sending Parcel']
+
 df = df[df['RecordType'].isin(record_types)]
 df = df[df['TransactionApprovalDate'] != '']
 
@@ -86,23 +170,6 @@ df.loc[df['IPESScore'] > 725, 'LandCapabilityCategory'] = 'Non-Sensitive'
 # Merge with parcels
 df = pd.merge(df, parcels, on='APN', how='left')
 
-# Define APN update logic
-def get_new_apn(old_apn, parcel_history):
-    row = parcel_history[parcel_history['APN'] == old_apn]
-    if row.empty:
-        return None
-    row = row.iloc[0]
-    if pd.notna(row['APN_Current']):
-        return row['APN_Current']
-    if pd.notna(row['APNs_Current']):
-        apns = [apn.strip() for apn in row['APNs_Current'].split(',')]
-        return apns if len(apns) > 1 else apns[0]
-    return None
-
-def get_new_apns(df, parcel_history):
-    df['NewAPN'] = df['APN'].apply(lambda x: get_new_apn(x, parcel_history))
-    return df
-
 # Apply to missing parcel matches
 dfNoAPN = df[df['SHAPE'].isnull()][['APN']].drop_duplicates()
 dfNoAPN = get_new_apns(dfNoAPN, sdfParcelHistory)
@@ -117,60 +184,17 @@ df = pd.merge(df, parcels, on='APN', how='left', suffixes=('', '_fixed'))
 df.update(df.filter(like='_fixed'))
 df.drop(columns=df.filter(like='_fixed').columns, inplace=True)
 
-# Transformation columns
-def classify_sending_receiving(record_type):
-    if "Receiving Parcel" in record_type:
-        return "Receiving"
-    elif "Sending Parcel" in record_type:
-        return "Sending"
-    return "Unknown"
-
+# classify sending and receiving parcels in new field
 df['SendingVsReceiving'] = df['RecordType'].apply(classify_sending_receiving)
 
 apn_to_sensitivity = df.set_index('APN')['LandCapabilityCategory'].to_dict()
-apn_to_towncenter = df.set_index('APN')['LOCATION_TO_TOWNCENTER'].to_dict()
+apn_to_towncenter  = df.set_index('APN')['LOCATION_TO_TOWNCENTER'].to_dict()
 
-def get_counterpart_sensitivity(row):
-    if row['SendingVsReceiving'] == 'Receiving':
-        return apn_to_sensitivity.get(row['SendingParcel'], 'Unknown')
-    elif row['SendingVsReceiving'] == 'Sending':
-        return apn_to_sensitivity.get(row['ReceivingParcel'], 'Unknown')
-    return 'Unknown'
-
-def classify_sensitivity_transition(row):
-    if row['SendingVsReceiving'] == 'Sending':
-        return f"From {row['LandCapabilityCategory']} to {row['CounterpartSensitivity']}"
-    elif row['SendingVsReceiving'] == 'Receiving':
-        return f"From {row['CounterpartSensitivity']} to {row['LandCapabilityCategory']}"
-    return 'Unknown'
-
-def get_counterpart_towncenter(row):
-    if row['SendingVsReceiving'] == 'Receiving':
-        return apn_to_towncenter.get(row['SendingParcel'], 'Unknown')
-    elif row['SendingVsReceiving'] == 'Sending':
-        return apn_to_towncenter.get(row['ReceivingParcel'], 'Unknown')
-    return 'Unknown'
-
-def classify_towncenter_transition(row):
-    if row['SendingVsReceiving'] == 'Sending':
-        return f"From {row['LOCATION_TO_TOWNCENTER']} to {row['CounterpartTownCenter']}"
-    elif row['SendingVsReceiving'] == 'Receiving':
-        return f"From {row['CounterpartTownCenter']} to {row['LOCATION_TO_TOWNCENTER']}"
-    return 'Unknown'
-
-def build_land_towncenter_combo(row):
-    sending_sens = row['LandCapabilityCategory']
-    sending_loc = row['LOCATION_TO_TOWNCENTER']
-    receiving_sens = row['CounterpartSensitivity']
-    receiving_loc = row['CounterpartTownCenter']
-    if pd.isna(sending_sens) or pd.isna(sending_loc) or pd.isna(receiving_sens) or pd.isna(receiving_loc):
-        return 'Unknown'
-    return f"Sending: {sending_sens} ({sending_loc}) → Receiving: {receiving_sens} ({receiving_loc})"
-
+# apply transformations to get sensitivity and town center values
 df['CounterpartSensitivity'] = df.apply(get_counterpart_sensitivity, axis=1)
 df['Sensitivity_Transition'] = df.apply(classify_sensitivity_transition, axis=1)
-df['CounterpartTownCenter'] = df.apply(get_counterpart_towncenter, axis=1)
-df['TownCenter_Transition'] = df.apply(classify_towncenter_transition, axis=1)
+df['CounterpartTownCenter']  = df.apply(get_counterpart_towncenter, axis=1)
+df['TownCenter_Transition']  = df.apply(classify_towncenter_transition, axis=1)
 df['LandSensitivity_and_TownCenter_Transition'] = df.apply(build_land_towncenter_combo, axis=1)
 
 # Export to feature class
