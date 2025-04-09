@@ -25,6 +25,17 @@ parcel_history = "https://maps.trpa.org/server/rest/services/AllParcels/MapServe
 ## Functions ##
 
 # Gets spatially enabled dataframe from TRPA server
+# Gets data from the TRPA server
+def get_fs_data(service_url):
+    feature_layer = FeatureLayer(service_url)
+    query_result = feature_layer.query()
+    # Convert the query result to a list of dictionaries
+    feature_list = query_result.features
+    # Create a pandas DataFrame from the list of dictionaries
+    all_data = pd.DataFrame([feature.attributes for feature in feature_list])
+    # return data frame
+    return all_data
+
 def get_sdf_from_feature_layer(url: str, where: str = "1=1", out_fields: str = "*", spatial_reference: int = 26910):
     try:
         fl = FeatureLayer(url)
@@ -96,8 +107,8 @@ def build_land_towncenter_combo(row):
     return f"Sending: {sending_sens} ({sending_loc}) → Receiving: {receiving_sens} ({receiving_loc})"
 
 # Load data to dataframes
-sdfParcels           = get_sdf_from_feature_layer(parcel_master)
-sdfParcelHistory     = get_sdf_from_feature_layer(parcel_history)
+sdfParcels           = get_fs_data(parcel_master)
+sdfParcelHistory     = get_fs_data(parcel_history)
 dfDevRightTransacted = pd.read_json("https://www.laketahoeinfo.org/WebServices/GetTransactedAndBankedDevelopmentRights/JSON/e17aeb86-85e3-4260-83fd-a2b32501c476")
 
 # dataframe of development rights transactions
