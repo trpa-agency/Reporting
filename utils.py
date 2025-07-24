@@ -7,19 +7,10 @@ import arcpy
 import pytz
 from datetime import datetime
 from time import strftime
-
+import os
 
 def gdb_table_to_df(table_path):
-    """
-    Convert a table from a file geodatabase to a pandas DataFrame.
 
-    Parameters:
-        table_path (str): Full path to the table in the .gdb, e.g.
-                          r'C:\\path\\to\\your.gdb\\TableName'
-
-    Returns:
-        pd.DataFrame: Table contents as a DataFrame
-    """
     if not os.path.exists(os.path.dirname(table_path)):
         raise FileNotFoundError(f"GDB not found: {os.path.dirname(table_path)}")
     
