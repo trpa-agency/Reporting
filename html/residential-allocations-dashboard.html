@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Lake Tahoe EIP – Residential Allocations Dashboard</title>
+<title>Tahoe – Residential Allocations</title>
 
 <!-- Google Fonts: Lexend Deca -->
 <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;600;700&display=swap" rel="stylesheet"/>
@@ -427,8 +427,8 @@
 <!-- Tab Nav -->
 <div class="tab-nav-wrapper">
   <button class="tab-btn active" onclick="switchTab('charts', this)">Charts</button>
-  <button class="tab-btn" onclick="switchTab('table', this)">Data Table</button>
   <button class="tab-btn" onclick="switchTab('map', this)">Map</button>
+  <button class="tab-btn" onclick="switchTab('table', this)">Data Table</button>
 </div>
 
 <!-- Charts Tab -->
@@ -472,6 +472,28 @@
   </div>
 </div>
 
+<!-- Map Tab -->
+<div class="tab-panel" id="tab-map">
+  <div class="filter-bar">
+    <label>Year</label>
+    <select id="filter-year-map" onchange="applyMapFilters()">
+      <option value="all">All Years</option>
+    </select>
+    <label>Jurisdiction</label>
+    <select id="filter-juris-map" onchange="applyMapFilters()">
+      <option value="all">All Jurisdictions</option>
+    </select>
+    <label>Status</label>
+    <select id="filter-status-map" onchange="applyMapFilters()">
+      <option value="all">All Statuses</option>
+      <option value="Allocated">Allocated</option>
+      <option value="Unallocated">Unallocated</option>
+    </select>
+    <div class="filter-count" id="filter-count-map"><strong>—</strong> parcels matched</div>
+  </div>
+  <div id="map-view" style="height:560px;border-radius:6px;overflow:hidden;"></div>
+</div>
+
 <!-- Table Tab -->
 <div class="tab-panel" id="tab-table">
   <div class="filter-bar">
@@ -494,29 +516,6 @@
     <button class="dl-btn" onclick="downloadCSV('agg')">&#11015; Download County Totals</button>
   </div>
   <div id="grid-container" class="ag-theme-alpine"></div>
-</div>
-
-
-<!-- Map Tab -->
-<div class="tab-panel" id="tab-map">
-  <div class="filter-bar">
-    <label>Year</label>
-    <select id="filter-year-map" onchange="applyMapFilters()">
-      <option value="all">All Years</option>
-    </select>
-    <label>Jurisdiction</label>
-    <select id="filter-juris-map" onchange="applyMapFilters()">
-      <option value="all">All Jurisdictions</option>
-    </select>
-    <label>Status</label>
-    <select id="filter-status-map" onchange="applyMapFilters()">
-      <option value="all">All Statuses</option>
-      <option value="Allocated">Allocated</option>
-      <option value="Unallocated">Unallocated</option>
-    </select>
-    <div class="filter-count" id="filter-count-map"><strong>—</strong> parcels matched</div>
-  </div>
-  <div id="map-view" style="height:560px;border-radius:6px;overflow:hidden;"></div>
 </div>
 
 <script>
@@ -805,7 +804,7 @@ function switchTab(name, btn) {
 // ─────────────────────────────────────────
 // To swap to a JSON web service, replace DATA_URL with the service endpoint
 // and adjust the parse() function to match its response schema.
-const DATA_URL = '../data/raw_data/residentialAllocationGridExport.csv';
+const DATA_URL = 'https://raw.githubusercontent.com/trpa-agency/Reporting/master/data/raw_data/residentialAllocationGridExport.csv';
 
 const POOL_TO_JURISDICTION = {
   'Residential Allocation - Douglas County':            'Douglas County',
@@ -937,7 +936,14 @@ function initMap() {
       definitionExpression: '1=0',
       popupTemplate: {
         title: 'Parcel {APN}',
-        content: 'APN: {APN}'
+        content: function(feature) {
+          const apn = feature.graphic.attributes.APN || '';
+          const matches = rawData.filter(r => r.apn === apn);
+          if (!matches.length) return 'APN: ' + apn;
+          const years    = [...new Set(matches.map(r => r.year))].sort().join(', ');
+          const statuses = [...new Set(matches.map(r => r.status))].join(', ');
+          return 'APN: ' + apn + '<br>Year(s): ' + years + '<br>Status: ' + statuses;
+        }
       }
     });
 
@@ -964,6 +970,7 @@ function initMap() {
       },
       featureReduction: {
         type: 'cluster',
+        maxScale: 144448,
         clusterRadius: '80px',
         clusterMinSize: 24,
         clusterMaxSize: 60,
