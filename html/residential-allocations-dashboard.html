@@ -286,6 +286,71 @@
   .dl-btn:hover { background: var(--blue); }
 
   /* ── AG Grid container ── */
+  /* ── Drawdown summary table ── */
+  .drawdown-table-wrap {
+    margin-bottom: 24px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+  .drawdown-table-wrap h4 {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #fff;
+    background: var(--navy);
+    padding: 12px 18px;
+    margin: 0;
+  }
+  table.dd-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+    background: var(--surface);
+  }
+  table.dd-table thead th {
+    background: var(--bg);
+    color: var(--text-mid);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  table.dd-table thead th.num { text-align: right; }
+  table.dd-table tbody td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-dark);
+  }
+  table.dd-table tbody td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  table.dd-table tbody tr:last-child td { border-bottom: none; }
+  table.dd-table tbody tr:hover { background: #f0f4fa; }
+  table.dd-table .bar-cell { width: 140px; }
+  .dd-bar-track {
+    height: 8px;
+    background: #e8edf4;
+    border-radius: 4px;
+    overflow: hidden;
+    min-width: 80px;
+  }
+  .dd-bar-fill {
+    height: 100%;
+    background: var(--green);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+  .dd-pct { font-size: 0.7rem; color: var(--text-mid); margin-top: 2px; }
+  .tfoot-row td {
+    background: var(--bg);
+    font-weight: 700;
+    border-top: 2px solid var(--border);
+  }
+
   #grid-container {
     height: 540px;
     width: 100%;
@@ -457,8 +522,8 @@
       <div id="chart-jurisdiction" style="height:340px;"></div>
     </div>
     <div class="chart-card">
-      <h3>By Issuance Year</h3>
-      <p>Annual distribution across all allocation statuses</p>
+      <h3>Allocation Drawdown by Pool</h3>
+      <p>Remaining allocations per jurisdiction — running total decreasing since 2013 Regional Plan</p>
       <div id="chart-year" style="height:340px;"></div>
     </div>
   </div>
@@ -515,6 +580,23 @@
     <button class="dl-btn" onclick="downloadCSV('raw')">&#11015; Download Raw CSV</button>
     <button class="dl-btn" onclick="downloadCSV('agg')">&#11015; Download County Totals</button>
   </div>
+  <div class="drawdown-table-wrap">
+    <h4>Drawdown by Jurisdiction Pool — 2013 Regional Plan</h4>
+    <table class="dd-table" id="dd-summary-table">
+      <thead>
+        <tr>
+          <th>Pool / Jurisdiction</th>
+          <th class="num">Authorized</th>
+          <th class="num">Allocated</th>
+          <th class="num">Remaining</th>
+          <th class="bar-cell">% Drawn</th>
+        </tr>
+      </thead>
+      <tbody id="dd-summary-body"></tbody>
+      <tfoot id="dd-summary-foot"></tfoot>
+    </table>
+  </div>
+
   <div id="grid-container" class="ag-theme-alpine"></div>
 </div>
 
@@ -644,31 +726,45 @@ function chartByJurisdiction(data) {
   }, { responsive: true, displayModeBar: false });
 }
 
-function chartByYear(data) {
-  const activeYears = YEARS.filter(y => data.some(r => r.year === y));
-  const xLabels = activeYears.map(String);
-  const yTotals = activeYears.map(yr => data.filter(r => r.year === yr).length);
+function chartDrawdown(data) {
+  // Pool totals are fixed (2013 RP authorization). Use full rawData, 2013+ only.
+  // Respect only the jurisdiction filter — year filter doesn't apply to a trend.
+  const jurisVal = document.querySelector('#filter-juris').value;
+  const base = rawData.filter(r => r.year >= 2013);
+  const activeJuris = JURISDICTIONS.filter(j =>
+    (jurisVal === 'all' || j === jurisVal) && base.some(r => r.jurisdiction === j)
+  );
+  const years = [2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025];
 
-  const traces = STATUSES.map(status => {
-    const y = activeYears.map(yr => data.filter(r => r.year === yr && r.status === status).length);
-    const customdata = activeYears.map((yr, i) => {
-      const alloc = data.filter(r => r.year === yr && r.status === 'Allocated').length;
-      return [yTotals[i], yTotals[i] ? (data.filter(r => r.year === yr && r.status === status).length / yTotals[i] * 100) : 0, alloc];
+  const traces = activeJuris.map((juris, idx) => {
+    const total = base.filter(r => r.jurisdiction === juris).length;
+    let cumIssued = 0;
+    const y = [], customdata = [];
+    years.forEach(yr => {
+      const issued = base.filter(r => r.year === yr && r.jurisdiction === juris && r.status === 'Allocated').length;
+      cumIssued += issued;
+      const remaining = total - cumIssued;
+      y.push(remaining);
+      customdata.push([remaining, total, cumIssued, total ? ((cumIssued / total) * 100).toFixed(1) : 0]);
     });
+    const short = JURIS_SHORT[juris] || juris;
     return {
-      name: status, type: 'bar',
-      x: xLabels, y, customdata,
-      marker: { color: COLORS[status] },
-      hovertemplate: '<b>%{y:,}</b> %{data.name} (%{customdata[1]:.1f}%)<extra>%{x}</extra>',
+      name: short, type: 'scatter', mode: 'lines',
+      fill: 'tonexty', stackgroup: 'one',
+      x: years.map(String), y, customdata,
+      line: { color: JURIS_COLORS[idx % JURIS_COLORS.length], width: 0.5 },
+      fillcolor: JURIS_COLORS[idx % JURIS_COLORS.length] + 'cc',
+      hovertemplate: '<b>%{customdata[0]:,}</b> remaining of %{customdata[1]:,} · %{customdata[3]}% drawn<extra>' + short + '</extra>',
     };
   });
 
   Plotly.purge('chart-year');
   Plotly.newPlot('chart-year', traces, {
     ...plotlyBase,
-    barmode: 'stack',
     hovermode: 'x unified',
     xaxis: { ...plotlyBase.xaxis, type: 'category', tickangle: -45 },
+    yaxis: { ...plotlyBase.yaxis, title: { text: 'Remaining Allocations', font: { size: 11 } }, rangemode: 'tozero' },
+    legend: { orientation: 'h', y: -0.25, font: { size: 11 } },
   }, { responsive: true, displayModeBar: false });
 }
 function chartTrend(data) {
@@ -711,7 +807,7 @@ function chartTrend(data) {
 }
 function renderCharts(filtered) {
   chartByJurisdiction(filtered);
-  chartByYear(filtered);
+  chartDrawdown(filtered);
   chartTrend(filtered);
 }
 
@@ -757,6 +853,64 @@ function initGrid() {
   gridApi = agGrid.createGrid(container, gridOptions);
 }
 
+// ─────────────────────────────────────────
+// DRAWDOWN SUMMARY TABLE
+// ─────────────────────────────────────────
+function renderDrawdownTable() {
+  const base = rawData.filter(r => r.year >= 2013);
+  const jurisVal = document.querySelector('#filter-juris-tbl').value;
+  const pools = [
+    { label: 'TRPA Pool',                  juris: 'TRPA' },
+    { label: 'El Dorado County',           juris: 'El Dorado County' },
+    { label: 'Placer County',              juris: 'Placer County' },
+    { label: 'City of South Lake Tahoe',   juris: 'City of South Lake Tahoe' },
+    { label: 'Douglas County',             juris: 'Douglas County' },
+    { label: 'Washoe County',              juris: 'Washoe County' },
+  ];
+
+  const tbody = document.querySelector('#dd-summary-body');
+  const tfoot = document.querySelector('#dd-summary-foot');
+  tbody.innerHTML = '';
+
+  let grandTotal = 0, grandAlloc = 0;
+
+  pools.forEach(p => {
+    if (jurisVal !== 'all' && p.juris !== jurisVal) return;
+    const rows     = base.filter(r => r.jurisdiction === p.juris);
+    const total    = rows.length;
+    const alloc    = rows.filter(r => r.status === 'Allocated').length;
+    const remain   = total - alloc;
+    const pct      = total ? (alloc / total * 100) : 0;
+    grandTotal += total; grandAlloc += alloc;
+
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td>' + p.label + '</td>' +
+      '<td class="num">' + total.toLocaleString() + '</td>' +
+      '<td class="num" style="color:var(--allocated);font-weight:600">' + alloc.toLocaleString() + '</td>' +
+      '<td class="num">' + remain.toLocaleString() + '</td>' +
+      '<td class="bar-cell">' +
+        '<div class="dd-bar-track"><div class="dd-bar-fill" style="width:' + pct.toFixed(1) + '%"></div></div>' +
+        '<div class="dd-pct">' + pct.toFixed(1) + '%</div>' +
+      '</td>';
+    tbody.appendChild(tr);
+  });
+
+  const grandRemain = grandTotal - grandAlloc;
+  const grandPct    = grandTotal ? (grandAlloc / grandTotal * 100) : 0;
+  tfoot.innerHTML =
+    '<tr class="tfoot-row">' +
+      '<td>Total</td>' +
+      '<td class="num">' + grandTotal.toLocaleString() + '</td>' +
+      '<td class="num" style="color:var(--allocated)">' + grandAlloc.toLocaleString() + '</td>' +
+      '<td class="num">' + grandRemain.toLocaleString() + '</td>' +
+      '<td class="bar-cell">' +
+        '<div class="dd-bar-track"><div class="dd-bar-fill" style="width:' + grandPct.toFixed(1) + '%"></div></div>' +
+        '<div class="dd-pct">' + grandPct.toFixed(1) + '%</div>' +
+      '</td>' +
+    '</tr>';
+}
+
 function applyTableFilters() {
   const { year, juris, status } = getTableFilters();
   const filtered = rawData.filter(r =>
@@ -767,6 +921,7 @@ function applyTableFilters() {
   if (gridApi) gridApi.setGridOption('rowData', filtered);
   const el = document.querySelector('#filter-count-tbl');
   if (el) el.innerHTML = '<strong>' + filtered.length.toLocaleString() + '</strong> records';
+  renderDrawdownTable();
 }
 
 // ─────────────────────────────────────────
@@ -878,6 +1033,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   updateKPIs(rawData);
   renderCharts(rawData);
   initGrid();
+  renderDrawdownTable();
 });
 // ─────────────────────────────────────────
 // MAP (ArcGIS JS API 4.29)
