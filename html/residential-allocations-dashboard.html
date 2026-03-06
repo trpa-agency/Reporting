@@ -108,7 +108,7 @@
   /* ── KPI row ── */
   .kpi-row {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 0;
     background: var(--navy);
     border-top: 1px solid rgba(255,255,255,0.08);
@@ -136,8 +136,10 @@
     color: #fff;
     margin-bottom: 5px;
   }
-  .kpi-card.allocated .kpi-value  { color: var(--green); }
-  .kpi-card.unalloc   .kpi-value  { color: var(--orange); }
+  .kpi-card.authorized .kpi-value { color: #fff; }
+  .kpi-card.trpa   .kpi-value  { color: var(--blue); }
+  .kpi-card.juris  .kpi-value  { color: var(--green); }
+  .kpi-card.private .kpi-value { color: var(--orange); }
   .kpi-sub {
     font-size: 0.7rem;
     color: #8a9bb2;
@@ -381,7 +383,7 @@
   @media (max-width: 960px) {
     .header-content { padding: 20px 24px 18px; }
     header h1 { font-size: 1.5rem; }
-    .kpi-row { grid-template-columns: 1fr 1fr; }
+    .kpi-row { grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; }
     .kpi-card { padding: 18px 24px; }
     .kpi-value { font-size: 1.8rem; }
     .chart-grid { grid-template-columns: 1fr; }
@@ -465,27 +467,32 @@
     <div class="header-meta">
       <div class="live-badge">Live Data</div><br>
       Tahoe Regional Planning Agency<br>
-      6 Jurisdictions &nbsp;·&nbsp; 2,112 Records &nbsp;·&nbsp; 2009–2026
+      6 Jurisdictions &nbsp;·&nbsp; 2,600 Authorized &nbsp;·&nbsp; 2012 Regional Plan
     </div>
   </div>
 </header>
 
 <!-- KPI Row -->
 <div class="kpi-row" id="kpi-row">
-  <div class="kpi-card">
-    <div class="kpi-label">Total Records</div>
-    <div class="kpi-value" id="kpi-total">—</div>
-    <div class="kpi-sub" id="kpi-total-sub">All years · all jurisdictions</div>
+  <div class="kpi-card authorized">
+    <div class="kpi-label">Total Authorized</div>
+    <div class="kpi-value">2,600</div>
+    <div class="kpi-sub">2012 Regional Plan &nbsp;·&nbsp; est. 2013</div>
   </div>
-  <div class="kpi-card allocated">
-    <div class="kpi-label">Allocated</div>
-    <div class="kpi-value" id="kpi-allocated">—</div>
-    <div class="kpi-sub" id="kpi-allocated-pct">—</div>
+  <div class="kpi-card trpa">
+    <div class="kpi-label">TRPA Pool</div>
+    <div class="kpi-value" id="kpi-trpa">—</div>
+    <div class="kpi-sub" id="kpi-trpa-sub">—</div>
   </div>
-  <div class="kpi-card unalloc">
-    <div class="kpi-label">Unallocated</div>
-    <div class="kpi-value" id="kpi-unalloc">—</div>
-    <div class="kpi-sub" id="kpi-unalloc-pct">—</div>
+  <div class="kpi-card juris">
+    <div class="kpi-label">Jurisdiction Pool</div>
+    <div class="kpi-value" id="kpi-juris">—</div>
+    <div class="kpi-sub" id="kpi-juris-sub">—</div>
+  </div>
+  <div class="kpi-card private">
+    <div class="kpi-label">Allocated to Private</div>
+    <div class="kpi-value" id="kpi-private">—</div>
+    <div class="kpi-sub" id="kpi-private-sub">—</div>
   </div>
 </div>
 
@@ -606,6 +613,8 @@
 // ─────────────────────────────────────────
 let rawData = []; // populated by loadData()
 
+const TOTAL_AUTHORIZED = 2600; // fixed 2012 Regional Plan authorization
+
 const JURISDICTIONS = ['Douglas County','El Dorado County','Placer County','City of South Lake Tahoe','TRPA','Washoe County'];
 const YEARS = [2009,2011,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026];
 const STATUSES = ['Allocated','Unallocated'];
@@ -677,18 +686,39 @@ function populateFilters() {
 // ─────────────────────────────────────────
 // KPI CARDS
 // ─────────────────────────────────────────
-function updateKPIs(data) {
-  const total   = data.length;
-  const alloc   = data.filter(r => r.status === 'Allocated').length;
-  const unalloc = data.filter(r => r.status === 'Unallocated').length;
+function updateKPIs() {
+  // KPIs always reflect fixed 2013 RP pool totals — not affected by filters
+  const base = rawData.filter(r => r.year >= 2013);
 
-  document.querySelector('#kpi-total').textContent     = total.toLocaleString();
-  document.querySelector('#kpi-allocated').textContent = alloc.toLocaleString();
-  document.querySelector('#kpi-unalloc').textContent   = unalloc.toLocaleString();
+  // TRPA Pool
+  const trpaRows   = base.filter(r => r.jurisdiction === 'TRPA');
+  const trpaTotal  = trpaRows.length;
+  const trpaAlloc  = trpaRows.filter(r => r.status === 'Allocated').length;
+  const trpaRemain = trpaTotal - trpaAlloc;
 
-  const pct = v => total ? ((v/total)*100).toFixed(1) + '% of total' : '—';
-  document.querySelector('#kpi-allocated-pct').textContent = pct(alloc);
-  document.querySelector('#kpi-unalloc-pct').textContent   = pct(unalloc);
+  // Jurisdiction Pools (all non-TRPA)
+  const jurisRows   = base.filter(r => r.jurisdiction !== 'TRPA');
+  const jurisTotal  = jurisRows.length;
+  const jurisAlloc  = jurisRows.filter(r => r.status === 'Allocated').length;
+  const jurisRemain = jurisTotal - jurisAlloc;
+
+  // Allocated to Private = all units drawn from any pool (assigned to a parcel)
+  const totalAlloc = base.filter(r => r.status === 'Allocated').length;
+  const totalAuth  = base.length;
+  const pctDrawn   = totalAuth ? (totalAlloc / totalAuth * 100).toFixed(1) : '0';
+
+  document.querySelector('#kpi-trpa').textContent     = trpaAlloc.toLocaleString();
+  document.querySelector('#kpi-trpa-sub').textContent =
+    trpaRemain.toLocaleString() + ' of ' + trpaTotal + ' remaining';
+
+  document.querySelector('#kpi-juris').textContent     = jurisAlloc.toLocaleString();
+  document.querySelector('#kpi-juris-sub').textContent =
+    jurisRemain.toLocaleString() + ' of ' + jurisTotal.toLocaleString() + ' remaining';
+
+  const pctOfPlan = (totalAlloc / TOTAL_AUTHORIZED * 100).toFixed(1);
+  document.querySelector('#kpi-private').textContent     = totalAlloc.toLocaleString();
+  document.querySelector('#kpi-private-sub').textContent =
+    pctOfPlan + '% of 2,600 authorized';
 }
 
 // ─────────────────────────────────────────
@@ -930,7 +960,7 @@ function applyTableFilters() {
 function applyFilters() {
   const f = getFilters();
   const filtered = filterData(rawData, f);
-  updateKPIs(filtered);
+  updateKPIs();
   renderCharts(filtered);
   const el = document.querySelector('#filter-count-charts');
   if (el) el.innerHTML = '<strong>' + filtered.length.toLocaleString() + '</strong> records';
@@ -1030,7 +1060,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   showLoading(false);
   populateFilters();
-  updateKPIs(rawData);
+  updateKPIs();
   renderCharts(rawData);
   initGrid();
   renderDrawdownTable();
