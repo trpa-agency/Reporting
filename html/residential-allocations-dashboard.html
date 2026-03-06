@@ -270,17 +270,18 @@
   /* -- Download button -- */
   .dl-btn {
     font-family: 'Lexend Deca', sans-serif;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     font-weight: 700;
     letter-spacing: 0.04em;
+    text-transform: uppercase;
     padding: 7px 14px;
     background: var(--navy);
     color: #fff;
-    border: 1px solid rgba(255,255,255,0.15);
+    border: 1px solid rgba(11,31,65,0.3);
     border-radius: 4px;
     cursor: pointer;
-    transition: background 0.15s;
     white-space: nowrap;
+    transition: background 0.15s;
   }
   .dl-btn:hover { background: var(--blue); }
 
@@ -311,10 +312,64 @@
     to   { opacity: 1; transform: translateY(0); }
   }
 
+  /* ── Tablet (≤960px) ── */
   @media (max-width: 960px) {
+    .header-content { padding: 20px 24px 18px; }
+    header h1 { font-size: 1.5rem; }
     .kpi-row { grid-template-columns: 1fr 1fr; }
+    .kpi-card { padding: 18px 24px; }
+    .kpi-value { font-size: 1.8rem; }
     .chart-grid { grid-template-columns: 1fr; }
-    .header-content, .tab-nav-wrapper, .tab-panel { padding-left: 20px; padding-right: 20px; }
+    .tab-nav-wrapper { padding-left: 20px; padding-right: 20px; }
+    .tab-panel { padding: 24px 20px; }
+  }
+
+  /* ── Mobile (≤600px) ── */
+  @media (max-width: 600px) {
+    .header-content {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px 16px 14px;
+    }
+    .header-meta { text-align: left; }
+    header h1 { font-size: 1.25rem; }
+
+    .kpi-row { grid-template-columns: 1fr; }
+    .kpi-card {
+      padding: 14px 16px;
+      border-right: none;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .kpi-card:last-child { border-bottom: none; }
+    .kpi-value { font-size: 1.6rem; }
+
+    .tab-nav-wrapper {
+      padding-left: 0;
+      padding-right: 0;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .tab-btn {
+      padding: 12px 16px;
+      font-size: 0.7rem;
+      white-space: nowrap;
+    }
+
+    .tab-panel { padding: 16px; }
+
+    .filter-bar {
+      gap: 8px;
+    }
+    .filter-bar select { font-size: 0.75rem; }
+    .filter-count {
+      margin-left: 0;
+      width: 100%;
+    }
+
+    .chart-card { padding: 16px; }
+    #grid-container { height: 420px; }
+    #map-view { height: 380px !important; }
   }
 </style>
 </head>
@@ -435,6 +490,8 @@
       <option value="Unallocated">Unallocated</option>
     </select>
     <div class="filter-count" id="filter-count-tbl"><strong>2,112</strong> records</div>
+    <button class="dl-btn" onclick="downloadCSV('raw')">&#11015; Download Raw CSV</button>
+    <button class="dl-btn" onclick="downloadCSV('agg')">&#11015; Download County Totals</button>
   </div>
   <div id="grid-container" class="ag-theme-alpine"></div>
 </div>
@@ -457,8 +514,6 @@
       <option value="Allocated">Allocated</option>
       <option value="Unallocated">Unallocated</option>
     </select>
-    <button class="dl-btn" onclick="downloadCSV('raw')">&#11015; Download Raw CSV</button>
-    <button class="dl-btn" onclick="downloadCSV('agg')">&#11015; Download County Totals</button>
     <div class="filter-count" id="filter-count-map"><strong>—</strong> parcels matched</div>
   </div>
   <div id="map-view" style="height:560px;border-radius:6px;overflow:hidden;"></div>
