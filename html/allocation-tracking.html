@@ -79,6 +79,16 @@ header h1 span { color: var(--blue); }
 .juris-pill { padding: 3px 12px; border-radius: 20px; border: 1.5px solid var(--border); background: #fff; color: var(--text-mid); font-size: 0.72rem; font-family: 'Lexend Deca', sans-serif; cursor: pointer; transition: all 0.12s; }
 .juris-pill.active { background: var(--navy); border-color: var(--navy); color: #fff; }
 
+/* ── Year slider ── */
+.slider-wrap { display: flex; align-items: center; gap: 10px; }
+#year-slider { -webkit-appearance: none; appearance: none; width: 180px; height: 4px; border-radius: 2px; background: var(--border); outline: none; cursor: pointer; }
+#year-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--navy); border: 2px solid #fff; box-shadow: 0 1px 4px rgba(11,31,65,0.3); }
+#year-slider::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--navy); border: 2px solid #fff; }
+.slider-val { font-size: 1rem; font-weight: 700; color: var(--navy); min-width: 36px; }
+
+/* ── Two-chart grid ── */
+.chart-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 20px; }
+
 /* ── Sections / Cards ── */
 .section { padding: 24px 40px; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px 24px; box-shadow: var(--shadow); }
@@ -191,15 +201,28 @@ header h1 span { color: var(--blue); }
 <!-- Charts Tab -->
 <div class="tab-panel active" id="tab-charts">
   <div class="ctrl-bar">
+    <span class="ctrl-label">Through Year</span>
+    <div class="slider-wrap">
+      <input type="range" id="year-slider" min="2012" max="2025" step="1" value="2025" oninput="setSliderYear(this.value)">
+      <span class="slider-val" id="slider-val">2025</span>
+    </div>
+    <div class="ctrl-divider"></div>
     <span class="ctrl-label">Jurisdictions</span>
     <div class="juris-pills" id="juris-pills"></div>
     <span class="ctrl-count" id="chart-count"></span>
   </div>
   <div class="section">
-    <div class="card">
-      <h3 id="chart-title">Allocation Flow by Jurisdiction</h3>
-      <p  id="chart-sub">Units flowing from authorized pool through jurisdictions to private development &middot; toggle jurisdictions to focus</p>
-      <div id="main-chart" style="height:420px;"></div>
+    <div class="chart-grid">
+      <div class="card">
+        <h3>Allocation Flow</h3>
+        <p>Authorized &rarr; jurisdiction pools &rarr; development &nbsp;&middot;&nbsp; cumulative through <span id="sankey-year-label">2025</span></p>
+        <div id="sankey-chart" style="height:400px;"></div>
+      </div>
+      <div class="card">
+        <h3>Pool Status by Jurisdiction</h3>
+        <p>Allocated (green) &nbsp;&middot;&nbsp; Available in Pool (orange) &nbsp;&middot;&nbsp; Not Yet Assigned (gray)</p>
+        <div id="bar-chart" style="height:400px;"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -273,6 +296,7 @@ let resData       = [];   // residential records (loaded once)
 let cfaTauAllData = [];   // all CFA + TAU records (loaded once, filtered by type)
 let gridApi       = null;
 let activePills   = new Set();
+let sliderYear    = 2025;
 
 // ─────────────────────────────────────────
 // CONSTANTS
@@ -419,8 +443,8 @@ function updateKPIs() {
   document.querySelector('#kpi2-accent').style.background = tc[currentType];
   document.querySelector('#kpi2-bar').style.background    = tc[currentType];
 
-  // Only jurisdiction rows (exclude TRPA reserve for CFA/TAU)
-  const jurisRows = rawData.filter(r => !r.isTrpaReserve);
+  // Jurisdiction rows filtered by slider year
+  const jurisRows = getJurisRows(sliderYear);
   const allocated = sumQty(jurisRows.filter(r => r.status === 'Allocated'));
   const available = sumQty(jurisRows.filter(r => r.status === 'In Pool'));
   const inPools   = sumQty(jurisRows);
@@ -477,67 +501,158 @@ function togglePill(btn) {
   const j = btn.dataset.juris;
   activePills.has(j) ? activePills.delete(j) : activePills.add(j);
   btn.classList.toggle('active', activePills.has(j));
-  renderChart();
+  renderCharts();
 }
 
 // ─────────────────────────────────────────
-// CHART — stacked bar: Allocated + Available per jurisdiction, plus Not Assigned bar
+// YEAR SLIDER
 // ─────────────────────────────────────────
-const plotBase = {
-  font:          { family: 'Lexend Deca, sans-serif', color: '#0b1f41' },
-  paper_bgcolor: 'rgba(0,0,0,0)',
-  plot_bgcolor:  'rgba(0,0,0,0)',
-  margin:        { t: 16, r: 16, b: 60, l: 80 },
-  xaxis: { gridcolor: '#e8edf4', linecolor: '#d5dde8', tickfont: { size: 11 } },
-  yaxis: { gridcolor: '#e8edf4', linecolor: '#d5dde8', tickfont: { size: 11 }, rangemode: 'tozero' },
-  legend: { orientation: 'h', y: -0.2, font: { size: 11 } },
-  barmode: 'stack',
-  hovermode: 'x unified',
-};
+function setSliderYear(val) {
+  sliderYear = parseInt(val);
+  document.querySelector('#slider-val').textContent       = sliderYear;
+  document.querySelector('#sankey-year-label').textContent = sliderYear;
+  updateKPIs();
+  renderCharts();
+}
 
-function renderChart() {
-  const total     = TOTAL_AUTH[currentType];
-  const juris     = activeJurisOrder().filter(j => activePills.has(j));
-  const jurisRows = rawData.filter(r => !r.isTrpaReserve && r.jurisdiction);
-  const xLabels   = [...juris.map(j => JURIS_SHORT[j] || j), 'Not Assigned'];
+function initSlider() {
+  const years = rawData.map(r => r.year).filter(y => y > 0);
+  const maxY  = years.length ? Math.max(...years) : 2025;
+  sliderYear  = maxY;
+  const sl    = document.querySelector('#year-slider');
+  sl.max      = maxY;
+  sl.value    = maxY;
+  document.querySelector('#slider-val').textContent        = maxY;
+  document.querySelector('#sankey-year-label').textContent = maxY;
+}
 
-  const allocated   = juris.map(j => sumQty(jurisRows.filter(r => r.jurisdiction === j && r.status === 'Allocated')));
-  const available   = juris.map(j => sumQty(jurisRows.filter(r => r.jurisdiction === j && r.status === 'In Pool')));
-  const notAssigned = total - sumQty(jurisRows);
+// ─────────────────────────────────────────
+// FILTERED DATA HELPERS
+// ─────────────────────────────────────────
+function getJurisRows(yr) {
+  return rawData.filter(r => !r.isTrpaReserve && r.jurisdiction && r.year <= yr);
+}
 
+// ─────────────────────────────────────────
+// CHARTS
+// ─────────────────────────────────────────
+const plotFont  = { family: 'Lexend Deca, sans-serif', color: '#0b1f41' };
+const plotPaper = 'rgba(0,0,0,0)';
+
+function renderCharts() {
+  renderSankey();
+  renderBar();
+}
+
+function renderSankey() {
+  const total    = TOTAL_AUTH[currentType];
+  const yr       = sliderYear;
+  const allJuris = activeJurisOrder().filter(j => activePills.has(j));
+  const jRows    = getJurisRows(yr).filter(r => activePills.has(r.jurisdiction));
+
+  // Only include jurisdictions that have records in filtered set
+  const juris = allJuris.filter(j => jRows.some(r => r.jurisdiction === j));
+
+  // Node indices
+  const iAuth   = 0;
+  const iJ      = j => juris.indexOf(j) + 1;
+  const iNotYet = juris.length + 1;
+  const iAlloc  = juris.length + 2;
+  const iAvail  = juris.length + 3;
+
+  const nodeLabels = [
+    'Total Authorized',
+    ...juris.map(j => JURIS_SHORT[j] || j),
+    'Not Yet Assigned',
+    'Allocated to Development',
+    'Available in Pool',
+  ];
+  const nodeColors = [
+    '#0b1f41',
+    ...juris.map(() => '#007dc3'),
+    '#c8d4e3',
+    '#6ebe44',
+    '#f16022',
+  ];
+
+  const src = [], tgt = [], val = [], lnkColor = [];
+
+  juris.forEach(j => {
+    const qty = sumQty(jRows.filter(r => r.jurisdiction === j));
+    if (qty > 0) {
+      src.push(iAuth); tgt.push(iJ(j)); val.push(qty);
+      lnkColor.push('rgba(0,125,195,0.25)');
+    }
+    const allocQty = sumQty(jRows.filter(r => r.jurisdiction === j && r.status === 'Allocated'));
+    const availQty = sumQty(jRows.filter(r => r.jurisdiction === j && r.status === 'In Pool'));
+    if (allocQty > 0) { src.push(iJ(j)); tgt.push(iAlloc); val.push(allocQty); lnkColor.push('rgba(110,190,68,0.35)'); }
+    if (availQty > 0) { src.push(iJ(j)); tgt.push(iAvail); val.push(availQty); lnkColor.push('rgba(241,96,34,0.35)'); }
+  });
+
+  const notYet = total - sumQty(jRows);
+  if (notYet > 0) {
+    src.push(iAuth); tgt.push(iNotYet); val.push(notYet);
+    lnkColor.push('rgba(200,212,227,0.45)');
+  }
+
+  Plotly.react('sankey-chart', [{
+    type: 'sankey', orientation: 'h',
+    node: { pad: 14, thickness: 18, line: { color: '#d5dde8', width: 0.5 }, label: nodeLabels, color: nodeColors },
+    link: { source: src, target: tgt, value: val, color: lnkColor },
+  }], {
+    font: plotFont, paper_bgcolor: plotPaper,
+    margin: { t: 8, r: 8, b: 8, l: 8 },
+  }, { responsive: true, displayModeBar: false });
+}
+
+function renderBar() {
+  const total    = TOTAL_AUTH[currentType];
+  const yr       = sliderYear;
+  const juris    = activeJurisOrder().filter(j => activePills.has(j));
+  const jRows    = getJurisRows(yr);
+  // "Not Assigned" bar on the right
+  const xLabels  = [...juris.map(j => JURIS_SHORT[j] || j), 'Not Assigned'];
+
+  const allocated   = juris.map(j => sumQty(jRows.filter(r => r.jurisdiction === j && r.status === 'Allocated')));
+  const available   = juris.map(j => sumQty(jRows.filter(r => r.jurisdiction === j && r.status === 'In Pool')));
+  const notAssigned = total - sumQty(jRows);
+
+  // Update chart count
   const fc = document.querySelector('#chart-count');
   if (fc) {
-    const shown = sumQty(jurisRows.filter(r => activePills.has(r.jurisdiction))) + notAssigned;
-    fc.innerHTML = '<strong>' + shown.toLocaleString() + '</strong> of ' + total.toLocaleString() + ' shown';
+    const inPool = sumQty(jRows.filter(r => activePills.has(r.jurisdiction)));
+    fc.innerHTML = '<strong>' + (inPool + notAssigned).toLocaleString() + '</strong> of ' + total.toLocaleString() + ' shown';
   }
 
   const yTitle = currentType === 'commercial' ? 'Sq Ft (CFA)' : 'Units';
 
-  Plotly.react('main-chart', [
+  Plotly.react('bar-chart', [
     {
       name: 'Allocated to Development',
-      type: 'bar', x: xLabels,
-      y: [...allocated, 0],
+      type: 'bar', x: xLabels, y: [...allocated, 0],
       marker: { color: '#6ebe44' },
       hovertemplate: '<b>%{y:,}</b> allocated to development<extra>%{x}</extra>',
     },
     {
       name: 'Available in Pool',
-      type: 'bar', x: xLabels,
-      y: [...available, 0],
+      type: 'bar', x: xLabels, y: [...available, 0],
       marker: { color: '#f16022' },
       hovertemplate: '<b>%{y:,}</b> available in pool<extra>%{x}</extra>',
     },
     {
       name: 'Not Yet Assigned to Pool',
-      type: 'bar', x: xLabels,
-      y: [...juris.map(() => 0), notAssigned],
+      type: 'bar', x: xLabels, y: [...juris.map(() => 0), notAssigned],
       marker: { color: '#c8d4e3' },
       hovertemplate: '<b>%{y:,}</b> not yet assigned to any jurisdiction pool<extra></extra>',
     },
   ], {
-    ...plotBase,
-    yaxis: { ...plotBase.yaxis, title: { text: yTitle, font: { size: 11 } } },
+    font: plotFont, paper_bgcolor: plotPaper, plot_bgcolor: plotPaper,
+    margin: { t: 16, r: 16, b: 60, l: 60 },
+    barmode: 'stack', hovermode: 'x unified',
+    xaxis: { gridcolor: '#e8edf4', linecolor: '#d5dde8', tickfont: { size: 11 } },
+    yaxis: { gridcolor: '#e8edf4', linecolor: '#d5dde8', tickfont: { size: 11 }, rangemode: 'tozero',
+             title: { text: yTitle, font: { size: 11 } } },
+    legend: { orientation: 'h', y: -0.22, font: { size: 10 } },
   }, { responsive: true, displayModeBar: false });
 }
 
@@ -693,6 +808,7 @@ function initMap() {
   require(['esri/Map','esri/views/MapView','esri/layers/FeatureLayer'], (EsriMap, MapView, FeatureLayer) => {
     const map = new EsriMap({ basemap: 'gray-vector' });
     mapView = new MapView({ container: 'map-view', map, center: [-120.00, 39.09], zoom: 10 });
+    const [r, g, b] = TYPE_FILL[currentType];
     parcelsLayer = new FeatureLayer({
       url: 'https://maps.trpa.org/server/rest/services/Parcels/FeatureServer/0',
       outFields: ['APN'],
@@ -701,6 +817,29 @@ function initMap() {
         symbol: { type: 'simple-fill', color: TYPE_FILL[currentType], outline: { color: [11,31,65,0.8], width: 0.6 } },
       },
       definitionExpression: '1=0',
+      featureReduction: {
+        type: 'cluster',
+        clusterRadius: '80px',
+        symbol: {
+          type: 'simple-marker',
+          style: 'circle',
+          color: [r, g, b, 0.85],
+          outline: { color: [255,255,255,0.9], width: 1.5 },
+        },
+        labelingInfo: [{
+          labelExpressionInfo: { expression: '$feature.cluster_count' },
+          symbol: {
+            type: 'text',
+            color: '#ffffff',
+            font: { weight: 'bold', family: 'Lexend Deca, sans-serif', size: '11px' },
+          },
+          labelPlacement: 'center-center',
+        }],
+        popupTemplate: {
+          title: '{cluster_count} parcels',
+          content: 'This cluster contains <b>{cluster_count}</b> allocated parcels.',
+        },
+      },
     });
     map.add(parcelsLayer);
     mapView.when(() => applyMapFilters());
@@ -734,7 +873,7 @@ function switchTab(name, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelector('#tab-' + name).classList.add('active');
   btn.classList.add('active');
-  if (name === 'charts') setTimeout(() => Plotly.Plots.resize('main-chart'), 50);
+  if (name === 'charts') setTimeout(() => { Plotly.Plots.resize('sankey-chart'); Plotly.Plots.resize('bar-chart'); }, 50);
   if (name === 'map')    initMap();
 }
 
@@ -748,9 +887,10 @@ function switchType(type, btn) {
     ? resData
     : cfaTauAllData.filter(r => r.type === type);
 
+  initSlider();
   updateKPIs();
   buildPills();
-  renderChart();
+  renderCharts();
   renderDrawdownTable();
   populateJurisFilters();
   initGrid();
@@ -780,9 +920,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
   document.querySelector('#loading-overlay').style.display = 'none';
+  initSlider();
   updateKPIs();
   buildPills();
-  renderChart();
+  renderCharts();
   renderDrawdownTable();
   populateJurisFilters();
   initGrid();
