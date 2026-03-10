@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Tahoe – Allocation Tracking</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;600;700&display=swap" rel="stylesheet"/>
 <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.0/dist/ag-grid-community.min.js"></script>
@@ -12,439 +11,116 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.0/styles/ag-theme-alpine.css"/>
 <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css"/>
 <script src="https://js.arcgis.com/4.29/"></script>
-
 <style>
-  :root {
-    --navy:       #0b1f41;
-    --green:      #6ebe44;
-    --blue:       #007dc3;
-    --orange:     #f16022;
-    --purple:     #7b4f9e;
-    --teal:       #009c8c;
-    --yellow:     #e8c014;
-    --bg:         #f4f6f9;
-    --surface:    #ffffff;
-    --border:     #d5dde8;
-    --text-dark:  #0b1f41;
-    --text-mid:   #4a5b73;
-    --text-light: #8a9bb2;
-    --allocated:  #6ebe44;
-    --unallocated:#f16022;
-    --shadow:     0 2px 16px rgba(11,31,65,0.10);
-  }
+:root {
+  --navy:   #0b1f41;
+  --green:  #6ebe44;
+  --blue:   #007dc3;
+  --orange: #f16022;
+  --purple: #7b4f9e;
+  --yellow: #e8c014;
+  --bg:     #f4f6f9;
+  --surface:#ffffff;
+  --border: #d5dde8;
+  --text-dark: #0b1f41;
+  --text-mid:  #4a5b73;
+  --text-light:#8a9bb2;
+  --shadow: 0 2px 16px rgba(11,31,65,0.09);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Lexend Deca', sans-serif; background: var(--bg); color: var(--text-dark); min-height: 100vh; }
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* ── Header ── */
+header { background: var(--navy); color: #fff; display: flex; align-items: stretch; }
+.header-accent { width: 8px; flex-shrink: 0; background: linear-gradient(180deg, var(--green) 0%, var(--blue) 50%, var(--orange) 100%); }
+.header-content { padding: 26px 40px 22px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex: 1; }
+.header-eyebrow { font-size: 0.64rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--green); margin-bottom: 7px; }
+header h1 { font-weight: 700; font-size: 1.8rem; line-height: 1.15; letter-spacing: -0.02em; }
+header h1 span { color: var(--blue); }
+.header-sub { font-size: 0.78rem; color: #8a9bb2; margin-top: 6px; }
+.header-meta { font-size: 0.73rem; color: #8a9bb2; text-align: right; line-height: 1.7; }
+.live-badge { display: inline-block; background: var(--green); color: var(--navy); font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; margin-bottom: 6px; }
 
-  body {
-    font-family: 'Lexend Deca', sans-serif;
-    background: var(--bg);
-    color: var(--text-dark);
-    min-height: 100vh;
-  }
+/* ── Type Bar ── */
+.type-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 40px; display: flex; gap: 8px; align-items: center; }
+.type-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); margin-right: 6px; }
+.type-btn { padding: 6px 18px; border-radius: 4px; border: 1.5px solid var(--border); background: #fff; color: var(--text-mid); font-size: 0.78rem; font-family: 'Lexend Deca', sans-serif; cursor: pointer; transition: all 0.15s; font-weight: 600; }
+.type-btn.active.residential { background: var(--orange); border-color: var(--orange); color: #fff; }
+.type-btn.active.commercial  { background: var(--yellow); border-color: var(--yellow); color: var(--navy); }
+.type-btn.active.tourist     { background: var(--purple); border-color: var(--purple); color: #fff; }
 
-  /* ── Header ── */
-  header {
-    background: var(--navy);
-    color: #fff;
-    padding: 0;
-    display: flex;
-    align-items: stretch;
-  }
-  .header-accent {
-    width: 8px;
-    background: linear-gradient(180deg, var(--green) 0%, var(--blue) 50%, var(--orange) 100%);
-    flex-shrink: 0;
-  }
-  .header-content {
-    padding: 28px 40px 24px;
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 20px;
-    flex: 1;
-  }
-  .header-eyebrow {
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--green);
-    margin-bottom: 8px;
-  }
-  header h1 {
-    font-weight: 700;
-    font-size: 1.9rem;
-    line-height: 1.15;
-    letter-spacing: -0.02em;
-    color: #fff;
-  }
-  header h1 span { color: var(--blue); }
-  .header-meta {
-    font-size: 0.75rem;
-    color: #8a9bb2;
-    text-align: right;
-    line-height: 1.7;
-  }
-  .live-badge {
-    display: inline-block;
-    background: var(--green);
-    color: var(--navy);
-    font-size: 0.6rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 3px 8px;
-    border-radius: 2px;
-    margin-bottom: 6px;
-  }
+/* ── KPI Row ── */
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--surface); border-bottom: 1px solid var(--border); }
+.kpi-card { padding: 22px 28px 18px; border-right: 1px solid var(--border); position: relative; }
+.kpi-card:last-child { border-right: none; }
+.kpi-accent { position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.kpi-label { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); margin-bottom: 8px; }
+.kpi-value { font-size: 2.2rem; font-weight: 700; color: var(--text-dark); letter-spacing: -0.03em; line-height: 1; }
+.kpi-sub { font-size: 0.71rem; color: var(--text-mid); margin-top: 7px; line-height: 1.4; }
+.kpi-progress { margin-top: 12px; height: 5px; border-radius: 3px; background: var(--border); overflow: hidden; }
+.kpi-progress-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
 
-  /* ── Type Switcher ── */
-  .type-switcher {
-    background: var(--navy);
-    padding: 0 40px 16px;
-    display: flex;
-    gap: 8px;
-    border-top: 1px solid rgba(255,255,255,0.06);
-  }
-  .type-btn {
-    font-family: 'Lexend Deca', sans-serif;
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 9px 28px;
-    border: 2px solid rgba(255,255,255,0.15);
-    border-radius: 4px;
-    background: transparent;
-    color: rgba(255,255,255,0.45);
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .type-btn:hover { color: #fff; border-color: rgba(255,255,255,0.4); }
-  .type-btn.active.residential { background: var(--orange); border-color: var(--orange); color: #fff; }
-  .type-btn.active.commercial  { background: var(--yellow); border-color: var(--yellow); color: var(--navy); }
-  .type-btn.active.tourist     { background: var(--purple); border-color: var(--purple); color: #fff; }
+/* ── Tab Nav ── */
+.tab-nav-wrapper { background: var(--surface); border-bottom: 2px solid var(--border); padding: 0 40px; display: flex; }
+.tab-btn { padding: 12px 22px; border: none; background: none; font-family: 'Lexend Deca', sans-serif; font-size: 0.8rem; font-weight: 600; color: var(--text-light); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: color 0.15s, border-color 0.15s; }
+.tab-btn.active { color: var(--navy); border-bottom-color: var(--orange); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
 
-  /* ── KPI row ── */
-  .kpi-row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0;
-    background: var(--navy);
-    border-top: 1px solid rgba(255,255,255,0.08);
-  }
-  .kpi-card {
-    padding: 22px 36px;
-    border-right: 1px solid rgba(255,255,255,0.08);
-    transition: background 0.15s;
-  }
-  .kpi-card:last-child { border-right: none; }
-  .kpi-card:hover { background: rgba(255,255,255,0.04); }
-  .kpi-label {
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: #8a9bb2;
-    margin-bottom: 6px;
-  }
-  .kpi-value {
-    font-size: 2.2rem;
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    line-height: 1;
-    color: #fff;
-    margin-bottom: 5px;
-  }
-  .kpi-card.authorized .kpi-value { color: #fff; }
-  .kpi-card.kpi-a1 .kpi-value { color: var(--blue); }
-  .kpi-card.kpi-a2 .kpi-value { color: var(--green); }
-  .kpi-card.kpi-a3 .kpi-value { color: var(--orange); }
-  .kpi-sub { font-size: 0.7rem; color: #8a9bb2; }
+/* ── Controls ── */
+.ctrl-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 40px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.ctrl-label { font-size: 0.73rem; font-weight: 600; color: var(--text-dark); white-space: nowrap; }
+.ctrl-select { padding: 5px 10px; border: 1.5px solid var(--border); border-radius: 4px; font-family: 'Lexend Deca', sans-serif; font-size: 0.75rem; color: var(--text-dark); background: #fff; cursor: pointer; }
+.ctrl-divider { width: 1px; height: 18px; background: var(--border); }
+.ctrl-count { margin-left: auto; font-size: 0.71rem; color: var(--text-light); }
 
-  /* ── Tab nav ── */
-  .tab-nav-wrapper {
-    background: var(--navy);
-    padding: 0 40px;
-    display: flex;
-    border-bottom: 2px solid rgba(255,255,255,0.08);
-  }
-  .tab-btn {
-    font-family: 'Lexend Deca', sans-serif;
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    padding: 14px 24px;
-    border: none;
-    background: transparent;
-    color: #8a9bb2;
-    cursor: pointer;
-    border-bottom: 3px solid transparent;
-    margin-bottom: -2px;
-    transition: color 0.15s, border-color 0.15s;
-  }
-  .tab-btn:hover { color: #fff; }
-  .tab-btn.active { color: var(--green); border-bottom-color: var(--green); }
+/* ── Jurisdiction pills ── */
+.juris-pills { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.juris-pill { padding: 3px 12px; border-radius: 20px; border: 1.5px solid var(--border); background: #fff; color: var(--text-mid); font-size: 0.72rem; font-family: 'Lexend Deca', sans-serif; cursor: pointer; transition: all 0.12s; }
+.juris-pill.active { background: var(--navy); border-color: var(--navy); color: #fff; }
 
-  /* ── Tab panels ── */
-  .tab-panel { display: none; padding: 32px 40px; }
-  .tab-panel.active { display: block; }
+/* ── Sections / Cards ── */
+.section { padding: 24px 40px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px 24px; box-shadow: var(--shadow); }
+.card h3 { font-size: 0.9rem; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
+.card p  { font-size: 0.71rem; color: var(--text-light); margin-bottom: 14px; }
 
-  /* ── Chart grid ── */
-  .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-  .chart-grid.full { grid-template-columns: 1fr; }
-  .chart-card {
-    background: var(--surface);
-    border-radius: 6px;
-    padding: 24px;
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border);
-    animation: fadeUp 0.35s ease both;
-  }
-  .chart-card h3 {
-    font-size: 0.85rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--text-dark);
-    margin-bottom: 3px;
-  }
-  .chart-card p { font-size: 0.73rem; color: var(--text-light); margin-bottom: 14px; }
+/* ── Drawdown table ── */
+.dd-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; margin-top: 4px; }
+.dd-table th { text-align: left; padding: 6px 10px; background: var(--bg); color: var(--text-mid); font-size: 0.63rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+.dd-table th.r, .dd-table td.r { text-align: right; }
+.dd-table td { padding: 8px 10px; border-bottom: 1px solid #f0f3f6; }
+.dd-table tbody tr:hover { background: #f8f9fb; }
+.tfoot-row td { font-weight: 700; background: var(--bg); }
+.bar-cell { width: 130px; }
+.bar-track { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 2px; }
+.bar-fill  { height: 100%; background: var(--green); border-radius: 3px; }
+.bar-pct   { font-size: 0.67rem; color: var(--text-light); }
 
-  /* ── Filter bar ── */
-  .filter-bar {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-  }
-  .filter-bar label {
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--text-mid);
-  }
-  .filter-bar select {
-    font-family: 'Lexend Deca', sans-serif;
-    font-size: 0.8rem;
-    padding: 7px 28px 7px 10px;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    background: var(--surface);
-    color: var(--text-dark);
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238a9bb2'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    cursor: pointer;
-  }
-  .filter-bar select:focus { outline: 2px solid var(--blue); outline-offset: 2px; }
-  .filter-count {
-    margin-left: auto;
-    font-size: 0.72rem;
-    color: var(--text-light);
-    background: var(--bg);
-    border: 1px solid var(--border);
-    padding: 6px 12px;
-    border-radius: 4px;
-  }
-  .filter-count strong { color: var(--text-dark); }
+/* ── Grid ── */
+#grid-container { height: 400px; }
+.dl-btn { padding: 5px 14px; border: 1.5px solid var(--border); border-radius: 4px; background: #fff; font-family: 'Lexend Deca', sans-serif; font-size: 0.75rem; cursor: pointer; color: var(--text-mid); }
 
-  /* ── Legend pills ── */
-  .legend-pills { display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
-  .pill { display: flex; align-items: center; gap: 7px; font-size: 0.72rem; font-weight: 600; color: var(--text-mid); }
-  .pill-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+/* ── Loading ── */
+#loading-overlay { position: fixed; inset: 0; background: rgba(11,31,65,0.6); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+.loading-card { background: #fff; border-radius: 10px; padding: 36px 48px; text-align: center; min-width: 260px; }
+.loading-card h3 { font-size: 1rem; color: var(--navy); margin-bottom: 20px; }
+.lb-bg { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+#loading-bar { height: 100%; width: 0; background: linear-gradient(90deg, var(--blue), var(--green)); border-radius: 2px; transition: width 0.3s; }
 
-  /* ── Download button ── */
-  .dl-btn {
-    font-family: 'Lexend Deca', sans-serif;
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    padding: 7px 14px;
-    background: var(--navy);
-    color: #fff;
-    border: 1px solid rgba(11,31,65,0.3);
-    border-radius: 4px;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background 0.15s;
-  }
-  .dl-btn:hover { background: var(--blue); }
-
-  /* ── Drawdown summary table ── */
-  .drawdown-table-wrap {
-    margin-bottom: 24px;
-    border-radius: 6px;
-    overflow: hidden;
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow);
-  }
-  .drawdown-table-wrap h4 {
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #fff;
-    background: var(--navy);
-    padding: 12px 18px;
-    margin: 0;
-  }
-  table.dd-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; background: var(--surface); }
-  table.dd-table thead th {
-    background: var(--bg);
-    color: var(--text-mid);
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 10px 14px;
-    text-align: left;
-    border-bottom: 1px solid var(--border);
-  }
-  table.dd-table thead th.num { text-align: right; }
-  table.dd-table tbody td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text-dark); }
-  table.dd-table tbody td.num { text-align: right; font-variant-numeric: tabular-nums; }
-  table.dd-table tbody tr:last-child td { border-bottom: none; }
-  table.dd-table tbody tr:hover { background: #f0f4fa; }
-  table.dd-table .bar-cell { width: 140px; }
-  .dd-bar-track { height: 8px; background: #e8edf4; border-radius: 4px; overflow: hidden; min-width: 80px; }
-  .dd-bar-fill { height: 100%; background: var(--green); border-radius: 4px; transition: width 0.4s ease; }
-  .dd-pct { font-size: 0.7rem; color: var(--text-mid); margin-top: 2px; }
-  .tfoot-row td { background: var(--bg); font-weight: 700; border-top: 2px solid var(--border); }
-
-  /* ── AG Grid ── */
-  #grid-container { height: 540px; width: 100%; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
-  .ag-theme-alpine {
-    --ag-font-family: 'Lexend Deca', sans-serif;
-    --ag-font-size: 12.5px;
-    --ag-header-background-color: #0b1f41;
-    --ag-header-foreground-color: #ffffff;
-    --ag-odd-row-background-color: #f9fafb;
-    --ag-row-hover-color: #eef3f9;
-    --ag-border-color: #d5dde8;
-    --ag-cell-horizontal-border: solid #e8edf4;
-    --ag-selected-row-background-color: #dbeafe;
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  @media (max-width: 960px) {
-    .header-content { padding: 20px 24px 18px; }
-    header h1 { font-size: 1.5rem; }
-    .kpi-row { grid-template-columns: 1fr 1fr; }
-    .kpi-card { padding: 18px 24px; }
-    .kpi-value { font-size: 1.8rem; }
-    .chart-grid { grid-template-columns: 1fr; }
-    .tab-nav-wrapper, .type-switcher { padding-left: 20px; padding-right: 20px; }
-    .tab-panel { padding: 24px 20px; }
-  }
-
-  @media (max-width: 600px) {
-    .header-content { flex-direction: column; align-items: flex-start; gap: 12px; padding: 16px; }
-    .header-meta { text-align: left; }
-    header h1 { font-size: 1.25rem; }
-    .kpi-row { grid-template-columns: 1fr; }
-    .kpi-card { padding: 14px 16px; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
-    .kpi-card:last-child { border-bottom: none; }
-    .kpi-value { font-size: 1.6rem; }
-    .tab-nav-wrapper, .type-switcher { padding-left: 0; padding-right: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .tab-btn, .type-btn { padding: 10px 16px; font-size: 0.7rem; white-space: nowrap; }
-    .tab-panel { padding: 16px; }
-    .filter-bar { gap: 8px; }
-    .filter-count { margin-left: 0; width: 100%; }
-    .chart-card { padding: 16px; }
-    #grid-container { height: 420px; }
-    #map-view { height: 380px !important; }
-  }
-
-  /* ── Chart Controls: Year Slider + Jurisdiction Pills ── */
-  .chart-controls {
-    padding: 14px 24px 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface);
-  }
-  .slider-row {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    flex-wrap: wrap;
-  }
-  .slider-label {
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: var(--text-dark);
-    white-space: nowrap;
-  }
-  #year-slider {
-    flex: 0 0 260px;
-    accent-color: var(--orange);
-    cursor: pointer;
-    height: 4px;
-  }
-  .slider-hint { font-size: 0.68rem; color: var(--text-light); }
-  .filter-count-inline { margin-left: auto; font-size: 0.72rem; color: var(--text-light); }
-  .juris-pill-row {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-  .juris-pill-label {
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--text-light);
-    margin-right: 4px;
-  }
-  .juris-pill {
-    padding: 3px 12px;
-    border-radius: 20px;
-    border: 1.5px solid var(--border);
-    background: #fff;
-    color: var(--text-mid);
-    font-size: 0.72rem;
-    font-family: 'Lexend Deca', sans-serif;
-    cursor: pointer;
-    transition: background 0.12s, border-color 0.12s, color 0.12s;
-  }
-  .juris-pill.active { background: var(--navy); border-color: var(--navy); color: #fff; }
-
-  /* ── Play button ── */
-  .play-btn {
-    padding: 4px 14px;
-    border-radius: 4px;
-    border: 1.5px solid var(--border);
-    background: var(--surface);
-    color: var(--text-dark);
-    font-size: 0.75rem;
-    font-family: 'Lexend Deca', sans-serif;
-    cursor: pointer;
-    transition: background 0.12s, color 0.12s, border-color 0.12s;
-    white-space: nowrap;
-  }
-  .play-btn.playing { background: var(--navy); color: #fff; border-color: var(--navy); }
+@media (max-width: 900px) {
+  .kpi-row { grid-template-columns: 1fr 1fr; }
+  .kpi-card { border-bottom: 1px solid var(--border); }
+  header .header-content, .type-bar, .ctrl-bar, .section { padding-left: 16px; padding-right: 16px; }
+}
 </style>
 </head>
 <body>
 
-<div id="loading-overlay" style="position:fixed;inset:0;background:rgba(11,31,65,0.82);display:flex;align-items:center;justify-content:center;z-index:9999;font-family:'Lexend Deca',sans-serif;">
-  <div style="text-align:center;color:#fff;">
-    <div style="font-size:1rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;">Loading data…</div>
-    <div style="width:180px;height:4px;background:rgba(255,255,255,0.15);border-radius:2px;overflow:hidden;">
-      <div id="loading-bar" style="width:0%;height:100%;background:var(--green);border-radius:2px;transition:width 0.4s ease;"></div>
-    </div>
+<div id="loading-overlay">
+  <div class="loading-card">
+    <h3>Loading allocation data…</h3>
+    <div class="lb-bg"><div id="loading-bar"></div></div>
   </div>
 </div>
 
@@ -452,975 +128,578 @@
 <header>
   <div class="header-accent"></div>
   <div class="header-content">
-    <div class="header-title-area">
-      <div class="header-eyebrow">Cumulative Accounting</div>
+    <div>
+      <div class="header-eyebrow">Tahoe Regional Planning Agency</div>
       <h1>Allocation <span>Tracking</span></h1>
+      <div class="header-sub" id="header-sub">2,600 Authorized &nbsp;&middot;&nbsp; 2012 Regional Plan</div>
     </div>
     <div class="header-meta">
       <div class="live-badge">Live Data</div><br>
-      Tahoe Regional Planning Agency<br>
-      <span id="header-meta-sub">2,600 Authorized &nbsp;·&nbsp; 2012 Regional Plan</span>
+      Source: TRPA Permit System<br>
+      Updated monthly
     </div>
   </div>
 </header>
 
 <!-- Type Switcher -->
-<div class="type-switcher">
-  <button class="type-btn residential active" onclick="switchType('residential', this)">Residential</button>
-  <button class="type-btn commercial"         onclick="switchType('commercial',  this)">Commercial</button>
-  <button class="type-btn tourist"            onclick="switchType('tourist',     this)">Tourist</button>
+<div class="type-bar">
+  <span class="type-label">Type</span>
+  <button class="type-btn residential active" onclick="switchType('residential',this)">Residential</button>
+  <button class="type-btn commercial"         onclick="switchType('commercial', this)">Commercial (CFA)</button>
+  <button class="type-btn tourist"            onclick="switchType('tourist',    this)">Tourist Bonus Units</button>
 </div>
 
-<!-- KPI Row -->
+<!-- KPIs -->
 <div class="kpi-row">
-  <div class="kpi-card authorized">
-    <div class="kpi-label" id="kpi0-label">Total Authorized</div>
+  <div class="kpi-card">
+    <div class="kpi-accent" style="background:var(--navy)"></div>
+    <div class="kpi-label">Total Authorized</div>
     <div class="kpi-value" id="kpi0-value">2,600</div>
-    <div class="kpi-sub"   id="kpi0-sub">2012 Regional Plan &nbsp;·&nbsp; est. 2013</div>
+    <div class="kpi-sub"   id="kpi0-sub">2012 Regional Plan &nbsp;&middot;&nbsp; new homes</div>
+    <div class="kpi-progress"><div class="kpi-progress-fill" style="width:100%;background:var(--navy)"></div></div>
   </div>
-  <div class="kpi-card kpi-a1">
-    <div class="kpi-label" id="kpi1-label">—</div>
+  <div class="kpi-card">
+    <div class="kpi-accent" style="background:var(--green)"></div>
+    <div class="kpi-label" id="kpi1-label">Allocated to Development</div>
     <div class="kpi-value" id="kpi1-value">—</div>
-    <div class="kpi-sub"   id="kpi1-sub">—</div>
+    <div class="kpi-sub"   id="kpi1-sub">loading…</div>
+    <div class="kpi-progress"><div class="kpi-progress-fill" id="kpi1-bar" style="width:0%;background:var(--green)"></div></div>
   </div>
-  <div class="kpi-card kpi-a2">
-    <div class="kpi-label" id="kpi2-label">—</div>
+  <div class="kpi-card">
+    <div class="kpi-accent" id="kpi2-accent" style="background:var(--orange)"></div>
+    <div class="kpi-label" id="kpi2-label">Available in Pools</div>
     <div class="kpi-value" id="kpi2-value">—</div>
-    <div class="kpi-sub"   id="kpi2-sub">—</div>
+    <div class="kpi-sub"   id="kpi2-sub">loading…</div>
+    <div class="kpi-progress"><div class="kpi-progress-fill" id="kpi2-bar" style="width:0%;background:var(--orange)"></div></div>
   </div>
-  <div class="kpi-card kpi-a3">
-    <div class="kpi-label" id="kpi3-label">—</div>
+  <div class="kpi-card">
+    <div class="kpi-accent" style="background:var(--text-light)"></div>
+    <div class="kpi-label" id="kpi3-label">Not Yet Assigned to Pool</div>
     <div class="kpi-value" id="kpi3-value">—</div>
-    <div class="kpi-sub"   id="kpi3-sub">—</div>
+    <div class="kpi-sub"   id="kpi3-sub">loading…</div>
+    <div class="kpi-progress"><div class="kpi-progress-fill" id="kpi3-bar" style="width:0%;background:var(--text-light)"></div></div>
   </div>
 </div>
 
 <!-- Tab Nav -->
 <div class="tab-nav-wrapper">
-  <button class="tab-btn active" onclick="switchTab('charts', this)">Charts</button>
-  <button class="tab-btn"        onclick="switchTab('map',    this)">Map</button>
-  <button class="tab-btn"        onclick="switchTab('table',  this)">Data Table</button>
+  <button class="tab-btn active" onclick="switchTab('charts',this)">Charts</button>
+  <button class="tab-btn"        onclick="switchTab('map',   this)">Map</button>
+  <button class="tab-btn"        onclick="switchTab('table', this)">Data Table</button>
 </div>
 
 <!-- Charts Tab -->
 <div class="tab-panel active" id="tab-charts">
-  <div class="chart-controls">
-    <div class="slider-row">
-      <span class="slider-label">Through &nbsp;<strong id="slider-year-label">2025</strong></span>
-      <input type="range" id="year-slider" min="2013" max="2025" value="2025" step="1" oninput="onYearSlider(this.value)">
-      <span class="slider-hint">drag to animate allocation flow by year</span>
-      <span class="filter-count-inline" id="filter-count-charts">— records</span>
-    </div>
-    <div class="juris-pill-row">
-      <span class="juris-pill-label">Jurisdictions:</span>
-      <div id="juris-pills" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
-    </div>
+  <div class="ctrl-bar">
+    <span class="ctrl-label">Jurisdictions</span>
+    <div class="juris-pills" id="juris-pills"></div>
+    <span class="ctrl-count" id="chart-count"></span>
   </div>
-  <div class="chart-grid full">
-    <div class="chart-card">
-      <h3 id="chart1-title">Allocation Flow — Pool to Development</h3>
-      <p  id="chart1-sub">How authorized units flow through jurisdiction pools into development · drag slider to animate</p>
-      <div id="chart-sankey" style="height:460px;"></div>
-    </div>
-  </div>
-  <div class="chart-grid full">
-    <div class="chart-card">
-      <h3 id="chart2-title">Cumulative Drawdown by Jurisdiction</h3>
-      <p  id="chart2-sub">Running total of units allocated for development over time · use jurisdiction pills to filter</p>
-      <div id="chart-stacked" style="height:320px;"></div>
+  <div class="section">
+    <div class="card">
+      <h3 id="chart-title">Allocation Flow by Jurisdiction</h3>
+      <p  id="chart-sub">Units flowing from authorized pool through jurisdictions to private development &middot; toggle jurisdictions to focus</p>
+      <div id="main-chart" style="height:420px;"></div>
     </div>
   </div>
 </div>
 
 <!-- Map Tab -->
 <div class="tab-panel" id="tab-map">
-  <div class="chart-controls">
-    <div class="slider-row">
-      <span class="slider-label">Through &nbsp;<strong id="map-slider-year-label">2025</strong></span>
-      <input type="range" id="map-year-slider" min="2013" max="2025" value="2025" step="1" oninput="onMapYearSlider(this.value)">
-      <span class="slider-hint">parcels allocated through this year</span>
-      <label style="margin-left:12px;font-size:0.78rem;font-weight:600;">Status</label>
-      <select id="filter-status-map" onchange="applyMapFilters()">
-        <option value="all">All Statuses</option>
-        <option value="Allocated">Allocated</option>
-        <option value="Unallocated">Unallocated</option>
-      </select>
-      <span class="filter-count-inline" id="filter-count-map"><strong>—</strong> parcels matched</span>
-    </div>
-    <div class="juris-pill-row">
-      <span class="juris-pill-label">Jurisdictions:</span>
-      <div id="map-juris-pills" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
-    </div>
+  <div class="ctrl-bar">
+    <span class="ctrl-label">Status</span>
+    <select id="filter-status-map" class="ctrl-select" onchange="applyMapFilters()">
+      <option value="all">All Statuses</option>
+      <option value="Allocated">Allocated to Development</option>
+      <option value="In Pool">Available in Pool</option>
+    </select>
+    <div class="ctrl-divider"></div>
+    <span class="ctrl-label">Jurisdiction</span>
+    <select id="filter-juris-map" class="ctrl-select" onchange="applyMapFilters()"><option value="all">All</option></select>
+    <span class="ctrl-count" id="map-count">— parcels</span>
   </div>
-  <div id="map-view" style="height:520px;border-radius:6px;overflow:hidden;"></div>
+  <div class="section" style="padding-top:16px;">
+    <div id="map-view" style="height:520px;border-radius:8px;overflow:hidden;border:1px solid var(--border);"></div>
+  </div>
 </div>
 
 <!-- Data Table Tab -->
 <div class="tab-panel" id="tab-table">
-  <div class="filter-bar">
-    <label>Year</label>
-    <select id="filter-year-tbl" onchange="applyTableFilters()"><option value="all">All Years</option></select>
-    <label>Jurisdiction</label>
-    <select id="filter-juris-tbl" onchange="applyTableFilters()"><option value="all">All Jurisdictions</option></select>
-    <label>Status</label>
-    <select id="filter-status-tbl" onchange="applyTableFilters()">
-      <option value="all">All Statuses</option>
-      <option value="Allocated">Allocated</option>
-      <option value="Unallocated">Unallocated</option>
-    </select>
-    <div class="filter-count" id="filter-count-tbl"><strong>—</strong> records</div>
-    <button class="dl-btn" onclick="downloadCSV()">&#11015; Download CSV</button>
+  <div class="section" style="padding-bottom:0;">
+    <div class="card" style="margin-bottom:20px;">
+      <h3 id="dd-title">Pool Summary by Jurisdiction</h3>
+      <p id="dd-sub">Total authorized units per pool, allocation status, and utilization rate</p>
+      <table class="dd-table">
+        <thead>
+          <tr>
+            <th>Jurisdiction / Pool</th>
+            <th class="r">Pool Total</th>
+            <th class="r">Allocated</th>
+            <th class="r">Available</th>
+            <th class="bar-cell">% Allocated</th>
+          </tr>
+        </thead>
+        <tbody id="dd-body"></tbody>
+        <tfoot id="dd-foot"></tfoot>
+      </table>
+    </div>
   </div>
-  <div class="drawdown-table-wrap">
-    <h4 id="dd-table-title">Drawdown by Jurisdiction Pool — 2012 Regional Plan</h4>
-    <table class="dd-table">
-      <thead>
-        <tr>
-          <th>Pool / Jurisdiction</th>
-          <th class="num" id="dd-col-auth">Authorized</th>
-          <th class="num" id="dd-col-alloc">Allocated</th>
-          <th class="num" id="dd-col-rem">Remaining</th>
-          <th class="bar-cell">% Drawn</th>
-        </tr>
-      </thead>
-      <tbody id="dd-summary-body"></tbody>
-      <tfoot id="dd-summary-foot"></tfoot>
-    </table>
+  <div class="section" style="padding-top:0;">
+    <div class="ctrl-bar" style="background:var(--bg);border:1px solid var(--border);border-radius:8px 8px 0 0;padding:10px 16px;margin-bottom:0;">
+      <span class="ctrl-label">Jurisdiction</span>
+      <select id="filter-juris-tbl" class="ctrl-select" onchange="applyTableFilters()"><option value="all">All</option></select>
+      <span class="ctrl-label">Status</span>
+      <select id="filter-status-tbl" class="ctrl-select" onchange="applyTableFilters()">
+        <option value="all">All</option>
+        <option value="Allocated">Allocated to Development</option>
+        <option value="In Pool">Available in Pool</option>
+      </select>
+      <span class="ctrl-count" id="tbl-count">— records</span>
+      <button class="dl-btn" onclick="downloadCSV()">&#8595; CSV</button>
+    </div>
+    <div class="ag-theme-alpine" style="border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;overflow:hidden;box-shadow:var(--shadow);">
+      <div id="grid-container"></div>
+    </div>
   </div>
-  <div id="grid-container" class="ag-theme-alpine"></div>
 </div>
 
 <script>
 // ─────────────────────────────────────────
-// STATE & CONSTANTS
+// STATE
 // ─────────────────────────────────────────
-let currentType    = 'residential';
-let rawResidential = [];
-let rawTransacted  = [];   // Parcel_Transfers.csv rows
-let rawCommodity   = [];   // CommodityPoolGridExport.csv rows
-let gridApi        = null;
-let sliderYear     = 2025;
-let activePills    = new Set();
+let currentType   = 'residential';
+let rawData       = [];   // active type's records
+let resData       = [];   // residential records (loaded once)
+let cfaTauAllData = [];   // all CFA + TAU records (loaded once, filtered by type)
+let gridApi       = null;
+let activePills   = new Set();
 
-const TOTAL_AUTHORIZED_RES = 2600;
-const RES_URL       = 'https://raw.githubusercontent.com/trpa-agency/Reporting/master/data/raw_data/residentialAllocationGridExport.csv';
-const PARCEL_URL    = 'https://raw.githubusercontent.com/trpa-agency/Reporting/master/data/processed_data/Parcel_Transfers.csv';
-const COMMODITY_URL = 'https://raw.githubusercontent.com/trpa-agency/Reporting/master/data/raw_data/CommodityPoolGridExport.csv';
+// ─────────────────────────────────────────
+// CONSTANTS
+// ─────────────────────────────────────────
+const TOTAL_AUTH = { residential: 2600, commercial: 200000, tourist: 342 };
 
-const TYPE_CONFIG = {
-  residential: {
-    headerSub:   '2,600 Authorized &nbsp;·&nbsp; 2012 Regional Plan',
-    kpi0:        { label: 'Total Authorized', value: '2,600', sub: '2012 Regional Plan &nbsp;·&nbsp; est. 2013' },
-    chart1Title: 'Allocation Flow — Pool to Development',
-    chart1Sub:   'How authorized residential units flow through jurisdiction pools into development · drag slider to animate',
-    chart2Title: 'Pool Drawdown by Jurisdiction',
-    chart2Sub:   'Remaining authorized units per pool over time — drains as allocations move to development',
-    ddTitle:     'Drawdown by Jurisdiction Pool — 2012 Regional Plan',
-    ddColAuth:   'Authorized', ddColAlloc: 'Allocated', ddColRem: 'Remaining',
-  },
-  commercial: {
-    headerSub:   'Commercial Floor Area &nbsp;·&nbsp; 2012 Regional Plan',
-    kpi0:        { label: 'Total Authorized', value: '—', sub: 'sq ft · 2012 Regional Plan' },
-    chart1Title: 'CFA Flow — Pool to Development',
-    chart1Sub:   'How authorized commercial floor area flows through jurisdiction pools into development · drag slider to animate',
-    chart2Title: 'CFA Pool Drawdown by Jurisdiction',
-    chart2Sub:   'Remaining commercial floor area per pool over time — drains as allocations move to development',
-    ddTitle:     'Commercial Floor Area (CFA) by Jurisdiction',
-    ddColAuth:   'Alloc + Banked', ddColAlloc: 'Allocated', ddColRem: 'Banked',
-  },
-  tourist: {
-    headerSub:   'Tourist Accommodation Units &nbsp;·&nbsp; 2012 Regional Plan',
-    kpi0:        { label: 'Total Authorized', value: '—', sub: 'units remaining · loading pools…' },
-    chart1Title: 'TAU Flow — Pool to Development',
-    chart1Sub:   'How authorized tourist accommodation units flow through jurisdiction pools into development · drag slider to animate',
-    chart2Title: 'TAU Pool Drawdown by Jurisdiction',
-    chart2Sub:   'Remaining tourist accommodation units per pool over time — drains as allocations move to development',
-    ddTitle:     'Tourist Accommodation Units (TAU) by Jurisdiction',
-    ddColAuth:   'Alloc + Banked', ddColAlloc: 'Allocated', ddColRem: 'Banked',
-  },
+const TYPE_UNIT = { residential: 'units', commercial: 'sq ft', tourist: 'units' };
+
+const TYPE_DESC = {
+  residential: '2012 Regional Plan \u00b7 new homes',
+  commercial:  '2012 Regional Plan \u00b7 sq ft commercial floor area',
+  tourist:     '1987 Plan carry-forward \u00b7 tourist bonus units',
 };
 
-const JURISDICTIONS_RES = ['Douglas County','El Dorado County','Placer County','City of South Lake Tahoe','TRPA','Washoe County'];
-const YEARS_RES = [2009,2011,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026];
+const RES_URL     = 'https://raw.githubusercontent.com/trpa-agency/Reporting/master/data/raw_data/residentialAllocationGridExport.csv';
+const CFA_TAU_URL = 'https://raw.githubusercontent.com/trpa-agency/Reporting/master/data/raw_data/CFA_TAU_allocations.csv';
+
+// Residential: TRPA is a real jurisdiction pool
+const JURIS_ORDER = ['TRPA','Douglas County','El Dorado County','Placer County','City of South Lake Tahoe','Washoe County'];
+// CFA/TAU: TRPA is the central reserve, not a jurisdiction bar
+const JURIS_ORDER_COMM = ['Douglas County','El Dorado County','Placer County','City of South Lake Tahoe','Washoe County'];
 
 const JURIS_SHORT = {
+  'TRPA':                     'TRPA',
   'Douglas County':           'Douglas',
   'El Dorado County':         'El Dorado',
   'Placer County':            'Placer',
   'City of South Lake Tahoe': 'S. Lake Tahoe',
-  'TRPA':                     'TRPA',
   'Washoe County':            'Washoe',
 };
-const JURIS_COLORS = ['#0b1f41','#007dc3','#6ebe44','#f16022','#9b59b6','#e67e22'];
-
-const POOL_TO_JURIS = {
-  'Residential Allocation - Douglas County':            'Douglas County',
-  'Residential Allocation - El Dorado County':          'El Dorado County',
-  'Residential Allocation - Placer County':             'Placer County',
-  'Residential Allocation - City of South Lake Tahoe':  'City of South Lake Tahoe',
-  'Residential Allocation - CSLT - Multi-Family Pool':  'City of South Lake Tahoe',
-  'Residential Allocation - CSLT - Single-Family Pool': 'City of South Lake Tahoe',
-  'Residential Allocation - CSLT - Town Center Pool':   'City of South Lake Tahoe',
-  'Residential Allocation - TRPA Pool':                 'TRPA',
-  'Residential Allocation - Washoe County':             'Washoe County',
-};
 
 // ─────────────────────────────────────────
-// DATA PARSING
+// HELPERS
 // ─────────────────────────────────────────
+function poolToJuris(pool) {
+  if (pool.includes('Douglas'))                                     return 'Douglas County';
+  if (pool.includes('El Dorado'))                                   return 'El Dorado County';
+  if (pool.includes('Placer'))                                      return 'Placer County';
+  if (pool.includes('South Lake Tahoe') || pool.includes('CSLT'))  return 'City of South Lake Tahoe';
+  if (pool.includes('TRPA'))                                        return 'TRPA';
+  if (pool.includes('Washoe'))                                      return 'Washoe County';
+  return pool;
+}
+
+function poolCodeToJuris(code) {
+  const map = {
+    TRPA: 'TRPA',
+    CSLT: 'City of South Lake Tahoe',
+    WA:   'Washoe County',
+    DG:   'Douglas County',
+    EL:   'El Dorado County',
+    PL:   'Placer County',
+  };
+  return map[code] || code;
+}
+
+function activeJurisOrder() {
+  return currentType === 'residential' ? JURIS_ORDER : JURIS_ORDER_COMM;
+}
+
+function sumQty(rows) {
+  return rows.reduce((s, r) => s + (r.qty || 0), 0);
+}
+
+function fmtVal(n) {
+  return n.toLocaleString() + (currentType === 'commercial' ? ' sq ft' : '');
+}
+
+// ─────────────────────────────────────────
+// PARSERS
+// ─────────────────────────────────────────
+// Cols: 0=ID 1=PoolCode 2=Year 3=Type 4=Seq 5=Status 6=Transaction 7=Pool 8=PrevTrx 9=APN
 function parseResCSV(text) {
-  return text.trim().split(/\r?\n/).slice(1).filter(l => l.trim()).map(line => {
+  return text.trim().split('\n').slice(1).map(line => {
     const c = line.split(',');
-    let status = (c[5] || '').trim();
-    if (status === 'Allocated w/out Transaction' || status === 'Allocated w/o Transaction') status = 'Allocated';
-    const pool = (c[7] || '').trim();
+    const year = parseInt(c[2]);
+    if (!year || year < 2012) return null;
+    const statusRaw = (c[5] || '').trim();
     return {
-      id:           (c[0] || '').trim(),
-      year:         parseInt((c[2] || '').trim(), 10),
-      jurisdiction: POOL_TO_JURIS[pool] || pool,
-      pool,
-      status,
-      transaction:  (c[6] || '').trim(),
-      apn:          (c[9] || '').trim(),
-    };
-  });
-}
-
-// General quoted-CSV parser — handles commas and newlines inside quoted fields.
-function parseQuotedCSV(text) {
-  const rows = [];
-  let row = [], field = '', inQuote = false;
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    if (inQuote) {
-      if (ch === '"' && text[i + 1] === '"') { field += '"'; i++; }
-      else if (ch === '"')                    { inQuote = false; }
-      else                                    { field += ch; }
-    } else {
-      if      (ch === '"')  { inQuote = true; }
-      else if (ch === ',')  { row.push(field); field = ''; }
-      else if (ch === '\n') { row.push(field); if (row.some(f => f)) rows.push(row); row = []; field = ''; }
-      else if (ch !== '\r') { field += ch; }
-    }
-  }
-  if (field || row.length) { row.push(field); if (row.some(f => f)) rows.push(row); }
-  return rows;
-}
-
-// Parse CommodityPoolGridExport.csv → pool balance records.
-function parseCommodityCSV(text) {
-  const rows = parseQuotedCSV(text);
-  if (!rows.length) return [];
-  const h      = rows[0].map(x => x.trim());
-  const iPool  = h.indexOf('Pool');
-  const iDR    = h.indexOf('Development Right');
-  const iJur   = h.indexOf('Jurisdiction');
-  const iBal   = h.indexOf('Balance Remaining');
-  const iActive = h.indexOf('Active?');
-  return rows.slice(1)
-    .filter(r => r.length > Math.max(iPool, iDR, iJur, iBal, iActive))
-    .map(r => ({
-      pool:    r[iPool].trim(),
-      dr:      r[iDR].trim(),
-      jurisRaw:r[iJur].trim(),
-      balance: parseFloat((r[iBal] || '0').replace(/,/g, '')) || 0,
-      active:  r[iActive].trim() === 'Yes',
-    }));
-}
-
-// Parse Parcel_Transfers.csv — columns before SHAPE don't contain commas so
-// simple split is safe for indices 0–28.
-function parseTrxCSV(text) {
-  const lines   = text.trim().split(/\r?\n/);
-  const headers = lines[0].split(',').map(h => h.trim());
-  const gi = h => headers.indexOf(h);
-
-  const iAPN  = gi('APN');
-  const iRT   = gi('RecordType');
-  const iDR   = gi('DevelopmentRight');
-  const iQty  = gi('CumulativeBankedQuantity');
-  const iJur  = gi('JURISDICTION');
-  const iDate = gi('TransactionApprovalDate');
-  const iTxn  = gi('AccelaID');
-  const iPlan = gi('PLAN_NAME');
-
-  const JURIS_MAP = {
-    'EL':      'El Dorado County',
-    'CSLT':    'City of South Lake Tahoe',
-    'PLACER':  'Placer County',
-    'DOUGLAS': 'Douglas County',
-    'WASHOE':  'Washoe County',
-    'TRPA':    'TRPA',
-  };
-
-  return lines.slice(1).filter(l => l.trim()).map(line => {
-    const c       = line.split(',');
-    const recType = (c[iRT]   || '').trim();
-    const date    = (c[iDate] || '').trim();
-    const parts   = date.split('/');
-    const year    = parts.length === 3 ? (parseInt(parts[2], 10) || null) : null;
-    const jurRaw  = (c[iJur]  || '').trim();
-    return {
-      id:           (c[iTxn]  || '').trim(),
-      apn:          (c[iAPN]  || '').trim(),
-      dr:           (c[iDR]   || '').trim(),
-      recordType:   recType,
-      status:       recType.toLowerCase().includes('receiving') ? 'Allocated' : 'Banked',
-      jurisdiction: JURIS_MAP[jurRaw] || jurRaw || 'Unknown',
-      localPlan:    (c[iPlan] || '').trim(),
+      id:            (c[0] || '').trim(),
       year,
-      qty:          parseFloat(c[iQty] || '0') || 0,
-      transaction:  (c[iTxn]  || '').trim(),
+      type:          'residential',
+      status:        statusRaw === 'Unallocated' ? 'In Pool' : 'Allocated',
+      statusRaw,
+      jurisdiction:  poolToJuris((c[7] || '').trim()),
+      pool:          (c[7] || '').trim(),
+      transaction:   (c[6] || '').trim(),
+      apn:           (c[9] || '').trim(),
+      qty:           1,
+      isTrpaReserve: false,
     };
-  });
+  }).filter(Boolean);
+}
+
+// Cols: 0=Transaction Number 1=Development Right 2=Jurisdiction Pool 3=Transaction Status 4=Created Year 5=Allocated Quantity
+function parseCfaTauCSV(text) {
+  return text.trim().split('\n').slice(1).map(line => {
+    const c = line.split(',');
+    if (c.length < 6) return null;
+    const devRight  = (c[1] || '').trim();
+    const poolCode  = (c[2] || '').trim();
+    const statusRaw = (c[3] || '').trim();
+    const year      = parseInt(c[4]);
+    const qty       = parseInt(c[5]) || 0;
+    const type      = devRight.includes('Commercial') ? 'commercial' :
+                      devRight.includes('Tourist')    ? 'tourist'    : null;
+    if (!type) return null;
+    // TRPA Draft = central reserve, not yet distributed to a jurisdiction
+    const isTrpaReserve = poolCode === 'TRPA' && statusRaw === 'Draft';
+    return {
+      id:            (c[0] || '').trim(),
+      year,
+      type,
+      status:        statusRaw === 'Approved' ? 'Allocated' : 'In Pool',
+      statusRaw,
+      jurisdiction:  isTrpaReserve ? null : poolCodeToJuris(poolCode),
+      pool:          poolCode,
+      qty,
+      isTrpaReserve,
+    };
+  }).filter(Boolean);
 }
 
 // ─────────────────────────────────────────
-// ACTIVE DATA HELPERS
+// KPIs
 // ─────────────────────────────────────────
-function getRawData() {
-  if (currentType === 'residential') return rawResidential;
-  const dr = currentType === 'commercial'
-    ? 'Commercial Floor Area (CFA)'
-    : 'Tourist Accommodation Unit (TAU)';
-  return rawTransacted.filter(r => r.dr === dr);
-}
+function updateKPIs() {
+  const total = TOTAL_AUTH[currentType];
 
-function getActiveYears() {
-  if (currentType === 'residential') return YEARS_RES;
-  return [...new Set(getRawData().map(r => r.year).filter(Boolean))].sort((a,b) => a-b);
-}
+  // kpi0 — always the plan constant for the active type
+  document.querySelector('#kpi0-value').textContent = total.toLocaleString();
+  document.querySelector('#kpi0-sub').textContent   = TYPE_DESC[currentType];
 
-function getActiveJurisdictions() {
-  if (currentType === 'residential') return JURISDICTIONS_RES;
-  return [...new Set(getRawData().map(r => r.jurisdiction).filter(j => j && j !== 'Unknown'))].sort();
-}
-
-// ─────────────────────────────────────────
-// FILTERS
-// ─────────────────────────────────────────
-function getFilters() {
-  return { year: 'all', juris: 'all' };
-}
-function getTableFilters() {
-  return {
-    year:   document.querySelector('#filter-year-tbl').value,
-    juris:  document.querySelector('#filter-juris-tbl').value,
-    status: document.querySelector('#filter-status-tbl').value,
+  // Header subtitle
+  const headerSubs = {
+    residential: '2,600 Authorized \u00a0\u00b7\u00a0 2012 Regional Plan',
+    commercial:  '200,000 sq ft Authorized \u00a0\u00b7\u00a0 2012 Regional Plan',
+    tourist:     '342 Authorized \u00a0\u00b7\u00a0 1987 Plan carry-forward',
   };
-}
-function filterData(data, { year, juris }) {
-  return data.filter(r =>
-    (year  === 'all' || r.year === +year) &&
-    (juris === 'all' || r.jurisdiction === juris)
-  );
-}
+  document.querySelector('#header-sub').textContent = headerSubs[currentType];
 
-function populateFilters() {
-  const years = getActiveYears();
-  const juris = getActiveJurisdictions();
-  ['#filter-year-tbl'].forEach(id => {
-    const el = document.querySelector(id);
-    if (!el) return;
-    el.innerHTML = '<option value="all">All Years</option>';
-    years.forEach(y => { const o = document.createElement('option'); o.value = y; o.textContent = y; el.appendChild(o); });
-  });
-  ['#filter-juris-tbl'].forEach(id => {
-    const el = document.querySelector(id);
-    if (!el) return;
-    el.innerHTML = '<option value="all">All Jurisdictions</option>';
-    juris.forEach(j => { const o = document.createElement('option'); o.value = j; o.textContent = j; el.appendChild(o); });
-  });
-}
+  // kpi2 accent tracks type color
+  const tc = { residential: 'var(--orange)', commercial: 'var(--yellow)', tourist: 'var(--purple)' };
+  document.querySelector('#kpi2-accent').style.background = tc[currentType];
+  document.querySelector('#kpi2-bar').style.background    = tc[currentType];
 
-// ─────────────────────────────────────────
-// TYPE SWITCHER
-// ─────────────────────────────────────────
-async function switchType(type, btn) {
-  if (type === currentType) return;
-  currentType = type;
+  // Only jurisdiction rows (exclude TRPA reserve for CFA/TAU)
+  const jurisRows = rawData.filter(r => !r.isTrpaReserve);
+  const allocated = sumQty(jurisRows.filter(r => r.status === 'Allocated'));
+  const available = sumQty(jurisRows.filter(r => r.status === 'In Pool'));
+  const inPools   = sumQty(jurisRows);
+  const notYet    = total - inPools;
 
-  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  setKPI(1, 'Allocated to Development',
+    fmtVal(allocated),
+    (allocated / total * 100).toFixed(1) + '% of ' + total.toLocaleString() + ' authorized',
+    allocated / total * 100, 'var(--green)');
 
-  if ((type === 'commercial' || type === 'tourist') && rawTransacted.length === 0) {
-    showLoading(true);
-    try {
-      const [parcelResp, commResp] = await Promise.allSettled([
-        fetch(PARCEL_URL),
-        fetch(COMMODITY_URL),
-      ]);
-      if (parcelResp.status === 'fulfilled' && parcelResp.value.ok) {
-        rawTransacted = parseTrxCSV(await parcelResp.value.text());
-      } else {
-        console.error('Failed to load Parcel_Transfers.csv');
-      }
-      if (commResp.status === 'fulfilled' && commResp.value.ok) {
-        rawCommodity = parseCommodityCSV(await commResp.value.text());
-      } else {
-        console.error('Failed to load CommodityPoolGridExport.csv');
-      }
-    } catch(e) { console.error('Failed to load CFA/TAU data', e); }
-    showLoading(false);
-  }
+  setKPI(2, 'Available in Pools',
+    fmtVal(available),
+    (available / total * 100).toFixed(1) + '% \u00b7 ' + fmtVal(inPools) + ' in pools',
+    available / total * 100, tc[currentType]);
 
-  const cfg = TYPE_CONFIG[type];
-  document.querySelector('#header-meta-sub').innerHTML  = cfg.headerSub;
-  document.querySelector('#kpi0-label').textContent     = cfg.kpi0.label;
-  document.querySelector('#kpi0-value').textContent     = cfg.kpi0.value;
-  document.querySelector('#kpi0-sub').innerHTML         = cfg.kpi0.sub;
-  document.querySelector('#chart1-title').textContent   = cfg.chart1Title;
-  document.querySelector('#chart1-sub').textContent     = cfg.chart1Sub;
-  document.querySelector('#chart2-title').textContent   = cfg.chart2Title;
-  document.querySelector('#chart2-sub').textContent     = cfg.chart2Sub;
-  document.querySelector('#dd-table-title').textContent = cfg.ddTitle;
-  document.querySelector('#dd-col-auth').textContent    = cfg.ddColAuth;
-  document.querySelector('#dd-col-alloc').textContent   = cfg.ddColAlloc;
-  document.querySelector('#dd-col-rem').textContent     = cfg.ddColRem;
-
-  populateFilters();
-  updateKPIs();
-  const data = getRawData();
-  renderCharts(data);
-  renderDrawdownTable();
-  if (gridApi) {
-    gridApi.setGridOption('columnDefs', getColumnDefs());
-    gridApi.setGridOption('rowData', data);
-  }
-  const fc = document.querySelector('#filter-count-charts');
-  if (fc) fc.innerHTML = '<strong>' + data.length.toLocaleString() + '</strong> records';
-  const ft = document.querySelector('#filter-count-tbl');
-  if (ft) ft.innerHTML = '<strong>' + data.length.toLocaleString() + '</strong> records';
+  setKPI(3, 'Not Yet Assigned to Pool',
+    fmtVal(notYet),
+    (notYet / total * 100).toFixed(1) + '% \u00b7 pending distribution',
+    notYet / total * 100, 'var(--text-light)');
 }
 
-// ─────────────────────────────────────────
-// KPI CARDS
-// ─────────────────────────────────────────
-function setKPI(n, label, value, sub) {
+function setKPI(n, label, value, sub, pct, color) {
   document.querySelector('#kpi' + n + '-label').textContent = label;
   document.querySelector('#kpi' + n + '-value').textContent = value;
   document.querySelector('#kpi' + n + '-sub').textContent   = sub;
+  const bar = document.querySelector('#kpi' + n + '-bar');
+  if (bar) { bar.style.width = Math.min(100, pct || 0).toFixed(1) + '%'; bar.style.background = color; }
 }
 
-function updateKPIs() {
-  const pills = activePills.size > 0 ? activePills : null;
+// ─────────────────────────────────────────
+// PILLS
+// ─────────────────────────────────────────
+function buildPills() {
+  const order = activeJurisOrder();
+  const jurisWithData = new Set(
+    rawData.filter(r => !r.isTrpaReserve && r.jurisdiction).map(r => r.jurisdiction)
+  );
+  const pillJuris = order.filter(j => jurisWithData.has(j));
 
-  if (currentType === 'residential') {
-    const base      = rawResidential.filter(r => r.year >= 2013 && (!pills || pills.has(r.jurisdiction)));
-    const trpaRows  = base.filter(r => r.jurisdiction === 'TRPA');
-    const jurisRows = base.filter(r => r.jurisdiction !== 'TRPA');
-    const trpaAlloc  = trpaRows.filter(r => r.status === 'Allocated' && r.year <= sliderYear).length;
-    const jurisAlloc = jurisRows.filter(r => r.status === 'Allocated' && r.year <= sliderYear).length;
-    const totalAlloc = base.filter(r => r.status === 'Allocated' && r.year <= sliderYear).length;
-    const totalAuth  = base.length;
-    const pct        = totalAuth > 0 ? (totalAlloc / totalAuth * 100).toFixed(1) : '0.0';
-    const allPills   = !pills || pills.size === JURISDICTIONS_RES.length;
+  activePills = new Set(pillJuris);
+  const container = document.querySelector('#juris-pills');
 
-    document.querySelector('#kpi0-value').textContent = totalAuth.toLocaleString();
-    document.querySelector('#kpi0-sub').textContent   = allPills
-      ? '2012 Regional Plan · est. 2013'
-      : [...(pills || [])].map(j => JURIS_SHORT[j] || j).join(', ');
-
-    setKPI(1, 'TRPA Pool', trpaAlloc.toLocaleString(),
-      (trpaRows.length - trpaAlloc).toLocaleString() + ' of ' + trpaRows.length + ' remaining · through ' + sliderYear);
-    setKPI(2, 'Jurisdiction Pool', jurisAlloc.toLocaleString(),
-      (jurisRows.length - jurisAlloc).toLocaleString() + ' of ' + jurisRows.length.toLocaleString() + ' remaining · through ' + sliderYear);
-    setKPI(3, 'Allocated for Development', totalAlloc.toLocaleString(),
-      pct + '% of ' + totalAuth.toLocaleString() + ' authorized · through ' + sliderYear);
-  } else {
-    const data  = getRawData();
-    const drKey = currentType === 'commercial' ? 'Commercial Floor Area (CFA)' : 'Tourist Accommodation Unit (TAU)';
-    const unit  = currentType === 'commercial' ? 'sq ft' : 'units';
-
-    const poolsFiltered = rawCommodity.filter(r => {
-      if (!r.active || r.dr !== drKey) return false;
-      if (!pills) return true;
-      return [...pills].some(p => p === 'TRPA' ? r.jurisRaw.includes('TRPA') : r.jurisRaw.includes(p.replace(' County','').replace('City of ','')));
-    });
-    const trpaPools    = poolsFiltered.filter(r =>  r.jurisRaw.includes('TRPA'));
-    const jurisPools   = poolsFiltered.filter(r => !r.jurisRaw.includes('TRPA'));
-    const totalBalance = poolsFiltered.reduce((s, r) => s + r.balance, 0);
-    const trpaBalance  = trpaPools.reduce((s,  r) => s + r.balance, 0);
-    const jurisBalance = jurisPools.reduce((s,  r) => s + r.balance, 0);
-
-    const alloc  = data.filter(r => r.status === 'Allocated' && r.year <= sliderYear && (!pills || pills.has(r.jurisdiction)));
-    const aQty   = alloc.reduce((s, r) => s + (r.qty || 1), 0) || alloc.length;
-    const pctUsed = totalBalance > 0 ? ((aQty / (totalBalance + aQty)) * 100).toFixed(1) : '—';
-
-    document.querySelector('#kpi0-label').textContent = 'Total Authorized';
-    document.querySelector('#kpi0-value').textContent = totalBalance > 0 ? totalBalance.toLocaleString() : '—';
-    document.querySelector('#kpi0-sub').textContent   = unit + ' remaining · ' + poolsFiltered.length + ' active pools';
-
-    setKPI(1, 'TRPA Pool', trpaBalance.toLocaleString(),
-      trpaPools.length + ' pool' + (trpaPools.length !== 1 ? 's' : '') + ' · ' + unit + ' remaining');
-    setKPI(2, 'Jurisdiction Pools', jurisBalance.toLocaleString(),
-      jurisPools.length + ' pools · ' + unit + ' remaining');
-    setKPI(3, 'Allocated for Development', aQty.toLocaleString(),
-      alloc.length + ' parcels · ' + pctUsed + '% of balance used · through ' + sliderYear);
+  if (!pillJuris.length) {
+    container.innerHTML = '<span style="font-size:0.72rem;color:var(--text-light);">All units held in TRPA reserve \u2014 no jurisdiction pools yet</span>';
+    return;
   }
+
+  container.innerHTML = pillJuris.map(j =>
+    `<button class="juris-pill active" data-juris="${j}" onclick="togglePill(this)">${JURIS_SHORT[j] || j}</button>`
+  ).join('');
+}
+
+function togglePill(btn) {
+  const j = btn.dataset.juris;
+  activePills.has(j) ? activePills.delete(j) : activePills.add(j);
+  btn.classList.toggle('active', activePills.has(j));
+  renderChart();
 }
 
 // ─────────────────────────────────────────
-// CHARTS
+// CHART — stacked bar: Allocated + Available per jurisdiction, plus Not Assigned bar
 // ─────────────────────────────────────────
-const plotlyBase = {
+const plotBase = {
   font:          { family: 'Lexend Deca, sans-serif', color: '#0b1f41' },
   paper_bgcolor: 'rgba(0,0,0,0)',
   plot_bgcolor:  'rgba(0,0,0,0)',
-  margin:        { t: 10, r: 10, b: 70, l: 55 },
-  legend:        { orientation: 'h', y: -0.2, font: { size: 11 } },
-  xaxis:         { gridcolor: '#e8edf4', linecolor: '#d5dde8', tickfont: { size: 11 } },
-  yaxis:         { gridcolor: '#e8edf4', linecolor: '#d5dde8', tickfont: { size: 11 } },
+  margin:        { t: 16, r: 16, b: 60, l: 80 },
+  xaxis: { gridcolor: '#e8edf4', linecolor: '#d5dde8', tickfont: { size: 11 } },
+  yaxis: { gridcolor: '#e8edf4', linecolor: '#d5dde8', tickfont: { size: 11 }, rangemode: 'tozero' },
+  legend: { orientation: 'h', y: -0.2, font: { size: 11 } },
+  barmode: 'stack',
+  hovermode: 'x unified',
 };
 
-// ── Jurisdiction pills ──────────────────
-function buildJurisPills(data) {
-  const isRes = currentType === 'residential';
-  const juris = isRes
-    ? JURISDICTIONS_RES.filter(j => data.some(r => r.jurisdiction === j))
-    : [...new Set(data.map(r => r.jurisdiction).filter(j => j && j !== 'Unknown'))].sort();
-  activePills = new Set(juris);
-  const html = juris.map(j =>
-    `<button class="juris-pill active" data-juris="${j}" onclick="toggleJurisPill(this)">${JURIS_SHORT[j] || j}</button>`
-  ).join('');
-  ['#juris-pills','#map-juris-pills'].forEach(id => {
-    const el = document.querySelector(id);
-    if (el) el.innerHTML = html;
-  });
-}
+function renderChart() {
+  const total     = TOTAL_AUTH[currentType];
+  const juris     = activeJurisOrder().filter(j => activePills.has(j));
+  const jurisRows = rawData.filter(r => !r.isTrpaReserve && r.jurisdiction);
+  const xLabels   = [...juris.map(j => JURIS_SHORT[j] || j), 'Not Assigned'];
 
-function toggleJurisPill(btn) {
-  const j = btn.dataset.juris;
-  if (activePills.has(j)) { activePills.delete(j); btn.classList.remove('active'); }
-  else                    { activePills.add(j);    btn.classList.add('active'); }
-  // Sync active state across both pill containers
-  document.querySelectorAll('.juris-pill[data-juris="' + j + '"]').forEach(el => {
-    el.classList.toggle('active', activePills.has(j));
-  });
-  updateKPIs();
-  chartStackedArea(getRawData());
-  if (document.querySelector('#tab-map').classList.contains('active')) applyMapFilters();
-}
+  const allocated   = juris.map(j => sumQty(jurisRows.filter(r => r.jurisdiction === j && r.status === 'Allocated')));
+  const available   = juris.map(j => sumQty(jurisRows.filter(r => r.jurisdiction === j && r.status === 'In Pool')));
+  const notAssigned = total - sumQty(jurisRows);
 
-// ── Year slider ─────────────────────────
-function updateYearSlider(data) {
-  const isRes = currentType === 'residential';
-  const years = isRes
-    ? [2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025]
-    : [...new Set(data.map(r => r.year).filter(y => y && y >= 2000 && y <= 2030))].sort((a,b)=>a-b);
-  const minY = years[0] || 2013;
-  const maxY = years[years.length - 1] || 2025;
-  if (sliderYear < minY || sliderYear > maxY) sliderYear = maxY;
-  ['#year-slider','#map-year-slider'].forEach(id => {
-    const sl = document.querySelector(id);
-    if (!sl) return;
-    sl.min = minY; sl.max = maxY; sl.value = sliderYear;
-  });
-  ['#slider-year-label','#map-slider-year-label'].forEach(id => {
-    const el = document.querySelector(id);
-    if (el) el.textContent = sliderYear;
-  });
-}
-
-function setSharedYear(val) {
-  sliderYear = parseInt(val);
-  ['#year-slider','#map-year-slider'].forEach(id => {
-    const sl = document.querySelector(id);
-    if (sl) sl.value = sliderYear;
-  });
-  ['#slider-year-label','#map-slider-year-label'].forEach(id => {
-    const el = document.querySelector(id);
-    if (el) el.textContent = sliderYear;
-  });
-  updateKPIs();
-  chartSankey(getRawData(), sliderYear);
-  if (document.querySelector('#tab-map').classList.contains('active')) applyMapFilters();
-}
-
-function onYearSlider(val)    { setSharedYear(val); }
-function onMapYearSlider(val) { setSharedYear(val); }
-
-// ── Shared jurisdiction name normalizer ──
-function simplifyJuris(jr) {
-  if (jr.includes('TRPA'))                                      return 'TRPA';
-  if (jr.includes('El Dorado'))                                 return 'El Dorado County';
-  if (jr.includes('Placer'))                                    return 'Placer County';
-  if (jr.includes('South Lake Tahoe') || jr.includes('CSLT'))  return 'City of South Lake Tahoe';
-  if (jr.includes('Douglas'))                                   return 'Douglas County';
-  if (jr.includes('Washoe'))                                    return 'Washoe County';
-  return jr.split('(')[0].trim();
-}
-
-// ── Sankey ──────────────────────────────
-function chartSankey(data, upToYear) {
-  const typeColor = { residential: '#f16022', commercial: '#e8c014', tourist: '#7b4f9e' };
-  const tc = typeColor[currentType];
-  let nodeLabels, nodeColors, sources, targets, values, linkColors;
-
-  if (currentType === 'residential') {
-    const base  = rawResidential.filter(r => r.year >= 2013);
-    // only show pools for active pills
-    const juris = JURISDICTIONS_RES.filter(j => base.some(r => r.jurisdiction === j) && activePills.has(j));
-    const nJ    = juris.length;
-    const poolSize  = juris.map(j => base.filter(r => r.jurisdiction === j).length);
-    const poolAlloc = juris.map(j =>
-      base.filter(r => r.jurisdiction === j && r.status === 'Allocated' && r.year <= upToYear).length);
-    const poolRem    = juris.map((j,i) => poolSize[i] - poolAlloc[i]);
-    const totalSize  = poolSize.reduce((s,v) => s + v, 0);
-    const totalAlloc = poolAlloc.reduce((s,v) => s + v, 0);
-
-    nodeLabels = [
-      'Total Authorized<br>' + totalSize.toLocaleString() + ' units',
-      ...juris.map((j,i) => (JURIS_SHORT[j]||j) + '<br>' + poolSize[i].toLocaleString()),
-      'Allocated for<br>Development<br><b>' + totalAlloc.toLocaleString() + '</b>',
-      'Remaining<br>in Pools',
-    ];
-    nodeColors = [tc, ...JURIS_COLORS.slice(0, nJ), '#6ebe44', '#c8d4e3'];
-    sources = []; targets = []; values = []; linkColors = [];
-    juris.forEach((j,i) => {
-      sources.push(0); targets.push(i+1); values.push(poolSize[i]);
-      linkColors.push(JURIS_COLORS[i % JURIS_COLORS.length] + '44');
-    });
-    juris.forEach((j,i) => {
-      if (poolAlloc[i] > 0) { sources.push(i+1); targets.push(nJ+1); values.push(poolAlloc[i]); linkColors.push('#6ebe4466'); }
-      if (poolRem[i]   > 0) { sources.push(i+1); targets.push(nJ+2); values.push(poolRem[i]);   linkColors.push('#c8d4e388'); }
-    });
-
-  } else {
-    const drKey = currentType === 'commercial' ? 'Commercial Floor Area (CFA)' : 'Tourist Accommodation Unit (TAU)';
-    const unit  = currentType === 'commercial' ? 'sq ft' : 'units';
-
-    const poolsRaw = rawCommodity.filter(r => r.dr === drKey && r.active);
-    const poolsByJuris = {};
-    poolsRaw.forEach(r => {
-      const k = simplifyJuris(r.jurisRaw);
-      poolsByJuris[k] = (poolsByJuris[k] || 0) + r.balance;
-    });
-    // filter to active pills
-    const juris    = Object.keys(poolsByJuris).filter(k => activePills.has(k));
-    const nJ       = juris.length;
-    const totalBal = juris.reduce((s,k) => s + poolsByJuris[k], 0);
-
-    const trxUpTo = data.filter(r => r.year <= upToYear && r.status === 'Allocated');
-    const allocByJuris = {};
-    juris.forEach(k => {
-      allocByJuris[k] = trxUpTo.filter(r => r.jurisdiction === k).reduce((s,r) => s + (r.qty||1), 0);
-    });
-    const totalAlloc = juris.reduce((s,k) => s + (allocByJuris[k] || 0), 0);
-
-    nodeLabels = [
-      'Total Authorized<br>' + totalBal.toLocaleString() + ' ' + unit,
-      ...juris.map(k => (JURIS_SHORT[k]||k) + '<br>' + poolsByJuris[k].toLocaleString()),
-      'Allocated for<br>Development<br><b>' + totalAlloc.toLocaleString() + '</b>',
-      'Remaining<br>in Pools',
-    ];
-    nodeColors = [tc, ...JURIS_COLORS.slice(0, nJ), '#6ebe44', '#c8d4e3'];
-    sources = []; targets = []; values = []; linkColors = [];
-    juris.forEach((k,i) => {
-      sources.push(0); targets.push(i+1); values.push(poolsByJuris[k]);
-      linkColors.push(JURIS_COLORS[i % JURIS_COLORS.length] + '44');
-      const alloc = Math.min(allocByJuris[k] || 0, poolsByJuris[k]);
-      const rem   = poolsByJuris[k] - alloc;
-      if (alloc > 0) { sources.push(i+1); targets.push(nJ+1); values.push(alloc); linkColors.push('#6ebe4466'); }
-      if (rem   > 0) { sources.push(i+1); targets.push(nJ+2); values.push(rem);   linkColors.push('#c8d4e388'); }
-    });
+  const fc = document.querySelector('#chart-count');
+  if (fc) {
+    const shown = sumQty(jurisRows.filter(r => activePills.has(r.jurisdiction))) + notAssigned;
+    fc.innerHTML = '<strong>' + shown.toLocaleString() + '</strong> of ' + total.toLocaleString() + ' shown';
   }
 
-  Plotly.react('chart-sankey', [{
-    type: 'sankey',
-    arrangement: 'snap',
-    node: { label: nodeLabels, color: nodeColors, pad: 22, thickness: 28, line: { color: '#fff', width: 0.5 } },
-    link: { source: sources, target: targets, value: values, color: linkColors },
-  }], {
-    ...plotlyBase,
-    margin: { t: 24, r: 30, b: 24, l: 30 },
-    font:   { family: 'Lexend Deca, sans-serif', size: 11, color: '#0b1f41' },
+  const yTitle = currentType === 'commercial' ? 'Sq Ft (CFA)' : 'Units';
+
+  Plotly.react('main-chart', [
+    {
+      name: 'Allocated to Development',
+      type: 'bar', x: xLabels,
+      y: [...allocated, 0],
+      marker: { color: '#6ebe44' },
+      hovertemplate: '<b>%{y:,}</b> allocated to development<extra>%{x}</extra>',
+    },
+    {
+      name: 'Available in Pool',
+      type: 'bar', x: xLabels,
+      y: [...available, 0],
+      marker: { color: '#f16022' },
+      hovertemplate: '<b>%{y:,}</b> available in pool<extra>%{x}</extra>',
+    },
+    {
+      name: 'Not Yet Assigned to Pool',
+      type: 'bar', x: xLabels,
+      y: [...juris.map(() => 0), notAssigned],
+      marker: { color: '#c8d4e3' },
+      hovertemplate: '<b>%{y:,}</b> not yet assigned to any jurisdiction pool<extra></extra>',
+    },
+  ], {
+    ...plotBase,
+    yaxis: { ...plotBase.yaxis, title: { text: yTitle, font: { size: 11 } } },
   }, { responsive: true, displayModeBar: false });
-}
-
-// ── Stacked drawdown area ────────────────
-// Shows remaining in each pool over time — starts high, drains as units are allocated
-function chartStackedArea(data) {
-  const isRes    = currentType === 'residential';
-  const drKey    = currentType === 'commercial' ? 'Commercial Floor Area (CFA)' : 'Tourist Accommodation Unit (TAU)';
-  const allJuris = isRes
-    ? JURISDICTIONS_RES.filter(j => rawResidential.some(r => r.jurisdiction === j))
-    : [...new Set(data.map(r => r.jurisdiction).filter(j => j && j !== 'Unknown'))].sort();
-  const juris = allJuris.filter(j => activePills.has(j));
-  const years = isRes
-    ? [2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025]
-    : [...new Set(data.map(r => r.year).filter(y => y && y >= 2000 && y <= 2030))].sort((a,b)=>a-b);
-
-  const traces = juris.map((j, idx) => {
-    // Fixed pool size for this jurisdiction
-    let poolSize;
-    if (isRes) {
-      poolSize = rawResidential.filter(r => r.year >= 2013 && r.jurisdiction === j).length;
-    } else {
-      const curBal  = rawCommodity.filter(r => r.active && r.dr === drKey && simplifyJuris(r.jurisRaw) === j)
-                                  .reduce((s,r) => s + r.balance, 0);
-      const totAlloc = data.filter(r => r.jurisdiction === j && r.status === 'Allocated')
-                           .reduce((s,r) => s + (r.qty||1), 0);
-      poolSize = curBal + totAlloc;
-    }
-
-    let cumAlloc = 0;
-    const y = [], cd = [];
-    years.forEach(yr => {
-      const added = isRes
-        ? rawResidential.filter(r => r.year >= 2013 && r.jurisdiction === j && r.status === 'Allocated' && r.year === yr).length
-        : data.filter(r => r.jurisdiction === j && r.status === 'Allocated' && r.year === yr).reduce((s,r) => s + (r.qty||1), 0);
-      cumAlloc += added;
-      const remaining = Math.max(0, poolSize - cumAlloc);
-      y.push(remaining);
-      cd.push([remaining, poolSize, cumAlloc, poolSize > 0 ? (cumAlloc / poolSize * 100).toFixed(1) : 0]);
-    });
-
-    const short = JURIS_SHORT[j] || j;
-    return {
-      name: short, type: 'scatter', mode: 'lines', fill: 'tonexty', stackgroup: 'one',
-      x: years.map(String), y, customdata: cd,
-      line:      { color: JURIS_COLORS[idx % JURIS_COLORS.length], width: 0.5 },
-      fillcolor: JURIS_COLORS[idx % JURIS_COLORS.length] + 'cc',
-      hovertemplate: '<b>%{customdata[0]:,}</b> remaining · %{customdata[2]:,} drawn (%{customdata[3]}%)<extra>' + short + '</extra>',
-    };
-  });
-
-  Plotly.react('chart-stacked', traces.length ? traces : [{ type:'scatter', x:[], y:[] }], {
-    ...plotlyBase, hovermode: 'x unified',
-    xaxis: { ...plotlyBase.xaxis, type: 'category', tickangle: -45 },
-    yaxis: { ...plotlyBase.yaxis, title: { text: 'Remaining in Pool', font: { size: 11 } }, rangemode: 'tozero' },
-    legend: { orientation: 'h', y: -0.28, font: { size: 11 } },
-  }, { responsive: true, displayModeBar: false });
-}
-
-function renderCharts(data) {
-  buildJurisPills(data);
-  updateYearSlider(data);
-  chartSankey(data, sliderYear);
-  chartStackedArea(data);
 }
 
 // ─────────────────────────────────────────
 // DRAWDOWN SUMMARY TABLE
 // ─────────────────────────────────────────
 function renderDrawdownTable() {
-  const tbody    = document.querySelector('#dd-summary-body');
-  const tfoot    = document.querySelector('#dd-summary-foot');
-  const jurisVal = document.querySelector('#filter-juris-tbl').value;
+  const tbody = document.querySelector('#dd-body');
+  const tfoot = document.querySelector('#dd-foot');
   tbody.innerHTML = '';
 
-  if (currentType === 'residential') {
-    const base  = rawResidential.filter(r => r.year >= 2013);
-    const pools = [
-      { label: 'TRPA Pool',               juris: 'TRPA' },
-      { label: 'El Dorado County',         juris: 'El Dorado County' },
-      { label: 'Placer County',            juris: 'Placer County' },
-      { label: 'City of South Lake Tahoe', juris: 'City of South Lake Tahoe' },
-      { label: 'Douglas County',           juris: 'Douglas County' },
-      { label: 'Washoe County',            juris: 'Washoe County' },
-    ];
-    let gTotal = 0, gAlloc = 0;
-    pools.forEach(p => {
-      if (jurisVal !== 'all' && p.juris !== jurisVal) return;
-      const rows  = base.filter(r => r.jurisdiction === p.juris);
-      const total = rows.length;
-      const alloc = rows.filter(r => r.status === 'Allocated').length;
-      const rem   = total - alloc;
-      const pct   = total ? (alloc / total * 100) : 0;
-      gTotal += total; gAlloc += alloc;
-      const tr = document.createElement('tr');
-      tr.innerHTML =
-        '<td>' + p.label + '</td>' +
-        '<td class="num">' + total.toLocaleString() + '</td>' +
-        '<td class="num" style="color:var(--allocated);font-weight:600">' + alloc.toLocaleString() + '</td>' +
-        '<td class="num">' + rem.toLocaleString() + '</td>' +
-        '<td class="bar-cell"><div class="dd-bar-track"><div class="dd-bar-fill" style="width:' + pct.toFixed(1) + '%"></div></div><div class="dd-pct">' + pct.toFixed(1) + '%</div></td>';
-      tbody.appendChild(tr);
-    });
-    const gRem = gTotal - gAlloc;
-    const gPct = gTotal ? (gAlloc / gTotal * 100) : 0;
-    tfoot.innerHTML =
-      '<tr class="tfoot-row"><td>Total</td><td class="num">' + gTotal.toLocaleString() +
-      '</td><td class="num" style="color:var(--allocated)">' + gAlloc.toLocaleString() +
-      '</td><td class="num">' + gRem.toLocaleString() +
-      '</td><td class="bar-cell"><div class="dd-bar-track"><div class="dd-bar-fill" style="width:' + gPct.toFixed(1) + '%"></div></div><div class="dd-pct">' + gPct.toFixed(1) + '%</div></td></tr>';
-  } else {
-    const data   = getRawData();
-    const juris  = [...new Set(data.map(r => r.jurisdiction).filter(j => j && j !== 'Unknown'))].sort();
-    let gAlloc = 0, gBanked = 0;
-    juris.forEach(j => {
-      if (jurisVal !== 'all' && j !== jurisVal) return;
-      const aRows = data.filter(r => r.jurisdiction === j && r.recordType === 'Allocation Receiving Parcel');
-      const bRows = data.filter(r => r.jurisdiction === j && r.recordType === 'Banked Commodity');
-      const aQty  = aRows.reduce((s,r) => s + r.qty, 0) || aRows.length;
-      const bQty  = bRows.reduce((s,r) => s + r.remaining, 0) || bRows.length;
-      const total = aQty + bQty;
-      const pct   = total ? (aQty / total * 100) : 0;
-      gAlloc += aQty; gBanked += bQty;
-      const tr = document.createElement('tr');
-      tr.innerHTML =
-        '<td>' + j + '</td>' +
-        '<td class="num">' + total.toLocaleString() + '</td>' +
-        '<td class="num" style="color:var(--allocated);font-weight:600">' + aQty.toLocaleString() + '</td>' +
-        '<td class="num">' + bQty.toLocaleString() + '</td>' +
-        '<td class="bar-cell"><div class="dd-bar-track"><div class="dd-bar-fill" style="width:' + pct.toFixed(1) + '%"></div></div><div class="dd-pct">' + pct.toFixed(1) + '%</div></td>';
-      tbody.appendChild(tr);
-    });
-    const gTotal = gAlloc + gBanked;
-    const gPct   = gTotal ? (gAlloc / gTotal * 100) : 0;
-    tfoot.innerHTML =
-      '<tr class="tfoot-row"><td>Total</td><td class="num">' + gTotal.toLocaleString() +
-      '</td><td class="num" style="color:var(--allocated)">' + gAlloc.toLocaleString() +
-      '</td><td class="num">' + gBanked.toLocaleString() +
-      '</td><td class="bar-cell"><div class="dd-bar-track"><div class="dd-bar-fill" style="width:' + gPct.toFixed(1) + '%"></div></div><div class="dd-pct">' + gPct.toFixed(1) + '%</div></td></tr>';
-  }
+  const total     = TOTAL_AUTH[currentType];
+  const order     = activeJurisOrder();
+  const jurisRows = rawData.filter(r => !r.isTrpaReserve && r.jurisdiction);
+
+  document.querySelector('#dd-sub').textContent =
+    currentType === 'residential' ? 'Total authorized units per pool, allocation status, and utilization rate' :
+    currentType === 'commercial'  ? 'Commercial floor area (sq ft) per jurisdiction pool, status, and utilization' :
+                                    'Tourist bonus units per pool, status, and utilization rate';
+
+  let gInPool = 0, gAlloc = 0;
+  order.forEach(j => {
+    const rows = jurisRows.filter(r => r.jurisdiction === j);
+    if (!rows.length) return;
+    const poolTotal = sumQty(rows);
+    const alloc     = sumQty(rows.filter(r => r.status === 'Allocated'));
+    const avail     = poolTotal - alloc;
+    const pct       = alloc / poolTotal * 100;
+    gInPool += poolTotal; gAlloc += alloc;
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td>' + j + '</td>' +
+      '<td class="r">' + poolTotal.toLocaleString() + '</td>' +
+      '<td class="r" style="color:var(--green);font-weight:600">' + alloc.toLocaleString() + '</td>' +
+      '<td class="r">' + avail.toLocaleString() + '</td>' +
+      '<td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:' + pct.toFixed(1) + '%"></div></div>' +
+      '<div class="bar-pct">' + pct.toFixed(1) + '%</div></td>';
+    tbody.appendChild(tr);
+  });
+
+  const notYet = total - gInPool;
+  const ntr = document.createElement('tr');
+  ntr.style.cssText = 'color:var(--text-light);';
+  ntr.innerHTML =
+    '<td style="font-style:italic">Not Yet Assigned to Pool</td>' +
+    '<td class="r">' + notYet.toLocaleString() + '</td>' +
+    '<td class="r">&#8212;</td><td class="r">&#8212;</td>' +
+    '<td class="bar-cell"><div class="bar-pct">' + (notYet / total * 100).toFixed(1) + '% of total</div></td>';
+  tbody.appendChild(ntr);
+
+  const gPct = gInPool ? (gAlloc / gInPool * 100) : 0;
+  tfoot.innerHTML =
+    '<tr class="tfoot-row">' +
+    '<td>Total In Pools</td>' +
+    '<td class="r">' + gInPool.toLocaleString() + '</td>' +
+    '<td class="r" style="color:var(--green)">' + gAlloc.toLocaleString() + '</td>' +
+    '<td class="r">' + (gInPool - gAlloc).toLocaleString() + '</td>' +
+    '<td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:' + gPct.toFixed(1) + '%"></div></div>' +
+    '<div class="bar-pct">' + gPct.toFixed(1) + '% of in-pool total</div></td>' +
+    '</tr>';
 }
 
 // ─────────────────────────────────────────
 // AG GRID
 // ─────────────────────────────────────────
-function getColumnDefs() {
+function getColDefs() {
   if (currentType === 'residential') {
     return [
-      { field: 'id',           headerName: 'Alloc. ID',    width: 145, sortable: true, filter: 'agTextColumnFilter' },
-      { field: 'year',         headerName: 'Year',         width: 90,  sortable: true, filter: 'agNumberColumnFilter' },
+      { field: 'id',           headerName: 'Alloc. ID',    width: 150, sortable: true, filter: 'agTextColumnFilter' },
+      { field: 'year',         headerName: 'Year',         width: 80,  sortable: true, filter: 'agNumberColumnFilter' },
       { field: 'jurisdiction', headerName: 'Jurisdiction', flex: 1,    sortable: true, filter: 'agTextColumnFilter' },
       { field: 'pool',         headerName: 'Pool',         flex: 1.5,  sortable: true, filter: 'agTextColumnFilter' },
-      { field: 'status',       headerName: 'Status',       flex: 1,    sortable: true, filter: 'agTextColumnFilter',
+      { field: 'status',       headerName: 'Status',       width: 180, sortable: true, filter: 'agTextColumnFilter',
         cellStyle: p => ({ color: p.value === 'Allocated' ? '#6ebe44' : '#f16022', fontWeight: '600' }) },
       { field: 'transaction',  headerName: 'Transaction',  flex: 1,    sortable: true, filter: 'agTextColumnFilter' },
-      { field: 'apn',          headerName: 'Parcel APN',   flex: 1,    sortable: true, filter: 'agTextColumnFilter' },
+      { field: 'apn',          headerName: 'APN',          flex: 1,    sortable: true, filter: 'agTextColumnFilter' },
+    ];
+  } else {
+    const qtyLabel = currentType === 'commercial' ? 'Sq Ft (CFA)' : 'Bonus Units';
+    return [
+      { field: 'id',           headerName: 'Transaction #', width: 190, sortable: true, filter: 'agTextColumnFilter' },
+      { field: 'year',         headerName: 'Year',          width: 80,  sortable: true, filter: 'agNumberColumnFilter' },
+      { field: 'jurisdiction', headerName: 'Jurisdiction',  flex: 1,    sortable: true, filter: 'agTextColumnFilter',
+        valueFormatter: p => p.value || 'TRPA Reserve' },
+      { field: 'pool',         headerName: 'Pool Code',     width: 110, sortable: true, filter: 'agTextColumnFilter' },
+      { field: 'statusRaw',    headerName: 'Status',        width: 120, sortable: true, filter: 'agTextColumnFilter',
+        cellStyle: p => ({ color: p.value === 'Approved' ? '#6ebe44' : '#f16022', fontWeight: '600' }) },
+      { field: 'qty',          headerName: qtyLabel,        width: 140, sortable: true, filter: 'agNumberColumnFilter',
+        valueFormatter: p => (p.value || 0).toLocaleString() },
     ];
   }
-  const unit = currentType === 'commercial' ? 'sq ft' : 'units';
-  return [
-    { field: 'apn',          headerName: 'APN',          width: 130, sortable: true, filter: 'agTextColumnFilter' },
-    { field: 'dr',           headerName: 'Right Type',   flex: 1,    sortable: true, filter: 'agTextColumnFilter' },
-    { field: 'status',       headerName: 'Status',       width: 130, sortable: true, filter: 'agTextColumnFilter',
-      cellStyle: p => ({ color: p.value === 'Allocated' ? '#6ebe44' : '#007dc3', fontWeight: '600' }) },
-    { field: 'jurisdiction', headerName: 'Jurisdiction', flex: 1,    sortable: true, filter: 'agTextColumnFilter' },
-    { field: 'localPlan',    headerName: 'Local Plan',   flex: 1.5,  sortable: true, filter: 'agTextColumnFilter' },
-    { field: 'qty',          headerName: 'Qty (' + unit + ')', width: 110, sortable: true, filter: 'agNumberColumnFilter' },
-    { field: 'year',         headerName: 'Year',         width: 90,  sortable: true, filter: 'agNumberColumnFilter' },
-    { field: 'transaction',  headerName: 'Transaction',  flex: 1,    sortable: true, filter: 'agTextColumnFilter' },
-  ];
 }
 
 function initGrid() {
+  if (gridApi) { try { gridApi.destroy(); } catch(e){} gridApi = null; }
   gridApi = agGrid.createGrid(document.querySelector('#grid-container'), {
-    columnDefs:              getColumnDefs(),
-    rowData:                 getRawData(),
-    pagination:              true,
-    paginationPageSize:      25,
-    paginationPageSizeSelector: [10, 25, 50, 100],
-    defaultColDef:           { resizable: true },
-    animateRows:             true,
-    rowHeight:               38,
-    headerHeight:            44,
+    columnDefs: getColDefs(), rowData: rawData,
+    pagination: true, paginationPageSize: 25, paginationPageSizeSelector: [10, 25, 50, 100],
+    defaultColDef: { resizable: true }, animateRows: true, rowHeight: 36, headerHeight: 42,
   });
 }
 
-// ─────────────────────────────────────────
-// FILTER → RE-RENDER
-// ─────────────────────────────────────────
-function applyFilters() {
-  const filtered = filterData(getRawData(), getFilters());
-  renderCharts(filtered);
-  const el = document.querySelector('#filter-count-charts');
-  if (el) el.innerHTML = '<strong>' + filtered.length.toLocaleString() + '</strong> records';
-}
-
 function applyTableFilters() {
-  const { year, juris, status } = getTableFilters();
-  const filtered = getRawData().filter(r =>
-    (year   === 'all' || r.year === +year) &&
+  const juris  = document.querySelector('#filter-juris-tbl').value;
+  const status = document.querySelector('#filter-status-tbl').value;
+  const filtered = rawData.filter(r =>
     (juris  === 'all' || r.jurisdiction === juris) &&
     (status === 'all' || r.status === status)
   );
-  if (gridApi) {
-    gridApi.setGridOption('columnDefs', getColumnDefs());
-    gridApi.setGridOption('rowData', filtered);
-  }
-  const el = document.querySelector('#filter-count-tbl');
-  if (el) el.innerHTML = '<strong>' + filtered.length.toLocaleString() + '</strong> records';
-  renderDrawdownTable();
-}
-
-// ─────────────────────────────────────────
-// TAB SWITCHING
-// ─────────────────────────────────────────
-function switchTab(name, btn) {
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelector('#tab-' + name).classList.add('active');
-  btn.classList.add('active');
-  if (name === 'charts') {
-    setTimeout(() => ['chart-sankey','chart-stacked'].forEach(id => Plotly.Plots.resize(id)), 50);
-  } else if (name === 'map') {
-    initMap();
-    applyMapFilters();
-  }
-}
-
-// ─────────────────────────────────────────
-// DATA LOADING
-// ─────────────────────────────────────────
-function showLoading(visible) {
-  const el = document.querySelector('#loading-overlay');
-  if (el) el.style.display = visible ? 'flex' : 'none';
-}
-
-async function loadData() {
-  const bar = document.querySelector('#loading-bar');
-  if (bar) bar.style.width = '30%';
-  const resp = await fetch(RES_URL);
-  if (!resp.ok) throw new Error('Failed to load data: ' + resp.status);
-  if (bar) bar.style.width = '70%';
-  rawResidential = parseResCSV(await resp.text());
-  if (bar) bar.style.width = '100%';
+  if (gridApi) gridApi.setGridOption('rowData', filtered);
+  document.querySelector('#tbl-count').innerHTML = '<strong>' + filtered.length.toLocaleString() + '</strong> records';
 }
 
 function downloadCSV() {
-  const data = getRawData();
-  let csv, filename;
-  if (currentType === 'residential') {
-    const h = ['id','year','jurisdiction','pool','status','transaction','apn'];
-    csv = [h.join(','), ...data.map(r => h.map(f => '"' + String(r[f] ?? '').replace(/"/g,'""') + '"').join(','))].join('\r\n');
-    filename = 'residential_allocations.csv';
-  } else {
-    const h = ['apn','dr','status','recordType','qty','jurisdiction','localPlan','year','transaction'];
-    csv = [h.join(','), ...data.map(r => h.map(f => '"' + String(r[f] ?? '').replace(/"/g,'""') + '"').join(','))].join('\r\n');
-    filename = currentType + '_allocations.csv';
-  }
+  const h = currentType === 'residential'
+    ? ['id','year','jurisdiction','pool','status','statusRaw','transaction','apn']
+    : ['id','year','jurisdiction','pool','statusRaw','qty'];
+  const csv = [h.join(','), ...rawData.map(r =>
+    h.map(f => '"' + String(r[f] ?? '').replace(/"/g, '""') + '"').join(',')
+  )].join('\r\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
-  a.download = filename;
+  a.download = currentType + '_allocations.csv';
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+function populateJurisFilters() {
+  const order = activeJurisOrder();
+  ['#filter-juris-tbl', '#filter-juris-map'].forEach(id => {
+    const el = document.querySelector(id);
+    if (!el) return;
+    el.innerHTML = '<option value="all">All Jurisdictions</option>';
+    order.forEach(j => {
+      const o = document.createElement('option');
+      o.value = j; o.textContent = j; el.appendChild(o);
+    });
+  });
 }
 
 // ─────────────────────────────────────────
 // MAP
 // ─────────────────────────────────────────
-let mapView = null, parcelsLayer = null, mapInitialized = false;
-
-const TYPE_MAP_COLORS = {
-  residential: [241, 96, 34,  0.55],  // orange
-  commercial:  [232, 192, 20, 0.55],  // yellow
-  tourist:     [123, 79,  158,0.55],  // purple
+let mapView = null, parcelsLayer = null, mapInit = false;
+const TYPE_FILL = {
+  residential: [241, 96,  34,  0.55],
+  commercial:  [232, 192, 20,  0.55],
+  tourist:     [123, 79,  158, 0.55],
 };
 
 function initMap() {
-  if (mapInitialized) return;
-  mapInitialized = true;
-  require(['esri/Map','esri/views/MapView','esri/layers/FeatureLayer'], function(EsriMap, MapView, FeatureLayer) {
+  if (mapInit) return;
+  mapInit = true;
+  require(['esri/Map','esri/views/MapView','esri/layers/FeatureLayer'], (EsriMap, MapView, FeatureLayer) => {
     const map = new EsriMap({ basemap: 'gray-vector' });
     mapView = new MapView({ container: 'map-view', map, center: [-120.00, 39.09], zoom: 10 });
-    const fillColor = TYPE_MAP_COLORS[currentType] || TYPE_MAP_COLORS.residential;
     parcelsLayer = new FeatureLayer({
       url: 'https://maps.trpa.org/server/rest/services/Parcels/FeatureServer/0',
       outFields: ['APN'],
-      renderer: { type: 'simple', symbol: { type: 'simple-fill', color: fillColor, outline: { color: [11,31,65,0.8], width: 0.6 } } },
+      renderer: {
+        type: 'simple',
+        symbol: { type: 'simple-fill', color: TYPE_FILL[currentType], outline: { color: [11,31,65,0.8], width: 0.6 } },
+      },
       definitionExpression: '1=0',
     });
     map.add(parcelsLayer);
@@ -1430,47 +709,84 @@ function initMap() {
 
 function applyMapFilters() {
   const status = (document.querySelector('#filter-status-map') || {}).value || 'all';
-  const pills  = activePills.size > 0 ? activePills : null;
-  const filtered = getRawData().filter(r =>
-    r.year <= sliderYear &&
-    (!pills || pills.has(r.jurisdiction)) &&
-    (status === 'all' || r.status === status) && r.apn
+  const juris  = (document.querySelector('#filter-juris-map')  || {}).value || 'all';
+  const filtered = rawData.filter(r =>
+    (status === 'all' || r.status === status) &&
+    (juris  === 'all' || r.jurisdiction === juris) && r.apn
   );
-  const apns    = [...new Set(filtered.map(r => r.apn).filter(Boolean))];
-  const countEl = document.querySelector('#filter-count-map');
-  if (!parcelsLayer) { if (countEl) countEl.innerHTML = '<strong>' + apns.length + '</strong> APNs'; return; }
-  if (!apns.length)  { parcelsLayer.definitionExpression = '1=0'; if (countEl) countEl.innerHTML = '<strong>0</strong> parcels matched'; return; }
-  const quoted = apns.map(a => "'" + String(a).replace(/'/g,"''") + "'").join(',');
-  parcelsLayer.definitionExpression = 'APN IN (' + quoted + ')';
-  if (countEl) countEl.innerHTML = '<strong>' + apns.length + '</strong> parcels matched';
+  const apns = [...new Set(filtered.map(r => r.apn).filter(Boolean))];
+  const el   = document.querySelector('#map-count');
+  if (!parcelsLayer) { if (el) el.innerHTML = '<strong>' + apns.length + '</strong> APNs'; return; }
+  if (!apns.length)  { parcelsLayer.definitionExpression = '1=0'; if (el) el.innerHTML = '<strong>0</strong> parcels'; return; }
+  const q = apns.map(a => "'" + String(a).replace(/'/g, "''") + "'").join(',');
+  parcelsLayer.definitionExpression = 'APN IN (' + q + ')';
+  if (el) el.innerHTML = '<strong>' + apns.length + '</strong> parcels matched';
   parcelsLayer.queryExtent({ where: parcelsLayer.definitionExpression })
-    .then(r => { if (r.extent && mapView) mapView.goTo(r.extent.expand(1.25)); }).catch(() => {});
+    .then(r => { if (r.extent && mapView) mapView.goTo(r.extent.expand(1.3)); })
+    .catch(() => {});
+}
+
+// ─────────────────────────────────────────
+// TAB + TYPE SWITCHING
+// ─────────────────────────────────────────
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('#tab-' + name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'charts') setTimeout(() => Plotly.Plots.resize('main-chart'), 50);
+  if (name === 'map')    initMap();
+}
+
+function switchType(type, btn) {
+  if (type === currentType) return;
+  currentType = type;
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  rawData = type === 'residential'
+    ? resData
+    : cfaTauAllData.filter(r => r.type === type);
+
+  updateKPIs();
+  buildPills();
+  renderChart();
+  renderDrawdownTable();
+  populateJurisFilters();
+  initGrid();
+  document.querySelector('#tbl-count').innerHTML = '<strong>' + rawData.length.toLocaleString() + '</strong> records';
 }
 
 // ─────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
-  showLoading(true);
+  const bar = document.querySelector('#loading-bar');
   try {
-    await loadData();
-  } catch (err) {
-    showLoading(false);
+    if (bar) bar.style.width = '20%';
+    const [resResp, cfaTauResp] = await Promise.all([fetch(RES_URL), fetch(CFA_TAU_URL)]);
+    if (!resResp.ok)    throw new Error('Residential data: HTTP ' + resResp.status);
+    if (!cfaTauResp.ok) throw new Error('CFA/TAU data: HTTP ' + cfaTauResp.status);
+    if (bar) bar.style.width = '65%';
+    resData       = parseResCSV(await resResp.text());
+    cfaTauAllData = parseCfaTauCSV(await cfaTauResp.text());
+    rawData       = resData;
+    if (bar) bar.style.width = '100%';
+  } catch (e) {
     document.querySelector('#loading-overlay').innerHTML =
-      '<div style="color:#f16022;font-family:\'Lexend Deca\',sans-serif;padding:24px;text-align:center;">' +
-      '<strong>Error loading data.</strong><br><small>' + err.message + '</small></div>';
+      '<div style="background:#fff;border-radius:10px;padding:32px 48px;text-align:center;font-family:\'Lexend Deca\',sans-serif;">' +
+      '<strong style="color:#f16022;font-size:1rem;">Error loading data</strong><br>' +
+      '<small style="color:#4a5b73;">' + e.message + '</small></div>';
     return;
   }
-  showLoading(false);
-  populateFilters();
+  document.querySelector('#loading-overlay').style.display = 'none';
   updateKPIs();
-  renderCharts(rawResidential);
-  initGrid();
+  buildPills();
+  renderChart();
   renderDrawdownTable();
-  const fc = document.querySelector('#filter-count-charts');
-  if (fc) fc.innerHTML = '<strong>' + rawResidential.length.toLocaleString() + '</strong> records';
-  const ft = document.querySelector('#filter-count-tbl');
-  if (ft) ft.innerHTML = '<strong>' + rawResidential.length.toLocaleString() + '</strong> records';
+  populateJurisFilters();
+  initGrid();
+  document.querySelector('#tbl-count').innerHTML = '<strong>' + rawData.length.toLocaleString() + '</strong> records';
 });
 </script>
 </body>
