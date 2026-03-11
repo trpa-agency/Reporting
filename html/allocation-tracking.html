@@ -155,8 +155,8 @@ header h1 span { color: var(--blue); }
 <div class="type-bar">
   <span class="type-label">Type</span>
   <button class="type-btn residential active" onclick="switchType('residential',this)">Residential</button>
-  <button class="type-btn commercial"         onclick="switchType('commercial', this)">Commercial (CFA)</button>
-  <button class="type-btn tourist"            onclick="switchType('tourist',    this)">Tourist Bonus Units</button>
+  <button class="type-btn commercial"         onclick="switchType('commercial', this)">Commercial</button>
+  <button class="type-btn tourist"            onclick="switchType('tourist',    this)">Tourist</button>
 </div>
 
 <!-- KPIs -->
@@ -443,12 +443,14 @@ function updateKPIs() {
   document.querySelector('#kpi2-accent').style.background = tc[currentType];
   document.querySelector('#kpi2-bar').style.background    = tc[currentType];
 
-  // Jurisdiction rows filtered by slider year
-  const jurisRows = getJurisRows(sliderYear);
-  const allocated = sumQty(jurisRows.filter(r => r.status === 'Allocated'));
-  const available = sumQty(jurisRows.filter(r => r.status === 'In Pool'));
-  const inPools   = sumQty(jurisRows);
-  const notYet    = total - inPools;
+  // Jurisdiction rows filtered by slider year and active pills
+  const allJurisRows = getJurisRows(sliderYear);
+  const jurisRows    = allJurisRows.filter(r => activePills.has(r.jurisdiction));
+  const allocated    = sumQty(jurisRows.filter(r => r.status === 'Allocated'));
+  const available    = sumQty(jurisRows.filter(r => r.status === 'In Pool'));
+  const inPools      = sumQty(jurisRows);
+  // Not Yet Assigned is always the total-level gap (units not yet in any pool)
+  const notYet       = total - sumQty(allJurisRows);
 
   setKPI(1, 'Allocated to Development',
     fmtVal(allocated),
@@ -492,15 +494,38 @@ function buildPills() {
     return;
   }
 
-  container.innerHTML = pillJuris.map(j =>
-    `<button class="juris-pill active" data-juris="${j}" onclick="togglePill(this)">${JURIS_SHORT[j] || j}</button>`
-  ).join('');
+  container.innerHTML =
+    `<button class="juris-pill active" id="pill-all" onclick="toggleAllPills(this)">All</button>` +
+    pillJuris.map(j =>
+      `<button class="juris-pill active" data-juris="${j}" onclick="togglePill(this)">${JURIS_SHORT[j] || j}</button>`
+    ).join('');
+}
+
+function syncAllPill() {
+  const allPill = document.querySelector('#pill-all');
+  if (!allPill) return;
+  const jurisPills = [...document.querySelectorAll('.juris-pill[data-juris]')];
+  const allActive  = jurisPills.length > 0 && jurisPills.every(p => activePills.has(p.dataset.juris));
+  allPill.classList.toggle('active', allActive);
+}
+
+function toggleAllPills(btn) {
+  const nowActive = !btn.classList.contains('active');
+  btn.classList.toggle('active', nowActive);
+  document.querySelectorAll('.juris-pill[data-juris]').forEach(p => {
+    p.classList.toggle('active', nowActive);
+    nowActive ? activePills.add(p.dataset.juris) : activePills.delete(p.dataset.juris);
+  });
+  updateKPIs();
+  renderCharts();
 }
 
 function togglePill(btn) {
   const j = btn.dataset.juris;
   activePills.has(j) ? activePills.delete(j) : activePills.add(j);
   btn.classList.toggle('active', activePills.has(j));
+  syncAllPill();
+  updateKPIs();
   renderCharts();
 }
 
@@ -610,12 +635,16 @@ function renderBar() {
   const yr       = sliderYear;
   const juris    = activeJurisOrder().filter(j => activePills.has(j));
   const jRows    = getJurisRows(yr);
-  // "Not Assigned" bar on the right
-  const xLabels  = [...juris.map(j => JURIS_SHORT[j] || j), 'Not Assigned'];
+
+  // "Authorized" summary bar first, then per-jurisdiction, then "Not Assigned"
+  const xLabels  = ['Authorized', ...juris.map(j => JURIS_SHORT[j] || j), 'Not Assigned'];
 
   const allocated   = juris.map(j => sumQty(jRows.filter(r => r.jurisdiction === j && r.status === 'Allocated')));
   const available   = juris.map(j => sumQty(jRows.filter(r => r.jurisdiction === j && r.status === 'In Pool')));
   const notAssigned = total - sumQty(jRows);
+
+  const totalAlloc = sumQty(jRows.filter(r => r.status === 'Allocated'));
+  const totalAvail = sumQty(jRows.filter(r => r.status === 'In Pool'));
 
   // Update chart count
   const fc = document.querySelector('#chart-count');
@@ -629,20 +658,20 @@ function renderBar() {
   Plotly.react('bar-chart', [
     {
       name: 'Allocated to Development',
-      type: 'bar', x: xLabels, y: [...allocated, 0],
+      type: 'bar', x: xLabels, y: [totalAlloc, ...allocated, 0],
       marker: { color: '#6ebe44' },
       hovertemplate: '<b>%{y:,}</b> allocated to development<extra>%{x}</extra>',
     },
     {
       name: 'Available in Pool',
-      type: 'bar', x: xLabels, y: [...available, 0],
+      type: 'bar', x: xLabels, y: [totalAvail, ...available, 0],
       marker: { color: '#f16022' },
       hovertemplate: '<b>%{y:,}</b> available in pool<extra>%{x}</extra>',
     },
     {
       name: 'Not Yet Assigned to Pool',
-      type: 'bar', x: xLabels, y: [...juris.map(() => 0), notAssigned],
-      marker: { color: '#c8d4e3' },
+      type: 'bar', x: xLabels, y: [notAssigned, ...juris.map(() => 0), notAssigned],
+      marker: { color: '#8a9bb2' },
       hovertemplate: '<b>%{y:,}</b> not yet assigned to any jurisdiction pool<extra></extra>',
     },
   ], {
