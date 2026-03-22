@@ -6,3 +6,7 @@ __pycache__/
 *.pyc
 *.pyo
 .DS_Store
+
+# Large QA exports — too big for git
+data/qa_data/qa_all_flags.csv
+data/qa_data/qa_spatial_completeness_flags.csv
