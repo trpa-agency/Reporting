@@ -21,6 +21,8 @@ import pandas as pd
 from config import (CSV_PATH, OUTPUT_FC, FC_APN, FC_YEAR, FC_COUNTY,
                     EL_PAD_YEAR, CSV_YEARS)
 from utils  import get_logger
+sys.path.insert(0, str(__import__('pathlib').Path(__file__).parent))  # steps/
+import s02b_genealogy
 
 log = get_logger("s02_load_csv")
 
@@ -108,6 +110,11 @@ def run() -> tuple[pd.DataFrame, dict]:
     df_csv["APN"] = df_csv.apply(_fix, axis=1)
     changed = (df_csv["APN"] != df_csv["APN_orig"]).sum()
     log.info("  CSV rows APN-fixed: %d", changed)
+
+    # -- Genealogy APN corrections --------------------------------------------
+    # Apply known old→new APN substitutions by year before building the lookup,
+    # so csv_lookup references the correct current APN for each year.
+    df_csv = s02b_genealogy.run(df_csv)
 
     # -- Build csv_lookup -----------------------------------------------------
     csv_lookup = {
