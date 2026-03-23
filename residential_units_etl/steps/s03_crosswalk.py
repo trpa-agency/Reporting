@@ -17,7 +17,7 @@ import arcpy
 import pandas as pd
 
 from config import (OUTPUT_FC, FC_APN, FC_YEAR, CSV_YEARS,
-                    CLOSEST_MAX_METERS, QA_APN_CROSSWALK)
+                    CLOSEST_MAX_METERS, QA_APN_CROSSWALK, ALL_PARCELS_CURRENT)
 from utils  import get_logger, df_to_gdb_table
 
 log = get_logger("s03_crosswalk")
@@ -58,6 +58,52 @@ def _get_apn_geometry(apns: set) -> dict:
     return result
 
 
+def _get_geometry_from_allparcels(apns: set, sr) -> dict:
+    """
+    Fetch parcel geometry from the All Parcels current service for APNs that
+    have no geometry in the historical FC.  Returns {apn: (geometry, 9999)}.
+    9999 is a sentinel source_year meaning "current / service layer".
+
+    The All Parcels service APN field is assumed to be the same FC_APN constant.
+    If the service uses a different field name, update FC_APN in config or adjust
+    the SQL here.
+    """
+    result = {}
+    if not apns:
+        return result
+
+    lyr = "all_parcels_current_lyr"
+    try:
+        if arcpy.Exists(lyr):
+            arcpy.management.Delete(lyr)
+        arcpy.management.MakeFeatureLayer(ALL_PARCELS_CURRENT, lyr)
+
+        apn_list = list(apns)
+        batch    = 100  # smaller batches for service queries
+        for i in range(0, len(apn_list), batch):
+            chunk = apn_list[i : i + batch]
+            sql   = " OR ".join(f"{FC_APN} = '{a}'" for a in chunk)
+            arcpy.management.SelectLayerByAttribute(lyr, "NEW_SELECTION", sql)
+            with arcpy.da.SearchCursor(lyr, [FC_APN, "SHAPE@"]) as cur:
+                for apn, geom in cur:
+                    if apn and geom and geom.area > 0:
+                        apn = str(apn).strip()
+                        if apn not in result:
+                            # Project geometry to match output FC spatial reference
+                            if geom.spatialReference.factoryCode != sr.factoryCode:
+                                geom = geom.projectAs(sr)
+                            result[apn] = (geom, 9999)
+
+    except Exception as exc:
+        log.warning("All Parcels service query failed: %s", exc)
+        log.warning("  APNs without geometry from service will be left unresolved.")
+    finally:
+        if arcpy.Exists(lyr):
+            arcpy.management.Delete(lyr)
+
+    return result
+
+
 def run(df_csv: pd.DataFrame, csv_lookup: dict) -> dict:
     log.info("=== Step 3: Build APN crosswalk ===")
 
@@ -80,8 +126,20 @@ def run(df_csv: pd.DataFrame, csv_lookup: dict) -> dict:
     apn_geom = _get_apn_geometry(missing_apns)
     has_geom = set(apn_geom.keys())
     no_geom  = missing_apns - has_geom
-    log.info("  With geometry   : %d", len(has_geom))
-    log.info("  Without geometry: %d  (not in FC any year)", len(no_geom))
+    log.info("  With geometry (FC)  : %d", len(has_geom))
+    log.info("  Without geometry    : %d  (not in FC any year)", len(no_geom))
+
+    # -- Fallback: fetch geometry from All Parcels current service ------------
+    if no_geom:
+        log.info("Trying All Parcels service for %d APNs with no FC geometry ...",
+                 len(no_geom))
+        sr          = arcpy.Describe(OUTPUT_FC).spatialReference
+        svc_geom    = _get_geometry_from_allparcels(no_geom, sr)
+        log.info("  Found in All Parcels service: %d", len(svc_geom))
+        apn_geom.update(svc_geom)
+        has_geom = set(apn_geom.keys())
+        no_geom  = missing_apns - has_geom
+        log.info("  Still without geometry: %d", len(no_geom))
 
     # -- Build centroid point FC in memory ------------------------------------
     if arcpy.Exists(_MEM_CENTROIDS): arcpy.management.Delete(_MEM_CENTROIDS)
