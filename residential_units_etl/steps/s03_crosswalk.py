@@ -4,7 +4,7 @@ Step 3 — Build APN crosswalk.
 For CSV APNs that don't exist in the output FC for a given year
 (parcel renames, historical splits), find the correct FC APN via
 centroid spatial join:
-  Pass 1 — WITHIN
+  Pass 1 — INTERSECT
   Pass 2 — CLOSEST (≤ CLOSEST_MAX_METERS)
 
 Extends csv_lookup with (FC_APN, Year) → units entries.
@@ -182,18 +182,18 @@ def run(df_csv: pd.DataFrame, csv_lookup: dict) -> dict:
 
         p1 = p2 = 0
 
-        # Pass 1: WITHIN
+        # Pass 1: INTERSECT
         arcpy.analysis.SpatialJoin(
             pt_lyr, fc_lyr, _MEM_JOIN,
             "JOIN_ONE_TO_ONE", "KEEP_ALL",
-            match_option="WITHIN")
+            match_option="INTERSECT")
         with arcpy.da.SearchCursor(
                 _MEM_JOIN, ["CSV_APN", FC_APN, "Join_Count"]) as cur:
             for csv_apn, fc_apn, jc in cur:
                 if jc and jc > 0 and fc_apn:
                     crosswalk_rows.append({
                         "CSV_APN": csv_apn, "FC_APN": fc_apn,
-                        "Year": year, "Match_Type": "within"})
+                        "Year": year, "Match_Type": "intersect"})
                     p1 += 1
         if arcpy.Exists(_MEM_JOIN): arcpy.management.Delete(_MEM_JOIN)
 

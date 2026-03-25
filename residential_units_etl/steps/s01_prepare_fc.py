@@ -9,7 +9,7 @@ import arcpy
 import sys
 sys.path.insert(0, str(__import__('pathlib').Path(__file__).parents[1]))
 
-from config import SOURCE_FC, OUTPUT_FC, GDB, FC_YEAR, CSV_YEARS
+from config import SOURCE_FC, WORKING_FC, OUTPUT_FC, GDB, FC_YEAR, CSV_YEARS
 from utils  import get_logger
 
 log = get_logger("s01_prepare_fc")
@@ -18,9 +18,16 @@ log = get_logger("s01_prepare_fc")
 def run() -> None:
     log.info("=== Step 1: Prepare output feature class ===")
 
-    # Validate source
-    if not arcpy.Exists(SOURCE_FC):
-        raise FileNotFoundError(f"Source FC not found: {SOURCE_FC}")
+    # Use cleaned working copy if available, otherwise fall back to original
+    if arcpy.Exists(WORKING_FC):
+        input_fc = WORKING_FC
+        log.info("Using working copy: %s", WORKING_FC)
+    else:
+        input_fc = SOURCE_FC
+        log.warning("Working copy not found — using original SOURCE_FC. "
+                    "Run preprocess.py first for a cleaned input.")
+        if not arcpy.Exists(SOURCE_FC):
+            raise FileNotFoundError(f"Source FC not found: {SOURCE_FC}")
 
     # Drop existing output
     if arcpy.Exists(OUTPUT_FC):
@@ -28,12 +35,12 @@ def run() -> None:
         arcpy.management.Delete(OUTPUT_FC)
 
     # Copy source → output, filtered to CSV_YEARS
-    year_list   = ", ".join(str(y) for y in CSV_YEARS)
+    year_list    = ", ".join(str(y) for y in CSV_YEARS)
     where_clause = f"{FC_YEAR} IN ({year_list})"
-    log.info("Copying %s → %s  WHERE %s", SOURCE_FC, OUTPUT_FC, where_clause)
+    log.info("Copying %s → %s  WHERE %s", input_fc, OUTPUT_FC, where_clause)
 
     arcpy.conversion.FeatureClassToFeatureClass(
-        in_features   = SOURCE_FC,
+        in_features   = input_fc,
         out_path      = GDB,
         out_name      = "Residential_Parcels_History",
         where_clause  = where_clause,

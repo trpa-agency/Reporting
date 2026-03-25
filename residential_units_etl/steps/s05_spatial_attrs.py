@@ -25,7 +25,6 @@ log = get_logger("s05_spatial_attrs")
 _SCRATCH = "memory"
 
 # Temp FC names
-_PARCEL_PT   = _SCRATCH + "/s05_parcel_centroids"
 _JOIN_PREFIX = _SCRATCH + "/s05_join_"
 
 
@@ -62,21 +61,24 @@ _SYSTEM_FIELDS = {
 _NUMERIC_TYPES = {"SmallInteger", "Integer", "Single", "Double"}
 
 
-def _sj_transfer(centroid_fc: str, source_url: str,
+def _sj_transfer(polygon_fc: str, source_url: str,
                  source_fields: list, target_fields: list,
                  scope_lyr: str, label: str) -> int:
     """
-    Spatial join centroid_fc → source_url, transfer attribute values
-    back to scope_lyr via APN join.
+    Spatial join polygon_fc → source_url using LARGEST_OVERLAP, transfer
+    attribute values back to scope_lyr via APN join.
+
+    LARGEST_OVERLAP assigns each parcel the join feature it overlaps most,
+    so gaps between adjacent polygons in the join layer cannot produce nulls.
     """
     join_fc = _JOIN_PREFIX + label.replace(" ", "_")
     if arcpy.Exists(join_fc):
         arcpy.management.Delete(join_fc)
 
     arcpy.analysis.SpatialJoin(
-        centroid_fc, source_url, join_fc,
+        polygon_fc, source_url, join_fc,
         "JOIN_ONE_TO_ONE", "KEEP_ALL",
-        match_option="HAVE_THEIR_CENTER_IN")
+        match_option="LARGEST_OVERLAP")
 
     # Check which source fields actually exist in the join output
     join_field_names = {f.name for f in arcpy.ListFields(join_fc)}
@@ -159,14 +161,9 @@ def run() -> None:
     n2 = _flag_within(scope_lyr, SPATIAL_SOURCES["BonusUnit"], "WITHIN_BONUSUNIT_BNDY")
     log.info("  WITHIN_BONUSUNIT_BNDY = 1 : %d rows", n2)
 
-    # -- Centroid points (built once, reused for all joins) ------------------
-    log.info("Building centroid points ...")
-    if arcpy.Exists(_PARCEL_PT): arcpy.management.Delete(_PARCEL_PT)
-    arcpy.management.FeatureToPoint(scope_lyr, _PARCEL_PT, "INSIDE")
-    n_pts = int(arcpy.management.GetCount(_PARCEL_PT).getOutput(0))
-    log.info("  %d centroid points", n_pts)
-
-    # -- Spatial joins -------------------------------------------------------
+    # -- Spatial joins (polygon → polygon, LARGEST_OVERLAP) ------------------
+    # Using the parcel polygon layer directly instead of centroid points so that
+    # gaps between adjacent join polygons cannot produce null results.
     joins = [
         (SPATIAL_SOURCES["TownCenter"],        ["Name"],
          ["TOWN_CENTER"],                       "TownCenter"),
@@ -184,11 +181,26 @@ def run() -> None:
 
     for src_url, src_flds, tgt_flds, label in joins:
         log.info("Spatial join: %s ...", label)
-        n = _sj_transfer(_PARCEL_PT, src_url, src_flds, tgt_flds, scope_lyr, label)
+        n = _sj_transfer(scope_lyr, src_url, src_flds, tgt_flds, scope_lyr, label)
         log.info("  %s : %d rows updated", label, n)
 
+    # -- Null out "Outside Town Center" in TOWN_CENTER -----------------------
+    # The TownCenter service has a catch-all polygon named "Outside Town Center"
+    # that covers all non-town-center areas.  Store null instead so TOWN_CENTER
+    # only contains actual town center names; proximity is captured in
+    # LOCATION_TO_TOWNCENTER.
+    log.info("Nulling TOWN_CENTER = 'Outside Town Center' ...")
+    n_outside = 0
+    with arcpy.da.UpdateCursor(
+            scope_lyr, ["TOWN_CENTER"],
+            "TOWN_CENTER = 'Outside Town Center'") as cur:
+        for row in cur:
+            row[0] = None
+            cur.updateRow(row)
+            n_outside += 1
+    log.info("  Cleared %d rows", n_outside)
+
     # -- Cleanup -------------------------------------------------------------
-    if arcpy.Exists(_PARCEL_PT): arcpy.management.Delete(_PARCEL_PT)
     if arcpy.Exists(scope_lyr):  arcpy.management.Delete(scope_lyr)
     for fc in arcpy.ListFeatureClasses(_JOIN_PREFIX + "*", feature_dataset="memory") or []:
         arcpy.management.Delete(fc)
