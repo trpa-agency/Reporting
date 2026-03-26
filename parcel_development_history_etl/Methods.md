@@ -16,8 +16,6 @@ This ETL builds a parcel-level development history feature class covering the La
 - **CommercialFloorArea_SqFt** — commercial floor area in square feet
 - Spatial attributes: jurisdiction, county, zoning, regional land use, TAZ, town center proximity, TRPA boundary membership
 
-The output supports TRPA's 2013 Regional Plan growth management accounting, tracking drawdown of the 2,600-unit residential allocation across TRPA, jurisdiction, and private pools.
-
 ---
 
 ## Authoritative Data Sources
@@ -282,13 +280,3 @@ Reports are not auto-generated — they are written manually after reviewing the
 | `WITHIN_BONUSUNIT_BNDY` | SmallInt | 1 = within bonus unit boundary |
 
 ---
-
-## Allocation Accounting Context
-
-The 2013 Regional Plan authorized **2,600 new residential units** for the Lake Tahoe Basin, tracked by the pool they were drawn from:
-
-- **TRPA pool** — centrally held by TRPA
-- **Jurisdiction pool** — held by individual jurisdictions
-- **Private pool** — privately held allocations
-
-Unit counts must be framed as drawdown against each pool's specific account balance, not the overall total. The development history FC provides the verified baseline of existing units per parcel and year against which new allocations and permits are compared.
