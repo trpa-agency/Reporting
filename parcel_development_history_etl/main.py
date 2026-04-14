@@ -35,6 +35,43 @@ from utils import get_logger
 log = get_logger("main")
 
 
+def _preflight() -> None:
+    """Warn on missing input files before any processing starts."""
+    from config import CSV_PATH, TOURIST_UNITS_CSV, COMMERCIAL_SQFT_CSV
+    for label, path in [
+        ("Residential CSV", CSV_PATH),
+        ("Tourist CSV",     TOURIST_UNITS_CSV),
+        ("Commercial CSV",  COMMERCIAL_SQFT_CSV),
+    ]:
+        if not Path(path).exists():
+            log.warning("PREFLIGHT: %s not found at %s", label, path)
+
+
+def _assert_county_populated() -> None:
+    """
+    After S01c: warn if COUNTY is null for more than 5% of OUTPUT_FC rows.
+    A high null rate means the spatial join failed and the El Dorado APN
+    fix in S02 will silently skip all El Dorado corrections.
+    """
+    import arcpy
+    from config import OUTPUT_FC, FC_APN
+    total = int(arcpy.management.GetCount(OUTPUT_FC)[0])
+    if total == 0:
+        return
+    null_count = sum(1 for _ in arcpy.da.SearchCursor(
+        OUTPUT_FC, [FC_APN], "COUNTY IS NULL"))
+    pct = 100.0 * null_count / total
+    if pct > 5.0:
+        log.warning(
+            "COUNTY is null for %.1f%% of FC rows (%d / %d). "
+            "S01c spatial join may have partially failed — "
+            "El Dorado APN fix in S02 may be incomplete.",
+            pct, null_count, total,
+        )
+    else:
+        log.info("COUNTY populated: %d null rows (%.1f%%)", null_count, pct)
+
+
 def main(skip_s01: bool = False,
          skip_s05: bool = False,
          only_qa: bool  = False) -> None:
@@ -44,6 +81,7 @@ def main(skip_s01: bool = False,
     log.info("=" * 60)
 
     t0 = time.time()
+    _preflight()
 
     if only_qa:
         log.info("--only-qa flag set: running Step 6 only")
@@ -64,6 +102,7 @@ def main(skip_s01: bool = False,
     # Step 1c — Populate COUNTY + JURISDICTION via spatial join
     from steps import s01c_populate_jurisdiction as s01c
     s01c.run()
+    _assert_county_populated()
 
     # Step 2 — Load CSV + El Dorado fix  →  df_csv, csv_lookup
     from steps import s02_load_csv as s02

@@ -114,6 +114,14 @@ SPATIAL_FIELDS = [
 # starting in 2018. e.g. 080-155-11 → 080-155-011.
 EL_PAD_YEAR = 2018
 
+# ── CSV column detection markers ──────────────────────────────────────────────
+# Used by s02_load_csv and s04b to detect year columns.
+# If these change (e.g. CSV format is updated), update these constants and
+# validation will raise a clear error rather than silently returning no data.
+CSV_RESIDENTIAL_YEAR_MARKER = "Final"  # residential CSV year columns contain this
+CSV_TOURIST_YEAR_PREFIX     = "CY"     # tourist/commercial CSV year columns start with this
+CSV_COMMERCIAL_YEAR_PREFIX  = "CY"
+
 # ── Years in scope ────────────────────────────────────────────────────────────
 CSV_YEARS        = list(range(2012, 2026))   # 2012 – 2025 inclusive
 # Years where SOURCE_FC already has native Residential_Units values curated
@@ -171,3 +179,21 @@ SPATIAL_SOURCES = {
 
 # ── Crosswalk spatial join parameters ────────────────────────────────────────
 CLOSEST_MAX_METERS = 50   # max distance for CLOSEST fallback in centroid join
+
+# ── Internal sentinel ────────────────────────────────────────────────────────
+# Year value used internally when a row's geometry comes from SOURCE_FC rather
+# than the All Parcels MapServer (i.e. no real service layer exists for it).
+SOURCE_FC_SENTINEL_YEAR = 9999
+
+# ── Validation service URLs ───────────────────────────────────────────────────
+# Stub values — fill in the real REST endpoints before running validation.py.
+# Checks whose URL is empty are skipped with a warning (no error).
+IMPERVIOUS_SVC    = ""  # Impervious Surface footprint REST layer
+BMP_CERT_SVC      = ""  # BMP Certificate REST layer
+VHR_PERMIT_SVC    = ""  # VHR Permit REST layer
+LTINFO_PERMITS    = ""  # LTinfo API / Permits endpoint
+LTINFO_ALLOCS     = ""  # LTinfo API / Allocations endpoint
+LTINFO_DEV_RIGHTS = ""  # LTinfo API / Dev Rights endpoint
+
+# Flag Table GDB path — written by validation.py, read-only for everything else
+QA_FLAG_TABLE = GDB + r"\QA_Flag_Table"
