@@ -22,6 +22,7 @@ from config import (
     SOURCE_FC, OUTPUT_FC, GDB,
     FC_APN, FC_YEAR, CSV_YEARS,
     ALLPARCELS_URL, YEAR_LAYER,
+    COUNTY_CODE_MAP,
 )
 from utils import get_logger
 
@@ -74,33 +75,35 @@ def _insert_from_service(year: int) -> int:
         log.error("  Year %d: cannot connect to service layer %d — %s", year, layer_idx, exc)
         return 0
 
-    # Find APN and COUNTY fields (case-insensitive)
-    field_map   = {f.name.upper(): f.name for f in arcpy.ListFields(lyr)}
-    apn_field   = field_map.get(FC_APN.upper())
-    county_field = field_map.get("COUNTY")
+    # Find APN and JURISDICTION fields (case-insensitive).
+    # The All Parcels service uses JURISDICTION (full name) not COUNTY (code).
+    # We map JURISDICTION -> COUNTY code via COUNTY_CODE_MAP.
+    field_map        = {f.name.upper(): f.name for f in arcpy.ListFields(lyr)}
+    apn_field        = field_map.get(FC_APN.upper())
+    juris_field      = (field_map.get("JURISDICTION") or
+                        next((v for k, v in field_map.items()
+                              if "JURISDICTI" in k), None))
 
     if not apn_field:
         log.error("  Year %d: APN field not found in service layer.", year)
         arcpy.management.Delete(lyr)
         return 0
 
-    if not county_field:
-        log.warning("  Year %d: COUNTY field not found in service layer — El Dorado fix may not apply.", year)
+    if not juris_field:
+        log.warning("  Year %d: JURISDICTION field not found in service layer — COUNTY will be null.", year)
 
-    read_fields   = ["SHAPE@", apn_field] + ([county_field] if county_field else [])
-    insert_fields = ["SHAPE@", FC_APN, FC_YEAR] + (["COUNTY"] if county_field else [])
+    read_fields   = ["SHAPE@", apn_field] + ([juris_field] if juris_field else [])
+    insert_fields = ["SHAPE@", FC_APN, FC_YEAR, "COUNTY"]
 
     count = 0
     with arcpy.da.SearchCursor(lyr, read_fields) as src, \
          arcpy.da.InsertCursor(OUTPUT_FC, insert_fields) as ins:
         for row in src:
             shape, apn = row[0], row[1]
-            county     = row[2] if county_field else None
+            juris      = row[2] if juris_field else None
+            county     = COUNTY_CODE_MAP.get(juris) if juris else None
             if apn:
-                vals = [shape, str(apn).strip(), year]
-                if county_field:
-                    vals.append(county)
-                ins.insertRow(vals)
+                ins.insertRow([shape, str(apn).strip(), year, county])
                 count += 1
 
     arcpy.management.Delete(lyr)
