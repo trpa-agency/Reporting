@@ -183,7 +183,10 @@ def _apply_vectorized(
                       old_apn, new_apn, sorted(conflict_yrs.tolist()))
 
         if safe_mask.any():
-            units_moved = int(df.loc[safe_mask, "Units_CSV"].sum())
+            val_col = "Units_CSV" if "Units_CSV" in df.columns else (
+                      "Value" if "Value" in df.columns else
+                      next((c for c in df.columns if c not in ("APN", "Year")), None))
+            units_moved = int(df.loc[safe_mask, val_col].sum()) if val_col else 0
             safe_years  = sorted(df.loc[safe_mask, "Year"].tolist())
             df.loc[safe_mask, "APN"] = new_apn
             remapped_old.add(old_apn)
