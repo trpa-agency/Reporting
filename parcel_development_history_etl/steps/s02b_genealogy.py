@@ -288,7 +288,11 @@ def run(df_csv: pd.DataFrame) -> pd.DataFrame:
 
     else:
         # ── Fallback path: individual CSVs ─────────────────────────────────────
-        log.info("Master table not found — using individual genealogy CSVs.")
+        log.warning(
+            "GENEALOGY: Master table not found at %s — falling back to 4 individual CSVs. "
+            "Run build_genealogy_tahoe.py to rebuild the master table for reproducible results.",
+            GENEALOGY_TAHOE,
+        )
         master  = _load_csv(GENEALOGY_MASTER,  "Manual master CSV")
         accela  = _load_csv(GENEALOGY_ACCELA,  "Accela genealogy CSV")
         ltinfo  = _load_csv(GENEALOGY_LTINFO,  "LTinfo genealogy CSV")

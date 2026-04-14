@@ -63,6 +63,62 @@ def get_logger(name: str) -> logging.Logger:
     return logger
 
 
+# ── El Dorado APN fix — shared helpers ───────────────────────────────────────
+
+def build_el_dorado_fix(output_fc: str, fc_apn: str) -> tuple[dict, dict]:
+    """
+    Query *output_fc* for COUNTY='EL' APNs and build pad/depad maps.
+
+    Returns
+    -------
+    pad_map   : {2-digit APN → 3-digit APN}   apply when Year >= EL_PAD_YEAR
+    depad_map : {3-digit APN → 2-digit APN}   apply when Year <  EL_PAD_YEAR
+    """
+    el_2d: set[str] = set()
+    with arcpy.da.SearchCursor(output_fc, [fc_apn],
+                               where_clause="COUNTY = 'EL'") as cur:
+        for (apn,) in cur:
+            if apn:
+                a = str(apn).strip()
+                if _EL_2D.match(a):
+                    el_2d.add(a)
+
+    pad_map   = {a: el_pad(a)   for a in el_2d}
+    # depad_map keys are the 3-digit forms of known 2-digit APNs
+    depad_map = {el_pad(a): el_depad(el_pad(a)) for a in el_2d
+                 if _EL_3D.match(el_pad(a))}
+    return pad_map, depad_map
+
+
+def apply_el_dorado_fix(df: pd.DataFrame, pad_map: dict,
+                        depad_map: dict, pad_year: int) -> pd.DataFrame:
+    """
+    Vectorized El Dorado APN suffix fix.
+
+    Replaces row-wise ``df.apply(axis=1)`` with boolean-mask assignments —
+    one pass per direction, no Python loop per row.
+
+    Parameters
+    ----------
+    df        : DataFrame with columns "APN" and "Year"
+    pad_map   : {2-digit APN → 3-digit APN}
+    depad_map : {3-digit APN → 2-digit APN}
+    pad_year  : year at which El Dorado switched to 3-digit suffixes
+
+    Returns a copy of *df* with APN fixed.
+    """
+    df = df.copy()
+    needs_pad   = df["APN"].isin(pad_map)   & (df["Year"] >= pad_year)
+    needs_depad = df["APN"].isin(depad_map) & (df["Year"] <  pad_year)
+    df.loc[needs_pad,   "APN"] = df.loc[needs_pad,   "APN"].map(pad_map)
+    df.loc[needs_depad, "APN"] = df.loc[needs_depad, "APN"].map(depad_map)
+    changed = int(needs_pad.sum() + needs_depad.sum())
+    get_logger("utils.apply_el_dorado_fix").debug(
+        "El Dorado fix: %d rows updated (%d pad, %d depad)",
+        changed, int(needs_pad.sum()), int(needs_depad.sum()))
+    return df
+
+
 # ── GDB table writer ──────────────────────────────────────────────────────────
 
 # Maps pandas dtype kinds to (arcpy field type, default length)

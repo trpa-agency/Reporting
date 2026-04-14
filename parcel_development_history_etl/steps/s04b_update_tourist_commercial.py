@@ -32,8 +32,11 @@ from config import (
     TOURIST_UNITS_CSV, COMMERCIAL_SQFT_CSV,
     GENEALOGY_TAHOE,
     FC_TOURIST_UNITS, FC_COMMERCIAL_SQFT,
+    CSV_TOURIST_YEAR_PREFIX, CSV_COMMERCIAL_YEAR_PREFIX,
 )
-from utils import get_logger, el_pad, el_depad, _EL_2D, _EL_3D
+from utils import get_logger, build_el_dorado_fix, apply_el_dorado_fix
+sys.path.insert(0, str(__import__('pathlib').Path(__file__).parent))  # steps/
+from s02b_genealogy import _load_master_table, _apply_vectorized
 
 log = get_logger("s04b_tourist_commercial")
 
@@ -48,84 +51,9 @@ def _safe_num(val) -> float:
         return 0.0
 
 
-# ── El Dorado APN fix ─────────────────────────────────────────────────────────
-
-def _build_el_dorado_maps() -> tuple[dict, dict]:
-    """Return (pad_map, depad_map) for El Dorado APNs, same as s02."""
-    el_2d: set = set()
-    with arcpy.da.SearchCursor(OUTPUT_FC, [FC_APN],
-                               where_clause="COUNTY = 'EL'") as cur:
-        for (apn,) in cur:
-            if apn:
-                a = str(apn).strip()
-                if _EL_2D.match(a):
-                    el_2d.add(a)
-    pad_map   = {a: el_pad(a)   for a in el_2d}
-    depad_map = {a: el_depad(a) for a in
-                 {el_pad(a) for a in el_2d} if _EL_3D.match(el_pad(a))}
-    return pad_map, depad_map
-
-
-def _apply_el_dorado_fix(df: pd.DataFrame, pad_map: dict, depad_map: dict) -> pd.DataFrame:
-    def _fix(row):
-        a, y = row["APN"], row["Year"]
-        if a in pad_map   and y >= EL_PAD_YEAR: return pad_map[a]
-        if a in depad_map and y <  EL_PAD_YEAR: return depad_map[a]
-        return a
-    before = df["APN"].copy()
-    df["APN"] = df.apply(_fix, axis=1)
-    changed = (df["APN"] != before).sum()
-    log.info("  El Dorado fix: %d rows APN-fixed", changed)
-    return df
-
-
-# ── Genealogy ─────────────────────────────────────────────────────────────────
-
-def _load_genealogy() -> pd.DataFrame:
-    """Load and filter the master genealogy table (in_fc_new=1)."""
-    if not Path(GENEALOGY_TAHOE).exists():
-        return pd.DataFrame()
-    gen = pd.read_csv(GENEALOGY_TAHOE, dtype=str)
-    gen.columns = gen.columns.str.strip()
-    gen["is_primary"]      = pd.to_numeric(gen.get("is_primary",      pd.Series()), errors="coerce").fillna(0).astype(int)
-    gen["in_fc_new"]       = pd.to_numeric(gen.get("in_fc_new",       pd.Series()), errors="coerce").fillna(0).astype(int)
-    gen["source_priority"] = pd.to_numeric(gen.get("source_priority", pd.Series()), errors="coerce").fillna(4).astype(int)
-    gen = gen[(gen["is_primary"] == 1) & (gen["in_fc_new"] == 1)].copy()
-    gen["change_year"] = pd.to_numeric(gen["change_year"], errors="coerce")
-    gen = gen.dropna(subset=["change_year"])
-    gen["change_year"] = gen["change_year"].astype(int)
-    return gen.sort_values(["source_priority", "change_year"])
-
-
-def _apply_genealogy(df: pd.DataFrame, gen: pd.DataFrame, label: str) -> pd.DataFrame:
-    """Apply pre-loaded genealogy table to df APN column."""
-    if gen.empty:
-        log.info("  Genealogy master not found — skipping for %s", label)
-        return df
-
-    remapped: set = set()
-    subs = 0
-    for _, rec in gen.iterrows():
-        old, new, cy = rec["apn_old"], rec["apn_new"], int(rec["change_year"])
-        if old == new or old in remapped:
-            continue
-        mask = (df["APN"] == old) & (df["Year"] >= cy)
-        if not mask.any():
-            continue
-        existing_new = set(df.loc[df["APN"] == new, "Year"])
-        safe = mask & ~df["Year"].isin(existing_new)
-        if safe.any():
-            df.loc[safe, "APN"] = new
-            remapped.add(old)
-            subs += 1
-
-    log.info("  Genealogy: %d APN substitutions for %s", subs, label)
-    return df
-
-
 # ── CSV loaders ───────────────────────────────────────────────────────────────
 
-def _load_wide_csv(csv_path: str, label: str,
+def _load_wide_csv(csv_path: str, label: str, year_prefix: str,
                    pad_map: dict, depad_map: dict,
                    gen: pd.DataFrame = None) -> dict:
     """
@@ -146,10 +74,13 @@ def _load_wide_csv(csv_path: str, label: str,
     df_wide = df_wide.dropna(subset=["APN"])
     df_wide = df_wide[df_wide["APN"].str.strip() != ""]
 
-    year_cols = [c for c in df_wide.columns if c.upper().startswith("CY")]
+    year_cols = [c for c in df_wide.columns if c.upper().startswith(year_prefix.upper())]
     if not year_cols:
-        log.warning("  %s CSV has no CY<year> columns — skipping", label)
-        return {}
+        raise ValueError(
+            f"{label} CSV: no year columns found. "
+            f"Expected columns starting with '{year_prefix}'. "
+            f"Check CSV format at {csv_path}"
+        )
 
     log.info("  %s CSV: %d parcels, %d year columns", label, len(df_wide), len(year_cols))
 
@@ -164,9 +95,10 @@ def _load_wide_csv(csv_path: str, label: str,
     df = df[df["Year"].isin(CSV_YEARS)][["APN", "Year", "Value"]].copy()
     df["APN"]   = df["APN"].astype(str).str.strip()
 
-    df = _apply_el_dorado_fix(df, pad_map, depad_map)
-    if gen is not None:
-        df = _apply_genealogy(df, gen, label)
+    df = apply_el_dorado_fix(df, pad_map, depad_map, EL_PAD_YEAR)
+    if gen is not None and not gen.empty:
+        df, _ = _apply_vectorized(df, gen, old_col="apn_old", new_col="apn_new")
+        log.info("  Genealogy applied for %s", label)
 
     # Drop zero rows (no-match rows stay 0 in FC, no need to write them)
     df_nonzero = df[df["Value"] > 0]
@@ -210,15 +142,20 @@ def _write_to_fc(tourist_lookup: dict, commercial_lookup: dict) -> None:
 def run() -> None:
     log.info("=== Step 4b: Update Tourist & Commercial attributes ===")
 
-    pad_map, depad_map = _build_el_dorado_maps()
-    gen = _load_genealogy()
+    pad_map, depad_map = build_el_dorado_fix(OUTPUT_FC, FC_APN)
+    log.info("El Dorado pad map: %d APNs, depad map: %d APNs",
+             len(pad_map), len(depad_map))
+
+    gen = _load_master_table(GENEALOGY_TAHOE)
     if not gen.empty:
         log.info("Genealogy master: %d apply-ready rows", len(gen))
     else:
         log.info("Genealogy master not found — APN corrections skipped")
 
-    tourist_lookup    = _load_wide_csv(TOURIST_UNITS_CSV,    "Tourist units",   pad_map, depad_map, gen)
-    commercial_lookup = _load_wide_csv(COMMERCIAL_SQFT_CSV,  "Commercial sqft", pad_map, depad_map, gen)
+    tourist_lookup    = _load_wide_csv(TOURIST_UNITS_CSV,    "Tourist units",
+                                       CSV_TOURIST_YEAR_PREFIX,   pad_map, depad_map, gen)
+    commercial_lookup = _load_wide_csv(COMMERCIAL_SQFT_CSV,  "Commercial sqft",
+                                       CSV_COMMERCIAL_YEAR_PREFIX, pad_map, depad_map, gen)
 
     if not tourist_lookup and not commercial_lookup:
         log.info("No tourist or commercial data to write — skipping FC update.")
