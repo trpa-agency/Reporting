@@ -21,7 +21,7 @@ sys.path.insert(0, str(__import__('pathlib').Path(__file__).parents[1]))
 
 import arcpy
 
-from config import OUTPUT_FC, FC_APN, FC_YEAR, FC_UNITS, CSV_YEARS
+from config import OUTPUT_FC, SOURCE_FC, FC_APN, FC_YEAR, FC_UNITS, CSV_YEARS, FC_NATIVE_YEARS
 from utils  import get_logger
 
 log = get_logger("s04_update_units")
@@ -50,10 +50,48 @@ def _ensure_fields() -> None:
         log.info("Added field Unit_Source")
 
 
+def _load_source_fc_natives() -> dict:
+    """
+    Load Residential_Units from SOURCE_FC for FC_NATIVE_YEARS.
+
+    OUTPUT_FC is always empty of units at the time S04 runs (S01 builds it
+    from geometry only).  The authoritative native values live in SOURCE_FC.
+    Returning them here enables the BOTH_AGREE / FC_NATIVE / DISAGREE merge
+    logic to actually fire.
+
+    Returns {(apn, year): int} for rows with non-zero values only.
+    """
+    if not arcpy.Exists(SOURCE_FC):
+        log.warning("SOURCE_FC not found — FC native comparison unavailable.")
+        return {}
+
+    yr_list = ", ".join(str(y) for y in FC_NATIVE_YEARS)
+    where   = f"{FC_YEAR} IN ({yr_list}) AND {FC_UNITS} > 0"
+    natives: dict = {}
+    try:
+        with arcpy.da.SearchCursor(SOURCE_FC, [FC_APN, FC_YEAR, FC_UNITS], where) as cur:
+            for apn, yr, units in cur:
+                if apn and yr:
+                    v = _safe_int(units)
+                    if v > 0:
+                        natives[(str(apn).strip(), int(yr))] = v
+    except Exception as exc:
+        log.warning("Could not read SOURCE_FC native values: %s", exc)
+        return {}
+
+    log.info("SOURCE_FC native values loaded: %d entries  (years: %s)",
+             len(natives), FC_NATIVE_YEARS)
+    return natives
+
+
 def run(csv_lookup: dict) -> None:
     log.info("=== Step 4: Update Residential_Units ===")
 
     _ensure_fields()
+
+    # Load native unit values from SOURCE_FC.  OUTPUT_FC has no units at this
+    # point (S01 builds it from geometry only), so we must go to the source.
+    source_natives = _load_source_fc_natives()
 
     year_list    = ", ".join(str(y) for y in CSV_YEARS)
     where_clause = f"{FC_YEAR} IN ({year_list})"
@@ -67,12 +105,12 @@ def run(csv_lookup: dict) -> None:
              "FC_Native_Units", "Unit_Source"],
             where_clause) as cur:
 
-        for oid, apn, yr, native_raw, _, _ in cur:
+        for oid, apn, yr, _, _, _ in cur:   # FC_UNITS ignored — always 0 here
             if not apn or not yr:
                 continue
 
             key    = (str(apn).strip(), int(yr))
-            native = _safe_int(native_raw)   # FC value before this run
+            native = source_natives.get(key, 0)  # from SOURCE_FC
             csv_v  = csv_lookup.get(key)
 
             if csv_v is not None:
@@ -83,7 +121,11 @@ def run(csv_lookup: dict) -> None:
                     source = "CSV"
                 merged = csv_int
             elif native > 0:
-                merged = native
+                # CSV is sole authority — do not write FC native values to
+                # Residential_Units.  Tag the row FC_NATIVE so the analyst
+                # can review these in QA_Unit_Reconciliation; the native
+                # value is still stored in FC_Native_Units for reference.
+                merged = 0
                 source = "FC_NATIVE"
             else:
                 merged = 0
@@ -100,7 +142,7 @@ def run(csv_lookup: dict) -> None:
     log.info("Rows updated        : %d", updated)
     log.info("  BOTH_AGREE        : %d", counts["BOTH_AGREE"])
     log.info("  CSV (FC native=0) : %d", counts["CSV"])
-    log.info("  FC_NATIVE         : %d  ← units FC has that CSV lacks",
+    log.info("  FC_NATIVE         : %d  ← units SOURCE_FC has that CSV lacks",
              counts["FC_NATIVE"])
     log.info("  DISAGREE          : %d  ← both sources differ, CSV used",
              counts["DISAGREE"])

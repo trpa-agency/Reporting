@@ -16,9 +16,9 @@ sys.path.insert(0, str(__import__('pathlib').Path(__file__).parents[1]))
 import arcpy
 import pandas as pd
 
-from config import (OUTPUT_FC, FC_APN, FC_YEAR, CSV_YEARS,
+from config import (OUTPUT_FC, SOURCE_FC, FC_APN, FC_YEAR, CSV_YEARS,
                     CLOSEST_MAX_METERS, QA_APN_CROSSWALK, ALL_PARCELS_CURRENT)
-from utils  import get_logger, df_to_gdb_table
+from utils  import get_logger, write_qa_table, el_depad, _EL_3D
 
 log = get_logger("s03_crosswalk")
 
@@ -38,23 +38,42 @@ def _get_fc_apn_years() -> set:
 
 def _get_apn_geometry(apns: set) -> dict:
     """
-    For each APN in *apns*, return its geometry from the FC.
+    For each APN in *apns*, return its geometry from OUTPUT_FC.
     Uses the earliest year the APN appears (most likely to have full polygon).
+
+    El Dorado 3-digit APNs (e.g. 027-323-010, year >= 2018) are also searched
+    in their 2-digit form (027-323-10) so that pre-2018 rows — which stored the
+    old format — contribute geometry.  Results are mapped back to the canonical
+    3-digit key so the caller always gets the modern APN as the dict key.
+
     Returns {apn: (geometry, source_year)}.
     """
     result = {}
-    # Build SQL in batches to avoid overly long WHERE clauses
-    apn_list = list(apns)
-    batch    = 500
-    for i in range(0, len(apn_list), batch):
-        chunk = apn_list[i:i+batch]
+
+    # Build a depad lookup: {2d_form -> canonical_3d_apn} for any 3-digit EL APNs
+    depad_lookup: dict = {}
+    expanded: set = set(apns)
+    for apn in apns:
+        if _EL_3D.match(apn):
+            two_d = el_depad(apn)
+            depad_lookup[two_d] = apn
+            expanded.add(two_d)
+
+    expanded_list = list(expanded)
+    batch = 500
+    for i in range(0, len(expanded_list), batch):
+        chunk = expanded_list[i:i+batch]
         q = " OR ".join(f"{FC_APN} = {chr(39)}{a}{chr(39)}" for a in chunk)
         with arcpy.da.SearchCursor(OUTPUT_FC, [FC_APN, FC_YEAR, "SHAPE@"], q) as cur:
             for apn, yr, geom in cur:
-                if apn in apns and geom and geom.area > 0:
-                    apn = str(apn).strip()
-                    if apn not in result or yr < result[apn][1]:
-                        result[apn] = (geom, int(yr))
+                if apn and geom and geom.area > 0:
+                    a = str(apn).strip()
+                    # Resolve 2-digit form back to its canonical 3-digit key
+                    canonical = depad_lookup.get(a, a)
+                    if canonical not in apns:
+                        continue
+                    if canonical not in result or yr < result[canonical][1]:
+                        result[canonical] = (geom, int(yr))
     return result
 
 
@@ -104,6 +123,48 @@ def _get_geometry_from_allparcels(apns: set, sr) -> dict:
     return result
 
 
+def _get_geometry_from_source_fc(apns: set, sr) -> dict:
+    """
+    Search SOURCE_FC for geometry for APNs not found in OUTPUT_FC or the
+    All Parcels service.  Also tries El Dorado 2-digit variants so that
+    3-digit APNs can be matched against pre-2018 SOURCE_FC rows.
+
+    Returns {apn: (geometry, source_year)} with sentinel year 9998.
+    """
+    result = {}
+    if not apns or not arcpy.Exists(SOURCE_FC):
+        return result
+
+    depad_lookup: dict = {}
+    expanded: set = set(apns)
+    for apn in apns:
+        if _EL_3D.match(apn):
+            two_d = el_depad(apn)
+            depad_lookup[two_d] = apn
+            expanded.add(two_d)
+
+    sr_src       = arcpy.Describe(SOURCE_FC).spatialReference
+    needs_proj   = sr_src.factoryCode != sr.factoryCode
+    expanded_list = list(expanded)
+    batch = 500
+    for i in range(0, len(expanded_list), batch):
+        chunk = expanded_list[i:i+batch]
+        q = " OR ".join(f"{FC_APN} = '{a}'" for a in chunk)
+        with arcpy.da.SearchCursor(SOURCE_FC, [FC_APN, FC_YEAR, "SHAPE@"], q) as cur:
+            for apn, yr, geom in cur:
+                if apn and geom and geom.area > 0:
+                    a         = str(apn).strip()
+                    canonical = depad_lookup.get(a, a)
+                    if canonical not in apns:
+                        continue
+                    if needs_proj:
+                        geom = geom.projectAs(sr)
+                    yr_int = int(yr) if yr else 9998
+                    if canonical not in result or yr_int < result[canonical][1]:
+                        result[canonical] = (geom, yr_int)
+    return result
+
+
 def run(df_csv: pd.DataFrame, csv_lookup: dict) -> dict:
     log.info("=== Step 3: Build APN crosswalk ===")
 
@@ -129,7 +190,19 @@ def run(df_csv: pd.DataFrame, csv_lookup: dict) -> dict:
     log.info("  With geometry (FC)  : %d", len(has_geom))
     log.info("  Without geometry    : %d  (not in FC any year)", len(no_geom))
 
-    # -- Fallback: fetch geometry from All Parcels current service ------------
+    # -- Fallback 1: SOURCE_FC (local GDB — fast, handles pre-2012 data) ------
+    if no_geom:
+        log.info("Trying SOURCE_FC for %d APNs with no OUTPUT_FC geometry ...",
+                 len(no_geom))
+        sr       = arcpy.Describe(OUTPUT_FC).spatialReference
+        src_geom = _get_geometry_from_source_fc(no_geom, sr)
+        log.info("  Found in SOURCE_FC: %d", len(src_geom))
+        apn_geom.update(src_geom)
+        has_geom = set(apn_geom.keys())
+        no_geom  = missing_apns - has_geom
+        log.info("  Still without geometry: %d", len(no_geom))
+
+    # -- Fallback 2: All Parcels current service (for truly new/current APNs) -
     if no_geom:
         log.info("Trying All Parcels service for %d APNs with no FC geometry ...",
                  len(no_geom))
@@ -247,17 +320,23 @@ def run(df_csv: pd.DataFrame, csv_lookup: dict) -> dict:
         csv_apn = row["CSV_APN"]
         year    = int(row["Year"])
         val     = csv_lookup.get((csv_apn, year))
-        if val is not None and (fc_apn, year) not in csv_lookup:
-            csv_lookup[(fc_apn, year)] = val
+        # Sum onto the target APN's existing value rather than skipping.
+        # When multiple retired/renamed CSV APNs spatially overlap the same
+        # FC parcel, all their units must be preserved, not just the first.
+        # Guard fc_apn == csv_apn to avoid double-counting a direct match
+        # that was already placed via the primary lookup.
+        if val is not None and fc_apn != csv_apn:
+            existing = csv_lookup.get((fc_apn, year), 0)
+            csv_lookup[(fc_apn, year)] = existing + (val or 0)
             added += 1
 
     log.info("Crosswalk rows      : %d", len(df_xwalk))
     log.info("csv_lookup entries added: %d", added)
 
-    # -- Write GDB table ------------------------------------------------------
+    # -- Write GDB table + CSV ------------------------------------------------
     if len(df_xwalk):
-        df_to_gdb_table(df_xwalk, QA_APN_CROSSWALK,
-                        text_lengths={"CSV_APN": 50, "FC_APN": 50, "Match_Type": 50})
+        write_qa_table(df_xwalk, QA_APN_CROSSWALK,
+                       text_lengths={"CSV_APN": 50, "FC_APN": 50, "Match_Type": 50})
         log.info("Written → %s", QA_APN_CROSSWALK)
 
     log.info("Step 3 complete.")

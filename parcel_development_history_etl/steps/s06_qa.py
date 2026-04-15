@@ -27,7 +27,7 @@ from config import (
     QA_GENEALOGY_APPLIED, QA_APN_CROSSWALK, QA_FC_NOT_IN_CSV,
     QA_UNIT_RECONCILIATION,
 )
-from utils import get_logger, df_to_gdb_table
+from utils import get_logger, write_qa_table
 
 log = get_logger("s06_qa")
 
@@ -217,7 +217,7 @@ def _check_unit_reconciliation(df_fc: pd.DataFrame) -> None:
         log.info("    %-12s : %d APN×Year pairs  /  %d total unit diff",
                  cat, len(grp), grp["Unit_Diff"].sum())
 
-    df_to_gdb_table(
+    write_qa_table(
         df_recon, QA_UNIT_RECONCILIATION,
         text_lengths={"APN": 50, "Category": 15, "Review_Note": 300},
     )
@@ -266,7 +266,7 @@ def run(df_csv: pd.DataFrame) -> None:
         log.info("  %-6d  %-10d  %-10d  %-+8d  %s",
                  r.Year, r.CSV_Total, r.FC_Total, r.Diff, r.Status)
 
-    df_to_gdb_table(df_yr, QA_UNITS_BY_YEAR)
+    write_qa_table(df_yr, QA_UNITS_BY_YEAR)
 
     # ── Check 2: Lost APNs ────────────────────────────────────────────────
     log.info("Check 2: Lost APNs ...")
@@ -315,7 +315,7 @@ def run(df_csv: pd.DataFrame) -> None:
         log.info("    %d : %d APNs  /  %.0f units",
                  yr, grp["APN"].nunique(), grp["Units_CSV"].sum())
 
-    df_to_gdb_table(df_lost_out, QA_LOST_APNS,
+    write_qa_table(df_lost_out, QA_LOST_APNS,
                     text_lengths={"APN": 50, "Years_Lost": 200,
                                   "Years_In_FC": 200, "Suggested_Action": 500})
 
@@ -325,7 +325,7 @@ def run(df_csv: pd.DataFrame) -> None:
     df_dups  = df_fc[dup_mask][["APN","Year","FC_Units","COUNTY"]].copy()
     log.info("  Duplicate rows: %d", len(df_dups))
     if len(df_dups):
-        df_to_gdb_table(df_dups, QA_DUPLICATE_APN_YEAR,
+        write_qa_table(df_dups, QA_DUPLICATE_APN_YEAR,
                         text_lengths={"APN": 50, "COUNTY": 10})
     elif arcpy.Exists(QA_DUPLICATE_APN_YEAR):
         arcpy.management.Delete(QA_DUPLICATE_APN_YEAR)
@@ -357,7 +357,7 @@ def run(df_csv: pd.DataFrame) -> None:
                      field, n_bad, pct, "OK" if n_bad == 0 else "FLAG")
 
         df_sp = pd.DataFrame(sp_rows)
-        df_to_gdb_table(df_sp, QA_SPATIAL_COMPLETENESS,
+        write_qa_table(df_sp, QA_SPATIAL_COMPLETENESS,
                         text_lengths={"Field": 50, "Status": 10})
 
     # ── Check 5: FC units with no raw-CSV match ────────────────────────────
@@ -391,7 +391,7 @@ def run(df_csv: pd.DataFrame) -> None:
         log.info("    %-22s : %d rows  /  %d APNs  /  %d units",
                  cat, len(grp), grp["APN"].nunique(), grp["FC_Units"].sum())
 
-    df_to_gdb_table(df_no_raw.sort_values(["Category","APN","Year"]),
+    write_qa_table(df_no_raw.sort_values(["Category","APN","Year"]),
                     QA_FC_NOT_IN_CSV,
                     text_lengths={"APN": 50, "COUNTY": 10, "Category": 30})
     log.info("  Written → %s", QA_FC_NOT_IN_CSV)
