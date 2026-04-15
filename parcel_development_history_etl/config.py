@@ -9,6 +9,12 @@ SOURCE_FC  = GDB + r"\Parcel_History_Attributed"   # original — never edited
 WORKING_FC = GDB + r"\Parcel_History_Working"       # cleaned copy — preprocess output
 OUTPUT_FC  = GDB + r"\Parcel_Development_History"   # ETL output (main.py)
 
+# QA output directory — CSVs are written here in addition to the GDB
+QA_DATA_DIR = (
+    r"C:\Users\mbindl\Documents\GitHub\Reporting"
+    r"\data\qa_data"
+)
+
 # QA tables (written to GDB so they open directly in ArcGIS Pro)
 QA_UNITS_BY_YEAR        = GDB + r"\QA_Units_By_Year"
 QA_LOST_APNS            = GDB + r"\QA_Lost_APNs"
@@ -107,7 +113,11 @@ SPATIAL_FIELDS = [
     "TAZ", "PLAN_ID", "PLAN_NAME",
     "ZONING_ID", "ZONING_DESCRIPTION",
     "REGIONAL_LANDUSE",
+    "Building_SqFt",   # total footprint area of buildings within parcel (sq ft, from Buildings_2019)
 ]
+
+# ── Buildings footprint (for Building_SqFt field in s05) ─────────────────────
+BUILDINGS_FC = r"C:\GIS\Buildings.gdb\Buildings_2019"
 
 # ── El Dorado APN format change ───────────────────────────────────────────────
 # El Dorado County (COUNTY = 'EL') added a leading zero to the APN suffix
@@ -135,8 +145,9 @@ ALLPARCELS_URL = "https://maps.trpa.org/server/rest/services/AllParcels/MapServe
 ALL_PARCELS_CURRENT = ALLPARCELS_URL + "/3"
 
 # Layer index per year — verify against the service directory if layers shift
+# 2012 is intentionally excluded: polygons are taken from SOURCE_FC instead
+# of the AllParcels service (Parcel_History_Attributed is more authoritative).
 YEAR_LAYER = {
-    2012:  8,
     2013:  7,
     2014:  6,
     2015:  5,

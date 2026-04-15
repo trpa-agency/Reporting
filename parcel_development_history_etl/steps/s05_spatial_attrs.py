@@ -17,7 +17,7 @@ sys.path.insert(0, str(__import__('pathlib').Path(__file__).parents[1]))
 
 import arcpy
 
-from config import OUTPUT_FC, FC_YEAR, CSV_YEARS, SPATIAL_SOURCES
+from config import OUTPUT_FC, FC_APN, FC_YEAR, CSV_YEARS, SPATIAL_SOURCES, BUILDINGS_FC
 from utils  import get_logger
 
 log = get_logger("s05_spatial_attrs")
@@ -131,6 +131,83 @@ def _sj_transfer(polygon_fc: str, source_url: str,
     return n
 
 
+def _sum_building_sqft(scope_lyr: str) -> int:
+    """
+    Intersect 2019 parcel polygons with Buildings_2019, sum building footprint
+    area (sq ft) per APN, and write Building_SqFt for all years.
+
+    Year 2019 parcels are used for the intersect to match the buildings vintage
+    and to avoid double-counting the same footprint across multi-year rows.
+    The resulting APN → sqft dict is then applied to all years.
+
+    Returns number of rows updated.
+    """
+    if not arcpy.Exists(BUILDINGS_FC):
+        log.warning("Buildings FC not found: %s — skipping Building_SqFt", BUILDINGS_FC)
+        return 0
+
+    # Ensure field exists; AddField is a no-op if it already exists but we check
+    # to avoid the warning noise on every run.
+    existing_fields = {f.name for f in arcpy.ListFields(OUTPUT_FC)}
+    if "Building_SqFt" not in existing_fields:
+        arcpy.management.AddField(OUTPUT_FC, "Building_SqFt", "DOUBLE")
+        log.info("  Added field Building_SqFt to OUTPUT_FC")
+
+    # Initialize all rows to 0 so parcels with no buildings get an explicit value
+    with arcpy.da.UpdateCursor(scope_lyr, ["Building_SqFt"]) as cur:
+        for row in cur:
+            row[0] = 0.0
+            cur.updateRow(row)
+
+    # Intersect year-2019 parcels with Buildings_2019
+    lyr_2019      = "s05_bldg_yr2019"
+    mem_intersect = "memory/s05_bldg_intersect"
+    for name in [lyr_2019, mem_intersect]:
+        if arcpy.Exists(name):
+            arcpy.management.Delete(name)
+
+    arcpy.management.MakeFeatureLayer(OUTPUT_FC, lyr_2019, f"{FC_YEAR} = 2019")
+    n_parcels = int(arcpy.management.GetCount(lyr_2019).getOutput(0))
+    log.info("  2019 parcels for building intersect: %d", n_parcels)
+
+    # ERROR 000599 ("Falls outside of output geometry domains") is caused by
+    # invalid/corrupt geometries.  Repair both inputs before intersecting.
+    arcpy.management.RepairGeometry(lyr_2019)
+    arcpy.management.RepairGeometry(BUILDINGS_FC)
+
+    arcpy.analysis.Intersect([lyr_2019, BUILDINGS_FC], mem_intersect, "ALL")
+    n_intersect = int(arcpy.management.GetCount(mem_intersect).getOutput(0))
+    log.info("  Building intersect features: %d", n_intersect)
+
+    # Sum building footprint area per APN (sq ft, explicit unit conversion
+    # so the result is correct regardless of the FC spatial reference)
+    bldg_sums: dict = {}
+    if n_intersect > 0:
+        with arcpy.da.SearchCursor(mem_intersect, [FC_APN, "SHAPE@"]) as cur:
+            for apn, geom in cur:
+                if apn and geom:
+                    apn  = str(apn).strip()
+                    sqft = geom.getArea("PLANAR", "SquareFeetUS")
+                    bldg_sums[apn] = bldg_sums.get(apn, 0.0) + sqft
+    log.info("  APNs with buildings: %d", len(bldg_sums))
+
+    # Write back to all year-rows by APN
+    n = 0
+    with arcpy.da.UpdateCursor(scope_lyr, [FC_APN, "Building_SqFt"]) as cur:
+        for row in cur:
+            apn = str(row[0]).strip() if row[0] else None
+            if apn and apn in bldg_sums:
+                row[1] = bldg_sums[apn]
+                cur.updateRow(row)
+                n += 1
+
+    for name in [lyr_2019, mem_intersect]:
+        if arcpy.Exists(name):
+            arcpy.management.Delete(name)
+
+    return n
+
+
 def run() -> None:
     log.info("=== Step 5: Spatial attribute updates ===")
 
@@ -183,6 +260,11 @@ def run() -> None:
         log.info("Spatial join: %s ...", label)
         n = _sj_transfer(scope_lyr, src_url, src_flds, tgt_flds, scope_lyr, label)
         log.info("  %s : %d rows updated", label, n)
+
+    # -- Building footprint sum (Buildings_2019) -----------------------------
+    log.info("Summing building footprint area (Building_SqFt) ...")
+    n_bldg = _sum_building_sqft(scope_lyr)
+    log.info("  Building_SqFt updated: %d rows", n_bldg)
 
     # -- Null out "Outside Town Center" in TOWN_CENTER -----------------------
     # The TownCenter service has a catch-all polygon named "Outside Town Center"

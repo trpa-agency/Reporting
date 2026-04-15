@@ -201,3 +201,33 @@ def df_to_gdb_table(df: pd.DataFrame, table_path: str,
             written += 1
 
     log.info("Wrote %d rows → %s", written, table_path)
+
+
+def write_qa_table(df: pd.DataFrame, table_path: str,
+                   text_lengths: dict = None) -> None:
+    """
+    Write a QA table to both the GDB and a CSV in QA_DATA_DIR.
+
+    The CSV filename is derived from the GDB table name, e.g.
+    QA_Units_By_Year → data/qa_data/QA_Units_By_Year.csv
+
+    Parameters
+    ----------
+    df          : DataFrame to write
+    table_path  : Full GDB path, e.g. r"C:\GIS\Foo.gdb\QA_Units_By_Year"
+    text_lengths: Passed through to df_to_gdb_table
+    """
+    from config import QA_DATA_DIR  # avoid circular import at module level
+
+    # Write to GDB
+    df_to_gdb_table(df, table_path, text_lengths=text_lengths)
+
+    # Write to CSV
+    qa_dir = Path(QA_DATA_DIR)
+    qa_dir.mkdir(parents=True, exist_ok=True)
+    table_name = os.path.basename(table_path)
+    csv_path   = qa_dir / f"{table_name}.csv"
+    df.to_csv(csv_path, index=False)
+    log = get_logger("utils.write_qa_table")
+    log.info("CSV  → %s", csv_path)
+

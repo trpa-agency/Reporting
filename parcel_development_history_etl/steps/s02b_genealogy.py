@@ -37,7 +37,7 @@ import pandas as pd
 
 from config import (GENEALOGY_MASTER, GENEALOGY_ACCELA, GENEALOGY_LTINFO,
                     GENEALOGY_SPATIAL, GENEALOGY_TAHOE, QA_GENEALOGY_APPLIED)
-from utils  import get_logger, df_to_gdb_table
+from utils  import get_logger, write_qa_table
 
 log = get_logger("s02b_genealogy")
 
@@ -172,8 +172,18 @@ def _apply_vectorized(
         if not cand_mask.any():
             continue
 
-        # Conflict check: years where new_apn already exists in df
-        existing_new = set(df.loc[df["APN"] == new_apn, "Year"])
+        # Conflict check: years where new_apn already has NON-ZERO units.
+        # Using zero-value rows as conflicts was too strict — it blocked
+        # remapping of split-parcel successors that have 0 units in early
+        # years, causing those historical units to be silently dropped.
+        val_col      = "Units_CSV" if "Units_CSV" in df.columns else (
+                       "Value" if "Value" in df.columns else
+                       next((c for c in df.columns if c not in ("APN", "Year")), None))
+        if val_col:
+            existing_new = set(
+                df.loc[(df["APN"] == new_apn) & (df[val_col] > 0), "Year"])
+        else:
+            existing_new = set(df.loc[df["APN"] == new_apn, "Year"])
         cand_years   = df.loc[cand_mask, "Year"]
         conflict_yrs = cand_years[cand_years.isin(existing_new)]
         safe_mask    = cand_mask & ~df["Year"].isin(conflict_yrs)
@@ -231,9 +241,14 @@ def _apply_records(
         if not mask.any():
             continue
 
-        years_all      = df.loc[mask, "Year"].tolist()
-        conflict_years = [y for y in years_all if (new_apn, y) in existing]
-        safe_years     = [y for y in years_all if (new_apn, y) not in existing]
+        years_all = df.loc[mask, "Year"].tolist()
+        # Only treat a year as a conflict if the new APN already has non-zero
+        # units for that year.  Zero-unit rows are placeholders and should not
+        # block a genealogy substitution from placing historical units.
+        new_apn_nonzero = set(
+            df.loc[(df["APN"] == new_apn) & (df["Units_CSV"] > 0), "Year"])
+        conflict_years = [y for y in years_all if y in new_apn_nonzero]
+        safe_years     = [y for y in years_all if y not in new_apn_nonzero]
 
         if conflict_years:
             log.debug("  Conflict skip: %s -> %s years %s", old_apn, new_apn, conflict_years)
@@ -332,7 +347,7 @@ def run(df_csv: pd.DataFrame) -> pd.DataFrame:
     if all_qa:
         df_qa = pd.DataFrame(all_qa)
         try:
-            df_to_gdb_table(
+            write_qa_table(
                 df_qa, QA_GENEALOGY_APPLIED,
                 text_lengths={"Old_APN": 50, "New_APN": 50,
                               "Change_Type": 30, "Source": 10},
