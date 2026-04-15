@@ -2141,3 +2141,17 @@
 2026-04-15 15:30:32  INFO      main  ============================================================
 2026-04-15 15:30:32  INFO      main  ETL complete  (7m 13s)
 2026-04-15 15:30:32  INFO      main  ============================================================
+2026-04-15 15:44:04  INFO      main  ============================================================
+2026-04-15 15:44:04  INFO      main  Development History ETL — starting
+2026-04-15 15:44:04  INFO      main  ============================================================
+2026-04-15 15:44:04  INFO      main  Skipping Step 1 (--skip-s01)
+2026-04-15 15:44:04  INFO      s01c_populate_jurisdiction  === Step 1c: Populate COUNTY and JURISDICTION ===
+2026-04-15 15:44:04  INFO      s01c_populate_jurisdiction    Building centroid FC from OUTPUT_FC ...
+2026-04-15 15:44:34  INFO      s01c_populate_jurisdiction    Unique APNs with geometry: 93047
+2026-04-15 15:45:18  INFO      s01c_populate_jurisdiction    Centroid FC: 93047 points
+2026-04-15 15:45:19  INFO      s01c_populate_jurisdiction    Connecting to Jurisdictions service ...
+2026-04-15 15:45:22  INFO      s01c_populate_jurisdiction    Pass 1: WITHIN ...
+2026-04-15 15:45:34  INFO      s01c_populate_jurisdiction    Pass 1 matched: 93047 APNs
+2026-04-15 15:45:35  INFO      s01c_populate_jurisdiction    Total matched: 93047 / 93047  (0 unmatched)
+2026-04-15 15:46:08  INFO      s01c_populate_jurisdiction    Written: 855489 rows updated, 0 skipped
+2026-04-15 15:46:08  INFO      s01c_populate_jurisdiction    Normalizing El Dorado APNs ...
