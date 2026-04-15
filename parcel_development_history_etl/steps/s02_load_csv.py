@@ -66,10 +66,40 @@ def run() -> tuple[pd.DataFrame, dict]:
     changed = (df_csv["APN"] != df_csv["APN_orig"]).sum()
     log.info("  CSV rows APN-fixed: %d", changed)
 
+    # Resolve duplicate (APN, Year) rows that arise when the source CSV already
+    # contains both the 2-digit and 3-digit form of an El Dorado APN (coworker
+    # manually split the format change across two rows).  The El Dorado fix
+    # transforms one form into the other, creating two rows for the same key —
+    # one with the real unit count and one with 0.  Keep the max (non-zero) value.
+    n_before = len(df_csv)
+    df_csv = (df_csv.groupby(["APN", "Year"], as_index=False)["Units_CSV"]
+                    .max()
+                    .assign(APN_orig=lambda d: d["APN"]))  # restore APN_orig col
+    n_dupes = n_before - len(df_csv)
+    if n_dupes:
+        log.info("  EL split-format dedup: removed %d duplicate (APN, Year) rows "
+                 "(kept max units per key)", n_dupes)
+
     # -- Genealogy APN corrections --------------------------------------------
     # Apply known old→new APN substitutions by year before building the lookup,
     # so csv_lookup references the correct current APN for each year.
     df_csv = s02b_genealogy.run(df_csv)
+
+    # -- Post-genealogy dedup -------------------------------------------------
+    # Genealogy substitution changes old_APN rows to new_APN.  If new_APN
+    # already had a 0-unit row for that year (not treated as a conflict), df_csv
+    # now has TWO rows for the same (APN, Year): the original 0-unit row and the
+    # substituted non-zero row.  The dict comprehension below is last-write-wins,
+    # so whichever row iterates last wins — the 0-unit row can silently overwrite
+    # the real value.  Deduplicate by keeping the MAX so the non-zero value wins.
+    n_before_gen = len(df_csv)
+    df_csv = (df_csv.groupby(["APN", "Year"], as_index=False)["Units_CSV"]
+                    .max()
+                    .assign(APN_orig=lambda d: d["APN"]))
+    n_dupes_gen = n_before_gen - len(df_csv)
+    if n_dupes_gen:
+        log.info("  Post-genealogy dedup: removed %d duplicate (APN, Year) rows "
+                 "(kept max units per key)", n_dupes_gen)
 
     # -- Build csv_lookup -----------------------------------------------------
     csv_lookup = {

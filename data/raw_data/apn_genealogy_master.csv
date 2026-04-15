@@ -1847,3 +1847,113 @@ old_apn,new_apn,change_year,change_type,is_primary,year_source,notes_excerpt,sou
 029-034-03,029-604-02,2012.0,rename,1,new_apn_first,New APN: 029-604-02,notes_2,,2012
 130-301-05,130-302-14,2012.0,rename,1,new_apn_first,New APN: 130-302-14,notes_2,,2012
 126-082-08,126-082-66,2014.0,rename,1,old_apn_last+1,New APN: 126-082-66,notes_2,2013,2012
+129-280-12,129-301-01,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",ACCELA,2016.0,2017.0
+129-280-13,129-301-02,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",KK,2016.0,2017.0
+084-191-001,084-191-003,2020,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2019.0, FC first new=2020.0",KK,2019.0,2020.0
+084-172-005,084-172-007,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",ACCELA,2016.0,2017.0
+117-180-038,117-180-065,2018,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2017.0, FC first new=2018.0",KK,2017.0,2018.0
+115-050-039,115-050-052,2018,rename,1,fc_first_new,"auto-detected: MEDIUM_OFFBYONE confidence, FC last old=2018.0, FC first new=2018.0",ACCELA,2018.0,2018.0
+1318-24-701-008,1318-24-701-010,2016,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2015.0, FC first new=2016.0",KK,2015.0,2016.0
+1418-03-301-002,1418-03-301-013,2016,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2015.0, FC first new=2016.0",ACCELA,2015.0,2016.0
+1418-34-211-046,1418-34-211-048,2016,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2015.0, FC first new=2016.0",KK,2015.0,2016.0
+129-292-03,129-292-29,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",ACCELA,2016.0,2017.0
+129-292-06,129-292-30,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",ACCELA,2016.0,2017.0
+129-292-02,129-292-28,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",KK,2016.0,2017.0
+129-292-10,129-292-32,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",KK,2016.0,2017.0
+129-292-26,129-292-37,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",KK,2016.0,2017.0
+129-291-20,129-291-36,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",KK,2016.0,2017.0
+129-291-13,129-291-34,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",KK,2016.0,2017.0
+129-291-17,129-291-35,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",ACCELA,2016.0,2017.0
+129-292-12,129-292-33,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",KK,2016.0,2017.0
+129-292-01,129-292-27,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",ACCELA,2016.0,2017.0
+129-292-19,129-292-39,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",KK,2016.0,2017.0
+129-292-20,129-292-38,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",ACCELA,2016.0,2017.0
+129-292-22,129-292-36,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",KK,2016.0,2017.0
+1418-34-110-010,1418-34-110-067,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",KK,2016.0,2017.0
+129-292-17,129-292-35,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",ACCELA,2016.0,2017.0
+129-292-18,129-292-40,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",ACCELA,2016.0,2017.0
+083-061-026,083-061-082,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",ACCELA,2016.0,2017.0
+093-194-007,093-194-017,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",ACCELA,2016.0,2017.0
+093-194-012,093-194-018,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",ACCELA,2016.0,2017.0
+094-122-019,094-122-059,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",ACCELA,2016.0,2017.0
+083-032-032,083-032-039,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",KK,2016.0,2017.0
+083-032-031,083-032-040,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",ACCELA,2016.0,2017.0
+083-033-014,083-033-016,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",KK,2016.0,2017.0
+129-280-16,129-301-05,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",ACCELA,2016.0,2017.0
+129-280-17,129-301-06,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",ACCELA,2016.0,2017.0
+129-280-19,129-301-08,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",ACCELA,2016.0,2017.0
+125-382-19,125-382-21,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",ACCELA,2016.0,2017.0
+129-291-03,129-291-33,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",KK,2016.0,2017.0
+129-280-14,129-301-03,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",KK,2016.0,2017.0
+129-280-15,129-301-04,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",KK,2016.0,2017.0
+093-042-022,093-042-044,2018,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2017.0, FC first new=2018.0",KK,2017.0,2018.0
+028-301-006,028-301-068,2018,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2017.0, FC first new=2018.0",ACCELA,2017.0,2018.0
+034-734-026,034-734-028,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",KK,2016.0,2017.0
+027-313-002,027-313-016,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",KK,2016.0,2017.0
+025-225-014,025-225-031,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",KK,2016.0,2017.0
+035-301-001,035-301-009,2016,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2015.0, FC first new=2016.0",KK,2015.0,2016.0
+117-180-037,117-180-065,2018,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2017.0, FC first new=2018.0",ACCELA,2017.0,2018.0
+1318-10-416-039,1318-10-416-063,2018,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2017.0, FC first new=2018.0",ACCELA,2017.0,2018.0
+1418-22-611-027,1418-22-611-028,2018,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2017.0, FC first new=2018.0",ACCELA,2017.0,2018.0
+092-152-015,092-152-038,2019,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2018.0, FC first new=2019.0",KK,2018.0,2019.0
+093-160-016,093-160-082,2018,rename,1,fc_first_new,"auto-detected: MEDIUM_OFFBYONE confidence, FC last old=2018.0, FC first new=2018.0",KK,2018.0,2018.0
+090-292-003,090-292-013,2018,rename,1,fc_first_new,"auto-detected: MEDIUM_OFFBYONE confidence, FC last old=2018.0, FC first new=2018.0",KK,2018.0,2018.0
+112-190-042,112-190-067,2018,rename,1,fc_first_new,"auto-detected: MEDIUM_OFFBYONE confidence, FC last old=2018.0, FC first new=2018.0",KK,2018.0,2018.0
+1318-23-710-039,1318-23-710-097,2018,rename,1,fc_first_new,"auto-detected: MEDIUM_OFFBYONE confidence, FC last old=2018.0, FC first new=2018.0",KK,2018.0,2018.0
+1318-23-710-038,1318-23-710-096,2018,rename,1,fc_first_new,"auto-detected: MEDIUM_OFFBYONE confidence, FC last old=2018.0, FC first new=2018.0",KK,2018.0,2018.0
+123-131-02,123-131-08,2018,rename,1,fc_first_new,"auto-detected: MEDIUM_OFFBYONE confidence, FC last old=2018.0, FC first new=2018.0",KK,2018.0,2018.0
+115-060-018,115-060-022,2018,rename,1,fc_first_new,"auto-detected: MEDIUM_OFFBYONE confidence, FC last old=2018.0, FC first new=2018.0",KK,2018.0,2018.0
+090-271-015,090-262-016,2019,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2018.0, FC first new=2019.0",KK,2018.0,2019.0
+025-735-006,025-735-012,2019,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2018.0, FC first new=2019.0",KK,2018.0,2019.0
+035-283-018,035-283-038,2019,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2018.0, FC first new=2019.0",KK,2018.0,2019.0
+027-313-013,027-313-017,2019,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2018.0, FC first new=2019.0",KK,2018.0,2019.0
+035-283-022,035-283-037,2019,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2018.0, FC first new=2019.0",KK,2018.0,2019.0
+015-370-023,015-370-028,2019,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2018.0, FC first new=2019.0",KK,2018.0,2019.0
+090-134-039,090-134-061,2019,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2018.0, FC first new=2019.0",ACCELA,2018.0,2019.0
+090-232-026,090-232-034,2019,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2018.0, FC first new=2019.0",KK,2018.0,2019.0
+084-052-010,084-052-013,2019,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2018.0, FC first new=2019.0",KK,2018.0,2019.0
+098-010-037,098-010-042,2020,rename,1,fc_first_new,"auto-detected: MEDIUM_OFFBYONE confidence, FC last old=2020.0, FC first new=2020.0",ACCELA,2020.0,2020.0
+092-234-012,092-234-024,2019,rename,1,fc_first_new,"auto-detected: MEDIUM_OFFBYONE confidence, FC last old=2019.0, FC first new=2019.0",KK,2019.0,2019.0
+027-143-013,027-143-027,2023,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2022.0, FC first new=2023.0",KK,2022.0,2023.0
+080-192-033,080-192-034,2019,rename,1,fc_first_new,"auto-detected: MEDIUM_OFFBYONE confidence, FC last old=2019.0, FC first new=2019.0",KK,2019.0,2019.0
+090-073-019,090-073-021,2020,rename,1,fc_first_new,"auto-detected: MEDIUM_OFFBYONE confidence, FC last old=2020.0, FC first new=2020.0",ACCELA,2020.0,2020.0
+090-223-008,090-223-047,2017,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2016.0, FC first new=2017.0",KK,2016.0,2017.0
+117-100-016,117-100-091,2021,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2020.0, FC first new=2021.0",ACCELA,2020.0,2021.0
+117-100-017,117-100-091,2021,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2020.0, FC first new=2021.0",KK,2020.0,2021.0
+080-162-017,080-162-020,2019,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2018.0, FC first new=2019.0",KK,2018.0,2019.0
+098-200-026,098-200-046,2025,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2024.0, FC first new=2025.0",KK,2024.0,2025.0
+026-031-013,026-031-019,2023,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2022.0, FC first new=2023.0",KK,2022.0,2023.0
+122-181-64,122-181-79,2023,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2022.0, FC first new=2023.0",KK,2022.0,2023.0
+125-142-02,125-156-10,2024,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2023.0, FC first new=2024.0",KK,2023.0,2024.0
+098-167-006,098-167-020,2022,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2021.0, FC first new=2022.0",KK,2021.0,2022.0
+090-055-012,090-055-038,2024,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2023.0, FC first new=2024.0",KK,2023.0,2024.0
+083-201-002,083-201-005,2024,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2023.0, FC first new=2024.0",KK,2023.0,2024.0
+026-111-021,026-111-025,2024,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2023.0, FC first new=2024.0",KK,2023.0,2024.0
+130-331-08,130-331-15,2024,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2023.0, FC first new=2024.0",KK,2023.0,2024.0
+125-142-01,125-156-09,2024,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2023.0, FC first new=2024.0",KK,2023.0,2024.0
+1319-19-710-027,1319-19-710-051,2024,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2023.0, FC first new=2024.0",KK,2023.0,2024.0
+125-142-03,125-156-11,2024,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2023.0, FC first new=2024.0",KK,2023.0,2024.0
+125-141-31,125-141-36,2024,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2023.0, FC first new=2024.0",KK,2023.0,2024.0
+115-030-073,115-030-102,2024,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2023.0, FC first new=2024.0",KK,2023.0,2024.0
+031-103-027,031-103-030,2025,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2024.0, FC first new=2025.0",ACCELA,2024.0,2025.0
+1318-03-210-022,1318-03-210-041,2025,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2024.0, FC first new=2025.0",KK,2024.0,2025.0
+1318-16-810-038,1318-16-810-058,2025,rename,1,fc_last_old+1,"auto-detected: HIGH confidence, FC last old=2024.0, FC first new=2025.0",ACCELA,2024.0,2025.0
+015-370-022,015-370-027,2018,rename,0,fc_first_new,"coworker-handled in CSV; genealogy record only. MEDIUM_OFFBYONE, FC last old=2017.0, FC first new=2019.0",KK,2017.0,2019.0
+1418-27-210-031,1418-27-210-036,2017,rename,0,fc_last_old+1,"coworker-handled in CSV; genealogy record only. HIGH, FC last old=2016.0, FC first new=2017.0",KK,2016.0,2017.0
+027-313-006,027-313-16,2017,rename,0,fc_first_new,"coworker-handled in CSV; genealogy record only. MEDIUM_OFFBYONE, FC last old=2016.0, FC first new=2018.0",ACCELA,2016.0,2018.0
+090-223-008,090-223-046,2017,rename,0,fc_last_old+1,"coworker-handled in CSV; genealogy record only. HIGH, FC last old=2016.0, FC first new=2017.0",KK,2016.0,2017.0
+090-224-012,090-233-036,2019,rename,0,fc_last_old+1,"coworker-handled in CSV; genealogy record only. HIGH, FC last old=2018.0, FC first new=2019.0",KK,2018.0,2019.0
+094-150-007,094-520-015,2018,rename,0,fc_last_old+1,"coworker-handled in CSV; genealogy record only. HIGH, FC last old=2017.0, FC first new=2018.0",ACCELA,2017.0,2018.0
+025-735-005,025-735-011,2019,rename,0,fc_last_old+1,"coworker-handled in CSV; genealogy record only. HIGH, FC last old=2018.0, FC first new=2019.0",ACCELA,2018.0,2019.0
+083-063-015,083-063-023,2021,rename,0,fc_last_old+1,"coworker-handled in CSV; genealogy record only. HIGH, FC last old=2020.0, FC first new=2021.0",KK,2020.0,2021.0
+084-092-008,084-092-040,2017,rename,0,fc_last_old+1,"coworker-handled in CSV; genealogy record only. HIGH, FC last old=2016.0, FC first new=2017.0",ACCELA,2016.0,2017.0
+1319-30-610-002,1319-30-610-003,2012,rename,0,fc_first_new,"coworker-handled in CSV; genealogy record only. MEDIUM_GAP, FC last old=2013.0, FC first new=2012.0",KK,2013.0,2012.0
+094-140-063,094-140-067,2012,rename,0,fc_first_new,"coworker-handled in CSV; genealogy record only. MEDIUM_GAP, FC last old=2014.0, FC first new=2012.0",ACCELA,2014.0,2012.0
+083-151-005,083-151-030,2012,rename,0,fc_first_new,"coworker-handled in CSV; genealogy record only. MEDIUM_GAP, FC last old=2015.0, FC first new=2012.0",KK,2015.0,2012.0
+129-091-01,129-022-07,2012,rename,0,fc_first_new,"coworker-handled in CSV; genealogy record only. MEDIUM_GAP, FC last old=2025.0, FC first new=2012.0",KK,2025.0,2012.0
+026-031-020,026-031-014,2012,rename,0,fc_first_new,"coworker-handled in CSV; genealogy record only. MEDIUM_GAP, FC last old=2025.0, FC first new=2012.0",KK,2025.0,2012.0
+092-154-050,092-154-009,2012,rename,0,fc_first_new,"coworker-handled in CSV; genealogy record only. MEDIUM_GAP, FC last old=2025.0, FC first new=2012.0",KK,2025.0,2012.0
+112-060-036,112-060-018,2012,rename,0,fc_first_new,"coworker-handled in CSV; genealogy record only. MEDIUM_GAP, FC last old=2025.0, FC first new=2012.0",KK,2025.0,2012.0
+027-323-010,027-323-019,2018,rename,1,fc_first_new,"MANUAL_APN_FIXES in build_2025_layer.py; old not in FC, new first in 2018",build_2025_layer_manual,,2018
+015-304-031,015-304-034,2018,rename,1,fc_first_new,"MANUAL_APN_FIXES in build_2025_layer.py; old not in FC, new first in 2018",build_2025_layer_manual,,2018
+034-691-020,034-691-022,2018,rename,1,fc_first_new,"MANUAL_APN_FIXES in build_2025_layer.py; old not in FC, new first in 2018",build_2025_layer_manual,,2018

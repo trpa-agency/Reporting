@@ -73,8 +73,24 @@ def build_el_dorado_fix(output_fc: str, fc_apn: str) -> tuple[dict, dict]:
     -------
     pad_map   : {2-digit APN → 3-digit APN}   apply when Year >= EL_PAD_YEAR
     depad_map : {3-digit APN → 2-digit APN}   apply when Year <  EL_PAD_YEAR
+
+    Notes
+    -----
+    Two cases handled:
+
+    Case 1 — Parcel spans the 2018 format change (has both 2-digit rows pre-2018
+    and 3-digit rows 2018+):  The 2-digit APN appears in the FC and is collected
+    into el_2d.  pad_map covers it directly.
+
+    Case 2 — Parcel was created at or after 2018 (only ever has 3-digit rows):
+    The 2-digit form never appears in the FC, so el_2d misses it and the CSV's
+    2-digit entry is never padded.  Fix: also collect 3-digit APNs from the FC;
+    for any 3-digit APN whose 2-digit form is not already in el_2d, add the
+    2d→3d mapping to pad_map.  The CSV entry gets padded to the correct current
+    APN and is found in the FC.
     """
     el_2d: set[str] = set()
+    el_3d: set[str] = set()
     with arcpy.da.SearchCursor(output_fc, [fc_apn],
                                where_clause="COUNTY = 'EL'") as cur:
         for (apn,) in cur:
@@ -82,8 +98,20 @@ def build_el_dorado_fix(output_fc: str, fc_apn: str) -> tuple[dict, dict]:
                 a = str(apn).strip()
                 if _EL_2D.match(a):
                     el_2d.add(a)
+                elif _EL_3D.match(a):
+                    el_3d.add(a)
 
     pad_map   = {a: el_pad(a)   for a in el_2d}
+
+    # Case 2: 3-digit-only parcels (born at or after the 2018 format change).
+    # Their 2-digit form may exist in the CSV but never appears in the FC, so
+    # el_2d misses them.  Add the 2d→3d mapping so apply_el_dorado_fix can
+    # pad CSV rows to the current APN.
+    for a3 in el_3d:
+        a2 = el_depad(a3)
+        if a2 not in pad_map:
+            pad_map[a2] = a3
+
     # depad_map keys are the 3-digit forms of known 2-digit APNs
     depad_map = {el_pad(a): el_depad(el_pad(a)) for a in el_2d
                  if _EL_3D.match(el_pad(a))}
