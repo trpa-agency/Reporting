@@ -2155,3 +2155,22 @@
 2026-04-15 15:45:35  INFO      s01c_populate_jurisdiction    Total matched: 93047 / 93047  (0 unmatched)
 2026-04-15 15:46:08  INFO      s01c_populate_jurisdiction    Written: 855489 rows updated, 0 skipped
 2026-04-15 15:46:08  INFO      s01c_populate_jurisdiction    Normalizing El Dorado APNs ...
+2026-04-15 15:46:12  INFO      s01c_populate_jurisdiction      Depadded (pre-2018): 0 rows
+2026-04-15 15:46:12  INFO      s01c_populate_jurisdiction      Padded   (2018+):    0 rows
+2026-04-15 15:46:12  INFO      s01c_populate_jurisdiction  Step 1c complete.
+2026-04-15 15:46:15  INFO      main  COUNTY populated: 0 null rows (0.0%)
+2026-04-15 15:46:15  INFO      s02_load_csv  === Step 2: Load CSV and build csv_lookup ===
+2026-04-15 15:46:15  INFO      s02_load_csv  CSV: 42499 parcels, 14 year columns (2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025)
+2026-04-15 15:46:16  INFO      s02_load_csv  Long format: 594986 rows  (2012–2025)
+2026-04-15 15:46:16  INFO      s02_load_csv  Building El Dorado APN maps from output FC ...
+2026-04-15 15:46:20  INFO      s02_load_csv    APNs to pad   (Year>=2018): 30660
+2026-04-15 15:46:20  INFO      s02_load_csv    APNs to depad (Year< 2018): 30420
+2026-04-15 15:46:20  DEBUG     utils.apply_el_dorado_fix  El Dorado fix: 159530 rows updated (155696 pad, 3834 depad)
+2026-04-15 15:46:20  INFO      s02_load_csv    CSV rows APN-fixed: 159530
+2026-04-15 15:46:21  INFO      s02_load_csv    EL split-format dedup: removed 490 duplicate (APN, Year) rows (kept max units per key)
+2026-04-15 15:46:21  INFO      s02b_genealogy  === Step 2b: Apply genealogy APN corrections ===
+2026-04-15 15:46:21  INFO      s02b_genealogy    2397 rows skipped (no change_year)
+2026-04-15 15:46:21  INFO      s02b_genealogy  Master table: 32529 apply-ready rows (is_primary=1, in_fc_new=1, change_year set)
+2026-04-15 15:46:21  INFO      s02b_genealogy    ACCELA    : 30883 rows
+2026-04-15 15:46:21  INFO      s02b_genealogy    MANUAL    : 1328 rows
+2026-04-15 15:46:21  INFO      s02b_genealogy    SPATIAL   : 318 rows
