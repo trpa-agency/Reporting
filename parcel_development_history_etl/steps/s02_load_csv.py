@@ -66,6 +66,20 @@ def run() -> tuple[pd.DataFrame, dict]:
     changed = (df_csv["APN"] != df_csv["APN_orig"]).sum()
     log.info("  CSV rows APN-fixed: %d", changed)
 
+    # Resolve duplicate (APN, Year) rows that arise when the source CSV already
+    # contains both the 2-digit and 3-digit form of an El Dorado APN (coworker
+    # manually split the format change across two rows).  The El Dorado fix
+    # transforms one form into the other, creating two rows for the same key —
+    # one with the real unit count and one with 0.  Keep the max (non-zero) value.
+    n_before = len(df_csv)
+    df_csv = (df_csv.groupby(["APN", "Year"], as_index=False)["Units_CSV"]
+                    .max()
+                    .assign(APN_orig=lambda d: d["APN"]))  # restore APN_orig col
+    n_dupes = n_before - len(df_csv)
+    if n_dupes:
+        log.info("  EL split-format dedup: removed %d duplicate (APN, Year) rows "
+                 "(kept max units per key)", n_dupes)
+
     # -- Genealogy APN corrections --------------------------------------------
     # Apply known old→new APN substitutions by year before building the lookup,
     # so csv_lookup references the correct current APN for each year.
