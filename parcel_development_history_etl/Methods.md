@@ -93,6 +93,7 @@ main.py
 | `deduplicate_source_fc.py` | Deduplicate SOURCE_FC (run if duplicate APN×Year rows are found) |
 | `check_parcel_topology.py` | Topology QA: overlapping/duplicate geometry |
 | `scripts/qa_lost_apns_vs_new_genealogy.py` | Post-ETL QA: cross-reference lost APNs against Accela and KK genealogy files to find candidate mappings |
+| `scripts/detect_change_years.py` | **New (Apr 2026)** — For NEEDS_CHANGE_YEAR pairs from `qa_lost_vs_new_genealogy.csv`, queries OUTPUT_FC and SOURCE_FC to determine when the old APN last appears and the new APN first appears. Recommends `change_year` with confidence ratings. Outputs `data/raw_data/change_year_candidates.csv` pre-formatted for direct copy into `apn_genealogy_master.csv`. |
 
 ---
 
@@ -114,8 +115,13 @@ This step runs before S02 so that COUNTY is populated when the El Dorado APN fix
 
 ### S02 — Load Residential CSV
 1. Reads wide-format CSV (APN × 2012–2025), melts to long format (~593K rows)
-2. **El Dorado APN fix**: El Dorado County changed APN suffix formatting in 2018 (2-digit → 3-digit, e.g. `080-155-11` → `080-155-011`). Uses COUNTY from OUTPUT_FC (populated by S01c) to identify El Dorado parcels and apply the correct format per year.
-3. Builds `csv_lookup`: `{(APN, Year): units}` passed to S04.
+2. **El Dorado APN fix**: El Dorado County changed APN suffix formatting in 2018 (2-digit → 3-digit, e.g. `080-155-11` → `080-155-011`). `build_el_dorado_fix()` queries the FC for COUNTY=EL APNs and builds a `pad_map` (2-digit → 3-digit) and `depad_map` (3-digit → 2-digit). Two cases are handled:
+   - **Case 1 — Parcel spans 2018:** Both 2-digit (pre-2018 FC rows) and 3-digit (2018+ FC rows) exist in the FC. The 2-digit form is found by the FC query and enters `pad_map` directly.
+   - **Case 2 — Parcel born at or after 2018:** Only the 3-digit form ever exists in the FC. The 2-digit form is never in the FC, so a straight query misses it. `build_el_dorado_fix()` also collects 3-digit APNs and adds their de-padded 2-digit form → 3-digit form to `pad_map`. This allows CSV entries using the 2-digit form (entered before the parcel existed in the county system) to be padded correctly. Example: `015-370-30 → 015-370-030` (FC has 3-digit form only, starting 2021).
+3. **El Dorado split-format dedup**: Some APNs appear in the CSV in both 2-digit and 3-digit forms (one row per format). After the El Dorado fix normalizes both to the same key, duplicates are resolved by keeping the max unit count for each `(APN, Year)` pair.
+4. **S02b — Apply Genealogy** (see below)
+5. **Post-genealogy dedup**: Genealogy substitution can create duplicate `(APN, Year)` rows when the target APN has a zero-unit placeholder row for that year (zeros don't trigger conflict-skip). Since `csv_lookup` is built as a dict (last-write-wins), a zero-unit duplicate row can silently overwrite a valid non-zero substitution. A second groupby-max dedup after genealogy prevents this.
+6. Builds `csv_lookup`: `{(APN, Year): units}` passed to S04.
 
 **S02b — Apply Genealogy** (called from within S02)
 Applies parcel event corrections to the long-format CSV before the lookup is built. For each record where `is_primary=1`, `in_fc_new=1`, and `change_year` is set: rows where `APN == apn_old AND Year >= change_year` have their APN replaced with `apn_new`.
@@ -129,7 +135,9 @@ For CSV APNs that still have no match in OUTPUT_FC after S02b, resolves them via
 1. **SOURCE_FC fallback** — queries `Parcel_History_Attributed` directly using the APN (with El Dorado 2-digit/3-digit variant awareness). Used when the All Parcels service is unavailable or has gaps.
 2. **All Parcels service** — centroid spatial join against the current service layer.
 
-**El Dorado depad awareness:** S03 recognizes that El Dorado APNs in the CSV may use the 2-digit suffix form while the FC uses the 3-digit form (or vice versa). It expands lookups to include both forms and resolves hits back to the canonical 3-digit key.
+**El Dorado format expansion in geometry lookup:** S03's `_get_apn_geometry()` handles two cases:
+- **Case A (3-digit in crosswalk list):** Also searches for the 2-digit form so pre-2018 FC rows contribute geometry. Results mapped back to the canonical 3-digit key.
+- **Case B (2-digit APN that only exists in FC in 3-digit form):** Parcels born at or after the 2018 format change never have a 2-digit row in the FC. S03 also searches for the padded 3-digit form so its geometry can be used for the centroid spatial join.
 
 **Sum-on-collision:** If a CSV APN resolves to an FC APN that already has a value in `csv_lookup`, the values are summed rather than skipped. This handles cases where multiple historical APNs map to the same current parcel (e.g. after a merge event). Results written to `QA_APN_Crosswalk`.
 
@@ -343,7 +351,7 @@ Reports are not auto-generated — they are written manually after reviewing the
 
 **New genealogy files (Accela + KK):** ~23,600 and ~47,600 new pairs respectively lack `change_year` and cannot be applied until dates are researched. Use `qa_lost_apns_vs_new_genealogy.py` to prioritize which pairs to investigate first.
 
-**Lost APNs:** As of the April 2026 run, ~756 APNs from the residential CSV could not be placed in the output FC (560 PARCEL_SPLIT / 6,919 units; 131 UNKNOWN / 826 units; 65 PARCEL_NEW / 710 units). These units are absent from the final output until their genealogy is resolved.
+**Lost APNs:** As of the April 15, 2026 final run, 709 APNs from the residential CSV cannot be directly placed in the output FC (515 PARCEL_SPLIT / 6,281 units; 131 UNKNOWN / 826 units; 63 PARCEL_NEW / 661 units). All are recovered by the S03 spatial crosswalk (5,434 entries). Zero APNs remain unresolved — deficit is 0 across all years. (The El Dorado Case 2 fix — see above — resolved the final three APNs that previously had no geometry.)
 
 **Building_SqFt:** Based on 2019 building footprints only. Does not reflect demolitions or new construction after 2019. Intended as a QA indicator (zero buildings + non-zero units flags a parcel for review), not a precise current measurement.
 
@@ -353,54 +361,47 @@ Reports are not auto-generated — they are written manually after reviewing the
 
 ---
 
-## Next Steps (as of April 2026 run)
+## Next Steps (as of April 15, 2026)
 
-Current data state from the April 14 2026 run:
+Current data state from the April 15, 2026 final run (Run 2):
 
 | Check | Value |
 |---|---|
-| Lost APNs | 756 (PARCEL_SPLIT 560 / 6,919 units; UNKNOWN 131 / 826; PARCEL_NEW 65 / 710) |
-| Duplicate APN×Year | 0 — clean |
-| BOTH_AGREE | 323,869 rows — SOURCE_FC comparison working |
-| DISAGREE | 9,834 rows / 17,549 unit diff — CSV and SOURCE_FC differ |
-| FC_NATIVE | 5,888 rows / 7,177 units — SOURCE_FC has values CSV lacks |
-| NEEDS_CHANGE_YEAR candidates | 366 APNs / ~2,274 units — actionable from new genealogy files |
-| Already-in-tahoe but still lost | 210 APNs / ~1,175 units — broken genealogy entries |
-| No candidate found | 193 APNs — needs spatial investigation |
+| Annual deficit | **0/yr, all 14 years (2012–2025)** |
+| Total deficit | 0 units |
+| Lost APNs (QA category) | 709 — all recovered by S03 spatial crosswalk |
+| Truly unresolvable | 0 |
+| Genealogy substitutions | 523 APN subs / 8,803 unit-years remapped per run |
+| Genealogy rows skipped (no change_year) | 2,397 |
+| Duplicate APN×Year in FC | 0 — clean |
+| Genealogy master | 1,958 rows |
+| BOTH_AGREE rows | 324,099 |
+| DISAGREE rows | 9,625 (CSV used in all cases) |
+| FC_NATIVE rows | 5,867 (SOURCE_FC has units CSV lacks — not written to output) |
 
-### 1. Fix the 210 "already_in_tahoe" lost APNs
-These APNs are in `apn_genealogy_tahoe.csv` but are still showing up as lost — meaning the entry has `is_primary=1` but either `in_fc_new=0` (target APN not in FC) or `change_year` is null. Filter `qa_lost_vs_new_genealogy.csv` for `Action = already_in_tahoe` and check each against the GDB in ArcGIS Pro. Fix: update `in_fc_new` or supply the missing `change_year` in the source CSVs, then rebuild `apn_genealogy_tahoe.csv` and re-run `--skip-s01 --skip-s05`.
+### 1. ~~Resolve the 3 previously "permanently lost" APNs~~ — RESOLVED
 
-### 2. Work the NEEDS_CHANGE_YEAR list (366 APNs)
-Open `data/raw_data/qa_lost_vs_new_genealogy.csv`, filter `Action = NEEDS_CHANGE_YEAR`, sorted by units descending. Top candidates:
+**Fixed April 15, 2026 (Run 2):** `015-370-30`, `016-300-64`, `018-320-18` were El Dorado parcels born at/after 2018 that only exist in the FC in 3-digit form. Extended `build_el_dorado_fix()` (Case 2) and S03's geometry lookup (Case B) to handle this. Zero deficit achieved — see REPORT_20260415b.md.
 
-| Lost APN | Candidate New APN | Units | Source |
-|---|---|---|---|
-| 031-102-001 | 031-102-01 | 64 | KK |
-| 1418-10-802-003 | 1418-10-802-012 | 61 | KK |
-| 1418-10-802-011 | 1418-10-802-004 | 48 | KK |
-| 129-280-13 | 129-301-02 | 36 | KK + Accela |
-| 129-280-12 | 129-301-01 | 36 | KK + Accela |
+### 2. Continue NEEDS_CHANGE_YEAR genealogy work
 
-For each verified pair: add a row with `change_year` to `apn_genealogy_master.csv`, rebuild the master (`build_genealogy_tahoe.py`), and re-run.
+Run `detect_change_years.py` against the current `qa_lost_vs_new_genealogy.csv` to find more promotable pairs. 2,397 genealogy rows are still skipped each run for lack of `change_year`. Each batch of promoted pairs further reduces the lost-APN QA list (even if the actual deficit is already close to irreducible, the genealogy record is worth completing).
 
-> **Note:** `031-102-001 → 031-102-001` (same APN in KK) is a no-op artifact — only `031-102-001 → 031-102-01` (3→2-digit) is meaningful, and that may be a format normalization rather than a true rename. Verify spatially before adding.
+### 3. Investigate 9,611 DISAGREE pairs
 
-### 3. Investigate the 9,834 DISAGREE pairs
-Open `QA_Unit_Reconciliation` in ArcGIS Pro, filter `Category = DISAGREE`. The ETL uses the CSV value in all cases, but 17,549 units of discrepancy between CSV and SOURCE_FC is worth spot-checking. Determine whether the differences are systematic (e.g. concentrated in one county or year range) or isolated. If SOURCE_FC values are more accurate for a subset, that is feedback to the CSV maintainer.
+`QA_Unit_Reconciliation` filtered to `Category = DISAGREE` shows 9,611 APN×Year pairs where SOURCE_FC and CSV both have non-zero units but differ. The ETL uses CSV in all cases. Worth spot-checking to see if differences are systematic (concentrated in a county or year) or isolated noise.
 
 ### 4. Run full S05 spatial joins
-All recent runs used `--skip-s05`, so `TOWN_CENTER`, `TAZ`, `ZONING`, `REGIONAL_LANDUSE`, and `Building_SqFt` are null in the current output. Once unit counts are satisfactory, run:
+
+All recent runs used `--skip-s05`. `TOWN_CENTER`, `TAZ`, `ZONING`, `REGIONAL_LANDUSE`, and `Building_SqFt` are from the previous full run. Once unit QA is satisfactory, run:
 ```powershell
 & "C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/python.exe" `
   parcel_development_history_etl/main.py --skip-s01
 ```
 
-### 5. Handle 193 no-candidate lost APNs
-These APNs had no match in the Accela or KK genealogy files. Manual spatial investigation in ArcGIS Pro is needed — use `QA_Lost_APNs` joined to the output FC, filter by `Issue_Category = UNKNOWN` or `PARCEL_SPLIT`, and look for spatial overlaps with current parcels to identify the correct successor APN.
+### 5. Review 5,874 FC_NATIVE rows
 
-### 6. Suppress cosmetic S01 COUNTY warning
-Every service year logs "COUNTY field not found in service layer." This is expected — COUNTY is populated by S01c, not S01. The warning can be suppressed in `s01_prepare_fc.py` since the field is intentionally absent from the raw service response.
+These are APN×Year pairs where SOURCE_FC has a non-zero unit value the CSV lacks. Not written to the output (CSV is sole authority), but they are candidates for CSV omission. Review `QA_Unit_Reconciliation` filtered to `FC_NATIVE` with the CSV maintainer.
 
 ---
 

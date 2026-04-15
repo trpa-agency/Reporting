@@ -18,7 +18,7 @@ import pandas as pd
 
 from config import (OUTPUT_FC, SOURCE_FC, FC_APN, FC_YEAR, CSV_YEARS,
                     CLOSEST_MAX_METERS, QA_APN_CROSSWALK, ALL_PARCELS_CURRENT)
-from utils  import get_logger, write_qa_table, el_depad, _EL_3D
+from utils  import get_logger, write_qa_table, el_depad, el_pad, _EL_2D, _EL_3D
 
 log = get_logger("s03_crosswalk")
 
@@ -41,10 +41,17 @@ def _get_apn_geometry(apns: set) -> dict:
     For each APN in *apns*, return its geometry from OUTPUT_FC.
     Uses the earliest year the APN appears (most likely to have full polygon).
 
-    El Dorado 3-digit APNs (e.g. 027-323-010, year >= 2018) are also searched
-    in their 2-digit form (027-323-10) so that pre-2018 rows — which stored the
-    old format — contribute geometry.  Results are mapped back to the canonical
-    3-digit key so the caller always gets the modern APN as the dict key.
+    Two El Dorado format expansions are applied to maximise geometry hits:
+
+    Case A — 3-digit APN in crosswalk list (e.g. 027-323-010 needing pre-2018
+    geometry):  Also search for its 2-digit form (027-323-10) so that pre-2018
+    FC rows — which stored the old format — contribute geometry.  Results are
+    mapped back to the canonical 3-digit key.
+
+    Case B — 2-digit APN in crosswalk list that only exists in the FC in 3-digit
+    form (born at or after the 2018 format change, e.g. 016-300-64 → 016-300-064).
+    The 2-digit form never appears in the FC, so geometry lookup would fail.
+    Also search for the padded 3-digit form so its geometry can be used.
 
     Returns {apn: (geometry, source_year)}.
     """
@@ -52,12 +59,20 @@ def _get_apn_geometry(apns: set) -> dict:
 
     # Build a depad lookup: {2d_form -> canonical_3d_apn} for any 3-digit EL APNs
     depad_lookup: dict = {}
+    # Build a pad lookup:  {3d_form -> canonical_2d_apn} for 2-digit-only EL APNs
+    pad_lookup: dict = {}
     expanded: set = set(apns)
     for apn in apns:
         if _EL_3D.match(apn):
+            # Case A: 3-digit APN — also try 2-digit form for pre-2018 FC rows
             two_d = el_depad(apn)
             depad_lookup[two_d] = apn
             expanded.add(two_d)
+        elif _EL_2D.match(apn):
+            # Case B: 2-digit APN — also try 3-digit form for 2018+ FC rows
+            three_d = el_pad(apn)
+            pad_lookup[three_d] = apn
+            expanded.add(three_d)
 
     expanded_list = list(expanded)
     batch = 500
@@ -68,8 +83,9 @@ def _get_apn_geometry(apns: set) -> dict:
             for apn, yr, geom in cur:
                 if apn and geom and geom.area > 0:
                     a = str(apn).strip()
-                    # Resolve 2-digit form back to its canonical 3-digit key
-                    canonical = depad_lookup.get(a, a)
+                    # Case A: resolve 2-digit form back to its canonical 3-digit key
+                    # Case B: resolve 3-digit form back to its canonical 2-digit key
+                    canonical = depad_lookup.get(a, pad_lookup.get(a, a))
                     if canonical not in apns:
                         continue
                     if canonical not in result or yr < result[canonical][1]:

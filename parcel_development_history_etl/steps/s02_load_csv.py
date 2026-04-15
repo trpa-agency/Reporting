@@ -85,6 +85,22 @@ def run() -> tuple[pd.DataFrame, dict]:
     # so csv_lookup references the correct current APN for each year.
     df_csv = s02b_genealogy.run(df_csv)
 
+    # -- Post-genealogy dedup -------------------------------------------------
+    # Genealogy substitution changes old_APN rows to new_APN.  If new_APN
+    # already had a 0-unit row for that year (not treated as a conflict), df_csv
+    # now has TWO rows for the same (APN, Year): the original 0-unit row and the
+    # substituted non-zero row.  The dict comprehension below is last-write-wins,
+    # so whichever row iterates last wins — the 0-unit row can silently overwrite
+    # the real value.  Deduplicate by keeping the MAX so the non-zero value wins.
+    n_before_gen = len(df_csv)
+    df_csv = (df_csv.groupby(["APN", "Year"], as_index=False)["Units_CSV"]
+                    .max()
+                    .assign(APN_orig=lambda d: d["APN"]))
+    n_dupes_gen = n_before_gen - len(df_csv)
+    if n_dupes_gen:
+        log.info("  Post-genealogy dedup: removed %d duplicate (APN, Year) rows "
+                 "(kept max units per key)", n_dupes_gen)
+
     # -- Build csv_lookup -----------------------------------------------------
     csv_lookup = {
         (row.APN, row.Year): row.Units_CSV
