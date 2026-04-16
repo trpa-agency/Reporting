@@ -2428,3 +2428,186 @@
 2026-04-15 16:23:17  INFO      s05_spatial_attrs  Summing building footprint area (Building_SqFt) ...
 2026-04-15 16:23:18  INFO      s05_spatial_attrs    Added field Building_SqFt to OUTPUT_FC
 2026-04-15 16:24:09  INFO      s05_spatial_attrs    2019 parcels for building intersect: 61288
+2026-04-15 19:27:51  INFO      build_net_change_fc  === build_net_change_fc ===
+2026-04-15 19:27:51  INFO      build_net_change_fc  Window: 2012 – 2025  (14 years)
+2026-04-15 19:27:51  INFO      build_net_change_fc  Output: C:\GIS\ParcelHistory.gdb\Parcel_ResUnits_NetChange
+2026-04-15 19:27:55  INFO      build_net_change_fc  Loaded unit data: 93047 APNs across 14 years
+2026-04-15 19:28:00  INFO      build_net_change_fc  Geometries from end year (2025): 61240 parcels
+2026-04-15 19:28:03  INFO      build_net_change_fc  Loaded unit data: 61239 APNs across 1 years
+2026-04-15 19:28:08  INFO      build_net_change_fc    Geometry fallback year 2024: filled 50 APNs
+2026-04-15 19:28:12  INFO      build_net_change_fc  Loaded unit data: 61235 APNs across 1 years
+2026-04-15 19:28:17  INFO      build_net_change_fc    Geometry fallback year 2023: filled 138 APNs
+2026-04-15 19:28:20  INFO      build_net_change_fc  Loaded unit data: 61257 APNs across 1 years
+2026-04-15 19:28:26  INFO      build_net_change_fc    Geometry fallback year 2022: filled 174 APNs
+2026-04-15 19:28:30  INFO      build_net_change_fc  Loaded unit data: 61238 APNs across 1 years
+2026-04-15 19:28:33  INFO      build_net_change_fc    Geometry fallback year 2021: filled 47 APNs
+2026-04-15 19:28:36  INFO      build_net_change_fc  Loaded unit data: 61270 APNs across 1 years
+2026-04-15 19:28:39  INFO      build_net_change_fc    Geometry fallback year 2020: filled 109 APNs
+2026-04-15 19:28:41  INFO      build_net_change_fc  Loaded unit data: 61288 APNs across 1 years
+2026-04-15 19:28:46  INFO      build_net_change_fc    Geometry fallback year 2019: filled 88 APNs
+2026-04-15 19:28:48  INFO      build_net_change_fc  Loaded unit data: 61454 APNs across 1 years
+2026-04-15 19:28:52  INFO      build_net_change_fc    Geometry fallback year 2018: filled 359 APNs
+2026-04-15 19:28:55  INFO      build_net_change_fc  Loaded unit data: 60905 APNs across 1 years
+2026-04-15 19:28:59  INFO      build_net_change_fc    Geometry fallback year 2017: filled 30095 APNs
+2026-04-15 19:29:01  INFO      build_net_change_fc  Loaded unit data: 60889 APNs across 1 years
+2026-04-15 19:29:05  INFO      build_net_change_fc    Geometry fallback year 2016: filled 368 APNs
+2026-04-15 19:29:08  INFO      build_net_change_fc  Loaded unit data: 60851 APNs across 1 years
+2026-04-15 19:29:12  INFO      build_net_change_fc    Geometry fallback year 2015: filled 65 APNs
+2026-04-15 19:29:14  INFO      build_net_change_fc  Loaded unit data: 60899 APNs across 1 years
+2026-04-15 19:29:18  INFO      build_net_change_fc    Geometry fallback year 2014: filled 194 APNs
+2026-04-15 19:29:21  INFO      build_net_change_fc  Loaded unit data: 60897 APNs across 1 years
+2026-04-15 19:29:25  INFO      build_net_change_fc    Geometry fallback year 2013: filled 120 APNs
+2026-04-15 19:29:27  INFO      build_net_change_fc  Loaded unit data: 60827 APNs across 1 years
+2026-04-15 19:29:28  INFO      build_net_change_fc  APNs to write: 93047  (of which 93047 have geometry)
+2026-04-15 19:29:39  INFO      build_net_change_fc  Written: 93047 rows  Skipped (no geometry): 0
+2026-04-15 19:29:39  INFO      build_net_change_fc  Net change summary — gains: 20922  losses: 19672  no change: 52453
+2026-04-15 19:29:39  INFO      build_net_change_fc  Done.
+2026-04-15 19:44:37  INFO      build_diff_raster  === build_diff_raster ===
+2026-04-15 19:44:37  INFO      build_diff_raster  Start: 2012  End: 2025  Cell size: 10m
+2026-04-15 19:44:37  INFO      build_diff_raster  Output GDB: C:\GIS\ParcelHistory.gdb
+2026-04-15 19:44:37  INFO      build_diff_raster  Rasterizing year 2012 ...
+2026-04-15 19:44:41  INFO      build_diff_raster    Year 2012: 60827 parcels
+2026-04-15 19:45:18  INFO      build_diff_raster    Raster ResUnits_2012: 33740846010 total cells
+2026-04-15 19:45:18  INFO      build_diff_raster  Rasterizing year 2025 ...
+2026-04-15 19:45:21  INFO      build_diff_raster    Year 2025: 61240 parcels
+2026-04-15 19:46:00  INFO      build_diff_raster    Raster ResUnits_2025: 33740846010 total cells
+2026-04-15 19:46:00  INFO      build_diff_raster  Computing diff raster (2025 - 2012) ...
+2026-04-15 19:50:18  INFO      build_diff_raster    Diff raster value range: -154  to  +265
+2026-04-15 19:50:18  INFO      build_diff_raster    Saved: C:\GIS\ParcelHistory.gdb/ResUnits_Diff_2012_2025
+2026-04-15 19:50:21  INFO      build_diff_raster    Input rasters removed (use --keep-inputs to retain)
+2026-04-15 19:50:21  INFO      build_diff_raster  Done.
+2026-04-15 19:55:32  INFO      s05_spatial_attrs  === Step 5: Spatial attribute updates ===
+2026-04-15 19:55:36  INFO      s05_spatial_attrs  Rows in scope: 855489
+2026-04-15 19:55:36  INFO      s05_spatial_attrs  Calculating PARCEL_ACRES / PARCEL_SQFT ...
+2026-04-15 19:56:45  INFO      s05_spatial_attrs    855407 rows updated
+2026-04-15 19:56:45  INFO      s05_spatial_attrs  Caching service layers ...
+2026-04-15 19:56:47  INFO      s05_spatial_attrs    Cached TRPA_bdy            1 features
+2026-04-15 19:56:48  INFO      s05_spatial_attrs    Cached BonusUnit           1 features
+2026-04-15 19:56:48  INFO      s05_spatial_attrs    Cached TownCenter          13 features
+2026-04-15 19:56:49  INFO      s05_spatial_attrs    Cached LocationToTownCtr   15 features
+2026-04-15 19:56:51  INFO      s05_spatial_attrs    Cached TAZ                 282 features
+2026-04-15 19:56:51  INFO      s05_spatial_attrs    Cached LocalPlan           105 features
+2026-04-15 19:56:53  INFO      s05_spatial_attrs    Cached Zoning              281 features
+2026-04-15 19:56:54  INFO      s05_spatial_attrs    Cached RegionalLandUse     250 features
+2026-04-15 19:56:54  INFO      s05_spatial_attrs  Flagging WITHIN_TRPA_BNDY ...
+2026-04-15 19:57:39  INFO      s05_spatial_attrs    WITHIN_TRPA_BNDY = 1 : 844287 rows
+2026-04-15 19:57:39  INFO      s05_spatial_attrs  Flagging WITHIN_BONUSUNIT_BNDY ...
+2026-04-15 19:58:25  INFO      s05_spatial_attrs    WITHIN_BONUSUNIT_BNDY = 1 : 547180 rows
+2026-04-15 19:58:25  INFO      s05_spatial_attrs  Building deduplicated APN layer ...
+2026-04-15 19:58:54  INFO      s05_spatial_attrs    Dedup layer: 93047 unique APNs
+2026-04-15 19:58:54  INFO      s05_spatial_attrs    Joining against 93047 unique APNs
+2026-04-15 19:58:54  INFO      s05_spatial_attrs  Spatial join: TownCenter ...
+2026-04-15 19:58:56  INFO      s05_spatial_attrs    [TownCenter] matched 5183 APNs
+2026-04-15 19:59:03  INFO      s05_spatial_attrs    TownCenter : 44094 rows updated
+2026-04-15 19:59:03  INFO      s05_spatial_attrs  Spatial join: LocationToTownCtr ...
+2026-04-15 19:59:10  WARNING   s05_spatial_attrs    [LocationToTownCtr] fields missing from join output: ['LOCATION_TO_TOWNCENTER']
+2026-04-15 19:59:10  WARNING   s05_spatial_attrs    [LocationToTownCtr] available: ['APN', 'BUFFER_NAME', 'TOWN_CENTER', 'created_date', 'created_user', 'last_edited_date', 'last_edited_user']
+2026-04-15 19:59:10  INFO      s05_spatial_attrs    [LocationToTownCtr] matched 0 APNs
+2026-04-15 19:59:15  INFO      s05_spatial_attrs    LocationToTownCtr : 0 rows updated
+2026-04-15 19:59:15  INFO      s05_spatial_attrs  Spatial join: TAZ ...
+2026-04-15 19:59:19  INFO      s05_spatial_attrs    [TAZ] matched 92996 APNs
+2026-04-15 19:59:41  INFO      s05_spatial_attrs    TAZ : 855184 rows updated
+2026-04-15 19:59:41  INFO      s05_spatial_attrs  Spatial join: LocalPlan ...
+2026-04-15 19:59:47  INFO      s05_spatial_attrs    [LocalPlan] matched 91932 APNs
+2026-04-15 20:00:09  INFO      s05_spatial_attrs    LocalPlan : 844060 rows updated
+2026-04-15 20:00:09  INFO      s05_spatial_attrs  Spatial join: Zoning ...
+2026-04-15 20:00:18  INFO      s05_spatial_attrs    [Zoning] matched 91775 APNs
+2026-04-15 20:00:43  INFO      s05_spatial_attrs    Zoning : 841862 rows updated
+2026-04-15 20:00:43  INFO      s05_spatial_attrs  Spatial join: RegionalLandUse ...
+2026-04-15 20:00:50  WARNING   s05_spatial_attrs    [RegionalLandUse] fields missing from join output: ['REGIONAL_LANDUSE']
+2026-04-15 20:00:50  WARNING   s05_spatial_attrs    [RegionalLandUse] available: ['APN', 'Acres', 'CNEL', 'Description', 'Jurisdiction', 'Name', 'PTOD', 'REGIONAL_LAND_USE', 'created_date', 'created_user', 'id', 'last_edited_date', 'last_edited_user']
+2026-04-15 20:00:50  INFO      s05_spatial_attrs    [RegionalLandUse] matched 0 APNs
+2026-04-15 20:00:56  INFO      s05_spatial_attrs    RegionalLandUse : 0 rows updated
+2026-04-15 20:00:56  INFO      s05_spatial_attrs  Nulling TOWN_CENTER = 'Outside Town Center' ...
+2026-04-15 20:01:00  INFO      s05_spatial_attrs    Cleared 0 rows
+2026-04-15 20:01:01  INFO      s05_spatial_attrs  Step 5 complete.
+2026-04-15 20:41:57  INFO      s05_spatial_attrs  === Step 5: Spatial attribute updates ===
+2026-04-15 20:42:00  INFO      s05_spatial_attrs  Rows in scope: 855489
+2026-04-15 20:42:00  INFO      s05_spatial_attrs  Calculating PARCEL_ACRES / PARCEL_SQFT ...
+2026-04-15 20:43:27  INFO      s05_spatial_attrs    855407 rows updated
+2026-04-15 20:43:27  INFO      s05_spatial_attrs  Caching service layers ...
+2026-04-15 20:43:29  INFO      s05_spatial_attrs    Cached TRPA_bdy              1 features
+2026-04-15 20:43:31  INFO      s05_spatial_attrs    Cached BonusUnit             1 features
+2026-04-15 20:43:31  INFO      s05_spatial_attrs    Cached TownCenter            13 features
+2026-04-15 20:43:32  INFO      s05_spatial_attrs    Cached LocationToTownCtr     15 features
+2026-04-15 20:43:34  INFO      s05_spatial_attrs    Cached TAZ                   282 features
+2026-04-15 20:43:34  INFO      s05_spatial_attrs    Cached LocalPlan             105 features
+2026-04-15 20:43:36  INFO      s05_spatial_attrs    Cached Zoning                281 features
+2026-04-15 20:43:37  INFO      s05_spatial_attrs    Cached RegionalLandUse       250 features
+2026-04-15 20:43:37  INFO      s05_spatial_attrs  Flagging WITHIN_TRPA_BNDY ...
+2026-04-15 20:44:30  INFO      s05_spatial_attrs    WITHIN_TRPA_BNDY = 1 : 844287 rows
+2026-04-15 20:44:30  INFO      s05_spatial_attrs  Flagging WITHIN_BONUSUNIT_BNDY ...
+2026-04-15 20:45:17  INFO      s05_spatial_attrs    WITHIN_BONUSUNIT_BNDY = 1 : 547180 rows
+2026-04-15 20:45:17  INFO      s05_spatial_attrs  Building deduplicated APN layer ...
+2026-04-15 20:45:46  INFO      s05_spatial_attrs    Dedup layer: 93047 unique APNs
+2026-04-15 20:45:47  INFO      s05_spatial_attrs  Generating centroid points ...
+2026-04-15 20:45:49  INFO      s05_spatial_attrs    Centroid layer: 93047 points
+2026-04-15 20:45:49  INFO      s05_spatial_attrs  Spatial join: TownCenter ...
+2026-04-15 20:45:50  INFO      s05_spatial_attrs    [TownCenter] 4441 / 93047 APNs matched (4.8%)
+2026-04-15 20:45:57  INFO      s05_spatial_attrs    [TownCenter] 37866 row-years written
+2026-04-15 20:45:57  INFO      s05_spatial_attrs  Spatial join: LocationToTownCtr ...
+2026-04-15 20:46:02  WARNING   s05_spatial_attrs      Field 'LOCATION_TO_TOWNCENTER' not found in join output. Available: ['APN', 'BUFFER_NAME', 'ORIG_FID', 'TOWN_CENTER', 'created_date', 'created_user', 'last_edited_date', 'last_edited_user']
+2026-04-15 20:46:02  INFO      s05_spatial_attrs    [LocationToTownCtr] 0 / 93047 APNs matched (0.0%)
+2026-04-15 20:46:08  INFO      s05_spatial_attrs    [LocationToTownCtr] 0 row-years written
+2026-04-15 20:46:08  INFO      s05_spatial_attrs  Spatial join: TAZ ...
+2026-04-15 20:46:10  INFO      s05_spatial_attrs    [TAZ] 92835 / 93047 APNs matched (99.8%)
+2026-04-15 20:46:50  INFO      s05_spatial_attrs    [TAZ] 853543 row-years written
+2026-04-15 20:46:50  INFO      s05_spatial_attrs  Spatial join: LocalPlan ...
+2026-04-15 20:46:54  INFO      s05_spatial_attrs    [LocalPlan] 91761 / 93047 APNs matched (98.6%)
+2026-04-15 20:47:34  INFO      s05_spatial_attrs    [LocalPlan] 842286 row-years written
+2026-04-15 20:47:34  INFO      s05_spatial_attrs  Spatial join: Zoning ...
+2026-04-15 20:47:38  INFO      s05_spatial_attrs    [Zoning] 91590 / 93047 APNs matched (98.4%)
+2026-04-15 20:48:16  INFO      s05_spatial_attrs    [Zoning] 839956 row-years written
+2026-04-15 20:48:16  INFO      s05_spatial_attrs  Spatial join: RegionalLandUse ...
+2026-04-15 20:48:19  WARNING   s05_spatial_attrs      Field 'REGIONAL_LANDUSE' not found in join output. Available: ['APN', 'Acres', 'CNEL', 'Description', 'Jurisdiction', 'Name', 'ORIG_FID', 'PTOD', 'REGIONAL_LAND_USE', 'created_date', 'created_user', 'id', 'last_edited_date', 'last_edited_user']
+2026-04-15 20:48:19  INFO      s05_spatial_attrs    [RegionalLandUse] 0 / 93047 APNs matched (0.0%)
+2026-04-15 20:48:24  INFO      s05_spatial_attrs    [RegionalLandUse] 0 row-years written
+2026-04-15 20:48:24  INFO      s05_spatial_attrs  Nulling TOWN_CENTER = 'Outside Town Center' ...
+2026-04-15 20:48:28  INFO      s05_spatial_attrs    Cleared 0 rows
+2026-04-15 20:48:28  INFO      s05_spatial_attrs  Step 5 complete.
+2026-04-15 21:07:21  INFO      s05_spatial_attrs  === Step 5: Spatial attribute updates ===
+2026-04-15 21:07:25  INFO      s05_spatial_attrs  Rows in scope: 855489
+2026-04-15 21:07:25  INFO      s05_spatial_attrs  Calculating PARCEL_ACRES / PARCEL_SQFT ...
+2026-04-15 21:08:32  INFO      s05_spatial_attrs    855407 rows updated
+2026-04-15 21:08:32  INFO      s05_spatial_attrs  Caching service layers ...
+2026-04-15 21:08:33  INFO      s05_spatial_attrs    Cached TRPA_bdy              1 features
+2026-04-15 21:08:34  INFO      s05_spatial_attrs    Cached BonusUnit             1 features
+2026-04-15 21:08:35  INFO      s05_spatial_attrs    Cached TownCenter            13 features
+2026-04-15 21:08:35  INFO      s05_spatial_attrs    Cached LocationToTownCtr     15 features
+2026-04-15 21:08:37  INFO      s05_spatial_attrs    Cached TAZ                   282 features
+2026-04-15 21:08:37  INFO      s05_spatial_attrs    Cached LocalPlan             105 features
+2026-04-15 21:08:38  INFO      s05_spatial_attrs    Cached Zoning                281 features
+2026-04-15 21:08:39  INFO      s05_spatial_attrs    Cached RegionalLandUse       250 features
+2026-04-15 21:08:39  INFO      s05_spatial_attrs  Flagging WITHIN_TRPA_BNDY ...
+2026-04-15 21:09:23  INFO      s05_spatial_attrs    WITHIN_TRPA_BNDY = 1 : 844287 rows
+2026-04-15 21:09:23  INFO      s05_spatial_attrs  Flagging WITHIN_BONUSUNIT_BNDY ...
+2026-04-15 21:10:09  INFO      s05_spatial_attrs    WITHIN_BONUSUNIT_BNDY = 1 : 547180 rows
+2026-04-15 21:10:09  INFO      s05_spatial_attrs  Building deduplicated APN layer ...
+2026-04-15 21:10:37  INFO      s05_spatial_attrs    Dedup layer: 93047 unique APNs
+2026-04-15 21:10:37  INFO      s05_spatial_attrs  Generating centroid points ...
+2026-04-15 21:10:39  INFO      s05_spatial_attrs    Centroid layer: 93047 points
+2026-04-15 21:10:39  INFO      s05_spatial_attrs  Spatial join: TownCenter ...
+2026-04-15 21:10:40  INFO      s05_spatial_attrs    [TownCenter] 4441 / 93047 APNs matched (4.8%)
+2026-04-15 21:10:46  INFO      s05_spatial_attrs    [TownCenter] 37866 row-years written
+2026-04-15 21:10:46  INFO      s05_spatial_attrs  Spatial join: LocationToTownCtr ...
+2026-04-15 21:10:51  INFO      s05_spatial_attrs    [LocationToTownCtr] 91803 / 93047 APNs matched (98.7%)
+2026-04-15 21:11:29  INFO      s05_spatial_attrs    [LocationToTownCtr] 842555 row-years written
+2026-04-15 21:11:29  INFO      s05_spatial_attrs  Spatial join: TAZ ...
+2026-04-15 21:11:32  INFO      s05_spatial_attrs    [TAZ] 92835 / 93047 APNs matched (99.8%)
+2026-04-15 21:11:53  INFO      s05_spatial_attrs    [TAZ] 853543 row-years written
+2026-04-15 21:11:53  INFO      s05_spatial_attrs  Spatial join: LocalPlan ...
+2026-04-15 21:11:57  INFO      s05_spatial_attrs    [LocalPlan] 91761 / 93047 APNs matched (98.6%)
+2026-04-15 21:12:20  INFO      s05_spatial_attrs    [LocalPlan] 842286 row-years written
+2026-04-15 21:12:20  INFO      s05_spatial_attrs  Spatial join: Zoning ...
+2026-04-15 21:12:24  INFO      s05_spatial_attrs    [Zoning] 91590 / 93047 APNs matched (98.4%)
+2026-04-15 21:12:47  INFO      s05_spatial_attrs    [Zoning] 839956 row-years written
+2026-04-15 21:12:47  INFO      s05_spatial_attrs  Spatial join: RegionalLandUse ...
+2026-04-15 21:12:50  INFO      s05_spatial_attrs    [RegionalLandUse] 91572 / 93047 APNs matched (98.4%)
+2026-04-15 21:13:29  INFO      s05_spatial_attrs    [RegionalLandUse] 839732 row-years written
+2026-04-15 21:13:29  INFO      s05_spatial_attrs  Nulling TOWN_CENTER = 'Outside Town Center' ...
+2026-04-15 21:13:35  INFO      s05_spatial_attrs    Cleared 0 rows
+2026-04-15 21:13:35  INFO      s05_spatial_attrs  Step 5 complete.
+2026-04-15 21:32:59  INFO      diagnose_parcel_new  === diagnose_parcel_new ===
+2026-04-15 21:33:01  INFO      diagnose_parcel_new  PARCEL_NEW APNs to diagnose: 63
+2026-04-15 21:33:01  INFO      diagnose_parcel_new  Genealogy successors loaded: 40045
+2026-04-15 21:33:16  INFO      diagnose_parcel_new  CSV written: C:\Users\mbindl\Documents\GitHub\Reporting\data\qa_data\diagnose_parcel_new.csv
