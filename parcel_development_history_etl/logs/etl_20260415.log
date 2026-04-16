@@ -2141,3 +2141,473 @@
 2026-04-15 15:30:32  INFO      main  ============================================================
 2026-04-15 15:30:32  INFO      main  ETL complete  (7m 13s)
 2026-04-15 15:30:32  INFO      main  ============================================================
+2026-04-15 15:44:04  INFO      main  ============================================================
+2026-04-15 15:44:04  INFO      main  Development History ETL — starting
+2026-04-15 15:44:04  INFO      main  ============================================================
+2026-04-15 15:44:04  INFO      main  Skipping Step 1 (--skip-s01)
+2026-04-15 15:44:04  INFO      s01c_populate_jurisdiction  === Step 1c: Populate COUNTY and JURISDICTION ===
+2026-04-15 15:44:04  INFO      s01c_populate_jurisdiction    Building centroid FC from OUTPUT_FC ...
+2026-04-15 15:44:34  INFO      s01c_populate_jurisdiction    Unique APNs with geometry: 93047
+2026-04-15 15:45:18  INFO      s01c_populate_jurisdiction    Centroid FC: 93047 points
+2026-04-15 15:45:19  INFO      s01c_populate_jurisdiction    Connecting to Jurisdictions service ...
+2026-04-15 15:45:22  INFO      s01c_populate_jurisdiction    Pass 1: WITHIN ...
+2026-04-15 15:45:34  INFO      s01c_populate_jurisdiction    Pass 1 matched: 93047 APNs
+2026-04-15 15:45:35  INFO      s01c_populate_jurisdiction    Total matched: 93047 / 93047  (0 unmatched)
+2026-04-15 15:46:08  INFO      s01c_populate_jurisdiction    Written: 855489 rows updated, 0 skipped
+2026-04-15 15:46:08  INFO      s01c_populate_jurisdiction    Normalizing El Dorado APNs ...
+2026-04-15 15:46:12  INFO      s01c_populate_jurisdiction      Depadded (pre-2018): 0 rows
+2026-04-15 15:46:12  INFO      s01c_populate_jurisdiction      Padded   (2018+):    0 rows
+2026-04-15 15:46:12  INFO      s01c_populate_jurisdiction  Step 1c complete.
+2026-04-15 15:46:15  INFO      main  COUNTY populated: 0 null rows (0.0%)
+2026-04-15 15:46:15  INFO      s02_load_csv  === Step 2: Load CSV and build csv_lookup ===
+2026-04-15 15:46:15  INFO      s02_load_csv  CSV: 42499 parcels, 14 year columns (2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025)
+2026-04-15 15:46:16  INFO      s02_load_csv  Long format: 594986 rows  (2012–2025)
+2026-04-15 15:46:16  INFO      s02_load_csv  Building El Dorado APN maps from output FC ...
+2026-04-15 15:46:20  INFO      s02_load_csv    APNs to pad   (Year>=2018): 30660
+2026-04-15 15:46:20  INFO      s02_load_csv    APNs to depad (Year< 2018): 30420
+2026-04-15 15:46:20  DEBUG     utils.apply_el_dorado_fix  El Dorado fix: 159530 rows updated (155696 pad, 3834 depad)
+2026-04-15 15:46:20  INFO      s02_load_csv    CSV rows APN-fixed: 159530
+2026-04-15 15:46:21  INFO      s02_load_csv    EL split-format dedup: removed 490 duplicate (APN, Year) rows (kept max units per key)
+2026-04-15 15:46:21  INFO      s02b_genealogy  === Step 2b: Apply genealogy APN corrections ===
+2026-04-15 15:46:21  INFO      s02b_genealogy    2397 rows skipped (no change_year)
+2026-04-15 15:46:21  INFO      s02b_genealogy  Master table: 32529 apply-ready rows (is_primary=1, in_fc_new=1, change_year set)
+2026-04-15 15:46:21  INFO      s02b_genealogy    ACCELA    : 30883 rows
+2026-04-15 15:46:21  INFO      s02b_genealogy    MANUAL    : 1328 rows
+2026-04-15 15:46:21  INFO      s02b_genealogy    SPATIAL   : 318 rows
+2026-04-15 15:46:52  DEBUG     s02b_genealogy    Conflict skip: 123-032-01 -> 123-032-18 years [2012, 2013, 2014, 2015, 2016, 2017]
+2026-04-15 15:46:59  DEBUG     s02b_genealogy    Conflict skip: 015-304-031 -> 015-304-033 years [2022, 2023, 2024, 2025]
+2026-04-15 15:47:02  DEBUG     s02b_genealogy    Conflict skip: 029-381-050 -> 029-620-001 years [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:47:06  DEBUG     s02b_genealogy    Conflict skip: 017-021-020 -> 017-021-033 years [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:47:07  DEBUG     s02b_genealogy    Conflict skip: 027-313-002 -> 027-313-016 years [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:47:17  DEBUG     s02b_genealogy    Conflict skip: 1318-10-310-036 -> 1318-10-310-078 years [2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:47:17  DEBUG     s02b_genealogy    Conflict skip: 1418-27-210-029 -> 1418-27-210-036 years [2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:47:18  DEBUG     s02b_genealogy    Conflict skip: 016-091-050 -> 016-091-065 years [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:47:18  DEBUG     s02b_genealogy    Conflict skip: 130-312-04 -> 130-312-30 years [2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:47:18  DEBUG     s02b_genealogy    Conflict skip: 084-110-011 -> 084-110-026 years [2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:47:19  DEBUG     s02b_genealogy    Conflict skip: 123-032-12 -> 123-032-26 years [2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:47:27  DEBUG     s02b_genealogy    Conflict skip: 117-180-037 -> 117-180-065 years [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:47:27  DEBUG     s02b_genealogy    Conflict skip: 098-210-030 -> 098-360-001 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:47:27  DEBUG     s02b_genealogy    Conflict skip: 098-210-031 -> 098-360-001 years [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:47:29  DEBUG     s02b_genealogy    Conflict skip: 015-370-023 -> 015-370-027 years [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:47:33  DEBUG     s02b_genealogy    Conflict skip: 080-162-017 -> 080-162-018 years [2022, 2023, 2024, 2025]
+2026-04-15 15:47:38  DEBUG     s02b_genealogy    Conflict skip: 122-530-25 -> 122-530-38 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:47:38  DEBUG     s02b_genealogy    Conflict skip: 117-100-016 -> 117-100-091 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:47:41  DEBUG     s02b_genealogy    Conflict skip: 130-241-46 -> 130-241-65 years [2023, 2024, 2025]
+2026-04-15 15:47:41  DEBUG     s02b_genealogy    Conflict skip: 117-071-044 -> 117-071-053 years [2023, 2024, 2025]
+2026-04-15 15:47:42  DEBUG     s02b_genealogy    Conflict skip: 130-241-45 -> 130-241-65 years [2023, 2024, 2025]
+2026-04-15 15:47:43  DEBUG     s02b_genealogy    Conflict skip: 090-191-023 -> 090-191-053 years [2024, 2025]
+2026-04-15 15:47:47  DEBUG     s02b_genealogy    Conflict skip: 016-091-065 -> 016-091-050 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:47:48  DEBUG     s02b_genealogy    Conflict skip: 015-370-027 -> 015-370-022 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:47:49  DEBUG     s02b_genealogy    Conflict skip: 015-370-027 -> 015-370-023 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:47:50  DEBUG     s02b_genealogy    Conflict skip: 017-021-033 -> 017-021-020 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:47:50  DEBUG     s02b_genealogy    Conflict skip: 016-300-064 -> 016-300-059 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:47:54  DEBUG     s02b_genealogy    Conflict skip: 025-272-021 -> 025-272-020 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:47:57  DEBUG     s02b_genealogy    Conflict skip: 027-313-016 -> 027-313-002 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:47:58  DEBUG     s02b_genealogy    Conflict skip: 027-131-003 -> 027-621-015 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:47:59  DEBUG     s02b_genealogy    Conflict skip: 027-641-012 -> 027-621-015 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:47:59  DEBUG     s02b_genealogy    Conflict skip: 027-631-012 -> 027-621-015 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:16  DEBUG     s02b_genealogy    Conflict skip: 090-152-060 -> 090-152-059 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:19  DEBUG     s02b_genealogy    Conflict skip: 1418-27-210-036 -> 1418-27-210-029 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:19  DEBUG     s02b_genealogy    Conflict skip: 1418-34-110-002 -> 1418-34-110-003 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:22  DEBUG     s02b_genealogy    Conflict skip: 015-370-030 -> 015-370-011 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:23  DEBUG     s02b_genealogy    Conflict skip: 130-312-30 -> 130-312-04 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:24  DEBUG     s02b_genealogy    Conflict skip: 029-630-022 -> 029-095-006 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:24  DEBUG     s02b_genealogy    Conflict skip: 029-630-023 -> 029-095-006 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:25  DEBUG     s02b_genealogy    Conflict skip: 029-630-024 -> 029-095-006 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:25  DEBUG     s02b_genealogy    Conflict skip: 029-630-025 -> 029-095-006 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:25  DEBUG     s02b_genealogy    Conflict skip: 029-630-019 -> 029-095-006 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:25  DEBUG     s02b_genealogy    Conflict skip: 029-630-020 -> 029-095-006 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:25  DEBUG     s02b_genealogy    Conflict skip: 029-630-026 -> 029-095-006 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:26  DEBUG     s02b_genealogy    Conflict skip: 029-630-028 -> 029-095-006 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:26  DEBUG     s02b_genealogy    Conflict skip: 029-630-013 -> 029-095-006 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:26  DEBUG     s02b_genealogy    Conflict skip: 029-630-014 -> 029-095-006 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:26  DEBUG     s02b_genealogy    Conflict skip: 029-630-015 -> 029-095-006 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:27  DEBUG     s02b_genealogy    Conflict skip: 029-630-012 -> 029-095-006 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:27  DEBUG     s02b_genealogy    Conflict skip: 029-630-011 -> 029-095-006 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:27  DEBUG     s02b_genealogy    Conflict skip: 029-630-010 -> 029-095-006 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:27  DEBUG     s02b_genealogy    Conflict skip: 029-630-009 -> 029-095-006 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:27  DEBUG     s02b_genealogy    Conflict skip: 029-105-022 -> 029-105-026 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:27  DEBUG     s02b_genealogy    Conflict skip: 029-630-027 -> 029-095-006 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:28  DEBUG     s02b_genealogy    Conflict skip: 029-630-018 -> 029-095-006 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:28  DEBUG     s02b_genealogy    Conflict skip: 029-630-017 -> 029-095-006 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:28  DEBUG     s02b_genealogy    Conflict skip: 029-630-016 -> 029-095-006 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:28  DEBUG     s02b_genealogy    Conflict skip: 029-630-001 -> 029-095-006 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:28  DEBUG     s02b_genealogy    Conflict skip: 029-630-002 -> 029-095-006 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:28  DEBUG     s02b_genealogy    Conflict skip: 029-630-003 -> 029-095-006 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:28  DEBUG     s02b_genealogy    Conflict skip: 029-630-004 -> 029-095-006 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:29  DEBUG     s02b_genealogy    Conflict skip: 029-630-005 -> 029-095-006 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:29  DEBUG     s02b_genealogy    Conflict skip: 029-630-006 -> 029-095-006 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:29  DEBUG     s02b_genealogy    Conflict skip: 029-630-007 -> 029-095-006 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:29  DEBUG     s02b_genealogy    Conflict skip: 029-630-008 -> 029-095-006 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:32  DEBUG     s02b_genealogy    Conflict skip: 094-520-015 -> 094-150-007 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:32  DEBUG     s02b_genealogy    Conflict skip: 098-360-005 -> 098-210-031 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:32  DEBUG     s02b_genealogy    Conflict skip: 098-360-004 -> 098-210-031 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:32  DEBUG     s02b_genealogy    Conflict skip: 098-360-002 -> 098-210-031 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:33  DEBUG     s02b_genealogy    Conflict skip: 098-360-003 -> 098-210-031 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:33  DEBUG     s02b_genealogy    Conflict skip: 115-030-097 -> 115-030-034 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:33  DEBUG     s02b_genealogy    Conflict skip: 080-162-018 -> 080-162-017 years [2022, 2023, 2024, 2025]
+2026-04-15 15:48:33  DEBUG     s02b_genealogy    Conflict skip: 1418-34-110-065 -> 1418-34-110-024 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:35  DEBUG     s02b_genealogy    Conflict skip: 027-621-015 -> 027-641-012 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:36  DEBUG     s02b_genealogy    Conflict skip: 084-110-026 -> 084-110-011 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:38  DEBUG     s02b_genealogy    Conflict skip: 090-152-059 -> 090-152-046 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:40  DEBUG     s02b_genealogy    Conflict skip: 094-300-014 -> 094-300-011 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:40  DEBUG     s02b_genealogy    Conflict skip: 094-350-037 -> 094-350-021 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:42  DEBUG     s02b_genealogy    Conflict skip: 097-130-042 -> 097-130-029 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:42  DEBUG     s02b_genealogy    Conflict skip: 112-190-045 -> 112-190-044 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:44  DEBUG     s02b_genealogy    Conflict skip: 117-230-008 -> 117-230-004 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:44  DEBUG     s02b_genealogy    Conflict skip: 117-100-089 -> 117-100-015 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:49  DEBUG     s02b_genealogy    Conflict skip: 129-292-31 -> 129-292-07 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:56  DEBUG     s02b_genealogy    Conflict skip: 018-320-013 -> 018-320-011 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:56  DEBUG     s02b_genealogy    Conflict skip: 1418-10-802-008 -> 1418-10-802-003 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:57  DEBUG     s02b_genealogy    Conflict skip: 016-211-016 -> 016-211-014 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:58  DEBUG     s02b_genealogy    Conflict skip: 083-202-016 -> 083-202-006 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:58  DEBUG     s02b_genealogy    Conflict skip: 015-304-034 -> 015-304-031 years [2022, 2023, 2024, 2025]
+2026-04-15 15:48:58  DEBUG     s02b_genealogy    Conflict skip: 097-130-041 -> 097-130-029 years [2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:58  DEBUG     s02b_genealogy    Conflict skip: 017-021-032 -> 017-021-015 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:58  DEBUG     s02b_genealogy    Conflict skip: 094-171-011 -> 094-171-007 years [2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:59  DEBUG     s02b_genealogy    Conflict skip: 117-090-081 -> 117-090-011 years [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:48:59  DEBUG     s02b_genealogy    Conflict skip: 097-130-039 -> 097-130-028 years [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:49:01  DEBUG     s02b_genealogy    Conflict skip: 1319-30-610-003 -> 1319-30-610-002 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:49:02  DEBUG     s02b_genealogy    Conflict skip: 029-620-001 -> 029-381-050 years [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:49:02  DEBUG     s02b_genealogy    Conflict skip: 029-620-012 -> 029-381-050 years [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:49:02  DEBUG     s02b_genealogy    Conflict skip: 029-620-011 -> 029-381-050 years [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:49:02  DEBUG     s02b_genealogy    Conflict skip: 029-620-010 -> 029-381-050 years [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:49:02  DEBUG     s02b_genealogy    Conflict skip: 029-620-006 -> 029-381-050 years [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:49:03  DEBUG     s02b_genealogy    Conflict skip: 029-620-015 -> 029-381-050 years [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:49:03  DEBUG     s02b_genealogy    Conflict skip: 029-620-003 -> 029-381-050 years [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:49:03  DEBUG     s02b_genealogy    Conflict skip: 029-620-008 -> 029-381-050 years [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:49:03  DEBUG     s02b_genealogy    Conflict skip: 029-620-005 -> 029-381-050 years [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:49:03  DEBUG     s02b_genealogy    Conflict skip: 117-230-009 -> 117-230-006 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:49:04  DEBUG     s02b_genealogy    Conflict skip: 029-620-002 -> 029-381-050 years [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:49:04  DEBUG     s02b_genealogy    Conflict skip: 029-620-007 -> 029-381-050 years [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:49:04  DEBUG     s02b_genealogy    Conflict skip: 029-620-013 -> 029-381-050 years [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:49:05  DEBUG     s02b_genealogy    Conflict skip: 029-620-014 -> 029-381-050 years [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:49:05  DEBUG     s02b_genealogy    Conflict skip: 029-620-004 -> 029-381-050 years [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:49:05  DEBUG     s02b_genealogy    Conflict skip: 016-211-014 -> 016-211-017 years [2018, 2019, 2020]
+2026-04-15 15:49:08  DEBUG     s02b_genealogy    Conflict skip: 117-230-006 -> 117-230-009 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:49:11  DEBUG     s02b_genealogy    Conflict skip: 1319-30-610-002 -> 1319-30-610-004 years [2014, 2015, 2016, 2017, 2018, 2019, 2020]
+2026-04-15 15:49:20  DEBUG     s02b_genealogy    Conflict skip: 115-030-096 -> 115-030-097 years [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2021, 2022, 2022, 2023, 2023, 2024, 2024, 2025, 2025]
+2026-04-15 15:49:20  DEBUG     s02b_genealogy    Conflict skip: 117-100-014 -> 117-100-089 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:49:23  DEBUG     s02b_genealogy    Conflict skip: 117-100-015 -> 117-100-089 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:49:31  INFO      s02b_genealogy    ACCELA    : 265 substitutions / 5310 unit-years
+2026-04-15 15:49:31  INFO      s02b_genealogy    MANUAL    : 159 substitutions / 2832 unit-years
+2026-04-15 15:49:31  INFO      s02b_genealogy    SPATIAL   : 99 substitutions / 661 unit-years
+2026-04-15 15:49:31  INFO      s02b_genealogy  Total:   523 APN substitutions  /  8803 unit-years remapped
+2026-04-15 15:49:32  DEBUG     utils.df_to_gdb_table  Deleted existing table: C:\GIS\ParcelHistory.gdb\QA_Genealogy_Applied
+2026-04-15 15:49:38  INFO      utils.df_to_gdb_table  Wrote 523 rows → C:\GIS\ParcelHistory.gdb\QA_Genealogy_Applied
+2026-04-15 15:49:38  INFO      utils.write_qa_table  CSV  → C:\Users\mbindl\Documents\GitHub\Reporting\data\qa_data\QA_Genealogy_Applied.csv
+2026-04-15 15:49:38  INFO      s02b_genealogy  Written -> C:\GIS\ParcelHistory.gdb\QA_Genealogy_Applied
+2026-04-15 15:49:38  INFO      s02b_genealogy  Step 2b complete.
+2026-04-15 15:49:38  INFO      s02_load_csv    Post-genealogy dedup: removed 90 duplicate (APN, Year) rows (kept max units per key)
+2026-04-15 15:49:39  INFO      s02_load_csv  csv_lookup entries: 594406
+2026-04-15 15:49:39  INFO      s02_load_csv  Step 2 complete.
+2026-04-15 15:49:39  INFO      s03_crosswalk  === Step 3: Build APN crosswalk ===
+2026-04-15 15:49:53  INFO      s03_crosswalk  CSV APN x Year combos   : 594406
+2026-04-15 15:49:53  INFO      s03_crosswalk  FC  APN x Year combos   : 855489
+2026-04-15 15:49:53  INFO      s03_crosswalk  Missing combos          : 5434  (1021 unique APNs)
+2026-04-15 15:49:53  INFO      s03_crosswalk  Fetching geometries for 1021 APNs ...
+2026-04-15 15:52:38  INFO      s03_crosswalk    With geometry (FC)  : 1002
+2026-04-15 15:52:38  INFO      s03_crosswalk    Without geometry    : 19  (not in FC any year)
+2026-04-15 15:52:38  INFO      s03_crosswalk  Trying SOURCE_FC for 19 APNs with no OUTPUT_FC geometry ...
+2026-04-15 15:52:42  INFO      s03_crosswalk    Found in SOURCE_FC: 19
+2026-04-15 15:52:42  INFO      s03_crosswalk    Still without geometry: 0
+2026-04-15 15:52:44  INFO      s03_crosswalk  Centroid FC: 1021 points
+2026-04-15 15:53:01  INFO      s03_crosswalk    2012 : 433 within + 13 closest
+2026-04-15 15:53:32  INFO      s03_crosswalk    2013 : 575 within + 1 closest
+2026-04-15 15:54:03  INFO      s03_crosswalk    2014 : 522 within + 3 closest
+2026-04-15 15:54:27  INFO      s03_crosswalk    2015 : 449 within + 2 closest
+2026-04-15 15:54:50  INFO      s03_crosswalk    2016 : 440 within + 1 closest
+2026-04-15 15:55:14  INFO      s03_crosswalk    2017 : 349 within + 1 closest
+2026-04-15 15:55:23  INFO      s03_crosswalk    2018 : 275 within + 0 closest
+2026-04-15 15:55:33  INFO      s03_crosswalk    2019 : 184 within + 0 closest
+2026-04-15 15:55:43  INFO      s03_crosswalk    2020 : 198 within + 0 closest
+2026-04-15 15:55:53  INFO      s03_crosswalk    2021 : 419 within + 0 closest
+2026-04-15 15:56:03  INFO      s03_crosswalk    2022 : 415 within + 0 closest
+2026-04-15 15:56:14  INFO      s03_crosswalk    2023 : 372 within + 0 closest
+2026-04-15 15:56:25  INFO      s03_crosswalk    2024 : 384 within + 0 closest
+2026-04-15 15:56:47  INFO      s03_crosswalk    2025 : 397 within + 1 closest
+2026-04-15 15:56:48  INFO      s03_crosswalk  Crosswalk rows      : 5434
+2026-04-15 15:56:48  INFO      s03_crosswalk  csv_lookup entries added: 5434
+2026-04-15 15:56:49  DEBUG     utils.df_to_gdb_table  Deleted existing table: C:\GIS\ParcelHistory.gdb\QA_APN_Crosswalk
+2026-04-15 15:56:56  INFO      utils.df_to_gdb_table  Wrote 5434 rows → C:\GIS\ParcelHistory.gdb\QA_APN_Crosswalk
+2026-04-15 15:56:56  INFO      utils.write_qa_table  CSV  → C:\Users\mbindl\Documents\GitHub\Reporting\data\qa_data\QA_APN_Crosswalk.csv
+2026-04-15 15:56:56  INFO      s03_crosswalk  Written → C:\GIS\ParcelHistory.gdb\QA_APN_Crosswalk
+2026-04-15 15:56:56  INFO      s03_crosswalk  Step 3 complete.
+2026-04-15 15:56:56  INFO      s04_update_units  === Step 4: Update Residential_Units ===
+2026-04-15 15:57:01  INFO      s04_update_units  SOURCE_FC native values loaded: 339687 entries  (years: [2012, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025])
+2026-04-15 15:58:20  INFO      s04_update_units  Rows updated        : 855489
+2026-04-15 15:58:20  INFO      s04_update_units    BOTH_AGREE        : 324099
+2026-04-15 15:58:20  INFO      s04_update_units    CSV (FC native=0) : 250385
+2026-04-15 15:58:20  INFO      s04_update_units    FC_NATIVE         : 5867  ← units SOURCE_FC has that CSV lacks
+2026-04-15 15:58:20  INFO      s04_update_units    DISAGREE          : 9625  ← both sources differ, CSV used
+2026-04-15 15:58:20  INFO      s04_update_units    Zeroed            : 265513
+2026-04-15 15:58:20  INFO      s04_update_units  Step 4 complete.
+2026-04-15 15:58:20  INFO      s04b_tourist_commercial  === Step 4b: Update Tourist & Commercial attributes ===
+2026-04-15 15:58:31  INFO      s04b_tourist_commercial  El Dorado pad map: 30660 APNs, depad map: 30420 APNs
+2026-04-15 15:58:31  INFO      s02b_genealogy    2397 rows skipped (no change_year)
+2026-04-15 15:58:31  INFO      s02b_genealogy  Master table: 32529 apply-ready rows (is_primary=1, in_fc_new=1, change_year set)
+2026-04-15 15:58:31  INFO      s02b_genealogy    ACCELA    : 30883 rows
+2026-04-15 15:58:31  INFO      s02b_genealogy    MANUAL    : 1328 rows
+2026-04-15 15:58:31  INFO      s02b_genealogy    SPATIAL   : 318 rows
+2026-04-15 15:58:31  INFO      s04b_tourist_commercial  Genealogy master: 32529 apply-ready rows
+2026-04-15 15:58:31  INFO      s04b_tourist_commercial    Tourist units CSV: 378 parcels, 14 year columns
+2026-04-15 15:58:31  DEBUG     utils.apply_el_dorado_fix  El Dorado fix: 1832 rows updated (1064 pad, 768 depad)
+2026-04-15 15:58:33  DEBUG     s02b_genealogy    Conflict skip: 029-602-001 -> 029-602-013 years [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:58:33  DEBUG     s02b_genealogy    Conflict skip: 1318-22-002-011 -> 1318-22-002-109 years [2021]
+2026-04-15 15:58:33  DEBUG     s02b_genealogy    Conflict skip: 1318-22-002-109 -> 1318-22-002-113 years [2022, 2022]
+2026-04-15 15:58:33  DEBUG     s02b_genealogy    Conflict skip: 1318-22-002-012 -> 1318-22-002-113 years [2022]
+2026-04-15 15:58:33  DEBUG     s02b_genealogy    Conflict skip: 1318-22-002-010 -> 1318-22-002-113 years [2022]
+2026-04-15 15:58:33  DEBUG     s02b_genealogy    Conflict skip: 117-071-015 -> 117-071-053 years [2023, 2024, 2025]
+2026-04-15 15:58:35  DEBUG     s02b_genealogy    Conflict skip: 115-030-097 -> 115-030-034 years [2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:58:40  DEBUG     s02b_genealogy    Conflict skip: 115-030-034 -> 115-030-096 years [2014]
+2026-04-15 15:58:40  DEBUG     s02b_genealogy    Conflict skip: 029-051-017 -> 029-051-021 years [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:58:40  INFO      s04b_tourist_commercial    Genealogy applied for Tourist units
+2026-04-15 15:58:40  INFO      s04b_tourist_commercial    Tourist units lookup: 3105 non-zero (APN, Year) entries
+2026-04-15 15:58:40  INFO      s04b_tourist_commercial    Commercial sqft CSV: 1499 parcels, 14 year columns
+2026-04-15 15:58:40  DEBUG     utils.apply_el_dorado_fix  El Dorado fix: 6586 rows updated (3808 pad, 2778 depad)
+2026-04-15 15:58:43  DEBUG     s02b_genealogy    Conflict skip: 031-241-024 -> 031-241-026 years [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:58:43  DEBUG     s02b_genealogy    Conflict skip: 031-241-025 -> 031-241-026 years [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:58:43  DEBUG     s02b_genealogy    Conflict skip: 090-075-009 -> 090-075-026 years [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:58:44  DEBUG     s02b_genealogy    Conflict skip: 130-311-07 -> 130-311-19 years [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:58:44  DEBUG     s02b_genealogy    Conflict skip: 018-320-012 -> 018-320-018 years [2018, 2018, 2019, 2019, 2020, 2020, 2021, 2021, 2022, 2022, 2023, 2023, 2024, 2024, 2025, 2025]
+2026-04-15 15:58:44  DEBUG     s02b_genealogy    Conflict skip: 029-680-001 -> 029-700-001 years [2018, 2018, 2018, 2019, 2019, 2019, 2020, 2020, 2020, 2021, 2021, 2021, 2022, 2022, 2022, 2023, 2023, 2023, 2024, 2024, 2024, 2025, 2025, 2025]
+2026-04-15 15:58:44  DEBUG     s02b_genealogy    Conflict skip: 090-134-039 -> 090-134-061 years [2019, 2020, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:58:45  DEBUG     s02b_genealogy    Conflict skip: 1318-22-002-109 -> 1318-22-002-113 years [2022]
+2026-04-15 15:58:45  DEBUG     s02b_genealogy    Conflict skip: 1318-22-002-015 -> 1318-22-002-113 years [2022]
+2026-04-15 15:58:45  DEBUG     s02b_genealogy    Conflict skip: 1318-22-002-111 -> 1318-22-002-113 years [2022]
+2026-04-15 15:58:45  DEBUG     s02b_genealogy    Conflict skip: 1318-22-002-012 -> 1318-22-002-113 years [2022]
+2026-04-15 15:58:45  DEBUG     s02b_genealogy    Conflict skip: 1318-22-002-010 -> 1318-22-002-113 years [2022]
+2026-04-15 15:58:45  DEBUG     s02b_genealogy    Conflict skip: 117-071-015 -> 117-071-053 years [2023, 2024, 2025]
+2026-04-15 15:58:45  DEBUG     s02b_genealogy    Conflict skip: 1318-22-002-113 -> 1318-22-002-115 years [2023, 2023, 2023, 2023, 2023, 2023]
+2026-04-15 15:58:45  DEBUG     s02b_genealogy    Conflict skip: 094-540-004 -> 094-540-034 years [2024, 2025]
+2026-04-15 15:58:54  DEBUG     s02b_genealogy    Conflict skip: 090-046-039 -> 090-046-038 years [2013, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:58:55  DEBUG     s02b_genealogy    Conflict skip: 018-320-012 -> 018-320-011 years [2021, 2021, 2022, 2022, 2023, 2023, 2024, 2024, 2025, 2025]
+2026-04-15 15:58:55  DEBUG     s02b_genealogy    Conflict skip: 097-130-041 -> 097-130-029 years [2013]
+2026-04-15 15:58:55  DEBUG     s02b_genealogy    Conflict skip: 097-130-039 -> 097-130-028 years [2013, 2021, 2022, 2023, 2024, 2025]
+2026-04-15 15:58:55  DEBUG     s02b_genealogy    Conflict skip: 093-042-024 -> 093-042-027 years [2013]
+2026-04-15 15:58:55  DEBUG     s02b_genealogy    Conflict skip: 034-270-010 -> 034-270-061 years [2018, 2019, 2020]
+2026-04-15 15:58:55  DEBUG     s02b_genealogy    Conflict skip: 090-071-029 -> 090-071-036 years [2014, 2015, 2016, 2017, 2018, 2019, 2020]
+2026-04-15 15:58:55  DEBUG     s02b_genealogy    Conflict skip: 090-122-028 -> 090-122-040 years [2014, 2015, 2016, 2017, 2018, 2019, 2020]
+2026-04-15 15:58:55  DEBUG     s02b_genealogy    Conflict skip: 090-133-010 -> 090-133-019 years [2014, 2015, 2016, 2017, 2018, 2019, 2020]
+2026-04-15 15:58:55  DEBUG     s02b_genealogy    Conflict skip: 090-123-023 -> 090-123-028 years [2014, 2015, 2016, 2017, 2018, 2019, 2020]
+2026-04-15 15:58:55  DEBUG     s02b_genealogy    Conflict skip: 027-361-014 -> 027-361-016 years [2018, 2019, 2020]
+2026-04-15 15:58:55  DEBUG     s02b_genealogy    Conflict skip: 090-123-001 -> 090-123-031 years [2015, 2016, 2017, 2018, 2019, 2020]
+2026-04-15 15:58:55  DEBUG     s02b_genealogy    Conflict skip: 117-180-006 -> 117-180-059 years [2015, 2016, 2017, 2018, 2019, 2020]
+2026-04-15 15:58:55  DEBUG     s02b_genealogy    Conflict skip: 094-190-028 -> 094-190-038 years [2015, 2016, 2017, 2018, 2019, 2020]
+2026-04-15 15:58:55  DEBUG     s02b_genealogy    Conflict skip: 093-042-016 -> 093-042-035 years [2015, 2016, 2017, 2018, 2019, 2020]
+2026-04-15 15:58:55  DEBUG     s02b_genealogy    Conflict skip: 026-086-008 -> 026-086-013 years [2018, 2019, 2020]
+2026-04-15 15:58:55  DEBUG     s02b_genealogy    Conflict skip: 032-314-014 -> 032-314-037 years [2018, 2019, 2020]
+2026-04-15 15:58:56  DEBUG     s02b_genealogy    Conflict skip: 097-050-072 -> 097-050-098 years [2023, 2024, 2025]
+2026-04-15 15:58:56  DEBUG     s02b_genealogy    Conflict skip: 023-430-038 -> 023-430-043 years [2023, 2023, 2024, 2024, 2025, 2025]
+2026-04-15 15:58:56  INFO      s04b_tourist_commercial    Genealogy applied for Commercial sqft
+2026-04-15 15:58:56  INFO      s04b_tourist_commercial    Commercial sqft lookup: 13286 non-zero (APN, Year) entries
+2026-04-15 15:58:56  INFO      s04b_tourist_commercial  Writing to OUTPUT_FC...
+2026-04-15 16:00:07  INFO      s04b_tourist_commercial    TouristAccommodation_Units: 3079 rows with non-zero value written
+2026-04-15 16:00:07  INFO      s04b_tourist_commercial    CommercialFloorArea_SqFt: 13131 rows with non-zero value written
+2026-04-15 16:00:07  INFO      s04b_tourist_commercial  Step 4b complete.
+2026-04-15 16:00:07  INFO      s05_spatial_attrs  === Step 5: Spatial attribute updates ===
+2026-04-15 16:00:15  INFO      s05_spatial_attrs  Rows in scope: 855489
+2026-04-15 16:00:15  INFO      s05_spatial_attrs  Calculating PARCEL_ACRES / PARCEL_SQFT ...
+2026-04-15 16:03:56  INFO      s05_spatial_attrs    855407 rows updated
+2026-04-15 16:03:56  INFO      s05_spatial_attrs  Flagging WITHIN_TRPA_BNDY ...
+2026-04-15 16:05:16  INFO      s05_spatial_attrs    WITHIN_TRPA_BNDY = 1 : 844287 rows
+2026-04-15 16:05:16  INFO      s05_spatial_attrs  Flagging WITHIN_BONUSUNIT_BNDY ...
+2026-04-15 16:06:37  INFO      s05_spatial_attrs    WITHIN_BONUSUNIT_BNDY = 1 : 547180 rows
+2026-04-15 16:06:37  INFO      s05_spatial_attrs  Spatial join: TownCenter ...
+2026-04-15 16:08:21  INFO      s05_spatial_attrs    TownCenter : 855489 rows updated
+2026-04-15 16:08:21  INFO      s05_spatial_attrs  Spatial join: LocToTC ...
+2026-04-15 16:11:11  INFO      s05_spatial_attrs    LocToTC : 855489 rows updated
+2026-04-15 16:11:11  INFO      s05_spatial_attrs  Spatial join: TAZ ...
+2026-04-15 16:13:40  INFO      s05_spatial_attrs    TAZ : 855489 rows updated
+2026-04-15 16:13:40  INFO      s05_spatial_attrs  Spatial join: LocalPlan ...
+2026-04-15 16:16:21  INFO      s05_spatial_attrs    LocalPlan : 855489 rows updated
+2026-04-15 16:16:21  INFO      s05_spatial_attrs  Spatial join: Zoning ...
+2026-04-15 16:20:31  INFO      s05_spatial_attrs    Zoning : 855489 rows updated
+2026-04-15 16:20:31  INFO      s05_spatial_attrs  Spatial join: RLU ...
+2026-04-15 16:23:17  INFO      s05_spatial_attrs    RLU : 855489 rows updated
+2026-04-15 16:23:17  INFO      s05_spatial_attrs  Summing building footprint area (Building_SqFt) ...
+2026-04-15 16:23:18  INFO      s05_spatial_attrs    Added field Building_SqFt to OUTPUT_FC
+2026-04-15 16:24:09  INFO      s05_spatial_attrs    2019 parcels for building intersect: 61288
+2026-04-15 19:27:51  INFO      build_net_change_fc  === build_net_change_fc ===
+2026-04-15 19:27:51  INFO      build_net_change_fc  Window: 2012 – 2025  (14 years)
+2026-04-15 19:27:51  INFO      build_net_change_fc  Output: C:\GIS\ParcelHistory.gdb\Parcel_ResUnits_NetChange
+2026-04-15 19:27:55  INFO      build_net_change_fc  Loaded unit data: 93047 APNs across 14 years
+2026-04-15 19:28:00  INFO      build_net_change_fc  Geometries from end year (2025): 61240 parcels
+2026-04-15 19:28:03  INFO      build_net_change_fc  Loaded unit data: 61239 APNs across 1 years
+2026-04-15 19:28:08  INFO      build_net_change_fc    Geometry fallback year 2024: filled 50 APNs
+2026-04-15 19:28:12  INFO      build_net_change_fc  Loaded unit data: 61235 APNs across 1 years
+2026-04-15 19:28:17  INFO      build_net_change_fc    Geometry fallback year 2023: filled 138 APNs
+2026-04-15 19:28:20  INFO      build_net_change_fc  Loaded unit data: 61257 APNs across 1 years
+2026-04-15 19:28:26  INFO      build_net_change_fc    Geometry fallback year 2022: filled 174 APNs
+2026-04-15 19:28:30  INFO      build_net_change_fc  Loaded unit data: 61238 APNs across 1 years
+2026-04-15 19:28:33  INFO      build_net_change_fc    Geometry fallback year 2021: filled 47 APNs
+2026-04-15 19:28:36  INFO      build_net_change_fc  Loaded unit data: 61270 APNs across 1 years
+2026-04-15 19:28:39  INFO      build_net_change_fc    Geometry fallback year 2020: filled 109 APNs
+2026-04-15 19:28:41  INFO      build_net_change_fc  Loaded unit data: 61288 APNs across 1 years
+2026-04-15 19:28:46  INFO      build_net_change_fc    Geometry fallback year 2019: filled 88 APNs
+2026-04-15 19:28:48  INFO      build_net_change_fc  Loaded unit data: 61454 APNs across 1 years
+2026-04-15 19:28:52  INFO      build_net_change_fc    Geometry fallback year 2018: filled 359 APNs
+2026-04-15 19:28:55  INFO      build_net_change_fc  Loaded unit data: 60905 APNs across 1 years
+2026-04-15 19:28:59  INFO      build_net_change_fc    Geometry fallback year 2017: filled 30095 APNs
+2026-04-15 19:29:01  INFO      build_net_change_fc  Loaded unit data: 60889 APNs across 1 years
+2026-04-15 19:29:05  INFO      build_net_change_fc    Geometry fallback year 2016: filled 368 APNs
+2026-04-15 19:29:08  INFO      build_net_change_fc  Loaded unit data: 60851 APNs across 1 years
+2026-04-15 19:29:12  INFO      build_net_change_fc    Geometry fallback year 2015: filled 65 APNs
+2026-04-15 19:29:14  INFO      build_net_change_fc  Loaded unit data: 60899 APNs across 1 years
+2026-04-15 19:29:18  INFO      build_net_change_fc    Geometry fallback year 2014: filled 194 APNs
+2026-04-15 19:29:21  INFO      build_net_change_fc  Loaded unit data: 60897 APNs across 1 years
+2026-04-15 19:29:25  INFO      build_net_change_fc    Geometry fallback year 2013: filled 120 APNs
+2026-04-15 19:29:27  INFO      build_net_change_fc  Loaded unit data: 60827 APNs across 1 years
+2026-04-15 19:29:28  INFO      build_net_change_fc  APNs to write: 93047  (of which 93047 have geometry)
+2026-04-15 19:29:39  INFO      build_net_change_fc  Written: 93047 rows  Skipped (no geometry): 0
+2026-04-15 19:29:39  INFO      build_net_change_fc  Net change summary — gains: 20922  losses: 19672  no change: 52453
+2026-04-15 19:29:39  INFO      build_net_change_fc  Done.
+2026-04-15 19:44:37  INFO      build_diff_raster  === build_diff_raster ===
+2026-04-15 19:44:37  INFO      build_diff_raster  Start: 2012  End: 2025  Cell size: 10m
+2026-04-15 19:44:37  INFO      build_diff_raster  Output GDB: C:\GIS\ParcelHistory.gdb
+2026-04-15 19:44:37  INFO      build_diff_raster  Rasterizing year 2012 ...
+2026-04-15 19:44:41  INFO      build_diff_raster    Year 2012: 60827 parcels
+2026-04-15 19:45:18  INFO      build_diff_raster    Raster ResUnits_2012: 33740846010 total cells
+2026-04-15 19:45:18  INFO      build_diff_raster  Rasterizing year 2025 ...
+2026-04-15 19:45:21  INFO      build_diff_raster    Year 2025: 61240 parcels
+2026-04-15 19:46:00  INFO      build_diff_raster    Raster ResUnits_2025: 33740846010 total cells
+2026-04-15 19:46:00  INFO      build_diff_raster  Computing diff raster (2025 - 2012) ...
+2026-04-15 19:50:18  INFO      build_diff_raster    Diff raster value range: -154  to  +265
+2026-04-15 19:50:18  INFO      build_diff_raster    Saved: C:\GIS\ParcelHistory.gdb/ResUnits_Diff_2012_2025
+2026-04-15 19:50:21  INFO      build_diff_raster    Input rasters removed (use --keep-inputs to retain)
+2026-04-15 19:50:21  INFO      build_diff_raster  Done.
+2026-04-15 19:55:32  INFO      s05_spatial_attrs  === Step 5: Spatial attribute updates ===
+2026-04-15 19:55:36  INFO      s05_spatial_attrs  Rows in scope: 855489
+2026-04-15 19:55:36  INFO      s05_spatial_attrs  Calculating PARCEL_ACRES / PARCEL_SQFT ...
+2026-04-15 19:56:45  INFO      s05_spatial_attrs    855407 rows updated
+2026-04-15 19:56:45  INFO      s05_spatial_attrs  Caching service layers ...
+2026-04-15 19:56:47  INFO      s05_spatial_attrs    Cached TRPA_bdy            1 features
+2026-04-15 19:56:48  INFO      s05_spatial_attrs    Cached BonusUnit           1 features
+2026-04-15 19:56:48  INFO      s05_spatial_attrs    Cached TownCenter          13 features
+2026-04-15 19:56:49  INFO      s05_spatial_attrs    Cached LocationToTownCtr   15 features
+2026-04-15 19:56:51  INFO      s05_spatial_attrs    Cached TAZ                 282 features
+2026-04-15 19:56:51  INFO      s05_spatial_attrs    Cached LocalPlan           105 features
+2026-04-15 19:56:53  INFO      s05_spatial_attrs    Cached Zoning              281 features
+2026-04-15 19:56:54  INFO      s05_spatial_attrs    Cached RegionalLandUse     250 features
+2026-04-15 19:56:54  INFO      s05_spatial_attrs  Flagging WITHIN_TRPA_BNDY ...
+2026-04-15 19:57:39  INFO      s05_spatial_attrs    WITHIN_TRPA_BNDY = 1 : 844287 rows
+2026-04-15 19:57:39  INFO      s05_spatial_attrs  Flagging WITHIN_BONUSUNIT_BNDY ...
+2026-04-15 19:58:25  INFO      s05_spatial_attrs    WITHIN_BONUSUNIT_BNDY = 1 : 547180 rows
+2026-04-15 19:58:25  INFO      s05_spatial_attrs  Building deduplicated APN layer ...
+2026-04-15 19:58:54  INFO      s05_spatial_attrs    Dedup layer: 93047 unique APNs
+2026-04-15 19:58:54  INFO      s05_spatial_attrs    Joining against 93047 unique APNs
+2026-04-15 19:58:54  INFO      s05_spatial_attrs  Spatial join: TownCenter ...
+2026-04-15 19:58:56  INFO      s05_spatial_attrs    [TownCenter] matched 5183 APNs
+2026-04-15 19:59:03  INFO      s05_spatial_attrs    TownCenter : 44094 rows updated
+2026-04-15 19:59:03  INFO      s05_spatial_attrs  Spatial join: LocationToTownCtr ...
+2026-04-15 19:59:10  WARNING   s05_spatial_attrs    [LocationToTownCtr] fields missing from join output: ['LOCATION_TO_TOWNCENTER']
+2026-04-15 19:59:10  WARNING   s05_spatial_attrs    [LocationToTownCtr] available: ['APN', 'BUFFER_NAME', 'TOWN_CENTER', 'created_date', 'created_user', 'last_edited_date', 'last_edited_user']
+2026-04-15 19:59:10  INFO      s05_spatial_attrs    [LocationToTownCtr] matched 0 APNs
+2026-04-15 19:59:15  INFO      s05_spatial_attrs    LocationToTownCtr : 0 rows updated
+2026-04-15 19:59:15  INFO      s05_spatial_attrs  Spatial join: TAZ ...
+2026-04-15 19:59:19  INFO      s05_spatial_attrs    [TAZ] matched 92996 APNs
+2026-04-15 19:59:41  INFO      s05_spatial_attrs    TAZ : 855184 rows updated
+2026-04-15 19:59:41  INFO      s05_spatial_attrs  Spatial join: LocalPlan ...
+2026-04-15 19:59:47  INFO      s05_spatial_attrs    [LocalPlan] matched 91932 APNs
+2026-04-15 20:00:09  INFO      s05_spatial_attrs    LocalPlan : 844060 rows updated
+2026-04-15 20:00:09  INFO      s05_spatial_attrs  Spatial join: Zoning ...
+2026-04-15 20:00:18  INFO      s05_spatial_attrs    [Zoning] matched 91775 APNs
+2026-04-15 20:00:43  INFO      s05_spatial_attrs    Zoning : 841862 rows updated
+2026-04-15 20:00:43  INFO      s05_spatial_attrs  Spatial join: RegionalLandUse ...
+2026-04-15 20:00:50  WARNING   s05_spatial_attrs    [RegionalLandUse] fields missing from join output: ['REGIONAL_LANDUSE']
+2026-04-15 20:00:50  WARNING   s05_spatial_attrs    [RegionalLandUse] available: ['APN', 'Acres', 'CNEL', 'Description', 'Jurisdiction', 'Name', 'PTOD', 'REGIONAL_LAND_USE', 'created_date', 'created_user', 'id', 'last_edited_date', 'last_edited_user']
+2026-04-15 20:00:50  INFO      s05_spatial_attrs    [RegionalLandUse] matched 0 APNs
+2026-04-15 20:00:56  INFO      s05_spatial_attrs    RegionalLandUse : 0 rows updated
+2026-04-15 20:00:56  INFO      s05_spatial_attrs  Nulling TOWN_CENTER = 'Outside Town Center' ...
+2026-04-15 20:01:00  INFO      s05_spatial_attrs    Cleared 0 rows
+2026-04-15 20:01:01  INFO      s05_spatial_attrs  Step 5 complete.
+2026-04-15 20:41:57  INFO      s05_spatial_attrs  === Step 5: Spatial attribute updates ===
+2026-04-15 20:42:00  INFO      s05_spatial_attrs  Rows in scope: 855489
+2026-04-15 20:42:00  INFO      s05_spatial_attrs  Calculating PARCEL_ACRES / PARCEL_SQFT ...
+2026-04-15 20:43:27  INFO      s05_spatial_attrs    855407 rows updated
+2026-04-15 20:43:27  INFO      s05_spatial_attrs  Caching service layers ...
+2026-04-15 20:43:29  INFO      s05_spatial_attrs    Cached TRPA_bdy              1 features
+2026-04-15 20:43:31  INFO      s05_spatial_attrs    Cached BonusUnit             1 features
+2026-04-15 20:43:31  INFO      s05_spatial_attrs    Cached TownCenter            13 features
+2026-04-15 20:43:32  INFO      s05_spatial_attrs    Cached LocationToTownCtr     15 features
+2026-04-15 20:43:34  INFO      s05_spatial_attrs    Cached TAZ                   282 features
+2026-04-15 20:43:34  INFO      s05_spatial_attrs    Cached LocalPlan             105 features
+2026-04-15 20:43:36  INFO      s05_spatial_attrs    Cached Zoning                281 features
+2026-04-15 20:43:37  INFO      s05_spatial_attrs    Cached RegionalLandUse       250 features
+2026-04-15 20:43:37  INFO      s05_spatial_attrs  Flagging WITHIN_TRPA_BNDY ...
+2026-04-15 20:44:30  INFO      s05_spatial_attrs    WITHIN_TRPA_BNDY = 1 : 844287 rows
+2026-04-15 20:44:30  INFO      s05_spatial_attrs  Flagging WITHIN_BONUSUNIT_BNDY ...
+2026-04-15 20:45:17  INFO      s05_spatial_attrs    WITHIN_BONUSUNIT_BNDY = 1 : 547180 rows
+2026-04-15 20:45:17  INFO      s05_spatial_attrs  Building deduplicated APN layer ...
+2026-04-15 20:45:46  INFO      s05_spatial_attrs    Dedup layer: 93047 unique APNs
+2026-04-15 20:45:47  INFO      s05_spatial_attrs  Generating centroid points ...
+2026-04-15 20:45:49  INFO      s05_spatial_attrs    Centroid layer: 93047 points
+2026-04-15 20:45:49  INFO      s05_spatial_attrs  Spatial join: TownCenter ...
+2026-04-15 20:45:50  INFO      s05_spatial_attrs    [TownCenter] 4441 / 93047 APNs matched (4.8%)
+2026-04-15 20:45:57  INFO      s05_spatial_attrs    [TownCenter] 37866 row-years written
+2026-04-15 20:45:57  INFO      s05_spatial_attrs  Spatial join: LocationToTownCtr ...
+2026-04-15 20:46:02  WARNING   s05_spatial_attrs      Field 'LOCATION_TO_TOWNCENTER' not found in join output. Available: ['APN', 'BUFFER_NAME', 'ORIG_FID', 'TOWN_CENTER', 'created_date', 'created_user', 'last_edited_date', 'last_edited_user']
+2026-04-15 20:46:02  INFO      s05_spatial_attrs    [LocationToTownCtr] 0 / 93047 APNs matched (0.0%)
+2026-04-15 20:46:08  INFO      s05_spatial_attrs    [LocationToTownCtr] 0 row-years written
+2026-04-15 20:46:08  INFO      s05_spatial_attrs  Spatial join: TAZ ...
+2026-04-15 20:46:10  INFO      s05_spatial_attrs    [TAZ] 92835 / 93047 APNs matched (99.8%)
+2026-04-15 20:46:50  INFO      s05_spatial_attrs    [TAZ] 853543 row-years written
+2026-04-15 20:46:50  INFO      s05_spatial_attrs  Spatial join: LocalPlan ...
+2026-04-15 20:46:54  INFO      s05_spatial_attrs    [LocalPlan] 91761 / 93047 APNs matched (98.6%)
+2026-04-15 20:47:34  INFO      s05_spatial_attrs    [LocalPlan] 842286 row-years written
+2026-04-15 20:47:34  INFO      s05_spatial_attrs  Spatial join: Zoning ...
+2026-04-15 20:47:38  INFO      s05_spatial_attrs    [Zoning] 91590 / 93047 APNs matched (98.4%)
+2026-04-15 20:48:16  INFO      s05_spatial_attrs    [Zoning] 839956 row-years written
+2026-04-15 20:48:16  INFO      s05_spatial_attrs  Spatial join: RegionalLandUse ...
+2026-04-15 20:48:19  WARNING   s05_spatial_attrs      Field 'REGIONAL_LANDUSE' not found in join output. Available: ['APN', 'Acres', 'CNEL', 'Description', 'Jurisdiction', 'Name', 'ORIG_FID', 'PTOD', 'REGIONAL_LAND_USE', 'created_date', 'created_user', 'id', 'last_edited_date', 'last_edited_user']
+2026-04-15 20:48:19  INFO      s05_spatial_attrs    [RegionalLandUse] 0 / 93047 APNs matched (0.0%)
+2026-04-15 20:48:24  INFO      s05_spatial_attrs    [RegionalLandUse] 0 row-years written
+2026-04-15 20:48:24  INFO      s05_spatial_attrs  Nulling TOWN_CENTER = 'Outside Town Center' ...
+2026-04-15 20:48:28  INFO      s05_spatial_attrs    Cleared 0 rows
+2026-04-15 20:48:28  INFO      s05_spatial_attrs  Step 5 complete.
+2026-04-15 21:07:21  INFO      s05_spatial_attrs  === Step 5: Spatial attribute updates ===
+2026-04-15 21:07:25  INFO      s05_spatial_attrs  Rows in scope: 855489
+2026-04-15 21:07:25  INFO      s05_spatial_attrs  Calculating PARCEL_ACRES / PARCEL_SQFT ...
+2026-04-15 21:08:32  INFO      s05_spatial_attrs    855407 rows updated
+2026-04-15 21:08:32  INFO      s05_spatial_attrs  Caching service layers ...
+2026-04-15 21:08:33  INFO      s05_spatial_attrs    Cached TRPA_bdy              1 features
+2026-04-15 21:08:34  INFO      s05_spatial_attrs    Cached BonusUnit             1 features
+2026-04-15 21:08:35  INFO      s05_spatial_attrs    Cached TownCenter            13 features
+2026-04-15 21:08:35  INFO      s05_spatial_attrs    Cached LocationToTownCtr     15 features
+2026-04-15 21:08:37  INFO      s05_spatial_attrs    Cached TAZ                   282 features
+2026-04-15 21:08:37  INFO      s05_spatial_attrs    Cached LocalPlan             105 features
+2026-04-15 21:08:38  INFO      s05_spatial_attrs    Cached Zoning                281 features
+2026-04-15 21:08:39  INFO      s05_spatial_attrs    Cached RegionalLandUse       250 features
+2026-04-15 21:08:39  INFO      s05_spatial_attrs  Flagging WITHIN_TRPA_BNDY ...
+2026-04-15 21:09:23  INFO      s05_spatial_attrs    WITHIN_TRPA_BNDY = 1 : 844287 rows
+2026-04-15 21:09:23  INFO      s05_spatial_attrs  Flagging WITHIN_BONUSUNIT_BNDY ...
+2026-04-15 21:10:09  INFO      s05_spatial_attrs    WITHIN_BONUSUNIT_BNDY = 1 : 547180 rows
+2026-04-15 21:10:09  INFO      s05_spatial_attrs  Building deduplicated APN layer ...
+2026-04-15 21:10:37  INFO      s05_spatial_attrs    Dedup layer: 93047 unique APNs
+2026-04-15 21:10:37  INFO      s05_spatial_attrs  Generating centroid points ...
+2026-04-15 21:10:39  INFO      s05_spatial_attrs    Centroid layer: 93047 points
+2026-04-15 21:10:39  INFO      s05_spatial_attrs  Spatial join: TownCenter ...
+2026-04-15 21:10:40  INFO      s05_spatial_attrs    [TownCenter] 4441 / 93047 APNs matched (4.8%)
+2026-04-15 21:10:46  INFO      s05_spatial_attrs    [TownCenter] 37866 row-years written
+2026-04-15 21:10:46  INFO      s05_spatial_attrs  Spatial join: LocationToTownCtr ...
+2026-04-15 21:10:51  INFO      s05_spatial_attrs    [LocationToTownCtr] 91803 / 93047 APNs matched (98.7%)
+2026-04-15 21:11:29  INFO      s05_spatial_attrs    [LocationToTownCtr] 842555 row-years written
+2026-04-15 21:11:29  INFO      s05_spatial_attrs  Spatial join: TAZ ...
+2026-04-15 21:11:32  INFO      s05_spatial_attrs    [TAZ] 92835 / 93047 APNs matched (99.8%)
+2026-04-15 21:11:53  INFO      s05_spatial_attrs    [TAZ] 853543 row-years written
+2026-04-15 21:11:53  INFO      s05_spatial_attrs  Spatial join: LocalPlan ...
+2026-04-15 21:11:57  INFO      s05_spatial_attrs    [LocalPlan] 91761 / 93047 APNs matched (98.6%)
+2026-04-15 21:12:20  INFO      s05_spatial_attrs    [LocalPlan] 842286 row-years written
+2026-04-15 21:12:20  INFO      s05_spatial_attrs  Spatial join: Zoning ...
+2026-04-15 21:12:24  INFO      s05_spatial_attrs    [Zoning] 91590 / 93047 APNs matched (98.4%)
+2026-04-15 21:12:47  INFO      s05_spatial_attrs    [Zoning] 839956 row-years written
+2026-04-15 21:12:47  INFO      s05_spatial_attrs  Spatial join: RegionalLandUse ...
+2026-04-15 21:12:50  INFO      s05_spatial_attrs    [RegionalLandUse] 91572 / 93047 APNs matched (98.4%)
+2026-04-15 21:13:29  INFO      s05_spatial_attrs    [RegionalLandUse] 839732 row-years written
+2026-04-15 21:13:29  INFO      s05_spatial_attrs  Nulling TOWN_CENTER = 'Outside Town Center' ...
+2026-04-15 21:13:35  INFO      s05_spatial_attrs    Cleared 0 rows
+2026-04-15 21:13:35  INFO      s05_spatial_attrs  Step 5 complete.
+2026-04-15 21:32:59  INFO      diagnose_parcel_new  === diagnose_parcel_new ===
+2026-04-15 21:33:01  INFO      diagnose_parcel_new  PARCEL_NEW APNs to diagnose: 63
+2026-04-15 21:33:01  INFO      diagnose_parcel_new  Genealogy successors loaded: 40045
+2026-04-15 21:33:16  INFO      diagnose_parcel_new  CSV written: C:\Users\mbindl\Documents\GitHub\Reporting\data\qa_data\diagnose_parcel_new.csv

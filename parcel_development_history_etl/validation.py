@@ -38,7 +38,7 @@ import pandas as pd
 from config import (
     OUTPUT_FC, FC_APN, FC_YEAR, FC_UNITS,
     CSV_YEARS,
-    QA_GENEALOGY_APPLIED, QA_FLAG_TABLE,
+    QA_UNITS_BY_YEAR, QA_GENEALOGY_APPLIED, QA_FLAG_TABLE,
     IMPERVIOUS_SVC, BMP_CERT_SVC, VHR_PERMIT_SVC,
     LTINFO_PERMITS,
 )
@@ -55,7 +55,7 @@ _TEXT_LENGTHS = {
     "QA_STATUS" : 20,
 }
 
-ALL_FLAGS = {"PHANTOM", "DROPOUT", "GENEALOGY", "UNVERIFIED"}
+ALL_FLAGS = {"PHANTOM", "DROPOUT", "GENEALOGY", "TOTALS_MISMATCH", "UNVERIFIED"}
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -266,7 +266,49 @@ def check_genealogy(df_fc: pd.DataFrame) -> list[dict]:
     return flags
 
 
-# ── Check D: UNVERIFIED ───────────────────────────────────────────────────────
+# ── Check D: TOTALS_MISMATCH ─────────────────────────────────────────────────
+
+def check_totals_mismatch() -> list[dict]:
+    """
+    Compare FC unit totals to CSV totals from QA_Units_By_Year.
+
+    Any year where FC_Total != CSV_Total gets a flag.  This is the primary
+    signal that units were lost or duplicated during the ETL — no external
+    services required.
+
+    Source: QA_Units_By_Year GDB table (written by Step 6 during the ETL run).
+    """
+    qa = _read_gdb_table(QA_UNITS_BY_YEAR)
+    if qa.empty:
+        log.info("TOTALS_MISMATCH: QA_Units_By_Year not found — run ETL Step 6 first.")
+        return []
+
+    flags = []
+    for _, row in qa.iterrows():
+        year      = int(row.get("Year",       0))
+        csv_total = int(row.get("CSV_Total",  0) or 0)
+        fc_total  = int(row.get("FC_Total",   0) or 0)
+        diff      = fc_total - csv_total
+        if diff != 0:
+            flags.append({
+                "APN"       : "TOTAL",
+                "YEAR"      : year,
+                "FLAG_CODE" : "TOTALS_MISMATCH",
+                "CSV_VAL"   : csv_total,
+                "MATRIX_VAL": fc_total,
+                "EVIDENCE"  : (
+                    f"CSV_Total={csv_total:,}, FC_Total={fc_total:,}, "
+                    f"Diff={diff:+,} ({'+' if diff > 0 else ''}{diff/csv_total*100:.1f}%)"
+                    if csv_total else
+                    f"CSV_Total={csv_total:,}, FC_Total={fc_total:,}, Diff={diff:+,}"
+                ),
+            })
+
+    log.info("TOTALS_MISMATCH: %d year(s) with discrepancies", len(flags))
+    return flags
+
+
+# ── Check E: UNVERIFIED ───────────────────────────────────────────────────────
 
 def check_unverified(df_fc: pd.DataFrame,
                      bmp_lookup: dict,
@@ -396,6 +438,10 @@ def main(flags: set = None, apn: str = None) -> None:
     run_all      = not flags
     all_apns     = df_fc["APN"].unique().tolist()
     all_flag_rows: list[dict] = []
+
+    # ── TOTALS_MISMATCH (no service — uses QA_Units_By_Year) ─────────────────
+    if run_all or "TOTALS_MISMATCH" in flags:
+        all_flag_rows += check_totals_mismatch()
 
     # ── DROPOUT (no service) ──────────────────────────────────────────────────
     if run_all or "DROPOUT" in flags:
