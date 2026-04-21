@@ -1,0 +1,789 @@
+{
+  "sample_size": 18,
+  "corral_tracked_apns": 7,
+  "years": [
+    2016,
+    2018,
+    2020,
+    2022,
+    2023
+  ],
+  "commodity_ids": [
+    5,
+    14
+  ],
+  "commodity_label": "SFRUU + MFRUU (physical residential dwellings)",
+  "total_checks": 90,
+  "total_matches": 27,
+  "match_rate_all_sample": 0.3,
+  "match_rate_tracked_only": 0.3714,
+  "apn_coverage": {
+    "007-011-01": 0,
+    "007-011-23": 4,
+    "014-232-001": 0,
+    "014-234-011": 0,
+    "014-262-003": 0,
+    "014-284-005": 0,
+    "014-302-015": 0,
+    "014-322-008": 0,
+    "015-031-007": 0,
+    "015-032-29": 0,
+    "015-033-017": 0,
+    "015-062-011": 0,
+    "092-100-004": 1,
+    "094-213-003": 1,
+    "097-161-004": 2,
+    "117-072-005": 3,
+    "127-090-04": 3,
+    "1418-10-401-004": 7
+  },
+  "by_year": {
+    "2016": {
+      "rate": 0.6111,
+      "total": 18,
+      "match": 11
+    },
+    "2018": {
+      "rate": 0.3889,
+      "total": 18,
+      "match": 7
+    },
+    "2020": {
+      "rate": 0.1667,
+      "total": 18,
+      "match": 3
+    },
+    "2022": {
+      "rate": 0.1667,
+      "total": 18,
+      "match": 3
+    },
+    "2023": {
+      "rate": 0.1667,
+      "total": 18,
+      "match": 3
+    }
+  },
+  "results": [
+    {
+      "apn": "007-011-01",
+      "year": 2016,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "007-011-23",
+      "year": 2016,
+      "csv_value": 3,
+      "corral_value": 0,
+      "match": false,
+      "delta": -3
+    },
+    {
+      "apn": "014-232-001",
+      "year": 2016,
+      "csv_value": 0,
+      "corral_value": 0,
+      "match": true,
+      "delta": 0
+    },
+    {
+      "apn": "014-234-011",
+      "year": 2016,
+      "csv_value": 0,
+      "corral_value": 0,
+      "match": true,
+      "delta": 0
+    },
+    {
+      "apn": "014-262-003",
+      "year": 2016,
+      "csv_value": 0,
+      "corral_value": 0,
+      "match": true,
+      "delta": 0
+    },
+    {
+      "apn": "014-284-005",
+      "year": 2016,
+      "csv_value": 0,
+      "corral_value": 0,
+      "match": true,
+      "delta": 0
+    },
+    {
+      "apn": "014-302-015",
+      "year": 2016,
+      "csv_value": 0,
+      "corral_value": 0,
+      "match": true,
+      "delta": 0
+    },
+    {
+      "apn": "014-322-008",
+      "year": 2016,
+      "csv_value": 0,
+      "corral_value": 0,
+      "match": true,
+      "delta": 0
+    },
+    {
+      "apn": "015-031-007",
+      "year": 2016,
+      "csv_value": 0,
+      "corral_value": 0,
+      "match": true,
+      "delta": 0
+    },
+    {
+      "apn": "015-032-29",
+      "year": 2016,
+      "csv_value": 2,
+      "corral_value": 0,
+      "match": false,
+      "delta": -2
+    },
+    {
+      "apn": "015-033-017",
+      "year": 2016,
+      "csv_value": 0,
+      "corral_value": 0,
+      "match": true,
+      "delta": 0
+    },
+    {
+      "apn": "015-062-011",
+      "year": 2016,
+      "csv_value": 0,
+      "corral_value": 0,
+      "match": true,
+      "delta": 0
+    },
+    {
+      "apn": "092-100-004",
+      "year": 2016,
+      "csv_value": 1,
+      "corral_value": 1,
+      "match": true,
+      "delta": 0
+    },
+    {
+      "apn": "094-213-003",
+      "year": 2016,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "097-161-004",
+      "year": 2016,
+      "csv_value": 1,
+      "corral_value": 2,
+      "match": false,
+      "delta": 1
+    },
+    {
+      "apn": "117-072-005",
+      "year": 2016,
+      "csv_value": 1,
+      "corral_value": 1,
+      "match": true,
+      "delta": 0
+    },
+    {
+      "apn": "127-090-04",
+      "year": 2016,
+      "csv_value": 6,
+      "corral_value": 8,
+      "match": false,
+      "delta": 2
+    },
+    {
+      "apn": "1418-10-401-004",
+      "year": 2016,
+      "csv_value": 1,
+      "corral_value": 2,
+      "match": false,
+      "delta": 1
+    },
+    {
+      "apn": "007-011-01",
+      "year": 2018,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "007-011-23",
+      "year": 2018,
+      "csv_value": 3,
+      "corral_value": 0,
+      "match": false,
+      "delta": -3
+    },
+    {
+      "apn": "014-232-001",
+      "year": 2018,
+      "csv_value": 0,
+      "corral_value": 0,
+      "match": true,
+      "delta": 0
+    },
+    {
+      "apn": "014-234-011",
+      "year": 2018,
+      "csv_value": 0,
+      "corral_value": 0,
+      "match": true,
+      "delta": 0
+    },
+    {
+      "apn": "014-262-003",
+      "year": 2018,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "014-284-005",
+      "year": 2018,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "014-302-015",
+      "year": 2018,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "014-322-008",
+      "year": 2018,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "015-031-007",
+      "year": 2018,
+      "csv_value": 0,
+      "corral_value": 0,
+      "match": true,
+      "delta": 0
+    },
+    {
+      "apn": "015-032-29",
+      "year": 2018,
+      "csv_value": 2,
+      "corral_value": 0,
+      "match": false,
+      "delta": -2
+    },
+    {
+      "apn": "015-033-017",
+      "year": 2018,
+      "csv_value": 0,
+      "corral_value": 0,
+      "match": true,
+      "delta": 0
+    },
+    {
+      "apn": "015-062-011",
+      "year": 2018,
+      "csv_value": 0,
+      "corral_value": 0,
+      "match": true,
+      "delta": 0
+    },
+    {
+      "apn": "092-100-004",
+      "year": 2018,
+      "csv_value": 1,
+      "corral_value": 1,
+      "match": true,
+      "delta": 0
+    },
+    {
+      "apn": "094-213-003",
+      "year": 2018,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "097-161-004",
+      "year": 2018,
+      "csv_value": 1,
+      "corral_value": 2,
+      "match": false,
+      "delta": 1
+    },
+    {
+      "apn": "117-072-005",
+      "year": 2018,
+      "csv_value": 1,
+      "corral_value": 1,
+      "match": true,
+      "delta": 0
+    },
+    {
+      "apn": "127-090-04",
+      "year": 2018,
+      "csv_value": 6,
+      "corral_value": 8,
+      "match": false,
+      "delta": 2
+    },
+    {
+      "apn": "1418-10-401-004",
+      "year": 2018,
+      "csv_value": 1,
+      "corral_value": 2,
+      "match": false,
+      "delta": 1
+    },
+    {
+      "apn": "007-011-01",
+      "year": 2020,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "007-011-23",
+      "year": 2020,
+      "csv_value": 3,
+      "corral_value": 0,
+      "match": false,
+      "delta": -3
+    },
+    {
+      "apn": "014-232-001",
+      "year": 2020,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "014-234-011",
+      "year": 2020,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "014-262-003",
+      "year": 2020,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "014-284-005",
+      "year": 2020,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "014-302-015",
+      "year": 2020,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "014-322-008",
+      "year": 2020,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "015-031-007",
+      "year": 2020,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "015-032-29",
+      "year": 2020,
+      "csv_value": 2,
+      "corral_value": 0,
+      "match": false,
+      "delta": -2
+    },
+    {
+      "apn": "015-033-017",
+      "year": 2020,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "015-062-011",
+      "year": 2020,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "092-100-004",
+      "year": 2020,
+      "csv_value": 1,
+      "corral_value": 1,
+      "match": true,
+      "delta": 0
+    },
+    {
+      "apn": "094-213-003",
+      "year": 2020,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "097-161-004",
+      "year": 2020,
+      "csv_value": 1,
+      "corral_value": 2,
+      "match": false,
+      "delta": 1
+    },
+    {
+      "apn": "117-072-005",
+      "year": 2020,
+      "csv_value": 1,
+      "corral_value": 1,
+      "match": true,
+      "delta": 0
+    },
+    {
+      "apn": "127-090-04",
+      "year": 2020,
+      "csv_value": 6,
+      "corral_value": 8,
+      "match": false,
+      "delta": 2
+    },
+    {
+      "apn": "1418-10-401-004",
+      "year": 2020,
+      "csv_value": 1,
+      "corral_value": 1,
+      "match": true,
+      "delta": 0
+    },
+    {
+      "apn": "007-011-01",
+      "year": 2022,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "007-011-23",
+      "year": 2022,
+      "csv_value": 3,
+      "corral_value": 0,
+      "match": false,
+      "delta": -3
+    },
+    {
+      "apn": "014-232-001",
+      "year": 2022,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "014-234-011",
+      "year": 2022,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "014-262-003",
+      "year": 2022,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "014-284-005",
+      "year": 2022,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "014-302-015",
+      "year": 2022,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "014-322-008",
+      "year": 2022,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "015-031-007",
+      "year": 2022,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "015-032-29",
+      "year": 2022,
+      "csv_value": 2,
+      "corral_value": 0,
+      "match": false,
+      "delta": -2
+    },
+    {
+      "apn": "015-033-017",
+      "year": 2022,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "015-062-011",
+      "year": 2022,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "092-100-004",
+      "year": 2022,
+      "csv_value": 2,
+      "corral_value": 1,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "094-213-003",
+      "year": 2022,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "097-161-004",
+      "year": 2022,
+      "csv_value": 2,
+      "corral_value": 2,
+      "match": true,
+      "delta": 0
+    },
+    {
+      "apn": "117-072-005",
+      "year": 2022,
+      "csv_value": 2,
+      "corral_value": 1,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "127-090-04",
+      "year": 2022,
+      "csv_value": 8,
+      "corral_value": 8,
+      "match": true,
+      "delta": 0
+    },
+    {
+      "apn": "1418-10-401-004",
+      "year": 2022,
+      "csv_value": 2,
+      "corral_value": 2,
+      "match": true,
+      "delta": 0
+    },
+    {
+      "apn": "007-011-01",
+      "year": 2023,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "007-011-23",
+      "year": 2023,
+      "csv_value": 3,
+      "corral_value": 0,
+      "match": false,
+      "delta": -3
+    },
+    {
+      "apn": "014-232-001",
+      "year": 2023,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "014-234-011",
+      "year": 2023,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "014-262-003",
+      "year": 2023,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "014-284-005",
+      "year": 2023,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "014-302-015",
+      "year": 2023,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "014-322-008",
+      "year": 2023,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "015-031-007",
+      "year": 2023,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "015-032-29",
+      "year": 2023,
+      "csv_value": 2,
+      "corral_value": 0,
+      "match": false,
+      "delta": -2
+    },
+    {
+      "apn": "015-033-017",
+      "year": 2023,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "015-062-011",
+      "year": 2023,
+      "csv_value": 1,
+      "corral_value": 0,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "092-100-004",
+      "year": 2023,
+      "csv_value": 2,
+      "corral_value": 1,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "094-213-003",
+      "year": 2023,
+      "csv_value": 2,
+      "corral_value": 0,
+      "match": false,
+      "delta": -2
+    },
+    {
+      "apn": "097-161-004",
+      "year": 2023,
+      "csv_value": 2,
+      "corral_value": 2,
+      "match": true,
+      "delta": 0
+    },
+    {
+      "apn": "117-072-005",
+      "year": 2023,
+      "csv_value": 2,
+      "corral_value": 1,
+      "match": false,
+      "delta": -1
+    },
+    {
+      "apn": "127-090-04",
+      "year": 2023,
+      "csv_value": 8,
+      "corral_value": 8,
+      "match": true,
+      "delta": 0
+    },
+    {
+      "apn": "1418-10-401-004",
+      "year": 2023,
+      "csv_value": 2,
+      "corral_value": 2,
+      "match": true,
+      "delta": 0
+    }
+  ]
+}

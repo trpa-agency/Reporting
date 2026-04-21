@@ -1,0 +1,311 @@
+{
+  "xlsx_rows": 1853,
+  "xlsx_with_transaction_id": 1603,
+  "corral_view_rows": 2088,
+  "corral_distinct_transaction_ids": 2088,
+  "joined_rows": 1244,
+  "join_rate": 0.776,
+  "xlsx_columns_missing_in_corral": [
+    "Allocation Number",
+    "Transaction Created Date",
+    "Transaction Acknowledged Date",
+    "Development Type",
+    "Detailed Development Type",
+    "Status Jan 2026",
+    "TRPA/MOU Project #",
+    "Year Built",
+    "PM Year Built"
+  ],
+  "column_match": [
+    {
+      "xlsx_column": "Transaction Type",
+      "corral_column": "TransactionType",
+      "considered": 1244,
+      "matched": 366,
+      "match_rate": 0.2942
+    },
+    {
+      "xlsx_column": "APN_xlsx",
+      "corral_column": "APN",
+      "considered": 1244,
+      "matched": 1037,
+      "match_rate": 0.8336
+    },
+    {
+      "xlsx_column": "Jurisdiction_xlsx",
+      "corral_column": "Jurisdiction",
+      "considered": 1244,
+      "matched": 710,
+      "match_rate": 0.5707
+    },
+    {
+      "xlsx_column": "Development Right",
+      "corral_column": "DevelopmentRight",
+      "considered": 1244,
+      "matched": 900,
+      "match_rate": 0.7235
+    },
+    {
+      "xlsx_column": "Quantity_xlsx",
+      "corral_column": "Quantity",
+      "considered": 1243,
+      "matched": 0,
+      "match_rate": 0.0
+    },
+    {
+      "xlsx_column": "Transaction Record ID",
+      "corral_column": "AccelaRecordID",
+      "considered": 405,
+      "matched": 263,
+      "match_rate": 0.6494
+    },
+    {
+      "xlsx_column": "TRPA Status",
+      "corral_column": "TRPAStatus",
+      "considered": 1244,
+      "matched": 0,
+      "match_rate": 0.0
+    },
+    {
+      "xlsx_column": "TRPA Status Date",
+      "corral_column": "TRPAStatusDate",
+      "considered": 1244,
+      "matched": 16,
+      "match_rate": 0.0129
+    },
+    {
+      "xlsx_column": "Local Jurisdiction Project #",
+      "corral_column": "LocalJurisdictionProjectNumber",
+      "considered": 712,
+      "matched": 50,
+      "match_rate": 0.0702
+    },
+    {
+      "xlsx_column": "Local Status",
+      "corral_column": "LocalStatus",
+      "considered": 719,
+      "matched": 0,
+      "match_rate": 0.0
+    },
+    {
+      "xlsx_column": "Local Status Date",
+      "corral_column": "LocalStatusDate",
+      "considered": 658,
+      "matched": 0,
+      "match_rate": 0.0
+    },
+    {
+      "xlsx_column": "Notes_xlsx",
+      "corral_column": "Notes",
+      "considered": 553,
+      "matched": 0,
+      "match_rate": 0.0
+    }
+  ],
+  "mismatch_samples": {
+    "Transaction Type": [
+      {
+        "TransactionID": "EDCCA-ALLOC-1825",
+        "Transaction Type": "Residential Allocation",
+        "TransactionType": "Allocation"
+      },
+      {
+        "TransactionID": "EDCCA-ALLOC-2145",
+        "Transaction Type": "Residential Allocation",
+        "TransactionType": "Allocation"
+      },
+      {
+        "TransactionID": "EDCCA-ALLOC-568",
+        "Transaction Type": "Residential Allocation",
+        "TransactionType": "Allocation"
+      }
+    ],
+    "APN_xlsx": [
+      {
+        "TransactionID": "TRPA-ALLOCASSGN-1289",
+        "APN_xlsx": "015-370-024",
+        "APN": null
+      },
+      {
+        "TransactionID": "TRPA-CONV-1275",
+        "APN_xlsx": "016-292-034",
+        "APN": null
+      },
+      {
+        "TransactionID": "TRPA-ALLOCASSGN-2002",
+        "APN_xlsx": "025-792-007",
+        "APN": null
+      }
+    ],
+    "Jurisdiction_xlsx": [
+      {
+        "TransactionID": "TRPA-ALLOCASSGN-1289",
+        "Jurisdiction_xlsx": "EL",
+        "Jurisdiction": null
+      },
+      {
+        "TransactionID": "CSLT-ALLOC-1724",
+        "Jurisdiction_xlsx": "CSLT",
+        "Jurisdiction": "SLT"
+      },
+      {
+        "TransactionID": "TRPA-CONV-1275",
+        "Jurisdiction_xlsx": "EL",
+        "Jurisdiction": null
+      }
+    ],
+    "Development Right": [
+      {
+        "TransactionID": "EDCCA-ALLOC-1825",
+        "Development Right": "Residential Allocation - El Dorado County",
+        "DevelopmentRight": "Residential Allocation"
+      },
+      {
+        "TransactionID": "EDCCA-ALLOC-2145",
+        "Development Right": "Residential Allocation - El Dorado County",
+        "DevelopmentRight": "Residential Allocation"
+      },
+      {
+        "TransactionID": "EDCCA-ALLOC-568",
+        "Development Right": "Residential Allocation - El Dorado County",
+        "DevelopmentRight": "Residential Allocation"
+      }
+    ],
+    "Quantity_xlsx": [
+      {
+        "TransactionID": "EDCCA-ALLOC-1825",
+        "Quantity_xlsx": "1",
+        "Quantity": 1.0
+      },
+      {
+        "TransactionID": "EDCCA-ALLOC-2145",
+        "Quantity_xlsx": "1",
+        "Quantity": 1.0
+      },
+      {
+        "TransactionID": "EDCCA-ALLOC-568",
+        "Quantity_xlsx": "1",
+        "Quantity": 1.0
+      }
+    ],
+    "Transaction Record ID": [
+      {
+        "TransactionID": "TRPA-CONV-1275",
+        "Transaction Record ID": "ERSP2020-0534",
+        "AccelaRecordID": null
+      },
+      {
+        "TransactionID": "TRPA-ALLOC-438",
+        "Transaction Record ID": NaN,
+        "AccelaRecordID": "ERSP2012-0360"
+      },
+      {
+        "TransactionID": "CSLT-ALLOC-2254",
+        "Transaction Record ID": NaN,
+        "AccelaRecordID": "MOUA2024-0096"
+      }
+    ],
+    "TRPA Status": [
+      {
+        "TransactionID": "EDCCA-ALLOC-1825",
+        "TRPA Status": "Issued",
+        "TRPAStatus": "Proposed"
+      },
+      {
+        "TransactionID": "EDCCA-ALLOC-2145",
+        "TRPA Status": "Finaled",
+        "TRPAStatus": "Proposed"
+      },
+      {
+        "TransactionID": "EDCCA-ALLOC-568",
+        "TRPA Status": "Finaled",
+        "TRPAStatus": "Approved"
+      }
+    ],
+    "TRPA Status Date": [
+      {
+        "TransactionID": "EDCCA-ALLOC-1825",
+        "TRPA Status Date": "2021-09-16 00:00:00",
+        "TRPAStatusDate": "NaT"
+      },
+      {
+        "TransactionID": "EDCCA-ALLOC-2145",
+        "TRPA Status Date": "2024-11-12 00:00:00",
+        "TRPAStatusDate": "NaT"
+      },
+      {
+        "TransactionID": "EDCCA-ALLOC-568",
+        "TRPA Status Date": "2025-08-04 00:00:00",
+        "TRPAStatusDate": "2017-10-16 00:00:00"
+      }
+    ],
+    "Local Jurisdiction Project #": [
+      {
+        "TransactionID": "EDCCA-ALLOC-1825",
+        "Local Jurisdiction Project #": "339626",
+        "LocalJurisdictionProjectNumber": null
+      },
+      {
+        "TransactionID": "EDCCA-ALLOC-2145",
+        "Local Jurisdiction Project #": "346996",
+        "LocalJurisdictionProjectNumber": null
+      },
+      {
+        "TransactionID": "EDCCA-ALLOC-568",
+        "Local Jurisdiction Project #": "258994",
+        "LocalJurisdictionProjectNumber": null
+      }
+    ],
+    "Local Status": [
+      {
+        "TransactionID": "EDCCA-ALLOC-1825",
+        "Local Status": "Finaled",
+        "LocalStatus": null
+      },
+      {
+        "TransactionID": "EDCCA-ALLOC-2145",
+        "Local Status": "Finaled",
+        "LocalStatus": null
+      },
+      {
+        "TransactionID": "EDCCA-ALLOC-568",
+        "Local Status": "Finaled",
+        "LocalStatus": null
+      }
+    ],
+    "Local Status Date": [
+      {
+        "TransactionID": "EDCCA-ALLOC-1825",
+        "Local Status Date": "2022-10-12 00:00:00",
+        "LocalStatusDate": null
+      },
+      {
+        "TransactionID": "EDCCA-ALLOC-2145",
+        "Local Status Date": "2024-06-26 00:00:00",
+        "LocalStatusDate": null
+      },
+      {
+        "TransactionID": "EDCCA-ALLOC-568",
+        "Local Status Date": "2018-09-07 00:00:00",
+        "LocalStatusDate": null
+      }
+    ],
+    "Notes_xlsx": [
+      {
+        "TransactionID": "EDCCA-ALLOC-568",
+        "Notes_xlsx": NaN,
+        "Notes": "Certificate of allocation received: 7/18/17. "
+      },
+      {
+        "TransactionID": "EDCCA-ALLOC-2077",
+        "Notes_xlsx": "Pregrade 7/3/2024",
+        "Notes": null
+      },
+      {
+        "TransactionID": "EDCCA-ALLOC-2117",
+        "Notes_xlsx": "Set to Expire 1/26/2026",
+        "Notes": null
+      }
+    ]
+  }
+}

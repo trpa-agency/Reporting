@@ -1,0 +1,280 @@
+[
+  {
+    "name": "GetAllParcels",
+    "description": "Parcel master list (APN, jurisdiction, land use).",
+    "probe": {
+      "status": "ok",
+      "url": "https://www.laketahoeinfo.org/WebServices/GetAllParcels/JSON/e17aeb86-85e3-4260-83fd-a2b32501c476",
+      "record_count": 72472,
+      "fields": {
+        "APN": "str",
+        "ParcelNickname": "NoneType",
+        "ParcelSize": "NoneType",
+        "Status": "str",
+        "RetiredFromDevelopment": "str",
+        "IsAutoImported": "str",
+        "OwnerName": "NoneType",
+        "ParcelAddress": "str",
+        "Jurisdiction": "str",
+        "ParcelNotes": "NoneType",
+        "LocalPlan": "NoneType",
+        "FireDistrict": "NoneType",
+        "ParcelWatershed": "NoneType",
+        "BMPStatus": "str",
+        "HRA": "NoneType",
+        "HasMooringRegistration": "bool",
+        "SFRUU": "int",
+        "RBU": "int",
+        "TAU": "int",
+        "CFA": "int",
+        "RFA": "int",
+        "TFA": "int",
+        "PRUU": "int",
+        "MFRUU": "int"
+      },
+      "sample_record": {
+        "APN": "001-010-02",
+        "ParcelNickname": null,
+        "ParcelSize": null,
+        "Status": "Inactive",
+        "RetiredFromDevelopment": "No",
+        "IsAutoImported": "Yes",
+        "OwnerName": null,
+        "ParcelAddress": "Address not available",
+        "Jurisdiction": "Unknown or unspecified",
+        "ParcelNotes": null,
+        "LocalPlan": null,
+        "FireDistrict": null,
+        "ParcelWatershed": null,
+        "BMPStatus": "Not Certified",
+        "HRA": null,
+        "HasMooringRegistration": false,
+        "SFRUU": 0,
+        "RBU": 0,
+        "TAU": 0,
+        "CFA": 0,
+        "RFA": 0,
+        "TFA": 0,
+        "PRUU": 0,
+        "MFRUU": 0
+      }
+    }
+  },
+  {
+    "name": "GetTransactedAndBankedDevelopmentRights",
+    "description": "All transacted + banked dev rights; history of transfers.",
+    "probe": {
+      "status": "ok",
+      "url": "https://www.laketahoeinfo.org/WebServices/GetTransactedAndBankedDevelopmentRights/JSON/e17aeb86-85e3-4260-83fd-a2b32501c476",
+      "record_count": 5186,
+      "fields": {
+        "APN": "str",
+        "RecordType": "str",
+        "DevelopmentRight": "str",
+        "LandCapability": "str",
+        "IPESScore": "int",
+        "CumulativeBankedQuantity": "int",
+        "RemainingBankedQuantity": "NoneType",
+        "Jurisdiction": "NoneType",
+        "LocalPlan": "NoneType",
+        "DateBankedOrApproved": "NoneType",
+        "HRA": "NoneType",
+        "LastUpdated": "str",
+        "TransactionNumber": "str",
+        "TransactionApprovalDate": "str",
+        "SendingParcel": "str",
+        "ReceivingParcel": "NoneType",
+        "LandBank": "NoneType",
+        "AccelaID": "NoneType",
+        "JurisdictionPermitNumber": "str",
+        "TransactionStatus": "str"
+      },
+      "sample_record": {
+        "APN": "015-370-024",
+        "RecordType": "Allocation Assignment Receiving Parcel",
+        "DevelopmentRight": "Residential Allocation",
+        "LandCapability": "IPES",
+        "IPESScore": 848,
+        "CumulativeBankedQuantity": 1,
+        "RemainingBankedQuantity": null,
+        "Jurisdiction": null,
+        "LocalPlan": null,
+        "DateBankedOrApproved": null,
+        "HRA": null,
+        "LastUpdated": "10/09/2020",
+        "TransactionNumber": "TRPA-ALLOCASSGN-1289",
+        "TransactionApprovalDate": "10/09/2020",
+        "SendingParcel": "083-102-007",
+        "ReceivingParcel": null,
+        "LandBank": null,
+        "AccelaID": null,
+        "JurisdictionPermitNumber": "ALLC2020-1052",
+        "TransactionStatus": "Approved"
+      }
+    }
+  },
+  {
+    "name": "GetBankedDevelopmentRights",
+    "description": "Currently banked development rights inventory.",
+    "probe": {
+      "status": "ok",
+      "url": "https://www.laketahoeinfo.org/WebServices/GetBankedDevelopmentRights/JSON/e17aeb86-85e3-4260-83fd-a2b32501c476",
+      "record_count": 2183,
+      "fields": {
+        "APN": "str",
+        "Status": "str",
+        "DevelopmentRight": "str",
+        "LandCapability": "str",
+        "IPESScore": "NoneType",
+        "RemainingBankedQuantity": "int",
+        "Jurisdiction": "str",
+        "LocalPlan": "str",
+        "DateBankedOrApproved": "str",
+        "HRA": "str",
+        "LastUpdated": "str"
+      },
+      "sample_record": {
+        "APN": "014-301-005",
+        "Status": "Active",
+        "DevelopmentRight": "Coverage (hard)",
+        "LandCapability": "Bailey 5",
+        "IPESScore": null,
+        "RemainingBankedQuantity": 16,
+        "Jurisdiction": "El Dorado County, CA (ELDO)",
+        "LocalPlan": "TAHOMA RESIDENTIAL",
+        "DateBankedOrApproved": "06/19/2009",
+        "HRA": "McKinney Bay",
+        "LastUpdated": "10/28/2024"
+      }
+    }
+  },
+  {
+    "name": "GetParcelDevelopmentRightsForAccela",
+    "description": "Parcel-level dev rights as exposed to the Accela permit system.",
+    "probe": {
+      "status": "ok",
+      "url": "https://www.laketahoeinfo.org/WebServices/GetParcelDevelopmentRightsForAccela/JSON/e17aeb86-85e3-4260-83fd-a2b32501c476",
+      "record_count": 12540,
+      "fields": {
+        "APN": "str",
+        "DevelopmentRight": "str",
+        "LandCapability": "str",
+        "VerifiedPhysicalInventory": "str",
+        "RemainingBankedQuantity": "str"
+      },
+      "sample_record": {
+        "APN": "007-011-23",
+        "DevelopmentRight": "Coverage (hard) - sq ft",
+        "LandCapability": "Bailey 1a",
+        "VerifiedPhysicalInventory": "3,532",
+        "RemainingBankedQuantity": ""
+      }
+    }
+  },
+  {
+    "name": "GetDeedRestrictedParcels",
+    "description": "Parcels with recorded deed restrictions (affordable/achievable housing, etc.).",
+    "probe": {
+      "status": "ok",
+      "url": "https://www.laketahoeinfo.org/WebServices/GetDeedRestrictedParcels/JSON/e17aeb86-85e3-4260-83fd-a2b32501c476",
+      "record_count": 4253,
+      "fields": {
+        "APN": "str",
+        "ParcelStatus": "str",
+        "RecordingNumber": "str",
+        "RecordingDate": "str",
+        "Description": "str",
+        "DeedRestrictionStatus": "str",
+        "DeedRestrictionType": "str",
+        "ProjectAreaFileNumber": "NoneType",
+        "NumberOfHousingUnits": "NoneType"
+      },
+      "sample_record": {
+        "APN": "035-010-030",
+        "ParcelStatus": "Active",
+        "RecordingNumber": "00658 Book 4836 Page 161",
+        "RecordingDate": "01/07/1997",
+        "Description": "Recorded in El Dorado County. Parcel 035-010-30 Transferred 399 Square Feet of Allowable Land Coverage to APN 022-121-12 ",
+        "DeedRestrictionStatus": "Recorded",
+        "DeedRestrictionType": "Transfer",
+        "ProjectAreaFileNumber": null,
+        "NumberOfHousingUnits": null
+      }
+    }
+  },
+  {
+    "name": "GetParcelIPESScores",
+    "description": "IPES scores per parcel (land capability sensitivity index).",
+    "probe": {
+      "status": "ok",
+      "url": "https://www.laketahoeinfo.org/WebServices/GetParcelIPESScores/JSON/e17aeb86-85e3-4260-83fd-a2b32501c476",
+      "record_count": 14978,
+      "fields": {
+        "ScoreSheetUrl": "str",
+        "APN": "str",
+        "Status": "str",
+        "ParcelNickname": "str",
+        "IPESScore": "int",
+        "IPESScoreType": "str",
+        "BaseAllowableCoveragePercent": "str",
+        "IPESTotalAllowableCoverageSqFt": "NoneType",
+        "ParcelHasDOAC": "str",
+        "HistoricOrImportedIpesScore": "str",
+        "CalculationDate": "str",
+        "FieldEvaluationDate": "str",
+        "RelativeErosionHazardScore": "int",
+        "RunoffPotentialScore": "int",
+        "AccessScore": "int",
+        "UtilityInSEZScore": "int",
+        "ConditionOfWatershedScore": "int",
+        "AbilityToRevegetateScore": "int",
+        "WaterQualityImprovementsScore": "int",
+        "ProximityToLakeScore": "int",
+        "LimitedIncentivePoints": "int",
+        "TotalParcelArea": "NoneType",
+        "IPESBuildingSiteArea": "int",
+        "SEZLandArea": "int",
+        "SEZSetbackArea": "int",
+        "InternalNotes": "str",
+        "PublicNotes": "str"
+      },
+      "sample_record": {
+        "ScoreSheetUrl": "https://parcels.laketahoeinfo.org/IpesScore/Detail/1",
+        "APN": "001-010-05",
+        "Status": "Inactive",
+        "ParcelNickname": "",
+        "IPESScore": 815,
+        "IPESScoreType": "Official",
+        "BaseAllowableCoveragePercent": "0%",
+        "IPESTotalAllowableCoverageSqFt": null,
+        "ParcelHasDOAC": "Unknown",
+        "HistoricOrImportedIpesScore": "Yes",
+        "CalculationDate": "",
+        "FieldEvaluationDate": "",
+        "RelativeErosionHazardScore": 345,
+        "RunoffPotentialScore": 44,
+        "AccessScore": 158,
+        "UtilityInSEZScore": 110,
+        "ConditionOfWatershedScore": 58,
+        "AbilityToRevegetateScore": 50,
+        "WaterQualityImprovementsScore": 40,
+        "ProximityToLakeScore": 10,
+        "LimitedIncentivePoints": 0,
+        "TotalParcelArea": null,
+        "IPESBuildingSiteArea": 2831400,
+        "SEZLandArea": 20000,
+        "SEZSetbackArea": 4000,
+        "InternalNotes": "",
+        "PublicNotes": ""
+      }
+    }
+  },
+  {
+    "name": "GetAccelaRecordDetailsExcel",
+    "description": "Per-record Accela permit details as Excel file. URL pattern: https://laketahoeinfo.org/Api/GetAccelaRecordDetailsExcel/{GUID} (per-record, not a bulk feed).",
+    "probe": {
+      "status": "not_probed",
+      "reason": "binary xlsx output; requires per-record GUID"
+    }
+  }
+]
