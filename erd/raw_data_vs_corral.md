@@ -1,5 +1,12 @@
 # raw_data/ vs. Corral — gap analysis
 
+> **Purpose**: inventory what's in Ken's spreadsheets, show which of those
+> things Corral does *not* hold, and map each gap to a table in
+> [target_schema.md](./target_schema.md).
+> **Audience**: reviewers asking "why do we need new tables — can't we just
+> query Corral?"
+
+
 > **See [target_schema.md](./target_schema.md) for how the proposed new
 > schema closes each gap below.** This doc is the diagnostic;
 > `target_schema.md` is the treatment plan, anchored on the TRPA Cumulative

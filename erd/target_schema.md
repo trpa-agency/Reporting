@@ -1,5 +1,8 @@
 # Target schema — TRPA Cumulative Accounting tracking store
 
+> **Status: DRAFT PROPOSAL — ready for team review.**
+> **Audience: TRPA dev team, Ken, Dan, DB/GIS admins, partner jurisdictions.**
+
 Proposed ERD for new tables in the **existing SDE SQL backend** that hosts
 Corral + the enterprise GIS geodatabase. Anchored on the TRPA Cumulative
 Accounting framework (TRPA Code §16.8.2). See
@@ -11,8 +14,34 @@ for the full vocabulary.
 > `ShorezoneAllocation`, SHORE transaction type) is handled by a separate
 > system and **out of scope**. PAOT and mitigation funds are deferred to v2+.
 
-> **This is an ERD proposal, not DDL.** Captures entities, attributes, and
-> relationships for review before CREATE TABLE statements.
+> **This is an ERD proposal, not DDL.** It captures entities, attributes, and
+> relationships so the shape can be reviewed before CREATE TABLE statements.
+> DDL is a later step.
+
+## For reviewers — how to read this
+
+1. **Skim the Design principles and Scope notes above** to orient on the
+   constraints that shaped the design.
+2. **Read the five ERDs in order** — they flow from reference data into the
+   five buckets, the movement ledger, permits, and dashboard outputs. All
+   diagrams render together in [development_rights_erd.html](./development_rights_erd.html).
+3. **Jump to [Questions for the team](#questions-for-the-team)** at the end.
+   That's the review checklist. Every question has a proposed answer;
+   confirm or override.
+4. **Check the supporting docs if you want to know *why*:**
+   - [raw_data_vs_corral.md](./raw_data_vs_corral.md) — what Corral doesn't hold.
+   - [validation_findings.md](./validation_findings.md) — empirical tests.
+   - [xlsx_decomposition.md](./xlsx_decomposition.md) — why we don't load Ken's XLSX as a table.
+
+### Key numbers at a glance
+
+- **8 new physical tables + 1 view + 2 materialized snapshots** in this proposal.
+- **16 Corral reference / transaction tables** reused as-is (no duplication).
+- **5 buckets per (Commodity, Jurisdiction)**: Existing, Banked, Allocated, Bonus Units, Unused Capacity.
+- **10 ledger movement types** (9 from Corral's `TransactionType` + Banking + QACorrection, minus Shorezone).
+- **3 v1 dashboards**: cumulative accounting, allocation drawdown, parcel history lookup.
+- **Corral freshness**: our backup is Feb 2024; live reads use LTinfo web services until deployment.
+- **GIS freshness**: FC covers 2006–2023 with a 2016–2017 gap (see Questions).
 
 ## Design principle — never duplicate Corral
 
@@ -442,27 +471,171 @@ erDiagram
 - `MitigationFundAccount` + `MitigationFundLedger` (threshold-attainment category)
 - Resource Utilization metrics (VMT, DVTE, impervious, water, sewage, SEZ)
 
-## Open decisions
+## Questions for the team
 
-1. **`Banking` as a ledger MovementType.** Corral records banked rights via
-   `dbo.ParcelPermitBankedDevelopmentRight` but has no "Banking" transaction
-   type. We add `Banking` and `Unbanking` to the MovementType enum and
-   synthesize the ledger entries during load — confirm?
-2. **ADU modeling.** No `ADU` value in `ResidentialAllocationUseType`. Options:
-   (a) add a 3rd value to that table, (b) flag via a new `IsADU` bit on the
-   permit or allocation, (c) separate ADU concept tied to parent unit. Which
-   matches TRPA's mental model?
-3. **`PermitCompletion` vs extending `dbo.ParcelPermit`.** Adding columns to
-   `ParcelPermit` directly is simpler but touches a live Corral table. A
-   separate `PermitCompletion` sidecar table avoids that risk. Leaning sidecar
-   for v1; merge if/when TRPA is comfortable writing to ParcelPermit.
-4. **Conversion paired entries.** Two ledger rows linked by `PairedEntryID`
-   (current design) vs one row with both commodities. Two-entry keeps
-   bucket-balance math clean.
-5. **Geometry on `ParcelExistingDevelopment`.** Carry the polygon (from the
-   GIS service) for spatial queries inside this DB, or reference only by
-   `ParcelID` + `Year`? SDE-registered on the same server, so polygon is
-   nearly free — probably carry it.
+Each question has a **proposed answer** (our current leaning). The review
+task is to confirm, override, or add context. Mark with ✅ / ❌ / comment as
+you go.
+
+### Data model
+
+**Q1. ADU modeling.** Corral's `dbo.ResidentialAllocationUseType` has only
+two values: `SingleFamily` and `MultiFamily`. No ADU. How should we represent
+ADUs?
+
+- (a) Add a third value `ADU` to `ResidentialAllocationUseType`.
+- (b) Add an `IsADU` bit to the allocation or permit.
+- (c) Separate ADU concept tied to a parent unit (ADU = accessory to an existing SFRUU).
+- **Proposed**: (a). Cleanest — ADU becomes a first-class use type alongside Single/Multi-Family.
+- *Needs input from*: Ken + whoever manages the ADU Tracking XLSX today.
+
+**Q2. `AllocationType` enum values.** `dbo.ResidentialAllocationType` has:
+`Original`, `Reissued`, `LitigationSettlement`, `AllocationPool`. Does that
+cover all the allocation "sources" TRPA cares about, or are there more we'll
+encounter (e.g., `CommunityEnhancement`, `TransferOfDevelopmentRights`)?
+
+- **Proposed**: accept the current 4; add values if we hit a case they don't cover.
+
+**Q3. Conversion representation in the ledger.** A Conversion event (e.g.,
+`1 TAU → 1 SFRUU`) is modeled as **two paired ledger entries** linked via
+`PairedEntryID` — one row debits `TAU`, one row credits `SFRUU`, both for
+the same parcel on the same date.
+
+- Alternative: a single row with `FromCommodityID` / `ToCommodityID` columns.
+- **Proposed**: two-entry. Keeps bucket-balance arithmetic clean (`SUM(Quantity)` by commodity is always correct).
+
+**Q4. Conversion ratios — lookup table or hardcoded?** The 2013 Regional
+Plan sets `600 CFA = 2 TAU = 2 SFRUU = 3 MFRUU`. Store as rows in a new
+`ConversionRatio` lookup, or hardcode in ETL logic?
+
+- **Proposed**: lookup table. Future-proofs against policy changes; also
+  gives the dashboard something to display.
+
+**Q5. `Banking` and `Unbanking` as ledger MovementTypes.** Corral has no
+"Banking" transaction in `dbo.TdrTransaction` — banking events live in
+`dbo.ParcelPermitBankedDevelopmentRight` (707 rows). We synthesize `Banking`
+ledger rows at read time by joining `ParcelPermitBankedDevelopmentRight` to
+the permit's `FinalInspectionDate`.
+
+- Concern: is `FinalInspectionDate` the right "BankedDate"? Is there a
+  better source in Corral?
+- **Proposed**: accept `FinalInspectionDate` as a proxy; revisit if a
+  stronger banking-date field exists.
+
+### Integration with Corral
+
+**Q6. `PermitCompletion` sidecar vs extending `dbo.ParcelPermit`.** The
+completion-state fields (YearBuilt, PMYearBuilt, enriched completion status,
+detailed development type, supplemental notes) don't exist in Corral.
+
+- Option A: **Sidecar `PermitCompletion` table** FK'd to `dbo.ParcelPermit`.
+  Avoids touching a live Corral table. Adds one join to read.
+- Option B: `ALTER TABLE dbo.ParcelPermit ADD ...` — columns live next to
+  existing permit fields. Cleaner long-term, but modifies a table the LTinfo
+  app writes to.
+- **Proposed**: (A) sidecar for v1. Migrate fields into `dbo.ParcelPermit`
+  in a later phase if TRPA is comfortable with it.
+
+**Q7. `PermitAllocation` linkage strategy.** Corral has no direct FK between
+`dbo.ParcelPermit` and `dbo.ResidentialAllocation`. The bridge today is via
+`dbo.TdrTransaction.AccelaCAPRecordID` → `dbo.AccelaCAPRecord.AccelaID` →
+(matched against permit's Accela record in the workflow system). **But only
+32% of `TdrTransaction` rows have `AccelaCAPRecordID` populated.**
+
+- Option A: Accept the 32% crosswalk coverage; build `PermitAllocation` from
+  whatever joins today.
+- Option B: **Back-fill `AccelaCAPRecordID` in Corral** from Ken's XLSX
+  (`Transaction Record ID` column), then build `PermitAllocation` from the
+  improved Corral data.
+- **Proposed**: (B). It's Ken's XLSX that has the missing Accela IDs;
+  loading them back into Corral improves both systems.
+- *This is the highest-leverage cleanup task we've identified.* Worth its
+  own mini-project.
+
+**Q8. Retroactive genealogy restatements.** When `apn_genealogy_tahoe.csv`
+gets a new `old_apn → new_apn` mapping that affects historical rows, do we
+rewrite the `ParcelExistingDevelopment` rows in place, or leave them and
+insert `ChangeSource='genealogy_restatement'` rows in
+`ParcelDevelopmentChangeEvent`?
+
+- **Proposed**: the latter. Preserves an audit trail; matches Dan's
+  change-rationale framing.
+
+### GIS integration
+
+**Q9. Geometry on `ParcelExistingDevelopment`.** Carry the polygon from the
+GIS service for spatial queries inside this DB, or reference only by
+`ParcelID` + `Year`?
+
+- **Proposed**: carry. SDE-registered on the same server means the polygon
+  is ~free, and it makes the ERD diagrams easier to publish as ESRI services
+  directly.
+- *Counterargument*: one more thing to keep in sync.
+
+**Q10. 2016–2017 gap in the GIS FC.** `Parcel_History_Attributed` covers
+2006–2015 and 2018–2023. 2016 and 2017 are missing.
+
+- Is that real data loss, or just "we haven't published yet"?
+- If real: do we leave nulls in `ParcelExistingDevelopment` for those years,
+  interpolate, or reconstruct from AuditLog (which only has post-2016-Dec
+  data for PCI)?
+- **Needs input from**: whoever owns the FC population pipeline.
+
+**Q11. Pre-2012 data horizon.** Dan's email framed scope as "2012 and on."
+The FC actually has 2006–2011 records.
+
+- Do we load 2006–2011 as `Source='pre_2012_baseline'` (future-proofed), or
+  load only 2012+?
+- **Proposed**: load everything; flag with `Source` so reports can filter.
+
+### Operations
+
+**Q12. Ken's XLSX transition.** Keep `Transactions_Allocations_Details.xlsx`
+as Ken's authoring surface with a scheduled ETL that upserts the 8 Ken-unique
+columns into the new tables (see [xlsx_decomposition.md](./xlsx_decomposition.md))
+— or build a form-entry app to replace the XLSX?
+
+- **Proposed**: v1 keeps the XLSX (zero disruption to Ken's workflow). v2+
+  can replace with a form once the new DB is stable.
+
+**Q13. Dashboard refresh cadence.** Can we commit to **nightly** recomputation
+for `PoolDrawdownYearly` and `CumulativeAccountingSnapshot`? Affects ETL SLA.
+
+- **Proposed**: yes, nightly. Annual cumulative accounting is produced once;
+  the drawdown dashboard refreshes nightly.
+
+### Scope
+
+**Q14. PAOT and mitigation funds — v2 timing.** The TRPA Cumulative
+Accounting framework also tracks PAOT (recreation) and mitigation fund
+accounts. Currently deferred to v2+. Is that OK, or are there stakeholders
+who need them in v1?
+
+**Q15. Shorezone** — confirmed out of scope (handled by a separate system).
+No action; noting for completeness.
+
+---
+
+### Quick vote sheet
+
+Copy this and return with your votes:
+
+```
+Q1  ADU modeling:                    (a) / (b) / (c) / comment:
+Q2  AllocationType enum:             accept-4 / add:___________
+Q3  Conversion representation:       two-entry / one-row / comment:
+Q4  Conversion ratios:               lookup / hardcoded / comment:
+Q5  Banking date source:             FinalInspectionDate OK / use:___________
+Q6  PermitCompletion placement:      sidecar / extend-ParcelPermit / comment:
+Q7  PermitAllocation linkage:        32%-crosswalk / back-fill-Corral / comment:
+Q8  Retroactive genealogy:           rewrite-in-place / correction-entries / comment:
+Q9  Geometry on PED:                 carry-polygon / ID-only / comment:
+Q10 2016-2017 GIS gap:               leaving-null / reconstruct / comment:
+Q11 Pre-2012 data:                   load-all-flag / 2012-only / comment:
+Q12 Ken XLSX transition:             keep-XLSX / form-entry-v1 / comment:
+Q13 Dashboard refresh:               nightly-OK / other:___________
+Q14 PAOT/mitigation v2 timing:       OK / need-in-v1
+```
 
 ## Ready-to-build v1 new-table list
 

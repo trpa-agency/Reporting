@@ -1,5 +1,13 @@
 # Validation findings — can Corral replace raw_data?
 
+> **Purpose**: empirical tests of two reproducibility claims about Corral.
+> Both failed — which is why [target_schema.md](./target_schema.md)
+> introduces `ParcelExistingDevelopment`, `PermitCompletion`, and
+> `CrossSystemID` instead of just writing views over Corral.
+> **Audience**: skeptics of the "Corral can't do this" claim. These are the
+> numbers.
+
+
 > **The answer is no, and that's why the proposed schema exists.**
 > See [target_schema.md](./target_schema.md) — the 61% PCI coverage gap
 > here is why `ParcelExistingDevelopment` is sourced from the GIS enterprise
