@@ -7,6 +7,42 @@
 > sources, 8 columns ETL into net-new tables in [target_schema.md](./target_schema.md),
 > 1 column is derived. Don't load the XLSX as-is.
 
+## The single strongest argument, up front
+
+The XLSX has a column called **`Status Jan 2026`**.
+
+If we load the XLSX as a table, next month someone adds **`Status Feb 2026`**.
+And **`Status Mar 2026`** after that. The schema becomes a living log of
+"the month we last looked." In a year we have twelve stale columns plus the
+real one. In five years, sixty.
+
+Everything else in this doc is a variation on that one failure mode. The
+XLSX is valuable **data** that needs to come into the new DB — but the
+XLSX's *shape*, encoded as a SQL table, guarantees technical debt.
+
+## The cost-benefit the "just load it" proposal deserves
+
+The counterargument isn't that loading the XLSX is dumb — it's that loading
+it looks cheap and the alternative looks expensive. Let's price both:
+
+| | Load as-is | Decompose (this proposal) |
+|---|---|---|
+| Initial build effort | ~2 hours (pandas → SQL) | ~1 week (8 new columns distributed across 3 tables) |
+| Time to first query | ~2 hours | ~1 week |
+| Every subsequent query | ad-hoc SQL against stale wide table; staff interprets which columns to trust | standard joins against normalized tables; trust is structural |
+| Next month's update | Add `Status Feb 2026` column; update dashboards to show it | Ken updates XLSX; scheduled ETL refreshes the 8 net-new columns; no schema change |
+| 12 months out | 12 stale status columns; dashboards either ignore them or display all 12 | Schema unchanged; ETL keeps syncing; dashboards still correct |
+| Cost of being wrong | Divergence from Corral (already 22% join-rate miss on TransactionID) is baked in; every query carries it | Divergence is fixable in one place (the decomposition rules); queries are always correct |
+| What Ken experiences | Same XLSX workflow | Same XLSX workflow (per Q12 in target_schema.md) |
+
+The decomposition is ~1 week of engineering that saves every future month
+of staff time reconciling stale columns. Loading as-is saves the week but
+creates 5+ years of recurring debt.
+
+**Ken isn't disrupted either way.** The proposal keeps his XLSX as the
+authoring surface. The only difference is whether the data flows through
+normalization before it lands in the DB.
+
 
 Column-by-column mapping of Ken's 22-column transactions spreadsheet
 ([data/raw_data/Transactions_Allocations_Details.xlsx](../data/raw_data/Transactions_Allocations_Details.xlsx),
