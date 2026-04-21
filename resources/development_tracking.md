@@ -1,0 +1,1 @@
+## What has been allocated, what has been built? how did we find it?
