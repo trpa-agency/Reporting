@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Validation Findings — TRPA Development-Rights ERD</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --panel: #161b22;
+    --fg: #c9d1d9;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --accent2: #3fb950;
+    --border: #30363d;
+    --code-bg: #161b22;
+  }
+  html, body { background: var(--bg); color: var(--fg); font-family: -apple-system, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; margin: 0; padding: 0; line-height: 1.6; }
+  header.docnav { background: var(--panel); padding: 10px 20px; border-bottom: 1px solid var(--border); font-size: 13px; position: sticky; top: 0; z-index: 10; display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; }
+  header.docnav .brand { font-weight: 600; color: var(--fg); }
+  header.docnav a { color: var(--accent); text-decoration: none; white-space: nowrap; }
+  header.docnav a.active { color: var(--fg); font-weight: 600; }
+  header.docnav a.viewer { color: var(--accent2); }
+  header.docnav a:hover { text-decoration: underline; }
+  main.content { max-width: 920px; margin: 0 auto; padding: 32px 24px 96px; }
+  h1, h2, h3, h4 { color: var(--fg); margin-top: 1.6em; margin-bottom: 0.6em; line-height: 1.25; }
+  h1 { border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-top: 0.5em; }
+  h2 { border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+  p { margin: 0.8em 0; }
+  a { color: var(--accent); }
+  a:hover { text-decoration: underline; }
+  code { background: var(--code-bg); padding: 2px 6px; border-radius: 3px; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 88%; color: #c9d1d9; }
+  pre { background: var(--code-bg); padding: 16px; border-radius: 6px; overflow-x: auto; border: 1px solid var(--border); }
+  pre code { background: none; padding: 0; font-size: 90%; line-height: 1.5; }
+  blockquote { border-left: 3px solid var(--accent); color: var(--muted); margin: 16px 0; padding: 4px 16px; background: rgba(88, 166, 255, 0.04); }
+  blockquote p { margin: 0.4em 0; }
+  table { border-collapse: collapse; margin: 16px 0; display: block; overflow-x: auto; }
+  th, td { border: 1px solid var(--border); padding: 6px 13px; text-align: left; vertical-align: top; }
+  th { background: var(--panel); font-weight: 600; }
+  tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+  ul, ol { padding-left: 28px; }
+  li { margin: 4px 0; }
+  hr { border: 0; border-top: 1px solid var(--border); margin: 32px 0; }
+  .mermaid { background: #0b0f14; padding: 20px; border-radius: 6px; border: 1px solid var(--border); margin: 16px 0; overflow-x: auto; text-align: center; }
+  img { max-width: 100%; }
+</style>
+</head>
+<body>
+<header class="docnav">
+  <span class="brand">TRPA ERD</span>
+  <a href="README.html">README</a>
+  <a href="target_schema.html">Target Schema</a>
+  <a href="proposed_dashboards.html">Dashboards</a>
+  <a href="cumulative_accounting_reference.html">Cumulative Accounting Reference</a>
+  <a href="raw_data_vs_corral.html">raw_data vs Corral</a>
+  <a href="validation_findings.html" class="active">Validation Findings</a>
+  <a href="xlsx_decomposition.html">XLSX Decomposition</a>
+  <a href="corral_tables.html">Corral Tables</a>
+  <a class="viewer" href="development_rights_erd.html">Interactive ERD →</a>
+</header>
+<main class="content">
+<h1 id="validation-findings-can-corral-replace-raw_data">Validation findings — can Corral replace raw_data?</h1>
+<blockquote>
+<p><strong>Purpose</strong>: empirical tests of two reproducibility claims about Corral.
+Both failed — which is why <a href="./target_schema.html">target_schema.md</a>
+introduces <code>ParcelExistingDevelopment</code>, <code>PermitCompletion</code>, and
+<code>CrossSystemID</code> instead of just writing views over Corral.
+<strong>Audience</strong>: skeptics of the "Corral can't do this" claim. These are the
+numbers.</p>
+<p><strong>The answer is no, and that's why the proposed schema exists.</strong>
+See <a href="./target_schema.html">target_schema.md</a> — the 61% PCI coverage gap
+here is why <code>ParcelExistingDevelopment</code> is sourced from the GIS enterprise
+GDB and not from Corral, and the 9-of-22 column gap in the transactions
+spreadsheet drives the <code>Permit</code>, <code>PermitAllocation</code>, <code>CrossSystemID</code>, and
+<code>ParcelDevelopmentChangeEvent</code> tables.</p>
+<p><strong>Context correction since this doc was first written</strong>: Corral IS the
+LTinfo backend. The snapshot tested here is a Feb-2024 backup. Live
+data flows through LTinfo JSON web services (confirmed with user); the
+proposed schema syncs from those services, not from direct SQL.</p>
+</blockquote>
+<p>Two empirical tests of the reproducibility claims in <a href="./raw_data_vs_corral.html">raw_data_vs_corral.md</a>.
+Both are read-only against the Feb 2024 Corral snapshot.</p>
+<h2 id="tldr">TL;DR</h2>
+<ul>
+<li><strong>Claim A — AuditLog can reconstruct yearly commodity inventory: FALSE.</strong> Not because AuditLog doesn't work, but because <code>dbo.ParcelCommodityInventory</code> only tracks SFRUU/MFRUU for <strong>7 of 18 sampled residential parcels (39%)</strong>. Most physical dwellings in Tahoe were never entered into PCI for residential commodities. The CSV is capturing data Corral simply doesn't hold.</li>
+<li><strong>Claim B — a view over TdrTransaction* + Parcel + Commodity + permits reproduces the transactions spreadsheet: PARTIAL.</strong> 78% of rows join cleanly and 3 of 12 core columns match &gt;70%. <strong>9 of the 22 spreadsheet columns aren't sourced from Corral at all</strong> — they come from external permit/assessor systems that live alongside Corral.</li>
+</ul>
+<p>Both results push the same direction: <strong>the raw_data spreadsheets are not redundant denormalizations of Corral</strong>. They're parallel sources filling gaps that the current Corral schema doesn't cover — physical inventory not triggered by permits, permit workflow status, county-assessor year-built, and external project identifiers.</p>
+<hr />
+<h2 id="claim-a-auditlog-replay-on-parcelcommodityinventory">Claim A — AuditLog replay on ParcelCommodityInventory</h2>
+<p><strong>Hypothesis</strong>: replaying <code>dbo.AuditLog</code> on <code>ParcelCommodityInventory.VerifiedPhysicalInventoryQuantity</code> reproduces the yearly values in <code>ExistingResidential_2012_2025_unstacked.csv</code> when summed across SFRUU + MFRUU LandCapabilityTypes per parcel.</p>
+<p><strong>Test</strong>: <a href="./validate_auditlog_replay.py">validate_auditlog_replay.py</a> — 18 residential APNs with non-zero CSV values for 2020 and 2023, reconstructed at year-ends 2016, 2018, 2020, 2022, 2023.</p>
+<p><strong>Result</strong> (<a href="./validate_auditlog_replay.json">validate_auditlog_replay.json</a>):</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th style="text-align: right;">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>APNs sampled from CSV</td>
+<td style="text-align: right;">18</td>
+</tr>
+<tr>
+<td>APNs with ≥1 <code>ParcelCommodityInventory</code> row for SFRUU/MFRUU</td>
+<td style="text-align: right;"><strong>7 (39%)</strong></td>
+</tr>
+<tr>
+<td>Year-checks total</td>
+<td style="text-align: right;">90</td>
+</tr>
+<tr>
+<td>Matches overall</td>
+<td style="text-align: right;">27 (30%)</td>
+</tr>
+<tr>
+<td>Matches on tracked APNs only</td>
+<td style="text-align: right;">13/35 (37%)</td>
+</tr>
+<tr>
+<td>Match rate 2016</td>
+<td style="text-align: right;">61%</td>
+</tr>
+<tr>
+<td>Match rate 2023</td>
+<td style="text-align: right;">17%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>What's actually happening</strong>:</p>
+<ul>
+<li>Spot-checks of <code>007-011-01</code>, <code>007-011-23</code>, <code>014-232-001</code> — all residential APNs with values in the CSV — returned <strong>zero SFRUU/MFRUU rows</strong> from <code>dbo.ParcelCommodityInventory</code>. One (<code>007-011-23</code>) had only Coverage rows, none for residential commodities.</li>
+<li>The decaying 2016 → 2023 match rate is downstream of this same problem: parcels that were added to PCI later (e.g., after a permit) have accurate recent values but no SFRUU row pre-existing for older year-ends.</li>
+<li><code>dbo.ParcelCommodityInventory.VerifiedPhysicalInventoryQuantity</code> is populated when a parcel's inventory is <strong>verified through a permit workflow</strong>. Most parcels in Tahoe have never needed a permit that triggers inventory verification, so their physical dwelling counts are absent from this table.</li>
+</ul>
+<p><strong>Implication for schema</strong>: the "existing residential dwellings per parcel" concept — fundamental to TRPA's accounting — is not represented in Corral for the majority of parcels. The <code>ExistingResidential_*.csv</code> (42,499 rows) is not a denormalization; it's a parallel source. To absorb it into the schema, Corral needs either:</p>
+<ol>
+<li>A new table <code>ParcelExistingDevelopment(ParcelID, CommodityID, Quantity, Year, Source)</code> that tracks physical inventory regardless of permit verification — loaded from county assessor, tax records, field surveys.</li>
+<li>Or relaxation of the "verification" contract on <code>ParcelCommodityInventory</code> so non-verified rows can be inserted with a <code>Source</code> tag.</li>
+</ol>
+<p>Either way, the CSV is the seed load, not a throwaway.</p>
+<hr />
+<h2 id="claim-b-vtransactionsallocationsdetails-view">Claim B — vTransactionsAllocationsDetails view</h2>
+<p><strong>Hypothesis</strong>: a view over <code>TdrTransaction</code> + <code>TdrTransactionTransfer</code>/<code>Allocation</code> + <code>ResidentialAllocation</code> + <code>Parcel</code> + <code>Commodity</code> + <code>AccelaCAPRecord</code> + <code>ParcelPermit</code> reproduces <code>Transactions_Allocations_Details.xlsx</code>.</p>
+<p><strong>TransactionID format</strong>: The XLSX uses a synthetic key: <code>{LeadAgencyAbbreviation}-{TransactionTypeAbbreviation}-{TdrTransactionID}</code> (e.g., <code>EDCCA-ALLOC-1825</code>). Constructed in the view SQL.</p>
+<p><strong>Test</strong>: <a href="./validate_transactions_view.py">validate_transactions_view.py</a> — full view SQL in file. Merge to XLSX on the synthetic key; per-column string-normalized equality on joined rows.</p>
+<p><strong>Result</strong> (<a href="./validate_transactions_view.json">validate_transactions_view.json</a>):</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th style="text-align: right;"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>XLSX rows</td>
+<td style="text-align: right;">1,853</td>
+</tr>
+<tr>
+<td>XLSX rows with TransactionID</td>
+<td style="text-align: right;">1,603</td>
+</tr>
+<tr>
+<td>Corral TdrTransaction rows</td>
+<td style="text-align: right;">2,088</td>
+</tr>
+<tr>
+<td><strong>Joined on TransactionID</strong></td>
+<td style="text-align: right;"><strong>1,244 / 1,603 = 78%</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Per-column match rate on joined rows:</p>
+<table>
+<thead>
+<tr>
+<th>XLSX column</th>
+<th>Corral source</th>
+<th style="text-align: right;">Matched</th>
+<th style="text-align: right;">Rate</th>
+<th>Why it misses</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>APN</td>
+<td><code>Parcel.ParcelNumber</code> via transfer/allocation</td>
+<td style="text-align: right;">1037/1244</td>
+<td style="text-align: right;"><strong>83%</strong></td>
+<td>Allocation-assignment transactions don't populate a receiving parcel</td>
+</tr>
+<tr>
+<td>Development Right</td>
+<td><code>Commodity.CommodityDisplayName</code></td>
+<td style="text-align: right;">900/1244</td>
+<td style="text-align: right;"><strong>72%</strong></td>
+<td>XLSX adds jurisdiction suffix ("... - El Dorado County") not in Corral</td>
+</tr>
+<tr>
+<td>Transaction Record ID</td>
+<td><code>AccelaCAPRecord.AccelaID</code></td>
+<td style="text-align: right;">263/405</td>
+<td style="text-align: right;">65%</td>
+<td>Only 32% of transactions have AccelaCAPRecordID populated</td>
+</tr>
+<tr>
+<td>Jurisdiction</td>
+<td><code>Jurisdiction.ResidentialAllocationAbbreviation</code></td>
+<td style="text-align: right;">710/1244</td>
+<td style="text-align: right;">57%</td>
+<td>Abbreviation mismatch: XLSX "CSLT" vs Corral "SLT"; null APN cases</td>
+</tr>
+<tr>
+<td>Transaction Type</td>
+<td><code>TransactionType.TransactionTypeName</code></td>
+<td style="text-align: right;">366/1244</td>
+<td style="text-align: right;">29%</td>
+<td>XLSX uses <code>ResidentialAllocationType.Description</code> ("Residential Allocation") vs Corral's <code>TransactionType.TransactionTypeName</code> ("Allocation")</td>
+</tr>
+<tr>
+<td>TRPA Status Date</td>
+<td><code>TdrTransaction.ApprovalDate</code></td>
+<td style="text-align: right;">16/1244</td>
+<td style="text-align: right;">1%</td>
+<td>pandas Timestamp vs string normalization issue; real match rate higher</td>
+</tr>
+<tr>
+<td>Local Jurisdiction Project #</td>
+<td><code>ParcelPermit.PermitNumber</code></td>
+<td style="text-align: right;">50/712</td>
+<td style="text-align: right;">7%</td>
+<td>Join by (ParcelID, JurisdictionID) is ambiguous — parcels have many permits; no FK from TdrTransaction to ParcelPermit</td>
+</tr>
+<tr>
+<td>TRPA Status</td>
+<td><code>TransactionState.TransactionStateName</code></td>
+<td style="text-align: right;">0/1244</td>
+<td style="text-align: right;">0%</td>
+<td>XLSX tracks <strong>permit workflow status</strong> ("Issued", "Finaled"), not TDR transaction state ("Proposed"). Different concepts.</td>
+</tr>
+<tr>
+<td>Local Status</td>
+<td><code>ParcelPermitStatus</code> via permit</td>
+<td style="text-align: right;">0/719</td>
+<td style="text-align: right;">0%</td>
+<td>Same bad join as Local Project #</td>
+</tr>
+<tr>
+<td>Local Status Date</td>
+<td>—</td>
+<td style="text-align: right;">0/658</td>
+<td style="text-align: right;">0%</td>
+<td>Same</td>
+</tr>
+<tr>
+<td>Quantity</td>
+<td><code>ReceivingQuantity</code>/<code>AllocatedQuantity</code></td>
+<td style="text-align: right;">0/1243</td>
+<td style="text-align: right;">0%</td>
+<td><strong>Format mismatch only</strong> — "1" (str) vs <code>1.0</code> (float). Real values match.</td>
+</tr>
+<tr>
+<td>Notes</td>
+<td><code>TdrTransaction.Comments</code></td>
+<td style="text-align: right;">0/553</td>
+<td style="text-align: right;">0%</td>
+<td>Different source — XLSX notes come from the permit workflow system, not Corral comments</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Columns in the XLSX that are NOT in Corral at all</strong> (9 of 22):</p>
+<ul>
+<li><code>Allocation Number</code> (e.g., <code>EL-21-O-08</code>) — external coding scheme for issued allocations</li>
+<li><code>Transaction Created Date</code>, <code>Transaction Acknowledged Date</code> — would need <code>TdrTransactionStateHistory</code> joins, not a single column</li>
+<li><code>Development Type</code>, <code>Detailed Development Type</code> — project-narrative descriptors</li>
+<li><code>Status Jan 2026</code> — external snapshot column</li>
+<li><code>TRPA/MOU Project #</code> — permit project ID from a different system</li>
+<li><code>Year Built</code> — county assessor</li>
+<li><code>PM Year Built</code> — property manager / internal tracking</li>
+</ul>
+<p><strong>Implication for schema</strong>: 13 of 22 columns are reproducible from Corral (with some normalization work). 9 are not — they come from a mix of permit workflow state, county assessor records, and internal project tracking. A unified schema needs to decide, per column, whether to (a) extend Corral with new columns/tables, (b) add a properly-joinable permit-workflow table, (c) treat the spreadsheet as a registered external loader keyed on TdrTransactionID.</p>
+<p>The <code>TdrTransaction.AccelaCAPRecordID</code> FK is the strongest bridge we have today — but only 32% of transactions have it populated. Raising that coverage would let us join transactions to their full permit workflow history and pick up several of the "missing" columns as a byproduct.</p>
+<hr />
+<h2 id="what-to-dig-into-next">What to dig into next</h2>
+<ol>
+<li><strong>Physical inventory population strategy</strong> — where does the <code>ExistingResidential*.csv</code> actually come from, and how do we keep it current alongside Corral? (Candidates: county assessors, legacy "Parcel Tracker" exports, GIS building-footprint joins.)</li>
+<li><strong>Transaction ↔ permit linkage</strong> — can we back-fill <code>TdrTransaction.AccelaCAPRecordID</code> for the 68% that are null, using the <code>ParcelPermit.PermitNumber</code> or Accela permit ID in the XLSX?</li>
+<li><strong>Commodity naming alignment</strong> — the 4 closest-to-matching columns (Development Right 72%, APN 83%, Jurisdiction 57%, Transaction Type 29%) all fail on <strong>naming convention</strong> differences. Worth a short reconciliation pass to decide whose vocabulary wins.</li>
+</ol>
+<h2 id="regenerate">Regenerate</h2>
+<pre><code>python erd/validate_auditlog_replay.py
+python erd/validate_transactions_view.py
+</code></pre>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  if (typeof mermaid !== 'undefined') {
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: { darkMode: true, background: '#0b0f14' },
+      er: { useMaxWidth: true },
+      maxTextSize: 500000,
+      securityLevel: 'loose'
+    });
+  }
+</script>
+</body>
+</html>

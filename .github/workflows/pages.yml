@@ -30,6 +30,17 @@ jobs:
           # Auto-enable Pages with Actions as the source if not yet configured.
           enablement: true
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install markdown
+        run: pip install "markdown>=3.6"
+
+      - name: Render erd/*.md to erd/*.html
+        run: python erd/build_md_pages.py
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

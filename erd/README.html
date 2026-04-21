@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>README — TRPA Development-Rights ERD</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --panel: #161b22;
+    --fg: #c9d1d9;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --accent2: #3fb950;
+    --border: #30363d;
+    --code-bg: #161b22;
+  }
+  html, body { background: var(--bg); color: var(--fg); font-family: -apple-system, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; margin: 0; padding: 0; line-height: 1.6; }
+  header.docnav { background: var(--panel); padding: 10px 20px; border-bottom: 1px solid var(--border); font-size: 13px; position: sticky; top: 0; z-index: 10; display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; }
+  header.docnav .brand { font-weight: 600; color: var(--fg); }
+  header.docnav a { color: var(--accent); text-decoration: none; white-space: nowrap; }
+  header.docnav a.active { color: var(--fg); font-weight: 600; }
+  header.docnav a.viewer { color: var(--accent2); }
+  header.docnav a:hover { text-decoration: underline; }
+  main.content { max-width: 920px; margin: 0 auto; padding: 32px 24px 96px; }
+  h1, h2, h3, h4 { color: var(--fg); margin-top: 1.6em; margin-bottom: 0.6em; line-height: 1.25; }
+  h1 { border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-top: 0.5em; }
+  h2 { border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+  p { margin: 0.8em 0; }
+  a { color: var(--accent); }
+  a:hover { text-decoration: underline; }
+  code { background: var(--code-bg); padding: 2px 6px; border-radius: 3px; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 88%; color: #c9d1d9; }
+  pre { background: var(--code-bg); padding: 16px; border-radius: 6px; overflow-x: auto; border: 1px solid var(--border); }
+  pre code { background: none; padding: 0; font-size: 90%; line-height: 1.5; }
+  blockquote { border-left: 3px solid var(--accent); color: var(--muted); margin: 16px 0; padding: 4px 16px; background: rgba(88, 166, 255, 0.04); }
+  blockquote p { margin: 0.4em 0; }
+  table { border-collapse: collapse; margin: 16px 0; display: block; overflow-x: auto; }
+  th, td { border: 1px solid var(--border); padding: 6px 13px; text-align: left; vertical-align: top; }
+  th { background: var(--panel); font-weight: 600; }
+  tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+  ul, ol { padding-left: 28px; }
+  li { margin: 4px 0; }
+  hr { border: 0; border-top: 1px solid var(--border); margin: 32px 0; }
+  .mermaid { background: #0b0f14; padding: 20px; border-radius: 6px; border: 1px solid var(--border); margin: 16px 0; overflow-x: auto; text-align: center; }
+  img { max-width: 100%; }
+</style>
+</head>
+<body>
+<header class="docnav">
+  <span class="brand">TRPA ERD</span>
+  <a href="README.html" class="active">README</a>
+  <a href="target_schema.html">Target Schema</a>
+  <a href="proposed_dashboards.html">Dashboards</a>
+  <a href="cumulative_accounting_reference.html">Cumulative Accounting Reference</a>
+  <a href="raw_data_vs_corral.html">raw_data vs Corral</a>
+  <a href="validation_findings.html">Validation Findings</a>
+  <a href="xlsx_decomposition.html">XLSX Decomposition</a>
+  <a href="corral_tables.html">Corral Tables</a>
+  <a class="viewer" href="development_rights_erd.html">Interactive ERD →</a>
+</header>
+<main class="content">
+<h1 id="erd-proposed-schema-for-trpa-development-rights-tracking">erd/ — Proposed schema for TRPA development-rights tracking</h1>
+<blockquote>
+<p><strong>Status: draft proposal, ready for team review.</strong>
+<strong>Audience: TRPA dev team, Ken, Dan, partner jurisdictions, anyone reviewing the schema design.</strong></p>
+</blockquote>
+<p>This folder holds the proposal for a new set of tables that fold into the
+existing SDE SQL backend (alongside Corral and the enterprise GIS
+geodatabase) to drive three v1 dashboards:</p>
+<ol>
+<li><strong>Cumulative accounting report</strong> (annual; replaces the XLSX)</li>
+<li><strong>Allocation drawdown dashboard</strong> (stacked area by pool × year)</li>
+<li><strong>Parcel history lookup</strong> (per-APN, with change log)</li>
+</ol>
+<p>All of this is anchored on the TRPA Cumulative Accounting framework
+(TRPA Code §16.8.2). The vocabulary is documented in the
+<a href="./cumulative_accounting_reference.html"><code>cumulative_accounting_reference.md</code></a>
+(plain-markdown copy of the Claude skill) so future sessions (and reviewers) share the same terms.</p>
+<hr />
+<h2 id="start-here">Start here</h2>
+<p><strong><a href="./target_schema.html">target_schema.md</a></strong> — the proposal itself. Read this
+first. It has:</p>
+<ul>
+<li>Design principles (never duplicate Corral; five-bucket model; ETL-only writes)</li>
+<li>5 Mermaid ERDs (reference entities · new core tables · movement ledger · permit completion · dashboard outputs)</li>
+<li>Loading strategy (where each table's data comes from)</li>
+<li><strong>Open questions for the team</strong> (~12 items to review)</li>
+<li>Final table list: <strong>8 new physical tables + 1 view + 2 materialized snapshots</strong></li>
+</ul>
+<p><strong><a href="./development_rights_erd.html">development_rights_erd.html</a></strong> — browser-friendly
+viewer. 6 tabs total: 2 showing existing systems (Corral, LTinfo), 4 showing
+the proposed new schema. Pan/zoom with scroll/drag. Dark theme.</p>
+<hr />
+<h2 id="reading-order-by-role">Reading order by role</h2>
+<p><strong>If you're reviewing the schema design (Dan, DB admins, architecture):</strong>
+1. <a href="./target_schema.html">target_schema.md</a> — the proposal
+2. The <code>trpa-cumulative-accounting</code> skill for vocabulary
+3. Go straight to the "Questions for the team" section at the end</p>
+<p><strong>If you want to know why these tables and not others (technical reviewers):</strong>
+1. <a href="./raw_data_vs_corral.html">raw_data_vs_corral.md</a> — what's missing from Corral
+2. <a href="./validation_findings.html">validation_findings.md</a> — empirical proof the spreadsheets can't be replaced by Corral views
+3. <a href="./xlsx_decomposition.html">xlsx_decomposition.md</a> — column-by-column response to "just load the XLSX"</p>
+<p><strong>If you're responsible for Corral, LTinfo, or the GIS systems:</strong>
+1. <a href="./development_rights_erd.md">development_rights_erd.md</a> — existing-systems inventory
+2. <a href="./target_schema.html">target_schema.md</a> <em>Loading strategy</em> section
+3. <a href="./target_schema.html">target_schema.md</a> <em>Reference entities — reused from Corral</em> table</p>
+<p><strong>If you just want the diagrams:</strong>
+- Open <a href="./development_rights_erd.html">development_rights_erd.html</a> in a browser.</p>
+<hr />
+<h2 id="top-questions-we-need-the-team-to-answer">Top questions we need the team to answer</h2>
+<p>Full list in <a href="./target_schema.html">target_schema.md</a>. The three highest-priority:</p>
+<ol>
+<li><strong>ADU modeling</strong> — is ADU a third value in <code>ResidentialAllocationUseType</code>, a
+   flag on the allocation, or a separate concept linked to a parent unit?</li>
+<li><strong><code>PermitAllocation</code> linkage strategy</strong> — Corral has no direct FK between
+   <code>ParcelPermit</code> and <code>ResidentialAllocation</code>; the AccelaID bridge is only
+   32% populated. Prioritize back-filling in Corral, or accept the crosswalk
+   limitations?</li>
+<li><strong>Dashboard refresh cadence</strong> — can we commit to nightly recomputation for
+   <code>PoolDrawdownYearly</code> and <code>CumulativeAccountingSnapshot</code>?</li>
+</ol>
+<hr />
+<h2 id="what-each-file-in-this-folder-is">What each file in this folder is</h2>
+<h3 id="the-proposal">The proposal</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Status</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="./target_schema.html">target_schema.md</a></td>
+<td><strong>Draft — for team review</strong></td>
+<td>The proposal itself. ERD + loading strategy + open questions.</td>
+</tr>
+<tr>
+<td><a href="./proposed_dashboards.html">proposed_dashboards.md</a></td>
+<td>Draft — for team review</td>
+<td>Dashboard &amp; visualization proposal (~25 candidates in 8 clusters); extends the existing <code>allocation_drawdown.html</code> prototype.</td>
+</tr>
+<tr>
+<td><a href="./cumulative_accounting_reference.html">cumulative_accounting_reference.md</a></td>
+<td>Reference</td>
+<td>TRPA Cumulative Accounting framework (plain-markdown copy of the Claude skill) — vocabulary, bucket model, movement types, pool structure.</td>
+</tr>
+<tr>
+<td><a href="./development_rights_erd.html">development_rights_erd.html</a></td>
+<td>Draft</td>
+<td>Browser viewer for all ERDs (existing + proposed).</td>
+</tr>
+</tbody>
+</table>
+<h3 id="supporting-analysis-context-for-the-proposal">Supporting analysis (context for the proposal)</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Status</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="./development_rights_erd.md">development_rights_erd.md</a></td>
+<td>Done</td>
+<td>Inventory of the existing upstream systems (Corral + LTinfo + spreadsheets).</td>
+</tr>
+<tr>
+<td><a href="./raw_data_vs_corral.html">raw_data_vs_corral.md</a></td>
+<td>Done</td>
+<td>Gap analysis — what's in Ken's spreadsheets that Corral doesn't hold.</td>
+</tr>
+<tr>
+<td><a href="./validation_findings.html">validation_findings.md</a></td>
+<td>Done</td>
+<td>Empirical tests against the Feb-2024 Corral snapshot; proves the spreadsheets can't be replaced by Corral views.</td>
+</tr>
+<tr>
+<td><a href="./xlsx_decomposition.html">xlsx_decomposition.md</a></td>
+<td>Done</td>
+<td>Column-by-column analysis of <code>Transactions_Allocations_Details.xlsx</code>. Answers the "just load the XLSX" proposal.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="machine-readable-data-regenerable">Machine-readable data (regenerable)</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="./corral_schema.json">corral_schema.json</a></td>
+<td>Full Corral schema dump (573 tables, 1,041 FKs)</td>
+</tr>
+<tr>
+<td><a href="./corral_tables.html">corral_tables.md</a></td>
+<td>Human-readable Corral table list with row counts</td>
+</tr>
+<tr>
+<td><a href="./ltinfo_services.json">ltinfo_services.json</a></td>
+<td>Probed LTinfo JSON endpoint responses</td>
+</tr>
+<tr>
+<td><a href="./raw_data_inventory.json">raw_data_inventory.json</a></td>
+<td><code>data/raw_data/</code> file catalog</td>
+</tr>
+<tr>
+<td><a href="./validate_auditlog_replay.json">validate_auditlog_replay.json</a></td>
+<td>AuditLog-replay validation results</td>
+</tr>
+<tr>
+<td><a href="./validate_transactions_view.json">validate_transactions_view.json</a></td>
+<td>Transactions-view validation results</td>
+</tr>
+</tbody>
+</table>
+<h3 id="regeneration-scripts-read-only-select-only">Regeneration scripts (read-only, SELECT only)</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="./db_corral.py">db_corral.py</a></td>
+<td>SQLAlchemy read-only engine (Windows Auth + <code>ApplicationIntent=ReadOnly</code>)</td>
+</tr>
+<tr>
+<td><a href="./dump_corral_schema.py">dump_corral_schema.py</a></td>
+<td>Refresh Corral schema dump</td>
+</tr>
+<tr>
+<td><a href="./inventory_ltinfo_services.py">inventory_ltinfo_services.py</a></td>
+<td>Probe LTinfo endpoints</td>
+</tr>
+<tr>
+<td><a href="./compare_raw_data_to_corral.py">compare_raw_data_to_corral.py</a></td>
+<td>Catalog <code>data/raw_data/</code></td>
+</tr>
+<tr>
+<td><a href="./validate_auditlog_replay.py">validate_auditlog_replay.py</a></td>
+<td>Test AuditLog-replay claim</td>
+</tr>
+<tr>
+<td><a href="./validate_transactions_view.py">validate_transactions_view.py</a></td>
+<td>Test transactions-view claim</td>
+</tr>
+<tr>
+<td><a href="./build_erd.py">build_erd.py</a></td>
+<td>Assemble <code>development_rights_erd.md</code></td>
+</tr>
+<tr>
+<td><a href="./build_erd_html.py">build_erd_html.py</a></td>
+<td>Render <code>development_rights_erd.html</code> with tabs for existing + proposed schema</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="architecture-context-one-paragraph">Architecture context (one paragraph)</h2>
+<p>Corral (<code>sql24/Corral</code>) is the LTinfo web-application backend, hosted on an
+SDE-registered SQL Server instance. Our read connection is a Feb-2024 backup
+snapshot — live reads for any production use case go through the LTinfo JSON
+web services at <code>https://www.laketahoeinfo.org/WebServices/*</code>. The future
+Parcel Development History REST service (patterned on
+<a href="https://maps.trpa.org/server/rest/services/Existing_Development/MapServer/2"><code>Existing_Development/MapServer/2</code></a>)
+will live on the same SDE instance and become the authoritative spatial
+source of truth for existing development per parcel per year. <strong>The new
+tables in this proposal fold into that same SDE instance</strong> — no parallel
+database, no cross-DB bridging. Ken's <code>data/raw_data/</code> spreadsheets fill the
+gaps those systems don't hold (pre-2012 baseline, Year Built, TRPA/MOU
+project IDs, completion status) and get loaded via ETL into the new tables.
+Shorezone (Mooring, Pier) is out of scope — handled by a separate system.</p>
+<hr />
+<h2 id="regenerate">Regenerate</h2>
+<p>Uses the ArcGIS Pro Python env (<code>arcgispro-py3</code>) and a <code>.env</code> at the repo root
+with <code>CORRAL_SERVER</code>, <code>CORRAL_DATABASE</code>, and <code>LTINFO_API_KEY</code>.</p>
+<pre><code>python erd/dump_corral_schema.py         # refresh Corral schema dump
+python erd/inventory_ltinfo_services.py  # refresh LTinfo service catalog
+python erd/compare_raw_data_to_corral.py # refresh raw_data inventory
+python erd/build_erd.py                  # rebuild development_rights_erd.md
+python erd/build_erd_html.py             # rebuild development_rights_erd.html
+</code></pre>
+<p>Edit <code>target_schema.md</code> directly to iterate on the proposal; re-run
+<code>build_erd_html.py</code> to pick up new Mermaid blocks as tabs in the viewer.</p>
+<hr />
+<h2 id="how-to-give-feedback">How to give feedback</h2>
+<ul>
+<li><strong>On specific entities or fields</strong>: comment on the relevant section of
+  <a href="./target_schema.html">target_schema.md</a>.</li>
+<li><strong>On the open questions</strong>: reply with your preferred option (or a new one).</li>
+<li><strong>On the overall shape</strong>: look at the HTML viewer; comment on what's
+  missing, duplicated, or in the wrong place.</li>
+<li><strong>On the "just load the XLSX" question</strong>: see <a href="./xlsx_decomposition.html">xlsx_decomposition.md</a>
+  for the column-by-column response.</li>
+</ul>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  if (typeof mermaid !== 'undefined') {
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: { darkMode: true, background: '#0b0f14' },
+      er: { useMaxWidth: true },
+      maxTextSize: 500000,
+      securityLevel: 'loose'
+    });
+  }
+</script>
+</body>
+</html>
