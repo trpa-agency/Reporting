@@ -156,33 +156,51 @@ HTML_TEMPLATE_BOTTOM = r"""
     securityLevel: 'loose'
   });
 
+  const rendered = {};
+
   async function renderAll() {
+    // Pass 1: render every Mermaid source into its host (works even while hidden).
     for (const v of VIEWS) {
       const host = document.getElementById('mm-' + v.key);
-      const src = host.textContent;
       try {
         status.textContent = 'rendering ' + v.label + '...';
-        const { svg } = await mermaid.render('svg-' + v.key, src);
+        const { svg } = await mermaid.render('svg-' + v.key, host.textContent);
         host.innerHTML = svg;
         const svgEl = host.querySelector('svg');
-        svgEl.removeAttribute('width');
-        svgEl.removeAttribute('height');
-        svgEl.removeAttribute('style');
-        svgEl.style.width = '100%';
-        svgEl.style.height = '100%';
-        svgEl.style.maxWidth = 'none';
-        svgEl.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-        panzooms[v.key] = svgPanZoom(svgEl, {
-          zoomEnabled: true, controlIconsEnabled: false, fit: true, center: true,
-          contain: false, minZoom: 0.05, maxZoom: 30
-        });
-        requestAnimationFrame(() => { panzooms[v.key].resize(); panzooms[v.key].fit(); panzooms[v.key].center(); });
+        if (svgEl) {
+          svgEl.removeAttribute('width');
+          svgEl.removeAttribute('height');
+          svgEl.removeAttribute('style');
+          svgEl.style.width = '100%';
+          svgEl.style.height = '100%';
+          svgEl.style.maxWidth = 'none';
+          svgEl.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+          rendered[v.key] = true;
+        }
       } catch (e) {
-        host.innerHTML = '<pre style="color:#f85149;padding:16px;white-space:pre-wrap">' + e.message + '</pre>';
+        host.innerHTML = '<pre style="color:#f85149;padding:16px;white-space:pre-wrap">' + v.label + ':\n' + (e.message || e) + '</pre>';
       }
     }
     status.textContent = 'ready \u2014 scroll to zoom, drag to pan';
-    activate(VIEWS[0].key);
+    // Pass 2: init pan/zoom for the initially visible tab only.
+    initPanZoom(VIEWS[0].key);
+  }
+
+  function initPanZoom(key) {
+    if (panzooms[key] || !rendered[key]) return;
+    const svgEl = document.querySelector('#mm-' + key + ' svg');
+    if (!svgEl) return;
+    try {
+      panzooms[key] = svgPanZoom(svgEl, {
+        zoomEnabled: true, controlIconsEnabled: false, fit: true, center: true,
+        contain: false, minZoom: 0.05, maxZoom: 30
+      });
+      requestAnimationFrame(() => {
+        if (panzooms[key]) { panzooms[key].resize(); panzooms[key].fit(); panzooms[key].center(); }
+      });
+    } catch (e) {
+      console.error('svgPanZoom failed for', key, e);
+    }
   }
 
   function activate(key) {
@@ -190,7 +208,11 @@ HTML_TEMPLATE_BOTTOM = r"""
     const target = document.getElementById('view-' + key);
     if (target) target.classList.add('active');
     document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('active', a.dataset.view === key));
-    if (panzooms[key]) { panzooms[key].resize(); panzooms[key].fit(); panzooms[key].center(); }
+    // Lazy-init pan/zoom now that the tab is visible + has dimensions.
+    if (!panzooms[key]) initPanZoom(key);
+    if (panzooms[key]) {
+      requestAnimationFrame(() => { panzooms[key].resize(); panzooms[key].fit(); panzooms[key].center(); });
+    }
   }
 
   const active = () => {
