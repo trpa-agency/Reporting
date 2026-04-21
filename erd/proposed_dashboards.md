@@ -2,6 +2,7 @@
 
 > **Status: draft proposal, ready for team review.**
 > **Audience: TRPA dev team, Dan, stakeholder leads (governing board, partner jurisdictions, developers, public).**
+> **Buildability review**: every entry below is marked ✅ (buildable at v1 with the current target_schema.md), 🟡 (buildable v1 with a caveat), or 🟥 (not buildable v1 — missing upstream data or a schema feature deferred to v2).
 
 The allocation drawdown prototype at [html/allocation_drawdown.html](../html/allocation_drawdown.html)
 proves the stack works: Plotly.js + the TRPA dashboard brand, pulling from
@@ -94,7 +95,7 @@ drawdown prototype.
 - **Data**: `vCommodityLedger` filtered by `FromPoolID` or `ToPoolID`.
 - **Complexity**: M. Timeline + filterable table.
 
-### B3. Allocation Pipeline Funnel (v1)
+### B3. Allocation Pipeline Funnel 🟡 (v1 with caveat)
 
 - **What it shows**: Funnel chart showing allocation lifecycle — Released →
   Assigned → InPermit → Used → Expired. Counts and conversion rates between
@@ -102,11 +103,13 @@ drawdown prototype.
 - **Audience**: Staff answering "how many allocations we release actually
   get built?"
 - **Data**: `dbo.ResidentialAllocation` joined to `dbo.ParcelPermit` via
-  `PermitAllocation`; status transitions from `vCommodityLedger`.
+  `vPermitAllocation`; status transitions from `vCommodityLedger`.
 - **Complexity**: M.
-- **Open question**: Depends on Q7 (PermitAllocation linkage) — if the
-  AccelaID bridge stays at 32% coverage, the funnel has a confidence
-  caveat.
+- **🟡 Caveat**: `vPermitAllocation` Phase 1 has ~32% AccelaID coverage. The
+  "InPermit → Used" stage shows 32% of reality. Ship v1 **with a prominent
+  "confidence: Phase 1 coverage ~32%" badge**; coverage improves when
+  Phase 2 back-fills `dbo.TdrTransaction.AccelaCAPRecordID` from Ken's XLSX
+  (see Q7 in target_schema.md).
 
 ### B4. Expired Allocation Heatmap (v2)
 
@@ -137,7 +140,7 @@ where we visualize that.
 - **Why it matters**: The existing `Parcel_Transfers` FC in `Scratch.gdb`
   already has this data pre-computed; we're productionizing it.
 
-### C2. SEZ-Out / Town-Center-In Tracker (v1)
+### C2. SEZ-Out / Town-Center-In Tracker ✅ (v1)
 
 - **What it shows**: Running counters: "cumulative RES / TAU / CFA moved out
   of SEZ since 2013" and "moved into town centers since 2013." Year
@@ -147,19 +150,18 @@ where we visualize that.
 - **Data**: `vCommodityLedger` + `ParcelSpatialAttribute` for `WithinSEZ`
   and `TownCenter` flags at both sending + receiving parcels.
 - **Complexity**: M.
-- **Open question**: Need to add `WithinSEZ` to `ParcelSpatialAttribute`?
-  The FC has `EXISTING_LANDUSE` but no explicit SEZ flag — derived from
-  Bailey rating = 1. Do we compute this once or per-query?
+- **Prerequisite addressed**: `WithinSEZ` is now explicitly a column in
+  `ParcelSpatialAttribute` (derived at load from Bailey rating 1a/1b/1c).
 
-### C3. Commodity Conversion Sankey (v2)
+### C3. Commodity Conversion Sankey ✅ (v1)
 
 - **What it shows**: Sankey diagram of conversions: left side = source
   commodities, right side = target commodities. Flow thickness = total units
   converted. Filter by year / jurisdiction.
 - **Audience**: Planning staff tracking type-balance shifts (from the skill:
   post-2018 net is +157 RES / −65 TAU / −30,500 CFA).
-- **Data**: `vCommodityLedger WHERE MovementType IN ('CONV','CONVTRF')` +
-  the `PairedEntryID` links.
+- **Data**: `vCommodityLedger WHERE MovementType IN ('CONV','CONVTRF')`
+  grouped by `PairingKey` (now exposed by the view; see target_schema.md).
 - **Complexity**: M.
 
 ---
@@ -186,7 +188,7 @@ For staff tracking permit workflow and construction cadence.
 - **Data**: `dbo.ParcelPermit.IssuedDate` + `PermitCompletion.YearBuilt`.
 - **Complexity**: S.
 
-### D3. Active Construction Map (v1)
+### D3. Active Construction Map 🟥 (v2 — needs live Accela)
 
 - **What it shows**: Parcels with permits in "Under Construction" status,
   colored by permit age. Hover for permit detail. Staff can see what's
@@ -195,6 +197,10 @@ For staff tracking permit workflow and construction cadence.
 - **Data**: `PermitCompletion.CompletionStatusEnriched='UnderConstruction'`
   joined to parcel geometry.
 - **Complexity**: M.
+- **🟥 Blocker for v1**: Ken's XLSX carries permit status as a static
+  snapshot (`Status Jan 2026`) — not live. "Under Construction" status needs
+  a direct Accela feed to be trustworthy in real time. Defer until Accela
+  integration lands.
 
 ---
 
@@ -253,13 +259,15 @@ Directly serves Dan's ask for "a separate database of change rationale."
   parcel geometry.
 - **Complexity**: S.
 
-### F2. Banked → Rebuilt Conversion Rate (v2)
+### F2. Banked → Rebuilt Conversion Rate ✅ (v1)
 
 - **What it shows**: Of all rights banked in year Y, what fraction have been
   unbanked/rebuilt vs still sitting? Cohort analysis.
 - **Audience**: Policy analysis.
 - **Data**: `vCommodityLedger WHERE MovementType IN ('Banking','Unbanking')`.
 - **Complexity**: M.
+- **Prerequisite addressed**: `Unbanking` is now a first-class MovementType
+  in `vCommodityLedger` and a column in `PoolDrawdownYearly`.
 
 ---
 
