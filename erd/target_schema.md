@@ -6,6 +6,11 @@ Accounting framework (TRPA Code §16.8.2). See
 [.claude/skills/trpa-cumulative-accounting/SKILL.md](../.claude/skills/trpa-cumulative-accounting/SKILL.md)
 for the full vocabulary.
 
+> **Scope**: residential (SFRUU, MFRUU, RBU, ADU), tourist accommodation
+> (TAU), commercial floor area (CFA). **Shorezone** (Mooring, Pier,
+> `ShorezoneAllocation`, SHORE transaction type) is handled by a separate
+> system and **out of scope**. PAOT and mitigation funds are deferred to v2+.
+
 > **This is an ERD proposal, not DDL.** Captures entities, attributes, and
 > relationships for review before CREATE TABLE statements.
 
@@ -20,7 +25,7 @@ Corral and the enterprise GIS geodatabase. That means:
 - **Reference data is reused, not duplicated.** `Commodity`, `Jurisdiction`,
   `BaileyRating`, `LandCapabilityType`, `CommodityPool`, `TransactionType`,
   `ResidentialAllocationType`, `ResidentialAllocationUseType`,
-  `ShorezoneAllocationType` all stay in Corral as-is. We FK into them.
+  all stay in Corral as-is. We FK into them.
 - **Publishing via ESRI is native.** SDE-registered tables can be exposed as
   MapServer / FeatureServer layers (like
   [Existing_Development/MapServer/2](https://maps.trpa.org/server/rest/services/Existing_Development/MapServer/2) — the future **Parcel Development History** service).
@@ -53,11 +58,9 @@ you can see what the new tables FK into.
 | `dbo.TransactionType` | 9 | The 9 canonical transaction types — see below |
 | `dbo.ResidentialAllocationType` | 4 | **Allocation source**: Original, Reissued, LitigationSettlement, AllocationPool |
 | `dbo.ResidentialAllocationUseType` | 2 | **Allocation use**: SingleFamily, MultiFamily |
-| `dbo.ShorezoneAllocationType` | 2 | Mooring, Pier |
 | `dbo.Parcel` | 72K | Canonical parcel identity + geometry |
 | `dbo.ParcelGenealogy` | 2.4K | Parent/Child parcel links (skeleton — enriched by new table below) |
 | `dbo.ResidentialAllocation` | 1.9K | Allocation records (FK target; not redefined) |
-| `dbo.ShorezoneAllocation` | 374 | Shorezone allocation records |
 | `dbo.TdrTransaction` + family | 2K | Transaction records — become inputs to the ledger |
 | `dbo.AccelaCAPRecord` + `dbo.ParcelAccelaCAPRecord` | 124K / 179K | Accela bridge |
 | `dbo.ParcelPermit` | 1.3K | Permit records — we extend, not replace |
@@ -74,10 +77,10 @@ you can see what the new tables FK into.
 | 3 | LitigationSettlement | LS | Litigation Settlement |
 | 4 | AllocationPool | AP | Allocation Pool |
 
-My earlier sketch of `Allocation | BonusUnit | Shorezone | ADU` was wrong —
-those aren't types, they're either sub-entities (ShorezoneAllocation,
-ResidentialBonusUnit) or modeled elsewhere (ADU probably as a flag on the
-permit or as a `ResidentialAllocationUseType` value to be added).
+My earlier sketch of `Allocation | BonusUnit | ADU` was wrong — those aren't
+types, they're either sub-entities (`ResidentialBonusUnit`) or modeled
+elsewhere (ADU probably as a flag on the permit or as a
+`ResidentialAllocationUseType` value to be added).
 
 **`dbo.ResidentialAllocationUseType`**:
 
@@ -98,7 +101,9 @@ permit or as a `ResidentialAllocationUseType` value to be added).
 | 7 | Allocation Assignment | ALLOCASSGN | | ✓ | | |
 | 8 | Conversion With Transfer | CONVTRF | ✓ | ✓ | | |
 | 9 | Land Bank Transfer | LBT | | ✓ | | ✓ |
-| 10 | Shorezone Allocation | SHORE | | ✓ | | |
+
+(ID 10 — Shorezone Allocation — is handled by the separate shorezone system
+and **out of scope** for this schema.)
 
 **`dbo.CommodityPool` — no formal PoolType column.** Pool type is encoded in
 the pool name. Empirical classification by commodity:
@@ -110,8 +115,6 @@ the pool name. Empirical classification by commodity:
 | TAU | 0 | 0 | 1 | 4 | 0 | 21 |
 | PAOT | 0 | 0 | 9 | 0 | 0 | 43 |
 | Res. Alloc. | 0 | 0 | 0 | 0 | 0 | 9 |
-| Moor. Alloc. | 0 | 0 | 0 | 0 | 0 | 3 |
-| Pier Alloc. | 0 | 0 | 0 | 0 | 0 | 5 |
 
 Recommendation: **don't add a `PoolType` enum column to `CommodityPool`**.
 Instead add a derived classification in the ETL layer or a view — parses
@@ -250,7 +253,7 @@ erDiagram
         date EntryDate
         int CommodityID FK "dbo.Commodity"
         int Quantity "signed: + deposits, - withdrawals"
-        varchar MovementType "ALLOC, ALLOCASSGN, CONV, CONVTRF, ECM, LBA, LBT, SHORE, TRF, Banking, QACorrection"
+        varchar MovementType "ALLOC, ALLOCASSGN, CONV, CONVTRF, ECM, LBA, LBT, TRF, Banking, QACorrection"
         varchar FromBucketType "UnusedPool, BonusPool, Allocated, Existing, Banked, LandBank, OutOfSystem"
         varchar ToBucketType "UnusedPool, BonusPool, Allocated, Existing, Banked, LandBank, OutOfSystem"
         int FromPoolID FK "dbo.CommodityPool"
@@ -281,7 +284,6 @@ erDiagram
 | ECM | ECM | Existing → OutOfSystem |
 | LBA | LBA | Existing → LandBank |
 | LBT | LBT | LandBank → Existing |
-| SHORE | SHORE | UnusedPool → Allocated (shorezone-specific) |
 | (none — Corral event) | Banking | Existing → Banked (derived from `ParcelPermitBankedDevelopmentRight` + `BankedQuantity`) |
 | (none — manual) | QACorrection | any → any (operator-driven; `ChangeSource='qa_correction'` on the linked change event) |
 
