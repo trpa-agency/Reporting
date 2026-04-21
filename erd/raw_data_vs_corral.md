@@ -11,7 +11,7 @@
 > schema closes each gap below.** This doc is the diagnostic;
 > `target_schema.md` is the treatment plan, anchored on the TRPA Cumulative
 > Accounting framework (see
-> [.claude/skills/trpa-cumulative-accounting/SKILL.md](../.claude/skills/trpa-cumulative-accounting/SKILL.md)).
+> [cumulative_accounting_reference.md](./cumulative_accounting_reference.md)).
 
 > **Context correction**: Corral IS the LTinfo backend. The `sql24/Corral`
 > snapshot is a Feb-2024 backup; live data flows through LTinfo JSON web
