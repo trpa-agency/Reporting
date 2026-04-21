@@ -1,0 +1,1467 @@
+[
+  {
+    "file": "Accela genealogy from addresses.xlsx",
+    "kind": "xlsx",
+    "sheets": {
+      "Sheet1": {
+        "columns": [
+          "Parcel Address",
+          "Unnamed: 1"
+        ],
+        "sample": [
+          {
+            "Parcel Address": "185 YELLOW JACKET RD",
+            "Unnamed: 1": "001-080-21, 1418-10-801-005"
+          },
+          {
+            "Parcel Address": "187 YELLOW JACKET RD",
+            "Unnamed: 1": "001-080-27, 1418-10-801-006"
+          },
+          {
+            "Parcel Address": "188 HUNTINGTON RD",
+            "Unnamed: 1": "001-080-28, 1418-10-801-011"
+          }
+        ]
+      },
+      "Sheet2": {
+        "columns": [
+          "Parcel Address",
+          "Count of APNs",
+          "Unnamed: 2",
+          "Unnamed: 3"
+        ],
+        "sample": [
+          {
+            "Parcel Address": "185 YELLOW JACKET RD",
+            "Count of APNs": "2",
+            "Unnamed: 2": "001-080-21",
+            "Unnamed: 3": "1418-10-801-005"
+          },
+          {
+            "Parcel Address": "187 YELLOW JACKET RD",
+            "Count of APNs": "2",
+            "Unnamed: 2": "001-080-27",
+            "Unnamed: 3": "1418-10-801-006"
+          },
+          {
+            "Parcel Address": "188 HUNTINGTON RD",
+            "Count of APNs": "2",
+            "Unnamed: 2": "001-080-28",
+            "Unnamed: 3": "1418-10-801-011"
+          }
+        ]
+      },
+      "Sheet3": {
+        "columns": [
+          "Old",
+          "New",
+          "Old1"
+        ],
+        "sample": [
+          {
+            "Old": "001-080-21",
+            "New": "1418-10-801-005",
+            "Old1": "001-080-21"
+          },
+          {
+            "Old": "001-080-27",
+            "New": "1418-10-801-006",
+            "Old1": "001-080-27"
+          },
+          {
+            "Old": "001-080-28",
+            "New": "1418-10-801-011",
+            "Old1": "001-080-28"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "file": "Accela_Genealogy_March2026.xlsx",
+    "kind": "xlsx",
+    "sheets": {
+      "GENEALOGY": {
+        "columns": [
+          "GEN_SOURCE",
+          "GEN_SEQ_NBR",
+          "GEN_TRAN_ID",
+          "OBJECT_TYPE",
+          "OBJECT_NBR",
+          "GEN_STAGE_NBR",
+          "REC_DATE",
+          "REC_FUL_NAM",
+          "REC_STATUS"
+        ],
+        "sample": [
+          {
+            "GEN_SOURCE": "115",
+            "GEN_SEQ_NBR": "1",
+            "GEN_TRAN_ID": "1",
+            "OBJECT_TYPE": "PARCEL",
+            "OBJECT_NBR": "001-070-27",
+            "GEN_STAGE_NBR": "2",
+            "REC_DATE": "2021-12-08 10:30:03.693000",
+            "REC_FUL_NAM": "AA CONV",
+            "REC_STATUS": "A"
+          },
+          {
+            "GEN_SOURCE": "115",
+            "GEN_SEQ_NBR": "2",
+            "GEN_TRAN_ID": "1",
+            "OBJECT_TYPE": "PARCEL",
+            "OBJECT_NBR": "001-070-18",
+            "GEN_STAGE_NBR": "1",
+            "REC_DATE": "2021-12-08 10:30:03.693000",
+            "REC_FUL_NAM": "AA CONV",
+            "REC_STATUS": "A"
+          },
+          {
+            "GEN_SOURCE": "115",
+            "GEN_SEQ_NBR": "3",
+            "GEN_TRAN_ID": "1",
+            "OBJECT_TYPE": "PARCEL",
+            "OBJECT_NBR": "001-070-19",
+            "GEN_STAGE_NBR": "1",
+            "REC_DATE": "2021-12-08 10:30:03.707000",
+            "REC_FUL_NAM": "AA CONV",
+            "REC_STATUS": "A"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "file": "CommercialFloorArea_2012to2025.csv",
+    "kind": "csv",
+    "rows": 1500,
+    "columns": [
+      "Row Labels",
+      "CY2012",
+      "CY2013",
+      "CY2014",
+      "CY2015",
+      "CY2016",
+      "CY2017",
+      "CY2018",
+      "CY2019",
+      "CY2020",
+      "CY2021",
+      "CY2022",
+      "CY2023",
+      "CY2024",
+      "CY2025"
+    ],
+    "sample": [
+      {
+        "Row Labels": "015-331-04",
+        "CY2012": "1886",
+        "CY2013": "1886",
+        "CY2014": "1886",
+        "CY2015": "1886",
+        "CY2016": "1886",
+        "CY2017": "1886",
+        "CY2018": "",
+        "CY2019": "",
+        "CY2020": "",
+        "CY2021": "",
+        "CY2022": "",
+        "CY2023": "",
+        "CY2024": "",
+        "CY2025": ""
+      },
+      {
+        "Row Labels": "015-331-004",
+        "CY2012": "",
+        "CY2013": "",
+        "CY2014": "",
+        "CY2015": "",
+        "CY2016": "",
+        "CY2017": "",
+        "CY2018": "1886",
+        "CY2019": "1886",
+        "CY2020": "1886",
+        "CY2021": "1886",
+        "CY2022": "1886",
+        "CY2023": "1886",
+        "CY2024": "1886",
+        "CY2025": "1886"
+      },
+      {
+        "Row Labels": "015-331-10",
+        "CY2012": "5862",
+        "CY2013": "5862",
+        "CY2014": "5862",
+        "CY2015": "5862",
+        "CY2016": "5862",
+        "CY2017": "5862",
+        "CY2018": "",
+        "CY2019": "",
+        "CY2020": "",
+        "CY2021": "",
+        "CY2022": "",
+        "CY2023": "",
+        "CY2024": "",
+        "CY2025": ""
+      }
+    ]
+  },
+  {
+    "file": "ExistingResidential_2012_2025_unstacked.csv",
+    "kind": "csv",
+    "rows": 42499,
+    "columns": [
+      "APN",
+      "2012 Final",
+      "2013 Final",
+      "2014 Final",
+      "2015 Final",
+      "2016 Final",
+      "2017 Final",
+      "2018 Final",
+      "2019 Final",
+      "2020 Final",
+      "2021 Final",
+      "2022 Final",
+      "2023 Final",
+      "2024 Final",
+      "2025 Final"
+    ],
+    "sample": [
+      {
+        "APN": "007-011-01",
+        "2012 Final": "1",
+        "2013 Final": "1",
+        "2014 Final": "1",
+        "2015 Final": "1",
+        "2016 Final": "1",
+        "2017 Final": "1",
+        "2018 Final": "1",
+        "2019 Final": "1",
+        "2020 Final": "1",
+        "2021 Final": "1",
+        "2022 Final": "1",
+        "2023 Final": "1",
+        "2024 Final": "1",
+        "2025 Final": "1"
+      },
+      {
+        "APN": "007-011-23",
+        "2012 Final": "3",
+        "2013 Final": "3",
+        "2014 Final": "3",
+        "2015 Final": "3",
+        "2016 Final": "3",
+        "2017 Final": "3",
+        "2018 Final": "3",
+        "2019 Final": "3",
+        "2020 Final": "3",
+        "2021 Final": "3",
+        "2022 Final": "3",
+        "2023 Final": "3",
+        "2024 Final": "3",
+        "2025 Final": "3"
+      },
+      {
+        "APN": "014-021-11",
+        "2012 Final": "1",
+        "2013 Final": "1",
+        "2014 Final": "1",
+        "2015 Final": "1",
+        "2016 Final": "1",
+        "2017 Final": "1",
+        "2018 Final": "1",
+        "2019 Final": "1",
+        "2020 Final": "1",
+        "2021 Final": "1",
+        "2022 Final": "1",
+        "2023 Final": "1",
+        "2024 Final": "1",
+        "2025 Final": "1"
+      }
+    ]
+  },
+  {
+    "file": "FINAL-2026-Cumulative-Accounting_ALL_04032026.xlsx",
+    "kind": "xlsx",
+    "sheets": {
+      "Summary": {
+        "columns": [
+          "Final 2026 Cumulative Accounting"
+        ],
+        "sample": [
+          {
+            "Final 2026 Cumulative Accounting": "As of April 3, 2026"
+          }
+        ]
+      },
+      "Residential Details": {
+        "columns": [
+          "APN",
+          "2012 Final",
+          "2013 Final",
+          "2014 Final",
+          "2015 Final",
+          "2016 Final",
+          "2017 Final",
+          "2018 Final",
+          "2019 Final",
+          "2020 Final",
+          "2021 Final",
+          "2022 Final",
+          "2023 Final",
+          "2024 Final",
+          "2025 Final"
+        ],
+        "sample": [
+          {
+            "APN": "007-011-01",
+            "2012 Final": "1",
+            "2013 Final": "1",
+            "2014 Final": "1",
+            "2015 Final": "1",
+            "2016 Final": "1",
+            "2017 Final": "1",
+            "2018 Final": "1",
+            "2019 Final": "1",
+            "2020 Final": "1",
+            "2021 Final": "1",
+            "2022 Final": "1",
+            "2023 Final": "1",
+            "2024 Final": "1",
+            "2025 Final": "1"
+          },
+          {
+            "APN": "007-011-23",
+            "2012 Final": "3",
+            "2013 Final": "3",
+            "2014 Final": "3",
+            "2015 Final": "3",
+            "2016 Final": "3",
+            "2017 Final": "3",
+            "2018 Final": "3",
+            "2019 Final": "3",
+            "2020 Final": "3",
+            "2021 Final": "3",
+            "2022 Final": "3",
+            "2023 Final": "3",
+            "2024 Final": "3",
+            "2025 Final": "3"
+          },
+          {
+            "APN": "014-021-11",
+            "2012 Final": "1",
+            "2013 Final": "1",
+            "2014 Final": "1",
+            "2015 Final": "1",
+            "2016 Final": "1",
+            "2017 Final": "1",
+            "2018 Final": "1",
+            "2019 Final": "1",
+            "2020 Final": "1",
+            "2021 Final": "1",
+            "2022 Final": "1",
+            "2023 Final": "1",
+            "2024 Final": "1",
+            "2025 Final": "1"
+          }
+        ]
+      },
+      "TAU Details": {
+        "columns": [
+          "APN",
+          "CY2012",
+          "CY2013",
+          "CY2014",
+          "CY2015",
+          "CY2016",
+          "CY2017",
+          "CY2018",
+          "CY2019",
+          "CY2020",
+          "CY2021",
+          "CY2022",
+          "CY2023",
+          "CY2024",
+          "CY2025"
+        ],
+        "sample": [
+          {
+            "APN": "015-331-004",
+            "CY2012": "",
+            "CY2013": "",
+            "CY2014": "",
+            "CY2015": "",
+            "CY2016": "",
+            "CY2017": "",
+            "CY2018": "7",
+            "CY2019": "7",
+            "CY2020": "7",
+            "CY2021": "7",
+            "CY2022": "7",
+            "CY2023": "7",
+            "CY2024": "7",
+            "CY2025": "7"
+          },
+          {
+            "APN": "015-331-005",
+            "CY2012": "",
+            "CY2013": "",
+            "CY2014": "",
+            "CY2015": "",
+            "CY2016": "",
+            "CY2017": "",
+            "CY2018": "12",
+            "CY2019": "12",
+            "CY2020": "12",
+            "CY2021": "12",
+            "CY2022": "12",
+            "CY2023": "12",
+            "CY2024": "12",
+            "CY2025": "12"
+          },
+          {
+            "APN": "015-331-04",
+            "CY2012": "7",
+            "CY2013": "7",
+            "CY2014": "7",
+            "CY2015": "7",
+            "CY2016": "7",
+            "CY2017": "7",
+            "CY2018": "",
+            "CY2019": "",
+            "CY2020": "",
+            "CY2021": "",
+            "CY2022": "",
+            "CY2023": "",
+            "CY2024": "",
+            "CY2025": ""
+          }
+        ]
+      },
+      "CFA Details": {
+        "columns": [
+          "Row Labels",
+          "CY2012",
+          "CY2013",
+          "CY2014",
+          "CY2015",
+          "CY2016",
+          "CY2017",
+          "CY2018",
+          "CY2019",
+          "CY2020",
+          "CY2021",
+          "CY2022",
+          "CY2023",
+          "CY2024",
+          "CY2025"
+        ],
+        "sample": [
+          {
+            "Row Labels": "015-331-04",
+            "CY2012": "1886",
+            "CY2013": "1886",
+            "CY2014": "1886",
+            "CY2015": "1886",
+            "CY2016": "1886",
+            "CY2017": "1886",
+            "CY2018": "",
+            "CY2019": "",
+            "CY2020": "",
+            "CY2021": "",
+            "CY2022": "",
+            "CY2023": "",
+            "CY2024": "",
+            "CY2025": ""
+          },
+          {
+            "Row Labels": "015-331-004",
+            "CY2012": "",
+            "CY2013": "",
+            "CY2014": "",
+            "CY2015": "",
+            "CY2016": "",
+            "CY2017": "",
+            "CY2018": "1886",
+            "CY2019": "1886",
+            "CY2020": "1886",
+            "CY2021": "1886",
+            "CY2022": "1886",
+            "CY2023": "1886",
+            "CY2024": "1886",
+            "CY2025": "1886"
+          },
+          {
+            "Row Labels": "015-331-10",
+            "CY2012": "5862",
+            "CY2013": "5862",
+            "CY2014": "5862",
+            "CY2015": "5862",
+            "CY2016": "5862",
+            "CY2017": "5862",
+            "CY2018": "",
+            "CY2019": "",
+            "CY2020": "",
+            "CY2021": "",
+            "CY2022": "",
+            "CY2023": "",
+            "CY2024": "",
+            "CY2025": ""
+          }
+        ]
+      }
+    }
+  },
+  {
+    "file": "LTinfo_Parcel_Genealogy.xlsx",
+    "kind": "xlsx",
+    "sheets": {
+      "Sheet1": {
+        "columns": [
+          "APN",
+          "PreviousAPNs",
+          "NewAPNs"
+        ],
+        "sample": [
+          {
+            "APN": "001-010-11",
+            "PreviousAPNs": "",
+            "NewAPNs": "001-010-13"
+          },
+          {
+            "APN": "001-010-13",
+            "PreviousAPNs": "001-010-11",
+            "NewAPNs": "1418-00-001-010"
+          },
+          {
+            "APN": "001-020-01",
+            "PreviousAPNs": "",
+            "NewAPNs": "1418-00-001-001"
+          }
+        ]
+      },
+      "Sheet2": {
+        "columns": [
+          "ParentAPN",
+          "ChildAPN"
+        ],
+        "sample": [
+          {
+            "ParentAPN": "001-010-11",
+            "ChildAPN": "001-010-13"
+          },
+          {
+            "ParentAPN": "001-010-13",
+            "ChildAPN": "1418-00-001-010"
+          },
+          {
+            "ParentAPN": "001-020-01",
+            "ChildAPN": "1418-00-001-001"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "file": "Parcel Genealogy Lookups KK.xlsx",
+    "kind": "xlsx",
+    "sheets": {
+      "Sheet1": {
+        "columns": [
+          "APN",
+          "Fill IN"
+        ],
+        "sample": [
+          {
+            "APN": "015-102-031",
+            "Fill IN": "015-102-31"
+          },
+          {
+            "APN": "015-322-28",
+            "Fill IN": "015-322-12"
+          },
+          {
+            "APN": "015-370-30",
+            "Fill IN": "015-370-11"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "file": "TouristUnits_2012to2025.csv",
+    "kind": "csv",
+    "rows": 378,
+    "columns": [
+      "APN",
+      "CY2012",
+      "CY2013",
+      "CY2014",
+      "CY2015",
+      "CY2016",
+      "CY2017",
+      "CY2018",
+      "CY2019",
+      "CY2020",
+      "CY2021",
+      "CY2022",
+      "CY2023",
+      "CY2024",
+      "CY2025"
+    ],
+    "sample": [
+      {
+        "APN": "015-331-004",
+        "CY2012": "",
+        "CY2013": "",
+        "CY2014": "",
+        "CY2015": "",
+        "CY2016": "",
+        "CY2017": "",
+        "CY2018": "7",
+        "CY2019": "7",
+        "CY2020": "7",
+        "CY2021": "7",
+        "CY2022": "7",
+        "CY2023": "7",
+        "CY2024": "7",
+        "CY2025": "7"
+      },
+      {
+        "APN": "015-331-005",
+        "CY2012": "",
+        "CY2013": "",
+        "CY2014": "",
+        "CY2015": "",
+        "CY2016": "",
+        "CY2017": "",
+        "CY2018": "12",
+        "CY2019": "12",
+        "CY2020": "12",
+        "CY2021": "12",
+        "CY2022": "12",
+        "CY2023": "12",
+        "CY2024": "12",
+        "CY2025": "12"
+      },
+      {
+        "APN": "015-331-04",
+        "CY2012": "7",
+        "CY2013": "7",
+        "CY2014": "7",
+        "CY2015": "7",
+        "CY2016": "7",
+        "CY2017": "7",
+        "CY2018": "",
+        "CY2019": "",
+        "CY2020": "",
+        "CY2021": "",
+        "CY2022": "",
+        "CY2023": "",
+        "CY2024": "",
+        "CY2025": ""
+      }
+    ]
+  },
+  {
+    "file": "Transactions_Allocations_Details.xlsx",
+    "kind": "xlsx",
+    "sheets": {
+      "Sheet1": {
+        "columns": [
+          "TransactionID",
+          "Transaction Type",
+          "APN",
+          "Jurisdiction",
+          "Development Right",
+          "Allocation Number",
+          "Quantity",
+          "Transaction Record ID",
+          "Transaction Created Date",
+          "Transaction Acknowledged Date",
+          "Development Type",
+          "Detailed Development Type",
+          "Status Jan 2026",
+          "TRPA/MOU Project #",
+          "TRPA Status",
+          "TRPA Status Date",
+          "Local Jurisdiction Project #",
+          "Local Status",
+          "Local Status Date",
+          "Year Built",
+          "PM Year Built",
+          "Notes"
+        ],
+        "sample": [
+          {
+            "TransactionID": "",
+            "Transaction Type": "",
+            "APN": "1318-22-311-001",
+            "Jurisdiction": "DG",
+            "Development Right": "Multi-Family Residential Unit of Use (MFRUU)",
+            "Allocation Number": "",
+            "Quantity": "1",
+            "Transaction Record ID": "",
+            "Transaction Created Date": "",
+            "Transaction Acknowledged Date": "",
+            "Development Type": "Banked Unit",
+            "Detailed Development Type": "Multi-Family Condo Unit from Banked of Multi-Family Unit (Beach Club)",
+            "Status Jan 2026": "Completed",
+            "TRPA/MOU Project #": "ERSP2014-0375 plus Revisions",
+            "TRPA Status": "",
+            "TRPA Status Date": "",
+            "Local Jurisdiction Project #": "",
+            "Local Status": "",
+            "Local Status Date": "2020-01-01 00:00:00",
+            "Year Built": "2020",
+            "PM Year Built": "2019",
+            "Notes": "Beach Club Unit 101A-B"
+          },
+          {
+            "TransactionID": "EDCCA-ALLOC-1825",
+            "Transaction Type": "Residential Allocation",
+            "APN": "014-234-002",
+            "Jurisdiction": "EL",
+            "Development Right": "Residential Allocation - El Dorado County",
+            "Allocation Number": "EL-21-O-08",
+            "Quantity": "1",
+            "Transaction Record ID": "",
+            "Transaction Created Date": "",
+            "Transaction Acknowledged Date": "",
+            "Development Type": "Allocation",
+            "Detailed Development Type": "New Single-Family Residential From Allocation",
+            "Status Jan 2026": "Completed",
+            "TRPA/MOU Project #": "0339627",
+            "TRPA Status": "Issued",
+            "TRPA Status Date": "2021-09-16 00:00:00",
+            "Local Jurisdiction Project #": "339626",
+            "Local Status": "Finaled",
+            "Local Status Date": "2022-10-12 00:00:00",
+            "Year Built": "2022",
+            "PM Year Built": "2022",
+            "Notes": ""
+          },
+          {
+            "TransactionID": "",
+            "Transaction Type": "Residential Allocation",
+            "APN": "014-237-003",
+            "Jurisdiction": "EL",
+            "Development Right": "Residential Allocation - El Dorado County",
+            "Allocation Number": "EL-05-O-69",
+            "Quantity": "1",
+            "Transaction Record ID": "",
+            "Transaction Created Date": "",
+            "Transaction Acknowledged Date": "",
+            "Development Type": "Allocation",
+            "Detailed Development Type": "New Single-Family Residential From Allocation",
+            "Status Jan 2026": "Completed",
+            "TRPA/MOU Project #": "347512",
+            "TRPA Status": "Finaled",
+            "TRPA Status Date": "2025-12-04 00:00:00",
+            "Local Jurisdiction Project #": "341536",
+            "Local Status": "Finaled",
+            "Local Status Date": "2025-07-07 00:00:00",
+            "Year Built": "2025",
+            "PM Year Built": "",
+            "Notes": ""
+          }
+        ]
+      }
+    }
+  },
+  {
+    "file": "apn_fc_only.csv",
+    "kind": "csv",
+    "rows": 2928,
+    "columns": [
+      "Year",
+      "APN",
+      "OID"
+    ],
+    "sample": [
+      {
+        "Year": "2012",
+        "APN": "010-170-01",
+        "OID": "578439.0"
+      },
+      {
+        "Year": "2012",
+        "APN": "010-170-02",
+        "OID": "578437.0"
+      },
+      {
+        "Year": "2012",
+        "APN": "010-180-04",
+        "OID": "579066.0"
+      }
+    ]
+  },
+  {
+    "file": "apn_genealogy_accela.csv",
+    "kind": "csv",
+    "rows": 37446,
+    "columns": [
+      "old_apn",
+      "new_apn",
+      "change_year",
+      "overlap_pct",
+      "change_type",
+      "is_primary",
+      "source"
+    ],
+    "sample": [
+      {
+        "old_apn": "001-070-27",
+        "new_apn": "001-070-18",
+        "change_year": "2021",
+        "overlap_pct": "",
+        "change_type": "split",
+        "is_primary": "1",
+        "source": "ACCELA"
+      },
+      {
+        "old_apn": "031-207-017",
+        "new_apn": "031-207-17",
+        "change_year": "2021",
+        "overlap_pct": "",
+        "change_type": "rename",
+        "is_primary": "1",
+        "source": "ACCELA"
+      },
+      {
+        "old_apn": "031-207-018",
+        "new_apn": "031-207-18",
+        "change_year": "2021",
+        "overlap_pct": "",
+        "change_type": "rename",
+        "is_primary": "1",
+        "source": "ACCELA"
+      }
+    ]
+  },
+  {
+    "file": "apn_genealogy_ltinfo.csv",
+    "kind": "csv",
+    "rows": 3533,
+    "columns": [
+      "old_apn",
+      "new_apn",
+      "change_year",
+      "overlap_pct",
+      "change_type",
+      "is_primary",
+      "source"
+    ],
+    "sample": [
+      {
+        "old_apn": "001-010-11",
+        "new_apn": "001-010-13",
+        "change_year": "",
+        "overlap_pct": "",
+        "change_type": "",
+        "is_primary": "1",
+        "source": "LTINFO"
+      },
+      {
+        "old_apn": "001-010-13",
+        "new_apn": "1418-00-001-010",
+        "change_year": "",
+        "overlap_pct": "",
+        "change_type": "",
+        "is_primary": "1",
+        "source": "LTINFO"
+      },
+      {
+        "old_apn": "001-020-01",
+        "new_apn": "1418-00-001-001",
+        "change_year": "",
+        "overlap_pct": "",
+        "change_type": "",
+        "is_primary": "1",
+        "source": "LTINFO"
+      }
+    ]
+  },
+  {
+    "file": "apn_genealogy_master.csv",
+    "kind": "csv",
+    "rows": 1968,
+    "columns": [
+      "old_apn",
+      "new_apn",
+      "change_year",
+      "change_type",
+      "is_primary",
+      "year_source",
+      "notes_excerpt",
+      "source",
+      "fc_last_year",
+      "fc_new_first"
+    ],
+    "sample": [
+      {
+        "old_apn": "132-231-10",
+        "new_apn": "132-630-01",
+        "change_year": "2024.0",
+        "change_type": "rename",
+        "is_primary": "1",
+        "year_source": "old_apn_last+1",
+        "notes_excerpt": "NOTE #1: APN 132-231-11 existed inside the boundaries of 132-231-10 and has been absorbed into APN 132-231-10.  NOTE #2:",
+        "source": "notes_2",
+        "fc_last_year": "2023",
+        "fc_new_first": "2024"
+      },
+      {
+        "old_apn": "117-071-054",
+        "new_apn": "117-071-055",
+        "change_year": "2024.0",
+        "change_type": "rename",
+        "is_primary": "1",
+        "year_source": "old_apn_last+1",
+        "notes_excerpt": "NOTE #1: APNs 117-071-053 & 117-071-054 are part of a deed restricted \"project area\". These parcels are permanently deed",
+        "source": "notes_2",
+        "fc_last_year": "2023",
+        "fc_new_first": "2024"
+      },
+      {
+        "old_apn": "117-071-044",
+        "new_apn": "117-071-053",
+        "change_year": "2023.0",
+        "change_type": "split",
+        "is_primary": "1",
+        "year_source": "old_apn_last+1",
+        "notes_excerpt": "NOTE 1: 117-071-015 & 117-071-044 are part of a deed restricted project area. These parcels are permanently deed restric",
+        "source": "notes_2",
+        "fc_last_year": "2022",
+        "fc_new_first": "2023"
+      }
+    ]
+  },
+  {
+    "file": "apn_genealogy_spatial.csv",
+    "kind": "csv",
+    "rows": 737,
+    "columns": [
+      "old_apn",
+      "new_apn",
+      "change_year",
+      "overlap_pct",
+      "change_type",
+      "is_primary",
+      "source"
+    ],
+    "sample": [
+      {
+        "old_apn": "125-232-27",
+        "new_apn": "125-232-21",
+        "change_year": "2013",
+        "overlap_pct": "0.8994",
+        "change_type": "split",
+        "is_primary": "1",
+        "source": "SPATIAL"
+      },
+      {
+        "old_apn": "094-171-009",
+        "new_apn": "094-171-007",
+        "change_year": "2013",
+        "overlap_pct": "0.9443",
+        "change_type": "merge",
+        "is_primary": "1",
+        "source": "SPATIAL"
+      },
+      {
+        "old_apn": "017-041-34",
+        "new_apn": "017-041-20",
+        "change_year": "2013",
+        "overlap_pct": "0.9301",
+        "change_type": "rename",
+        "is_primary": "1",
+        "source": "SPATIAL"
+      }
+    ]
+  },
+  {
+    "file": "apn_genealogy_tahoe.csv",
+    "kind": "csv",
+    "rows": 42159,
+    "columns": [
+      "event_id",
+      "apn_old",
+      "apn_new",
+      "apn_old_raw",
+      "apn_new_raw",
+      "county",
+      "is_el_dorado",
+      "change_year",
+      "change_date",
+      "event_type",
+      "n_parents",
+      "n_children",
+      "is_primary",
+      "overlap_pct",
+      "source",
+      "source_priority",
+      "confidence",
+      "verified",
+      "notes",
+      "added_date",
+      "in_fc_old",
+      "in_fc_new",
+      "lost_apn"
+    ],
+    "sample": [
+      {
+        "event_id": "6c465deb",
+        "apn_old": "132-231-10",
+        "apn_new": "132-630-01",
+        "apn_old_raw": "132-231-10",
+        "apn_new_raw": "132-630-01",
+        "county": "",
+        "is_el_dorado": "0",
+        "change_year": "2024.0",
+        "change_date": "",
+        "event_type": "rename",
+        "n_parents": "1.0",
+        "n_children": "1.0",
+        "is_primary": "1",
+        "overlap_pct": "",
+        "source": "MANUAL",
+        "source_priority": "1",
+        "confidence": "HIGH",
+        "verified": "1",
+        "notes": "",
+        "added_date": "2026-04-15",
+        "in_fc_old": "1",
+        "in_fc_new": "1",
+        "lost_apn": "0"
+      },
+      {
+        "event_id": "3462ad7a",
+        "apn_old": "132-232-10",
+        "apn_new": "132-582-01",
+        "apn_old_raw": "132-232-10",
+        "apn_new_raw": "132-582-01",
+        "county": "",
+        "is_el_dorado": "0",
+        "change_year": "2012.0",
+        "change_date": "",
+        "event_type": "split",
+        "n_parents": "1.0",
+        "n_children": "",
+        "is_primary": "0",
+        "overlap_pct": "",
+        "source": "MANUAL",
+        "source_priority": "1",
+        "confidence": "HIGH",
+        "verified": "1",
+        "notes": "",
+        "added_date": "2026-04-15",
+        "in_fc_old": "0",
+        "in_fc_new": "1",
+        "lost_apn": "0"
+      },
+      {
+        "event_id": "1b77c6c7",
+        "apn_old": "132-232-10",
+        "apn_new": "132-581-01",
+        "apn_old_raw": "132-232-10",
+        "apn_new_raw": "132-581-01",
+        "county": "",
+        "is_el_dorado": "0",
+        "change_year": "2012.0",
+        "change_date": "",
+        "event_type": "split",
+        "n_parents": "1.0",
+        "n_children": "",
+        "is_primary": "1",
+        "overlap_pct": "",
+        "source": "MANUAL",
+        "source_priority": "1",
+        "confidence": "HIGH",
+        "verified": "1",
+        "notes": "",
+        "added_date": "2026-04-15",
+        "in_fc_old": "0",
+        "in_fc_new": "1",
+        "lost_apn": "0"
+      }
+    ]
+  },
+  {
+    "file": "apn_service_only.csv",
+    "kind": "csv",
+    "rows": 1993,
+    "columns": [
+      "Year",
+      "APN"
+    ],
+    "sample": [
+      {
+        "Year": "2012",
+        "APN": ""
+      },
+      {
+        "Year": "2012",
+        "APN": "014-080-02"
+      },
+      {
+        "Year": "2012",
+        "APN": "014-247-04"
+      }
+    ]
+  },
+  {
+    "file": "apns_to_investigate.csv",
+    "kind": "csv",
+    "rows": 202,
+    "columns": [
+      "Lost_APN",
+      "Candidate_New_APN",
+      "Confidence",
+      "FC_Last_Year_Old",
+      "FC_First_Year_New",
+      "Suggested_Change_Year",
+      "Total_Units_CSV",
+      "Match_Source",
+      "Issue_Category"
+    ],
+    "sample": [
+      {
+        "Lost_APN": "1418-10-802-003",
+        "Candidate_New_APN": "1418-10-802-012",
+        "Confidence": "MEDIUM_GAP",
+        "FC_Last_Year_Old": "2013",
+        "FC_First_Year_New": "2024",
+        "Suggested_Change_Year": "2024",
+        "Total_Units_CSV": "61",
+        "Match_Source": "KK",
+        "Issue_Category": "PARCEL_SPLIT"
+      },
+      {
+        "Lost_APN": "1418-10-802-011",
+        "Candidate_New_APN": "1418-10-802-004",
+        "Confidence": "MEDIUM_GAP",
+        "FC_Last_Year_Old": "2025",
+        "FC_First_Year_New": "2012",
+        "Suggested_Change_Year": "2012",
+        "Total_Units_CSV": "48",
+        "Match_Source": "KK",
+        "Issue_Category": "UNKNOWN"
+      },
+      {
+        "Lost_APN": "1418-10-802-008",
+        "Candidate_New_APN": "1418-10-802-012",
+        "Confidence": "MEDIUM_GAP",
+        "FC_Last_Year_Old": "2016",
+        "FC_First_Year_New": "2024",
+        "Suggested_Change_Year": "2024",
+        "Total_Units_CSV": "40",
+        "Match_Source": "KK",
+        "Issue_Category": "PARCEL_SPLIT"
+      }
+    ]
+  },
+  {
+    "file": "change_year_candidates.csv",
+    "kind": "csv",
+    "rows": 333,
+    "columns": [
+      "Lost_APN",
+      "Candidate_New_APN",
+      "Issue_Category",
+      "Match_Source",
+      "Match_Type",
+      "Total_Units_CSV",
+      "FC_Last_Year_Old",
+      "FC_First_Year_New",
+      "Suggested_Change_Year",
+      "Confidence",
+      "In_FC_Old",
+      "In_FC_New",
+      "Promote_Ready",
+      "old_apn",
+      "new_apn",
+      "change_year",
+      "change_type",
+      "is_primary",
+      "year_source",
+      "source",
+      "fc_last_year",
+      "fc_new_first",
+      "Old_Unit_Years",
+      "New_Unit_Years",
+      "Status"
+    ],
+    "sample": [
+      {
+        "Lost_APN": "129-280-12",
+        "Candidate_New_APN": "129-301-01",
+        "Issue_Category": "PARCEL_SPLIT",
+        "Match_Source": "ACCELA",
+        "Match_Type": "accela_rename",
+        "Total_Units_CSV": "36",
+        "FC_Last_Year_Old": "2016.0",
+        "FC_First_Year_New": "2017.0",
+        "Suggested_Change_Year": "2017",
+        "Confidence": "HIGH",
+        "In_FC_Old": "1",
+        "In_FC_New": "1",
+        "Promote_Ready": "YES",
+        "old_apn": "129-280-12",
+        "new_apn": "129-301-01",
+        "change_year": "2017",
+        "change_type": "rename",
+        "is_primary": "1",
+        "year_source": "fc_last_old+1",
+        "source": "ACCELA",
+        "fc_last_year": "2016.0",
+        "fc_new_first": "2017.0",
+        "Old_Unit_Years": "['2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025']",
+        "New_Unit_Years": "[]",
+        "Status": "TRUE_GAP"
+      },
+      {
+        "Lost_APN": "129-280-13",
+        "Candidate_New_APN": "129-301-02",
+        "Issue_Category": "PARCEL_SPLIT",
+        "Match_Source": "KK",
+        "Match_Type": "kk_rename",
+        "Total_Units_CSV": "36",
+        "FC_Last_Year_Old": "2016.0",
+        "FC_First_Year_New": "2017.0",
+        "Suggested_Change_Year": "2017",
+        "Confidence": "HIGH",
+        "In_FC_Old": "1",
+        "In_FC_New": "1",
+        "Promote_Ready": "YES",
+        "old_apn": "129-280-13",
+        "new_apn": "129-301-02",
+        "change_year": "2017",
+        "change_type": "rename",
+        "is_primary": "1",
+        "year_source": "fc_last_old+1",
+        "source": "KK",
+        "fc_last_year": "2016.0",
+        "fc_new_first": "2017.0",
+        "Old_Unit_Years": "['2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025']",
+        "New_Unit_Years": "[]",
+        "Status": "TRUE_GAP"
+      },
+      {
+        "Lost_APN": "084-191-001",
+        "Candidate_New_APN": "084-191-003",
+        "Issue_Category": "PARCEL_SPLIT",
+        "Match_Source": "KK",
+        "Match_Type": "kk_rename",
+        "Total_Units_CSV": "18",
+        "FC_Last_Year_Old": "2019.0",
+        "FC_First_Year_New": "2020.0",
+        "Suggested_Change_Year": "2020",
+        "Confidence": "HIGH",
+        "In_FC_Old": "1",
+        "In_FC_New": "1",
+        "Promote_Ready": "YES",
+        "old_apn": "084-191-001",
+        "new_apn": "084-191-003",
+        "change_year": "2020",
+        "change_type": "rename",
+        "is_primary": "1",
+        "year_source": "fc_last_old+1",
+        "source": "KK",
+        "fc_last_year": "2019.0",
+        "fc_new_first": "2020.0",
+        "Old_Unit_Years": "['2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025']",
+        "New_Unit_Years": "[]",
+        "Status": "TRUE_GAP"
+      }
+    ]
+  },
+  {
+    "file": "fc_native_residential_units.csv",
+    "kind": "csv",
+    "rows": 339687,
+    "columns": [
+      "APN",
+      "Year",
+      "Residential_Units",
+      "County"
+    ],
+    "sample": [
+      {
+        "APN": "015-315-16",
+        "Year": "2012",
+        "Residential_Units": "1",
+        "County": "EL"
+      },
+      {
+        "APN": "016-251-12",
+        "Year": "2012",
+        "Residential_Units": "1",
+        "County": "EL"
+      },
+      {
+        "APN": "022-171-76",
+        "Year": "2012",
+        "Residential_Units": "1",
+        "County": "EL"
+      }
+    ]
+  },
+  {
+    "file": "parcel_geneology_notes.csv",
+    "kind": "csv",
+    "rows": 689,
+    "columns": [
+      "APN",
+      "ParcelTrackerNotes"
+    ],
+    "sample": [
+      {
+        "APN": "123-032-01",
+        "ParcelTrackerNotes": "Portions of this parcel are now part of APNs 123-032-18, 123-032-19, 123-032-20, 123-032-21, 123-032-22, 123-032-23 and 123-032-24."
+      },
+      {
+        "APN": "016-091-42",
+        "ParcelTrackerNotes": "New APN's: 016-091-50 and 016-091-51 (parcel was split to form two new APN's)"
+      },
+      {
+        "APN": "016-300-57",
+        "ParcelTrackerNotes": "New APN's: 016-300-59 & 016-300-60 (APN 016-300-56 was combined with a portion of 016-300-57 to form APN 016-300-60; the remainder of 016-300-57 became APN 016-300-59).\r\nPrevious APN's: 016-300-54 & 016-300-25 (all of parcel -25 was combined with a portion of -54 to form 016-300-57)"
+      }
+    ]
+  },
+  {
+    "file": "parcel_geneology_notes_2.csv",
+    "kind": "csv",
+    "rows": 75543,
+    "columns": [
+      "APN",
+      "ParcelNotes"
+    ],
+    "sample": [
+      {
+        "APN": "001-010-02",
+        "ParcelNotes": ""
+      },
+      {
+        "APN": "001-010-03",
+        "ParcelNotes": ""
+      },
+      {
+        "APN": "001-010-04",
+        "ParcelNotes": ""
+      }
+    ]
+  },
+  {
+    "file": "qa_lost_vs_new_genealogy.csv",
+    "kind": "csv",
+    "rows": 2111,
+    "columns": [
+      "Lost_APN",
+      "Issue_Category",
+      "Years_Lost",
+      "Total_Units_CSV",
+      "Match_Source",
+      "Candidate_New_APN",
+      "Match_Type",
+      "Already_In_Tahoe",
+      "Action"
+    ],
+    "sample": [
+      {
+        "Lost_APN": "015-370-30",
+        "Issue_Category": "PARCEL_NEW",
+        "Years_Lost": "[2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]",
+        "Total_Units_CSV": "14",
+        "Match_Source": "KK",
+        "Candidate_New_APN": "015-370-11",
+        "Match_Type": "kk_rename",
+        "Already_In_Tahoe": "NO",
+        "Action": "NEEDS_CHANGE_YEAR"
+      },
+      {
+        "Lost_APN": "015-370-30",
+        "Issue_Category": "PARCEL_NEW",
+        "Years_Lost": "[2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]",
+        "Total_Units_CSV": "14",
+        "Match_Source": "KK",
+        "Candidate_New_APN": "015-370-11",
+        "Match_Type": "kk_rename",
+        "Already_In_Tahoe": "NO",
+        "Action": "NEEDS_CHANGE_YEAR"
+      },
+      {
+        "Lost_APN": "016-300-64",
+        "Issue_Category": "PARCEL_NEW",
+        "Years_Lost": "[2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]",
+        "Total_Units_CSV": "14",
+        "Match_Source": "ACCELA",
+        "Candidate_New_APN": "016-300-064",
+        "Match_Type": "accela_rename",
+        "Already_In_Tahoe": "NO",
+        "Action": "NEEDS_CHANGE_YEAR"
+      }
+    ]
+  },
+  {
+    "file": "unknown_apns_diagnosis.csv",
+    "kind": "csv",
+    "rows": 1710,
+    "columns": [
+      "APN",
+      "County",
+      "In_CSV",
+      "In_FC",
+      "FC_Years",
+      "FC_Has_Units",
+      "Padded_Variant",
+      "Padded_In_FC",
+      "Depadded_Variant",
+      "Depadded_In_FC",
+      "Pattern"
+    ],
+    "sample": [
+      {
+        "APN": "007-011-01",
+        "County": "CC",
+        "In_CSV": "True",
+        "In_FC": "True",
+        "FC_Years": "[2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]",
+        "FC_Has_Units": "True",
+        "Padded_Variant": "007-011-001",
+        "Padded_In_FC": "True",
+        "Depadded_Variant": "",
+        "Depadded_In_FC": "False",
+        "Pattern": "OTHER"
+      },
+      {
+        "APN": "007-011-23",
+        "County": "CC",
+        "In_CSV": "True",
+        "In_FC": "True",
+        "FC_Years": "[2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]",
+        "FC_Has_Units": "True",
+        "Padded_Variant": "007-011-023",
+        "Padded_In_FC": "True",
+        "Depadded_Variant": "",
+        "Depadded_In_FC": "False",
+        "Pattern": "OTHER"
+      },
+      {
+        "APN": "015-032-26",
+        "County": "EL",
+        "In_CSV": "True",
+        "In_FC": "True",
+        "FC_Years": "[2013, 2014, 2015, 2016, 2017]",
+        "FC_Has_Units": "True",
+        "Padded_Variant": "015-032-026",
+        "Padded_In_FC": "True",
+        "Depadded_Variant": "",
+        "Depadded_In_FC": "False",
+        "Pattern": "OTHER"
+      }
+    ]
+  }
+]
