@@ -1,5 +1,13 @@
 # `Transactions_Allocations_Details.xlsx` — what to keep, what to kill
 
+> **Purpose**: response to the "just load Ken's XLSX as a table" proposal.
+> **Audience**: anyone advocating that approach. Read before the target
+> schema review.
+> **TL;DR**: 1 column dies, 12 columns sync from their real upstream
+> sources, 8 columns ETL into net-new tables in [target_schema.md](./target_schema.md),
+> 1 column is derived. Don't load the XLSX as-is.
+
+
 Column-by-column mapping of Ken's 22-column transactions spreadsheet
 ([data/raw_data/Transactions_Allocations_Details.xlsx](../data/raw_data/Transactions_Allocations_Details.xlsx),
 1,853 rows) to the proposed v1 schema in [target_schema.md](./target_schema.md).

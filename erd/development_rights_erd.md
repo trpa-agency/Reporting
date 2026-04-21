@@ -1,5 +1,12 @@
 # Development & Development-Rights ERD (Tahoe / TRPA)
 
+> **Purpose**: inventory of the *existing* upstream systems (Corral SQL
+> Server, LTinfo JSON web services, repo spreadsheets) that the new schema
+> integrates. Not the proposal itself — that's [target_schema.md](./target_schema.md).
+> **Audience**: anyone who needs context on what Corral and LTinfo already
+> hold before reviewing the new-table proposal.
+
+
 > **This document describes the *existing* upstream systems.** For the
 > proposed new schema, see [target_schema.md](./target_schema.md) —
 > anchored on the TRPA Cumulative Accounting framework (5 buckets per
