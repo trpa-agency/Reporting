@@ -1,5 +1,19 @@
 # Development & Development-Rights ERD (Tahoe / TRPA)
 
+> **This document describes the *existing* upstream systems.** For the
+> proposed new schema, see [target_schema.md](./target_schema.md) —
+> anchored on the TRPA Cumulative Accounting framework (5 buckets per
+> commodity per jurisdiction, 7 movement types). Also see
+> [.claude/skills/trpa-cumulative-accounting/SKILL.md](../.claude/skills/trpa-cumulative-accounting/SKILL.md)
+> for the full vocabulary. The HTML viewer
+> [development_rights_erd.html](./development_rights_erd.html) shows
+> existing systems **and** the proposed schema side-by-side as tabs.
+
+> **Context correction since this doc was first written**: Corral IS the
+> LTinfo backend, not a separate system. The `sql24/Corral` connection is
+> a Feb-2024 snapshot of that backend. Live data sync in the new system
+> flows through the LTinfo JSON web services, not direct SQL.
+
 Generated from three disparate sources to inform the design of a unified schema.
 
 - **SQL Server `Corral`** on `sql24` — 573 tables / 1,041 FKs, read-only mirror of the system of record. Full table list: [corral_tables.md](corral_tables.md). Machine-readable schema dump: [corral_schema.json](corral_schema.json).

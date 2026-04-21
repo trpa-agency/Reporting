@@ -1,5 +1,16 @@
 # raw_data/ vs. Corral — gap analysis
 
+> **See [target_schema.md](./target_schema.md) for how the proposed new
+> schema closes each gap below.** This doc is the diagnostic;
+> `target_schema.md` is the treatment plan, anchored on the TRPA Cumulative
+> Accounting framework (see
+> [.claude/skills/trpa-cumulative-accounting/SKILL.md](../.claude/skills/trpa-cumulative-accounting/SKILL.md)).
+
+> **Context correction**: Corral IS the LTinfo backend. The `sql24/Corral`
+> snapshot is a Feb-2024 backup; live data flows through LTinfo JSON web
+> services. The findings below about staleness reflect the backup, not the
+> live system.
+
 Compares the 23 CSV/XLSX files under [`data/raw_data/`](../data/raw_data/) against
 the `Corral` SQL Server schema we reflected into [corral_schema.json](./corral_schema.json).
 Goal: understand what's in Corral, what's missing, and where a view could mimic

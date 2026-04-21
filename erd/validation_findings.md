@@ -1,5 +1,17 @@
 # Validation findings — can Corral replace raw_data?
 
+> **The answer is no, and that's why the proposed schema exists.**
+> See [target_schema.md](./target_schema.md) — the 61% PCI coverage gap
+> here is why `ParcelExistingDevelopment` is sourced from the GIS enterprise
+> GDB and not from Corral, and the 9-of-22 column gap in the transactions
+> spreadsheet drives the `Permit`, `PermitAllocation`, `CrossSystemID`, and
+> `ParcelDevelopmentChangeEvent` tables.
+
+> **Context correction since this doc was first written**: Corral IS the
+> LTinfo backend. The snapshot tested here is a Feb-2024 backup. Live
+> data flows through LTinfo JSON web services (confirmed with user); the
+> proposed schema syncs from those services, not from direct SQL.
+
 Two empirical tests of the reproducibility claims in [raw_data_vs_corral.md](./raw_data_vs_corral.md).
 Both are read-only against the Feb 2024 Corral snapshot.
 
