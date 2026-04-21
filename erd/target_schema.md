@@ -6,7 +6,7 @@
 Proposed ERD for new tables in the **existing SDE SQL backend** that hosts
 Corral + the enterprise GIS geodatabase. Anchored on the TRPA Cumulative
 Accounting framework (TRPA Code §16.8.2). See
-[.claude/skills/trpa-cumulative-accounting/SKILL.md](../.claude/skills/trpa-cumulative-accounting/SKILL.md)
+[cumulative_accounting_reference.md](./cumulative_accounting_reference.md)
 for the full vocabulary.
 
 > **Scope**: residential (SFRUU, MFRUU, RBU, ADU), tourist accommodation
@@ -87,7 +87,7 @@ Terms that appear throughout this doc, defined once:
 | **Corral** | The SQL Server DB that backs the LTinfo web app; our read connection is a Feb-2024 snapshot |
 | **LTinfo** | `laketahoeinfo.org` — public web app sitting on top of Corral |
 
-See [.claude/skills/trpa-cumulative-accounting/SKILL.md](../.claude/skills/trpa-cumulative-accounting/SKILL.md)
+See [cumulative_accounting_reference.md](./cumulative_accounting_reference.md)
 for the full vocabulary with examples.
 
 ### Worked example — how one TDR transaction lands in the accounting

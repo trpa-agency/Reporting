@@ -13,8 +13,8 @@ geodatabase) to drive three v1 dashboards:
 
 All of this is anchored on the TRPA Cumulative Accounting framework
 (TRPA Code §16.8.2). The vocabulary is documented in the
-[`trpa-cumulative-accounting`](../.claude/skills/trpa-cumulative-accounting/SKILL.md)
-skill so future sessions (and reviewers) share the same terms.
+[`cumulative_accounting_reference.md`](./cumulative_accounting_reference.md)
+(plain-markdown copy of the Claude skill) so future sessions (and reviewers) share the same terms.
 
 ---
 
@@ -79,6 +79,7 @@ Full list in [target_schema.md](./target_schema.md). The three highest-priority:
 |---|---|---|
 | [target_schema.md](./target_schema.md) | **Draft — for team review** | The proposal itself. ERD + loading strategy + open questions. |
 | [proposed_dashboards.md](./proposed_dashboards.md) | Draft — for team review | Dashboard & visualization proposal (~25 candidates in 8 clusters); extends the existing `allocation_drawdown.html` prototype. |
+| [cumulative_accounting_reference.md](./cumulative_accounting_reference.md) | Reference | TRPA Cumulative Accounting framework (plain-markdown copy of the Claude skill) — vocabulary, bucket model, movement types, pool structure. |
 | [development_rights_erd.html](./development_rights_erd.html) | Draft | Browser viewer for all ERDs (existing + proposed). |
 
 ### Supporting analysis (context for the proposal)

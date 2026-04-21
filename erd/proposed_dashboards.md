@@ -16,7 +16,7 @@ Each visualization is scored on:
 - **Data sources** — what tables/views feed it.
 - **Complexity** — rough build cost (S / M / L).
 
-See [.claude/skills/trpa-cumulative-accounting/SKILL.md](../.claude/skills/trpa-cumulative-accounting/SKILL.md)
+See [cumulative_accounting_reference.md](./cumulative_accounting_reference.md)
 for vocabulary, and [target_schema.md](./target_schema.md) for the tables
 these visualizations would read from.
 
