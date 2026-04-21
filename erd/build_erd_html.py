@@ -133,8 +133,6 @@ HTML_SCRIPTS = r"""
 
   const rendered = {};
 
-  const rendered = {};
-
   async function renderAll() {
     const views = Array.from(document.querySelectorAll('.view'));
     for (const view of views) {
