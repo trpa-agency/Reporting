@@ -14,7 +14,15 @@ for the full vocabulary.
 > **This is an ERD proposal, not DDL.** Captures entities, attributes, and
 > relationships for review before CREATE TABLE statements.
 
-## Where this lives — architecture update
+## Design principle — never duplicate Corral
+
+Corral is the system of record for TDR transactions, residential allocations,
+banked rights, commodity pools, parcels, permits, deed restrictions, IPES, and
+all reference lookups. **The new DB only creates tables for data Corral
+genuinely lacks.** Everything else is FK'd, UNION'd in a view, or sidecar'd
+with net-new columns only. When in doubt: don't duplicate.
+
+## Where this lives — architecture
 
 The new tables fold into the **same SDE-registered SQL Server instance** as
 Corral and the enterprise GIS geodatabase. That means:
@@ -189,18 +197,6 @@ erDiagram
         double TAZ
         datetime LoadedAt
     }
-    ParcelBankedRight {
-        int BankedID PK
-        int ParcelID FK "dbo.Parcel"
-        int CommodityID FK "dbo.Commodity"
-        int LandCapabilityTypeID FK "dbo.LandCapabilityType"
-        int Quantity
-        date BankedDate
-        date UnbankedDate "null if still banked"
-        varchar RecordingNumber
-        int ParcelPermitBankedDevelopmentRightID "FK to dbo.ParcelPermitBankedDevelopmentRight if source"
-        datetime LoadedAt
-    }
     ParcelGenealogyEventEnriched {
         int EventID PK
         int ParcelGenealogyID FK "dbo.ParcelGenealogy (nullable for events not yet in Corral)"
@@ -241,51 +237,106 @@ records plus the movement ledger, materialized nightly into
 
 ## ERD — movement ledger
 
-`CommodityLedgerEntry` unifies movement events from multiple Corral sources
-(`TdrTransaction`, `ParcelPermitBankedDevelopmentRight`) plus manual QA
-entries. `MovementType` uses the 9 Corral `TransactionTypeAbbreviation`
-values plus two extensions for events not currently in Corral.
+**No physical ledger table.** Corral is the system of record for every TDR
+transaction (`dbo.TdrTransaction` + children) and every banked right
+(`dbo.ParcelPermitBankedDevelopmentRight`). Don't duplicate. Instead:
+
+- **`vCommodityLedger` (view)** — UNIONs Corral's transaction and banking
+  tables into a unified `(EntryDate, CommodityID, Quantity, MovementType,
+  From*, To*)` shape. Read-only.
+- **`LedgerManualAdjustment` (small new table)** — the only net-new ledger
+  data we hold: manual QA corrections that don't correspond to any Corral
+  event. UNIONed into `vCommodityLedger`.
 
 ```mermaid
 erDiagram
-    CommodityLedgerEntry {
-        int EntryID PK
+    LedgerManualAdjustment {
+        int AdjustmentID PK
         date EntryDate
         int CommodityID FK "dbo.Commodity"
         int Quantity "signed: + deposits, - withdrawals"
-        varchar MovementType "ALLOC, ALLOCASSGN, CONV, CONVTRF, ECM, LBA, LBT, TRF, Banking, QACorrection"
-        varchar FromBucketType "UnusedPool, BonusPool, Allocated, Existing, Banked, LandBank, OutOfSystem"
-        varchar ToBucketType "UnusedPool, BonusPool, Allocated, Existing, Banked, LandBank, OutOfSystem"
+        varchar MovementType "QACorrection (only kind allowed here)"
+        varchar FromBucketType
+        varchar ToBucketType
         int FromPoolID FK "dbo.CommodityPool"
         int ToPoolID FK "dbo.CommodityPool"
         int SendingParcelID FK "dbo.Parcel"
         int ReceivingParcelID FK "dbo.Parcel"
-        int TdrTransactionID FK "dbo.TdrTransaction when source"
-        int ResidentialAllocationID FK "dbo.ResidentialAllocation when source"
-        int ParcelBankedRightID FK "new ParcelBankedRight"
-        int PermitID FK "dbo.ParcelPermit"
-        decimal ConversionRatio "only for CONV/CONVTRF"
-        int PairedEntryID FK "CONV/CONVTRF: the other side"
-        varchar Source
+        int LinkedChangeEventID FK "ParcelDevelopmentChangeEvent"
         varchar Rationale
-        datetime LoadedAt
+        varchar RecordedBy
+        datetime RecordedAt
     }
+```
+
+### `vCommodityLedger` — the view
+
+Three branches UNIONed:
+
+```sql
+-- branch 1: TDR transactions from Corral (the bulk)
+SELECT
+    tt.TdrTransactionID              AS source_id,
+    'corral_tdr'                     AS source,
+    tt.ApprovalDate                  AS EntryDate,
+    tt.CommodityID,
+    COALESCE(ttt.ReceivingQuantity, tta.AllocatedQuantity,
+             ttc.Quantity, tla.Quantity, tlt.Quantity) AS Quantity,
+    tty.TransactionTypeAbbreviation  AS MovementType,
+    -- FromBucketType / ToBucketType derived from TransactionType flags
+    ...
+FROM dbo.TdrTransaction tt
+JOIN dbo.TransactionType tty ON tty.TransactionTypeID = tt.TransactionTypeID
+LEFT JOIN dbo.TdrTransactionTransfer ttt ON ttt.TdrTransactionID = tt.TdrTransactionID
+LEFT JOIN dbo.TdrTransactionAllocation tta ON tta.TdrTransactionID = tt.TdrTransactionID
+LEFT JOIN dbo.TdrTransactionConversion ttc ON ttc.TdrTransactionID = tt.TdrTransactionID
+LEFT JOIN dbo.TdrTransactionLandBankAcquisition tla ON tla.TdrTransactionID = tt.TdrTransactionID
+LEFT JOIN dbo.TdrTransactionLandBankTransfer tlt ON tlt.TdrTransactionID = tt.TdrTransactionID
+WHERE tty.TransactionTypeAbbreviation <> 'SHORE'     -- shorezone out of scope
+
+UNION ALL
+
+-- branch 2: banking events (Corral has them but not as transactions)
+SELECT
+    ppbdr.ParcelPermitBankedDevelopmentRightID AS source_id,
+    'corral_banking'                 AS source,
+    pp.FinalInspectionDate           AS EntryDate,
+    lct.CommodityID,
+    -ppbdr.Quantity                  AS Quantity,     -- negative: leaves Existing
+    'Banking'                        AS MovementType,
+    ...
+FROM dbo.ParcelPermitBankedDevelopmentRight ppbdr
+JOIN dbo.ParcelPermit pp ON pp.ParcelPermitID = ppbdr.ParcelPermitID
+JOIN dbo.LandCapabilityType lct ON lct.LandCapabilityTypeID = ppbdr.LandCapabilityTypeID
+
+UNION ALL
+
+-- branch 3: manual QA adjustments (the only net-new data in the ledger)
+SELECT
+    lma.AdjustmentID                 AS source_id,
+    'manual_qa'                      AS source,
+    lma.EntryDate,
+    lma.CommodityID,
+    lma.Quantity,
+    lma.MovementType,
+    ...
+FROM LedgerManualAdjustment lma;
 ```
 
 ### Mapping Corral `TransactionType` → `MovementType`
 
-| Corral abbr | MovementType in ledger | Bucket move |
-|---|---|---|
-| ALLOC | ALLOC | UnusedPool → Allocated |
-| ALLOCASSGN | ALLOCASSGN | Allocated → Existing (on permit final) |
-| CONV | CONV | Existing → Existing (paired entries) |
-| CONVTRF | CONVTRF | Existing(parcel A) → Existing(parcel B) with commodity swap |
-| TRF | TRF | Existing(A) → Existing(B) |
-| ECM | ECM | Existing → OutOfSystem |
-| LBA | LBA | Existing → LandBank |
-| LBT | LBT | LandBank → Existing |
-| (none — Corral event) | Banking | Existing → Banked (derived from `ParcelPermitBankedDevelopmentRight` + `BankedQuantity`) |
-| (none — manual) | QACorrection | any → any (operator-driven; `ChangeSource='qa_correction'` on the linked change event) |
+| Corral abbr | MovementType in ledger | Bucket move | Source branch |
+|---|---|---|---|
+| ALLOC | ALLOC | UnusedPool → Allocated | corral_tdr |
+| ALLOCASSGN | ALLOCASSGN | Allocated → Existing (on permit final) | corral_tdr |
+| CONV | CONV | Existing → Existing (paired entries) | corral_tdr |
+| CONVTRF | CONVTRF | Existing(parcel A) → Existing(parcel B) with commodity swap | corral_tdr |
+| TRF | TRF | Existing(A) → Existing(B) | corral_tdr |
+| ECM | ECM | Existing → OutOfSystem | corral_tdr |
+| LBA | LBA | Existing → LandBank | corral_tdr |
+| LBT | LBT | LandBank → Existing | corral_tdr |
+| (none — Corral event) | Banking | Existing → Banked | corral_banking |
+| (none — manual) | QACorrection | any → any | manual_qa |
 
 ## ERD — permit completion + cross-system IDs
 
@@ -294,14 +345,12 @@ erDiagram
     PermitCompletion {
         int PermitCompletionID PK
         int ParcelPermitID FK "dbo.ParcelPermit"
-        int YearBuilt "from Ken's XLSX / county assessor"
-        int PmYearBuilt "internal property-manager version if distinct"
-        varchar CompletionStatus "Applied, Issued, UnderConstruction, Finaled, Expired, Withdrawn"
-        date FinalInspectionDate
-        date CertificateOfOccupancyDate
-        varchar PermitType "high-level classification"
-        varchar DetailedDevelopmentType
-        varchar Notes
+        int YearBuilt "from Ken's XLSX / county assessor (not in Corral)"
+        int PmYearBuilt "internal property-manager version if distinct (not in Corral)"
+        date CertificateOfOccupancyDate "Corral has only the Has... bit"
+        varchar CompletionStatusEnriched "richer than Corral's ParcelPermitStatus (2 values); adds Applied/UnderConstruction/Finaled/Expired/Withdrawn"
+        varchar DetailedDevelopmentType "free-text (not in Corral)"
+        varchar SupplementalNotes "Ken's operational notes, distinct from dbo.ParcelPermit.Notes"
         datetime LoadedAt
     }
     PermitAllocation {
@@ -378,8 +427,8 @@ erDiagram
 | Source | Target tables | Cadence | Notes |
 |---|---|---|---|
 | **Parcel Development History REST service** (future; `C:\GIS\Scratch.gdb\Parcel_History_Attributed` today) | `ParcelExistingDevelopment`, `ParcelSpatialAttribute`; `ParcelDevelopmentChangeEvent` on year-over-year diffs | Weekly | Field-for-field map. APN resolved through `ParcelGenealogyEventEnriched` at load. |
-| **LTinfo `GetTransactedAndBankedDevelopmentRights`** + direct reads from `dbo.TdrTransaction*` once deployed | `CommodityLedgerEntry` | Daily | Each TdrTransaction fans out into 1–2 ledger entries by TransactionType. |
-| **LTinfo `GetBankedDevelopmentRights`** + `dbo.ParcelPermitBankedDevelopmentRight` | `ParcelBankedRight` | Weekly | |
+| **`dbo.TdrTransaction*` + `dbo.ParcelPermitBankedDevelopmentRight`** | *(none — exposed through `vCommodityLedger` view)* | — | Corral is the system of record; no table-level duplication. |
+| **Manual QA workflow** | `LedgerManualAdjustment` | As-needed | Only for events that don't correspond to any Corral transaction or banking record. |
 | **`Transactions_Allocations_Details.xlsx`** (Ken) | `PermitCompletion`, `PermitAllocation`, `CrossSystemID` | Seed + manual refresh | Only load the 8 Ken-unique columns per [xlsx_decomposition.md](./xlsx_decomposition.md). |
 | **`ExistingResidential_2012_2025_unstacked.csv`** (Ken) | `ParcelExistingDevelopment` 2012–2015 baseline | Seed once | Retire after GIS FC fills pre-2016. |
 | **`apn_genealogy_tahoe.csv`** + ongoing derivation jobs | `ParcelGenealogyEventEnriched` | Seed + scheduled | Resolver reads this on every APN-keyed write. |
@@ -417,20 +466,25 @@ erDiagram
 
 ## Ready-to-build v1 new-table list
 
-Folded into existing SDE backend. **8 new tables + 3 materializations** (vs
-12 in the earlier sketch — halved by reusing Corral reference tables).
+Folded into existing SDE backend. **8 new physical tables + 1 view + 2 materializations**.
+Every item holds data Corral doesn't — no duplication.
 
-1. `ParcelExistingDevelopment`
-2. `ParcelSpatialAttribute`
-3. `ParcelBankedRight`
-4. `ParcelGenealogyEventEnriched`
-5. `ParcelDevelopmentChangeEvent`
-6. `CommodityLedgerEntry`
-7. `PermitCompletion`
-8. `PermitAllocation`
-9. `CrossSystemID`
+New physical tables:
 
-Plus three materialized-view tables:
+1. `ParcelExistingDevelopment` — per-parcel × year × commodity quantity (GIS-sourced; Corral has no year-indexed inventory for non-permit-verified parcels)
+2. `ParcelSpatialAttribute` — per-parcel × year spatial context (GIS-sourced year snapshot; distinct from `dbo.Parcel` current state)
+3. `ParcelGenealogyEventEnriched` — 10+ metadata columns on top of `dbo.ParcelGenealogy` (3 columns)
+4. `ParcelDevelopmentChangeEvent` — Dan's change rationale; no Corral analog
+5. `PermitCompletion` — sidecar on `dbo.ParcelPermit` with YearBuilt, richer CompletionStatus, DetailedDevelopmentType (all net-new)
+6. `PermitAllocation` — crosswalk between `dbo.ParcelPermit` and `dbo.ResidentialAllocation` (Corral has no direct FK)
+7. `LedgerManualAdjustment` — manual QA-correction ledger entries only (TDR + Banking live in Corral)
+8. `CrossSystemID` — polymorphic ID map (Accela, LTinfo, TRPA_MOU, Local Jurisdiction, Assessor)
+
+View (no physical table):
+
+- `vCommodityLedger` — UNIONs `dbo.TdrTransaction*` + `dbo.ParcelPermitBankedDevelopmentRight` + `LedgerManualAdjustment` into a unified movement log.
+
+Materialized (computed nightly, safe to duplicate since derived):
 - `CumulativeAccountingSnapshot`
 - `PoolDrawdownYearly`
 - `ParcelHistoryView`
