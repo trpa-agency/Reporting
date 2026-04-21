@@ -345,6 +345,27 @@ erDiagram
         varchar RecordedBy
         datetime RecordedAt
     }
+    dbo_Parcel {
+        int ParcelID PK
+        varchar ParcelNumber "external Corral table"
+    }
+    dbo_Commodity {
+        int CommodityID PK
+        varchar ShortName "external Corral table"
+    }
+    dbo_ParcelGenealogy {
+        int ParcelGenealogyID PK
+        int ParentParcelID FK
+        int ChildParcelID FK
+    }
+
+    dbo_Parcel                   ||--o{ ParcelExistingDevelopment   : "has (per year x commodity)"
+    dbo_Parcel                   ||--o{ ParcelSpatialAttribute      : "has (per year)"
+    dbo_Parcel                   ||--o{ ParcelDevelopmentChangeEvent : "has change events"
+    dbo_Commodity                ||--o{ ParcelExistingDevelopment   : "typed as"
+    dbo_Commodity                ||--o{ ParcelDevelopmentChangeEvent : "typed as"
+    dbo_ParcelGenealogy          ||--o| ParcelGenealogyEventEnriched : "extended by"
+    ParcelExistingDevelopment    ||--o{ ParcelDevelopmentChangeEvent : "year-over-year change triggers"
 ```
 
 The two pool-keyed buckets (`Bonus Units`, `Unused Capacity`) don't need
@@ -367,6 +388,18 @@ transaction (`dbo.TdrTransaction` + children) and every banked right
 
 ```mermaid
 erDiagram
+    dbo_TdrTransaction {
+        int TdrTransactionID PK
+        varchar TransactionTypeAbbreviation
+        datetime ApprovalDate
+        int CommodityID
+    }
+    dbo_ParcelPermitBankedDevelopmentRight {
+        int ParcelPermitBankedDevelopmentRightID PK
+        int ParcelPermitID FK
+        int LandCapabilityTypeID FK
+        int Quantity
+    }
     LedgerManualAdjustment {
         int AdjustmentID PK
         date EntryDate
@@ -379,11 +412,25 @@ erDiagram
         int ToPoolID FK "dbo.CommodityPool"
         int SendingParcelID FK "dbo.Parcel"
         int ReceivingParcelID FK "dbo.Parcel"
-        int PairedAdjustmentID FK "LedgerManualAdjustment - for manual Conversion entries; links the two sides (A out / B in)"
+        int PairedAdjustmentID FK "self-ref for manual conversion paired entries"
         varchar Rationale
         varchar RecordedBy
         datetime RecordedAt
     }
+    vCommodityLedger {
+        varchar source "corral_tdr | corral_banking | manual_qa"
+        int source_id
+        int PairingKey "null unless conversion"
+        date EntryDate
+        int CommodityID
+        int Quantity
+        varchar MovementType
+    }
+
+    dbo_TdrTransaction                       ||--o{ vCommodityLedger : "branch 1: fans out into ledger rows"
+    dbo_ParcelPermitBankedDevelopmentRight   ||--o{ vCommodityLedger : "branch 2: banking events"
+    LedgerManualAdjustment                   ||--o{ vCommodityLedger : "branch 3: manual QA"
+    LedgerManualAdjustment                   ||--o| LedgerManualAdjustment : "paired (self-ref)"
 ```
 
 ### `vCommodityLedger` — the view
@@ -524,6 +571,22 @@ erDiagram
         varchar IDValue
         datetime LoadedAt
     }
+    dbo_ParcelPermit {
+        int ParcelPermitID PK
+        varchar PermitNumber
+        datetime IssuedDate
+    }
+    dbo_ResidentialAllocation {
+        int ResidentialAllocationID PK
+        int IssuanceYear
+        int AllocationSequence
+    }
+
+    dbo_ParcelPermit             ||--o| PermitCompletion        : "1:1 sidecar"
+    dbo_ParcelPermit             ||--o{ vPermitAllocation       : "permit uses..."
+    dbo_ResidentialAllocation    ||--o{ vPermitAllocation       : "...allocation"
+    dbo_ParcelPermit             ||--o{ CrossSystemID           : "EntityType=permit"
+    dbo_ResidentialAllocation    ||--o{ CrossSystemID           : "EntityType=allocation"
 ```
 
 `PermitCompletion` extends `dbo.ParcelPermit` with the fields that live in
@@ -577,6 +640,28 @@ erDiagram
         varchar LastChangeSource
         varchar LastChangeRationale
     }
+    dbo_Jurisdiction {
+        int JurisdictionID PK
+        varchar Abbreviation
+    }
+    dbo_Commodity {
+        int CommodityID PK
+        varchar ShortName
+    }
+    dbo_CommodityPool {
+        int CommodityPoolID PK
+        varchar CommodityPoolName
+    }
+    dbo_Parcel {
+        int ParcelID PK
+        varchar ParcelNumber
+    }
+
+    dbo_Jurisdiction      ||--o{ CumulativeAccountingSnapshot : "rows per..."
+    dbo_Commodity         ||--o{ CumulativeAccountingSnapshot : "...Jur x Commodity"
+    dbo_CommodityPool     ||--o{ PoolDrawdownYearly           : "rows per pool x year"
+    dbo_Parcel            ||--o{ ParcelHistoryView            : "rows per parcel x year x commodity"
+    dbo_Commodity         ||--o{ ParcelHistoryView            : "typed as"
 ```
 
 | Dashboard | Driven by |
