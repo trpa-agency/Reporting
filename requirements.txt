@@ -1,0 +1,27 @@
+# TRPA Reporting — runtime dependencies
+#
+# The canonical Python environment is ArcGIS Pro's `arcgispro-py3`:
+#   C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/python.exe
+#
+# `arcpy` ships with ArcGIS Pro and is NOT pip-installable. If you clone this
+# repo outside an ArcGIS Pro install, the parcel_development_history_etl/
+# scripts that use `arcpy` will not run — the rest of the repo is portable.
+#
+# To install additions into an existing arcgispro-py3 env, clone it first:
+#   conda create --clone arcgispro-py3 --name arcgispro-py3-work
+#   conda activate arcgispro-py3-work
+#   pip install -r requirements.txt
+
+# Data
+pandas
+openpyxl          # pandas Excel reader/writer
+pyarrow           # parquet I/O (optional — notebooks skip parquet if missing)
+geopandas         # spatial joins in parcel_development_history_etl
+
+# Database
+sqlalchemy
+pyodbc            # ODBC driver for SQL Server (Corral)
+python-dotenv
+
+# Docs / site generation (used by erd/build_md_pages.py in CI)
+markdown>=3.6
