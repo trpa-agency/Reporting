@@ -23,3 +23,8 @@ notebooks/out/*
 
 # ETL logs — regenerated on each run
 parcel_development_history_etl/logs/*.log
+
+# Ledger prototype — rebuildable CSV outputs (keep hardcoded conversion_ratio)
+ledger_prototype/data/*.csv
+!ledger_prototype/data/conversion_ratio.csv
+ledger_prototype/views/*.csv

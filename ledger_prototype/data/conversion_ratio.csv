@@ -1,0 +1,13 @@
+FromCommodity,FromQty,ToCommodity,ToQty,EffectiveFrom,EffectiveTo,Source
+CFA,600,TAU,2,2013-01-01,,2013 Regional Plan
+TAU,2,CFA,600,2013-01-01,,2013 Regional Plan
+CFA,600,SFRUU,2,2013-01-01,,2013 Regional Plan
+SFRUU,2,CFA,600,2013-01-01,,2013 Regional Plan
+CFA,600,MFRUU,3,2013-01-01,,2013 Regional Plan
+MFRUU,3,CFA,600,2013-01-01,,2013 Regional Plan
+TAU,2,SFRUU,2,2013-01-01,,2013 Regional Plan
+SFRUU,2,TAU,2,2013-01-01,,2013 Regional Plan
+TAU,2,MFRUU,3,2013-01-01,,2013 Regional Plan
+MFRUU,3,TAU,2,2013-01-01,,2013 Regional Plan
+SFRUU,2,MFRUU,3,2013-01-01,,2013 Regional Plan
+MFRUU,3,SFRUU,2,2013-01-01,,2013 Regional Plan
