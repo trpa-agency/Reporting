@@ -20,14 +20,18 @@ All of this is anchored on the TRPA Cumulative Accounting framework
 
 ## Start here
 
-**[target_schema.md](./target_schema.md)** — the proposal itself. Read this
-first. It has:
+**[next_steps.md](./next_steps.md)** — 5-minute read for a working
+session. What we're building, where the data comes from, and the
+questions we need to close before DDL.
+
+**[target_schema.md](./target_schema.md)** — full proposal. Read after
+`next_steps.md` if you want the detail. It has:
 
 - Design principles (never duplicate Corral; five-bucket model; ETL-only writes)
 - 5 Mermaid ERDs (reference entities · new core tables · movement ledger · permit completion · dashboard outputs)
 - Loading strategy (where each table's data comes from)
-- **Open questions for the team** (~12 items to review)
-- Final table list: **8 new physical tables + 1 view + 2 materialized snapshots**
+- Open questions for the team
+- Final table list
 
 **[development_rights_erd.html](./development_rights_erd.html)** — browser-friendly
 viewer. 6 tabs total: 2 showing existing systems (Corral, LTinfo), 4 showing
@@ -43,9 +47,9 @@ the proposed new schema. Pan/zoom with scroll/drag. Dark theme.
 3. Go straight to the "Questions for the team" section at the end
 
 **If you want to know why these tables and not others (technical reviewers):**
-1. [raw_data_vs_corral.md](./raw_data_vs_corral.md) — what's missing from Corral
-2. [validation_findings.md](./validation_findings.md) — empirical proof the spreadsheets can't be replaced by Corral views
-3. [xlsx_decomposition.md](./xlsx_decomposition.md) — column-by-column response to "just load the XLSX"
+1. [raw_data_vs_corral.md](./raw_data_vs_corral.md) — what's in the spreadsheets that Corral doesn't hold
+2. [validation_findings.md](./validation_findings.md) — empirical gap analysis between Corral and the XLSX
+3. [xlsx_decomposition.md](./xlsx_decomposition.md) — column-by-column map from the XLSX into the proposed schema
 
 **If you're responsible for Corral, LTinfo, or the GIS systems:**
 1. [development_rights_erd.md](./development_rights_erd.md) — existing-systems inventory
@@ -86,9 +90,10 @@ Full list in [target_schema.md](./target_schema.md). The three highest-priority:
 | File | Status | Purpose |
 |---|---|---|
 | [development_rights_erd.md](./development_rights_erd.md) | Done | Inventory of the existing upstream systems (Corral + LTinfo + spreadsheets). |
-| [raw_data_vs_corral.md](./raw_data_vs_corral.md) | Done | Gap analysis — what's in Ken's spreadsheets that Corral doesn't hold. |
-| [validation_findings.md](./validation_findings.md) | Done | Empirical tests against the Feb-2024 Corral snapshot; proves the spreadsheets can't be replaced by Corral views. |
-| [xlsx_decomposition.md](./xlsx_decomposition.md) | Done | Column-by-column analysis of `Transactions_Allocations_Details.xlsx`. Answers the "just load the XLSX" proposal. |
+| [raw_data_vs_corral.md](./raw_data_vs_corral.md) | Done | Gap analysis — what's in the transactions spreadsheet that Corral doesn't hold. |
+| [validation_findings.md](./validation_findings.md) | Done | Empirical tests against the Feb-2024 Corral snapshot; quantifies what the spreadsheet covers beyond Corral views. |
+| [xlsx_decomposition.md](./xlsx_decomposition.md) | Done | Column-by-column map from `2025 Transactions and Allocations Details.xlsx` into the proposed schema. |
+| [next_steps.md](./next_steps.md) | Draft | 5-minute working-session brief: architecture summary + questions to close before DDL. |
 
 ### Machine-readable data (regenerable)
 | File | Purpose |
@@ -157,5 +162,4 @@ Edit `target_schema.md` directly to iterate on the proposal; re-run
 - **On the open questions**: reply with your preferred option (or a new one).
 - **On the overall shape**: look at the HTML viewer; comment on what's
   missing, duplicated, or in the wrong place.
-- **On the "just load the XLSX" question**: see [xlsx_decomposition.md](./xlsx_decomposition.md)
-  for the column-by-column response.
+- **On how XLSX columns land in the schema**: see [xlsx_decomposition.md](./xlsx_decomposition.md).

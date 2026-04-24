@@ -47,14 +47,14 @@ Addressing issues found by an architectural review before circulation:
 4. **Check the supporting docs if you want to know *why*:**
    - [raw_data_vs_corral.md](./raw_data_vs_corral.md) — what Corral doesn't hold.
    - [validation_findings.md](./validation_findings.md) — empirical tests.
-   - [xlsx_decomposition.md](./xlsx_decomposition.md) — why we don't load Ken's XLSX as a table.
+   - [xlsx_decomposition.md](./xlsx_decomposition.md) — how each XLSX column lands in the proposed schema.
 
 ### Key numbers at a glance
 
-- **The motivating fact: Corral's `ParcelCommodityInventory` tracks SFRUU/MFRUU
-  for only 39% of residential parcels.** This 61% coverage gap is the single
-  strongest reason the proposal exists: Ken's spreadsheets are filling a
-  structural hole, not denormalizing what's already there. See
+- **Corral's `ParcelCommodityInventory` tracks SFRUU/MFRUU for only 39% of
+  residential parcels.** This 61% coverage gap is the core reason the
+  proposal exists — the transactions spreadsheet fills a structural hole
+  that a Corral-only schema can't. See
   [validation_findings.md](./validation_findings.md) for the empirical test.
 - **7 new physical tables + 2 views + 3 materialized snapshots** in this proposal.
 - **16 Corral reference / transaction tables** reused as-is (no duplication).

@@ -1,12 +1,12 @@
 """
-Step 1 — Build output feature class from authoritative sources.
+Step 1 — Build output feature class from SOURCE_FC.
 
-For years 2012–2024: queries the All Parcels MapServer service layer for each
-year and inserts all features with APN + Year + Shape into OUTPUT_FC.  This
-gives a clean, gap-free geometry base directly from the canonical source.
-
-For 2025: the All Parcels service does not yet have a 2025 layer.  Rows are
-copied from SOURCE_FC WHERE YEAR = 2025 as a fallback.
+All CSV_YEARS (2012–2025) are copied from SOURCE_FC, which already mirrors
+the All Parcels canonical layers and crucially has valid geometry for every
+year.  The All Parcels REST service was previously used for 2013–2024 but
+returned features with null SHAPE@ through arcpy's SearchCursor — breaking
+the per-year spatial crosswalk in S03 and producing large unit shortfalls
+(2021+ most affected).
 
 Spatial attributes (County, Jurisdiction, Zoning, etc.) are populated later
 by Step 5.  Unit fields are populated by Steps 4 and 4b.
@@ -21,16 +21,10 @@ import arcpy
 from config import (
     SOURCE_FC, OUTPUT_FC, GDB,
     FC_APN, FC_YEAR, CSV_YEARS,
-    ALLPARCELS_URL, YEAR_LAYER,
-    COUNTY_CODE_MAP,
 )
 from utils import get_logger
 
 log = get_logger("s01_prepare_fc")
-
-# Years to pull from All Parcels service (excludes years with no layer)
-SERVICE_YEARS = [y for y in CSV_YEARS if y in YEAR_LAYER]
-FALLBACK_YEARS = [y for y in CSV_YEARS if y not in YEAR_LAYER]
 
 
 def _create_empty_fc() -> None:
@@ -39,82 +33,33 @@ def _create_empty_fc() -> None:
     Using SOURCE_FC as template copies all field definitions (types, lengths,
     aliases) so S04, S04b, and S05 can write to their expected fields without
     needing to add them first.  No data is copied.
+
+    `template` only copies field schema — spatial reference must be passed
+    explicitly via `spatial_reference=`, otherwise the new FC gets SR=Unknown
+    and InsertCursor silently drops geometry from sources whose SR differs
+    (e.g. Web Mercator from AllParcels REST).
     """
     if arcpy.Exists(OUTPUT_FC):
         log.info("Deleting existing OUTPUT_FC")
         arcpy.management.Delete(OUTPUT_FC)
 
     out_name = OUTPUT_FC.split("\\")[-1]
+    src_sr   = arcpy.Describe(SOURCE_FC).spatialReference
 
     arcpy.management.CreateFeatureclass(
-        out_path      = GDB,
-        out_name      = out_name,
-        geometry_type = "POLYGON",
-        template      = SOURCE_FC,
+        out_path          = GDB,
+        out_name          = out_name,
+        geometry_type     = "POLYGON",
+        template          = SOURCE_FC,
+        spatial_reference = src_sr,
     )
-    log.info("Created empty OUTPUT_FC (schema from SOURCE_FC): %s", OUTPUT_FC)
-
-
-def _insert_from_service(year: int) -> int:
-    """
-    Query the All Parcels service layer for *year* and insert all features
-    (Shape + APN + COUNTY + Year) into OUTPUT_FC.
-    COUNTY is needed by S02's El Dorado APN fix before S05 runs.
-    Returns number of rows inserted.
-    """
-    layer_idx = YEAR_LAYER[year]
-    url       = f"{ALLPARCELS_URL}/{layer_idx}"
-    lyr       = f"s01_svc_{year}"
-
-    if arcpy.Exists(lyr):
-        arcpy.management.Delete(lyr)
-
-    try:
-        arcpy.management.MakeFeatureLayer(url, lyr)
-    except Exception as exc:
-        log.error("  Year %d: cannot connect to service layer %d — %s", year, layer_idx, exc)
-        return 0
-
-    # Find APN and JURISDICTION fields (case-insensitive).
-    # The All Parcels service uses JURISDICTION (full name) not COUNTY (code).
-    # We map JURISDICTION -> COUNTY code via COUNTY_CODE_MAP.
-    field_map        = {f.name.upper(): f.name for f in arcpy.ListFields(lyr)}
-    apn_field        = field_map.get(FC_APN.upper())
-    juris_field      = (field_map.get("JURISDICTION") or
-                        next((v for k, v in field_map.items()
-                              if "JURISDICTI" in k), None))
-
-    if not apn_field:
-        log.error("  Year %d: APN field not found in service layer.", year)
-        arcpy.management.Delete(lyr)
-        return 0
-
-    if not juris_field:
-        log.warning("  Year %d: JURISDICTION field not found in service layer — COUNTY will be null.", year)
-
-    read_fields   = ["SHAPE@", apn_field] + ([juris_field] if juris_field else [])
-    insert_fields = ["SHAPE@", FC_APN, FC_YEAR, "COUNTY"]
-
-    count = 0
-    with arcpy.da.SearchCursor(lyr, read_fields) as src, \
-         arcpy.da.InsertCursor(OUTPUT_FC, insert_fields) as ins:
-        for row in src:
-            shape, apn = row[0], row[1]
-            juris      = row[2] if juris_field else None
-            county     = COUNTY_CODE_MAP.get(juris) if juris else None
-            if apn:
-                ins.insertRow([shape, str(apn).strip(), year, county])
-                count += 1
-
-    arcpy.management.Delete(lyr)
-    return count
+    log.info("Created empty OUTPUT_FC (schema + SR %s): %s", src_sr.name, OUTPUT_FC)
 
 
 def _insert_from_source_fc(year: int) -> int:
     """
-    Copy rows for *year* from SOURCE_FC into OUTPUT_FC.
-    Used as fallback for years with no All Parcels service layer (currently 2025).
-    Includes COUNTY so the El Dorado fix works correctly.
+    Copy rows for *year* from SOURCE_FC into OUTPUT_FC (Shape + APN + COUNTY).
+    COUNTY is needed by S02's El Dorado APN fix before S05 runs.
     Returns number of rows inserted.
     """
     if not arcpy.Exists(SOURCE_FC):
@@ -193,23 +138,13 @@ def _dedup_fc() -> int:
 
 def run() -> None:
     log.info("=== Step 1: Build output feature class ===")
-    log.info("Service years : %s", SERVICE_YEARS)
-    log.info("Fallback years: %s (from SOURCE_FC)", FALLBACK_YEARS)
+    log.info("All years sourced from SOURCE_FC: %s", SOURCE_FC)
 
     _create_empty_fc()
 
     year_counts = {}
-
-    # Pull from All Parcels service for years with a layer
-    for year in SERVICE_YEARS:
-        log.info("  Year %d (service layer %d) ...", year, YEAR_LAYER[year])
-        n = _insert_from_service(year)
-        year_counts[year] = n
-        log.info("    %d rows inserted", n)
-
-    # Copy from SOURCE_FC for years without a service layer
-    for year in FALLBACK_YEARS:
-        log.info("  Year %d (SOURCE_FC fallback) ...", year)
+    for year in CSV_YEARS:
+        log.info("  Year %d (from SOURCE_FC) ...", year)
         n = _insert_from_source_fc(year)
         year_counts[year] = n
         log.info("    %d rows inserted", n)

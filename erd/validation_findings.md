@@ -1,19 +1,14 @@
-# Validation findings — can Corral replace raw_data?
+# Validation findings — Corral coverage vs the raw_data spreadsheets
 
-> **Purpose**: empirical tests of two reproducibility claims about Corral.
-> Both failed — which is why [target_schema.md](./target_schema.md)
-> introduces `ParcelExistingDevelopment`, `PermitCompletion`, and
-> `CrossSystemID` instead of just writing views over Corral.
-> **Audience**: skeptics of the "Corral can't do this" claim. These are the
-> numbers.
+> **Purpose**: empirical tests of two reproducibility claims about Corral,
+> with the numbers behind each.
+> **Audience**: technical reviewers evaluating the proposed schema.
 
-
-> **The answer is no, and that's why the proposed schema exists.**
-> See [target_schema.md](./target_schema.md) — the 61% PCI coverage gap
-> here is why `ParcelExistingDevelopment` is sourced from the GIS enterprise
-> GDB and not from Corral, and the 9-of-22 column gap in the transactions
-> spreadsheet drives the `Permit`, `PermitAllocation`, `CrossSystemID`, and
-> `ParcelDevelopmentChangeEvent` tables.
+> **TL;DR**: Corral covers most but not all of what the spreadsheets carry.
+> The 61% PCI coverage gap drives `ParcelExistingDevelopment` (GIS-sourced
+> rather than Corral-sourced); the 9-of-22 column gap on the transactions
+> spreadsheet drives `Permit`, `PermitAllocation`, `CrossSystemID`, and
+> `ParcelDevelopmentChangeEvent`. Details below.
 
 > **Context correction since this doc was first written**: Corral IS the
 > LTinfo backend. The snapshot tested here is a Feb-2024 backup. Live
@@ -25,8 +20,8 @@ Both are read-only against the Feb 2024 Corral snapshot.
 
 ## TL;DR
 
-- **Claim A — AuditLog can reconstruct yearly commodity inventory: FALSE.** Not because AuditLog doesn't work, but because `dbo.ParcelCommodityInventory` only tracks SFRUU/MFRUU for **7 of 18 sampled residential parcels (39%)**. Most physical dwellings in Tahoe were never entered into PCI for residential commodities. The CSV is capturing data Corral simply doesn't hold.
-- **Claim B — a view over TdrTransaction* + Parcel + Commodity + permits reproduces the transactions spreadsheet: PARTIAL.** 78% of rows join cleanly and 3 of 12 core columns match >70%. **9 of the 22 spreadsheet columns aren't sourced from Corral at all** — they come from external permit/assessor systems that live alongside Corral.
+- **Claim A — AuditLog can reconstruct yearly commodity inventory: does not hold.** Not because AuditLog doesn't work, but because `dbo.ParcelCommodityInventory` only tracks SFRUU/MFRUU for **7 of 18 sampled residential parcels (39%)**. Most physical dwellings in Tahoe were never entered into PCI for residential commodities. The CSV is capturing data Corral simply doesn't hold.
+- **Claim B — a view over TdrTransaction* + Parcel + Commodity + permits reproduces the transactions spreadsheet: partial.** 78% of rows join cleanly and 3 of 12 core columns match >70%. **9 of the 22 spreadsheet columns aren't sourced from Corral at all** — they come from external permit/assessor systems that live alongside Corral.
 
 Both results push the same direction: **the raw_data spreadsheets are not redundant denormalizations of Corral**. They're parallel sources filling gaps that the current Corral schema doesn't cover — physical inventory not triggered by permits, permit workflow status, county-assessor year-built, and external project identifiers.
 
