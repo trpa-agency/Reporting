@@ -43,9 +43,8 @@ cells are stable.
   isn't in scope here. Ledger facts come from Corral TDR + banking + the
   transition table only.
 - **Not validated end-to-end yet.** Five questions are outstanding in
-  [`erd/email_to_ken_ledger_v1.md`](../erd/email_to_ken_ledger_v1.md);
-  `MaxCapacity` stays null and the 2023-report-match check may fail until
-  those answers land.
+  [`erd/next_steps.md`](../erd/next_steps.md); `MaxCapacity` stays null
+  and the 2023-report-match check may fail until those answers land.
 
 ## What "good" looks like after tomorrow
 

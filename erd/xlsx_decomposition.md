@@ -1,169 +1,79 @@
-# `Transactions_Allocations_Details.xlsx` — what to keep, what to kill
+# `2025 Transactions and Allocations Details.xlsx` — column mapping
 
-> **Purpose**: response to the "just load Ken's XLSX as a table" proposal.
-> **Audience**: anyone advocating that approach. Read before the target
-> schema review.
-> **TL;DR**: 1 column dies, 12 columns sync from their real upstream
-> sources, 8 columns ETL into net-new tables in [target_schema.md](./target_schema.md),
-> 1 column is derived. Don't load the XLSX as-is.
+Column-by-column map of the 22-column transactions spreadsheet
+([`data/raw_data/2025 Transactions and Allocations Details.xlsx`](../data/raw_data/2025%20Transactions%20and%20Allocations%20Details.xlsx),
+2,030 rows) to the proposed schema in [target_schema.md](./target_schema.md).
 
-## The single strongest argument, up front
+Purpose: show where each XLSX column belongs in the v1 schema so the
+spreadsheet can keep functioning as an authoring surface while
+downstream reports read from normalized tables.
 
-The XLSX has a column called **`Status Jan 2026`**.
+## Three categories
 
-If we load the XLSX as a table, next month someone adds **`Status Feb 2026`**.
-And **`Status Mar 2026`** after that. The schema becomes a living log of
-"the month we last looked." In a year we have twelve stale columns plus the
-real one. In five years, sixty.
-
-Everything else in this doc is a variation on that one failure mode. The
-XLSX is valuable **data** that needs to come into the new DB — but the
-XLSX's *shape*, encoded as a SQL table, guarantees technical debt.
-
-## The cost-benefit the "just load it" proposal deserves
-
-The counterargument isn't that loading the XLSX is dumb — it's that loading
-it looks cheap and the alternative looks expensive. Let's price both:
-
-| | Load as-is | Decompose (this proposal) |
+| # | Category | What happens at ETL time |
 |---|---|---|
-| Initial build effort | ~2 hours (pandas → SQL) | ~1 week (8 new columns distributed across 3 tables) |
-| Time to first query | ~2 hours | ~1 week |
-| Every subsequent query | ad-hoc SQL against stale wide table; staff interprets which columns to trust | standard joins against normalized tables; trust is structural |
-| Next month's update | Add `Status Feb 2026` column; update dashboards to show it | Ken updates XLSX; scheduled ETL refreshes the 8 net-new columns; no schema change |
-| 12 months out | 12 stale status columns; dashboards either ignore them or display all 12 | Schema unchanged; ETL keeps syncing; dashboards still correct |
-| Cost of being wrong | Divergence from Corral (already 22% join-rate miss on TransactionID) is baked in; every query carries it | Divergence is fixable in one place (the decomposition rules); queries are always correct |
-| What Ken experiences | Same XLSX workflow | Same XLSX workflow (per Q12 in target_schema.md) |
+| **1** | Already in Corral / LTinfo | Sync from LTinfo JSON web services into the proposed bucket tables |
+| **2** | In the Accela permit workflow | Sync from Accela (or today via Corral's `AccelaCAPRecord` bridge) into `PermitCompletion` |
+| **3** | XLSX is the authoritative source | ETL into specific new-schema tables on a one-time seed, with ongoing updates from the XLSX until the source system is automated |
+| **X** | Derived or point-in-time snapshot | Not copied into the schema — computed on demand instead |
 
-The decomposition is ~1 week of engineering that saves every future month
-of staff time reconciling stale columns. Loading as-is saves the week but
-creates 5+ years of recurring debt.
-
-**Ken isn't disrupted either way.** The proposal keeps his XLSX as the
-authoring surface. The only difference is whether the data flows through
-normalization before it lands in the DB.
-
-
-Column-by-column mapping of Ken's 22-column transactions spreadsheet
-([data/raw_data/Transactions_Allocations_Details.xlsx](../data/raw_data/Transactions_Allocations_Details.xlsx),
-1,853 rows) to the proposed v1 schema in [target_schema.md](./target_schema.md).
-
-**Bottom line**: **do not** load the XLSX as a table in the new DB. It's a
-denormalized report that merges three upstream systems plus stale snapshot
-columns. Decompose it into the appropriate normalized tables instead.
-
-## The three categories every column falls into
-
-| # | Category | What to do |
-|---|---|---|
-| **1** | Already in LTinfo/Corral | Don't duplicate; sync from LTinfo JSON web services into the proposed bucket tables |
-| **2** | In Accela permit workflow | Sync from Accela (or today via Corral's `AccelaCAPRecord` bridge) into `Permit` |
-| **3** | Ken's unique contribution | Genuinely new data; ETL into specific new-schema tables on a one-time seed, with ongoing updates from Ken until we can automate the source |
-| **X** | Stale / derived / junk | Kill it. Don't migrate. |
-
-## Column-by-column decomposition
+## Column-by-column
 
 | # | XLSX column | Category | Destination in proposed schema | Notes |
 |---|---|:---:|---|---|
-| 1 | TransactionID | 1 | *derived*: `{LeadAgencyAbbreviation}-{TransactionTypeAbbreviation}-{TdrTransactionID}` | Synthetic key. Expose as a computed column on `CommodityLedgerEntry` or a view; don't store. |
-| 2 | Transaction Type | 1 | `CommodityLedgerEntry.MovementType` (via TransactionType mapping) | 9 Corral `TransactionType` codes map to the 7 canonical `MovementType` values. |
-| 3 | APN | 1 | `ParcelAllocation.ParcelID` → `Parcel.APN`, or `CommodityLedgerEntry.ReceivingParcelID` | Resolved through genealogy at load time. |
-| 4 | Jurisdiction | 1 | `Parcel.JurisdictionID` → `Jurisdiction.Abbreviation` | Already in Corral; don't duplicate. |
-| 5 | Development Right | 1 | `Commodity.DisplayName` via `ParcelAllocation.CommodityID` | XLSX adds jurisdiction suffix ("... - El Dorado County") — that's derivable from the pool, not a property of the commodity. |
-| 6 | Allocation Number | 1 | `ParcelAllocation.AllocationNumber` | e.g. `EL-21-O-08`. Already issued by Corral. |
-| 7 | Quantity | 1 | `ParcelAllocation.Quantity` or `CommodityLedgerEntry.Quantity` | Cast to int on load; XLSX has format inconsistencies. |
-| 8 | Transaction Record ID | 2 | `Permit.AccelaID` (via `CrossSystemID` with `IDType='accela'`) | Examples: `ERSP2014-0375`. Primary bridge to Accela. |
-| 9 | Transaction Created Date | 1 | `CommodityLedgerEntry.EntryDate` for the `AllocationRelease` entry | Derivable from `TdrTransactionStateHistory` minimum `TransitionDate`. |
-| 10 | Transaction Acknowledged Date | 1 | `CommodityLedgerEntry.EntryDate` for the `AllocationUse` entry (or `ParcelAllocation.AssignedDate`) | Derivable from `TdrTransactionStateHistory`. |
-| 11 | Development Type | 3 | `Permit.PermitType` (or new `PermitDevelopmentType` enum) | "Allocation", "Banked Unit", etc. High-level classification. |
-| 12 | Detailed Development Type | 3 | `Permit.ProjectDescription` or `Permit.PermitSubType` | Free-text / semi-structured ("Multi-Family Condo Unit from Banked..."). Keep as text on `Permit`. |
-| 13 | Status Jan 2026 | X | **drop** | Stale snapshot. Replaced by live `Permit.CompletionStatus` + `ParcelAllocation.Status` from LTinfo/Accela sync. |
-| 14 | TRPA/MOU Project # | 3 | `CrossSystemID` with `IDType='trpa_mou'` | Can be multi-value ("ERSP2014-0375 plus Revisions") — parse on load. |
-| 15 | TRPA Status | 3 | `ParcelAllocation.Status` | "Issued", "Finaled", "Completed" — maps to the 6-value `Status` enum. **Not** the same as `TdrTransaction.TransactionStateID` (which was "Proposed" for all the samples we checked — different concept). |
-| 16 | TRPA Status Date | 3 | `ParcelAllocation.AssignedDate` or `ParcelAllocation.UsedDate` | Depends on which status the date belongs to. |
-| 17 | Local Jurisdiction Project # | 2 | `Permit.PermitNumber` (and `CrossSystemID` with `IDType='local_jurisdiction'` if distinct) | e.g. `339626`. |
-| 18 | Local Status | 2 | `Permit.CompletionStatus` | "Issued", "Finaled", "Expired". Lives with the permit, not the allocation. |
-| 19 | Local Status Date | 2 | `Permit.FinalInspectionDate` / `Permit.IssuedDate` etc. | Depends on which status. |
-| 20 | Year Built | 3 | `Permit.YearBuilt` | **Ken's unique contribution.** From county assessor; not in Corral or LTinfo. |
-| 21 | PM Year Built | 3 | `Permit.PMYearBuilt` (new column) or `Permit.InternalYearBuilt` | "Property Manager" year-built — Ken's internal tracking, may differ from assessor. |
-| 22 | Notes | 3 | `Permit.Notes` or `ParcelDevelopmentChangeEvent.Rationale` | Free text; route to whichever entity the note is really about. |
+| 1 | TransactionID | 1 | *derived*: `{LeadAgencyAbbreviation}-{TransactionTypeAbbreviation}-{TdrTransactionID}` | Synthetic key. Exposed as a computed column on `LedgerEntry` or a view; not stored. |
+| 2 | Transaction Type | 1 | `LedgerEntry.MovementType` (via TransactionType mapping) | 9 Corral `TransactionType` codes map to the 10 canonical `MovementType` values in the ledger. |
+| 3 | APN | 1 | `LedgerEntry.ParcelNumber` via `dbo.Parcel` | Resolved through genealogy at load time. |
+| 4 | Jurisdiction | 1 | `Parcel.JurisdictionID` → `Jurisdiction.Abbreviation` | Already in Corral. |
+| 5 | Development Right | 1 | `Commodity.CommodityDisplayName` via the ledger's `CommodityShortName` | XLSX adds a jurisdiction suffix ("... - El Dorado County") — derivable from the pool. |
+| 6 | Allocation Number | 3 | `LedgerEntryAnnotation.AllocationNumber` | e.g. `EL-21-O-08`. Issued by Corral upstream; kept on the annotation for traceability. |
+| 7 | Quantity | 1 | `LedgerEntry.Quantity` | Signed value in the ledger; XLSX stores the absolute value + a separate debit flag. |
+| 8 | Transaction Record ID | 2 | `CrossSystemID` with `IDType='accela'` | Examples: `ERSP2014-0375`. Primary bridge to Accela. |
+| 9 | Transaction Created Date | 3 | `LedgerEntryAnnotation.TransactionCreatedDate` | Earliest `TdrTransactionStateHistory` date where Corral populates it; XLSX is authoritative where Corral is empty. |
+| 10 | Transaction Acknowledged Date | 3 | `LedgerEntryAnnotation.TransactionAcknowledgedDate` | Same — XLSX fills in where Corral's state history is sparse. |
+| 11 | Development Type | 3 | `LedgerEntryAnnotation.DevelopmentType` | "Allocation", "Banked Unit", etc. — high-level classification not in Corral. |
+| 12 | Detailed Development Type | 3 | `LedgerEntryAnnotation.DetailedDevelopmentType` | Free text / semi-structured ("Multi-Family Condo Unit from Banked..."). Kept as-is; parsed downstream if needed. |
+| 13 | Status Jan 2026 | X | *not copied* | Point-in-time snapshot replaced by live `CompletionStatus` from the LTinfo / Accela sync. |
+| 14 | TRPA/MOU Project # | 3 | `CrossSystemID` with `IDType='trpa_mou'` | Can be multi-value ("ERSP2014-0375 plus Revisions") — parsed on load. |
+| 15 | TRPA Status | 3 | `PermitCompletion.CompletionStatusEnriched` | "Issued", "Finaled", "Completed" — permit workflow state, not TDR-transaction state. |
+| 16 | TRPA Status Date | 3 | `PermitCompletion.LastStatusDate` | Date accompanying the status above. |
+| 17 | Local Jurisdiction Project # | 2 | `ParcelPermit.PermitNumber` (+ `CrossSystemID` with `IDType='local_jurisdiction'`) | e.g. `339626`. |
+| 18 | Local Status | 2 | `PermitCompletion.LocalStatus` | "Issued", "Finaled", "Expired" from the local permit workflow. |
+| 19 | Local Status Date | 2 | `PermitCompletion.LocalStatusDate` | |
+| 20 | Year Built | 3 | `LedgerEntryAnnotation.YearBuilt` | **XLSX-authoritative** — sourced from county assessor; not in Corral or LTinfo today. |
+| 21 | PM Year Built | 3 | `LedgerEntryAnnotation.PmYearBuilt` | Internal year-built that may differ from the assessor's value. |
+| 22 | Notes | 3 | `LedgerEntryAnnotation.SupplementalNotes` | Free text; routed to the annotation on the matching ledger entry. |
 
 ## Counts by category
 
-| Category | # cols | Action |
+| Category | # cols | ETL action |
 |---|---:|---|
-| 1 — already in LTinfo/Corral | 8 | Sync, don't duplicate |
-| 2 — in Accela permit workflow | 4 | Sync from Accela / Corral bridge |
-| 3 — Ken's unique contribution | 8 | ETL into new-schema tables |
-| X — stale / junk | 1 | Drop (`Status Jan 2026`) |
-| *Derived from other columns* | 1 | (TransactionID is synthetic) |
+| 1 — Already in Corral / LTinfo | 6 | Sync from source; don't copy into the ledger itself |
+| 2 — In the Accela permit workflow | 4 | Sync from Accela / Corral bridge |
+| 3 — XLSX-authoritative | 10 | Seed + ongoing updates into `LedgerEntryAnnotation` + `CrossSystemID` |
+| X — Derived / snapshot | 1 | Replaced by live-status join (`Status Jan 2026`) |
+| *Synthetic* | 1 | `TransactionID` — computed on demand |
 
-## Why "just load the XLSX" is the wrong answer
+## How the XLSX and the new schema coexist
 
-1. **Embeds format inconsistencies as data.** "1" vs `1.0`, date strings with
-   `00:00:00` suffixes, multi-valued cells like `"ERSP2014-0375 plus Revisions"`.
-   Loading as-is means the new DB carries these forever.
-2. **No FKs, no integrity.** APN → Parcel, TransactionID → TdrTransaction,
-   AccelaID → Permit — all would be string columns with no referential
-   constraints. You can't trust any join.
-3. **Stale snapshot columns are load-bearing.** `Status Jan 2026` is a point-in-time
-   column that becomes wrong the moment it's loaded. Perpetuating that pattern
-   means adding a `Status Feb 2026`, `Status Mar 2026`, ... columns every month.
-4. **Denormalization hides the business model.** The XLSX collapses allocation ↔
-   transaction ↔ permit ↔ parcel ↔ commodity into one wide row. The TRPA
-   Cumulative Accounting framework is explicitly a **bucket model**; forcing
-   it into a single flat table loses the bucket structure that makes the
-   whole accounting identity work.
-5. **Duplicates sources of truth.** 12 of the 22 columns are already in LTinfo
-   or Accela. Loading them copies data that goes stale as soon as the source
-   updates. Worse, the loaded copy can silently diverge (and *has* diverged,
-   per the 22% of rows that don't join on TransactionID in
-   [validation_findings.md](./validation_findings.md)).
+- The **XLSX stays** as the authoring surface for the 10 category-3 columns
+  until county-assessor and TRPA/MOU project tracking can be automated at
+  source. No change to the daily workflow.
+- The **ledger reads** the XLSX on a scheduled cadence (nightly or manual
+  refresh) and upserts the category-3 columns into
+  `LedgerEntryAnnotation`. Every update is keyed on `(SourceFile,
+  SourceRowNumber)` so re-loads are idempotent.
+- **Downstream reports** (cumulative accounting, allocation drawdown,
+  parcel history) read from the ledger views, not the XLSX directly.
+  This means the XLSX's local quirks (trailing spaces, format variance,
+  multi-value cells) don't propagate into published numbers — they're
+  normalized at load time.
 
-## What to load instead
+## What this replaces
 
-**One-time seed (Ken's unique contribution, category 3 columns only)**:
-
-- UPSERT into `Permit` keyed on `AccelaID`: `PermitType`, `ProjectDescription`,
-  `YearBuilt`, `PMYearBuilt`, `CompletionStatus` (derived from TRPA Status +
-  Local Status merge), `Notes`.
-- INSERT into `CrossSystemID` for each `TRPA/MOU Project #` with
-  `IDType='trpa_mou'`.
-
-**Ongoing (everything else)**:
-
-- Pull from LTinfo `GetTransactedAndBankedDevelopmentRights` → fan out into
-  `ParcelAllocation` + `CommodityLedgerEntry` (covers categories 1).
-- Pull from Accela (via Corral bridge for now, direct API later) →
-  `Permit.PermitNumber`, `CompletionStatus`, `FinalInspectionDate`, etc.
-  (covers category 2).
-
-**Kill list**:
-
-- `Status Jan 2026` column — not loaded at all. Replaced by live `ParcelAllocation.Status`.
-- Synthetic `TransactionID` — not stored; derive on demand in views.
-
-## How to handle the handoff from Ken
-
-Until county-assessor + TRPA-MOU project tracking is automated, Ken's XLSX
-stays as the manual source for category-3 columns. Options:
-
-1. **Replace the XLSX** with a simple form-entry app against the new DB.
-   Ken types `YearBuilt` once; no more reconciling spreadsheet copies.
-2. **Keep the XLSX** as Ken's authoring surface; add a scheduled ETL
-   (`python erd/load_ken_transactions.py`) that reads the XLSX, upserts the
-   category-3 columns, and logs what changed.
-
-Option 2 is cheaper short-term and zero-risk to Ken's workflow. Option 1
-is the v2+ target.
-
-## Summary for your coworker
-
-The XLSX is valuable. The **data in it** about Year Built and TRPA/MOU
-Project # is authoritative nowhere else. But loading the table as-is means
-importing the denormalization, the stale snapshot columns, and the
-duplicate-source problem. The right move is to decompose it: 8 columns
-become the seed for 3 new-schema tables, 12 columns sync from their real
-upstream sources, 1 column gets killed. The TRPA Cumulative Accounting
-framework requires a bucket model — a flat transactions table can't
-express it.
+The v0 prototype of `LedgerEntryAnnotation` is already shipping as
+[`notebooks/02_build_transition_table.ipynb`](../notebooks/02_build_transition_table.ipynb)
+writing to `notebooks/out/corral_transition_table.csv`. The ledger
+prototype in [`ledger_prototype/build_ledger.ipynb`](../ledger_prototype/build_ledger.ipynb)
+reads that CSV as input. When the SDE DB lands, both move into SQL
+tables with the same column shape.
