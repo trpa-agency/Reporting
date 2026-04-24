@@ -20,9 +20,12 @@ import pandas as pd
 
 from config import (
     OUTPUT_FC, FC_APN, FC_YEAR, FC_UNITS, FC_COUNTY,
+    FC_TOURIST_UNITS, FC_COMMERCIAL_SQFT,
     SPATIAL_FIELDS, CSV_YEARS, CSV_PATH, EL_PAD_YEAR,
     FC_NATIVE_YEARS,
-    QA_UNITS_BY_YEAR, QA_LOST_APNS,
+    TOURIST_UNITS_CSV, COMMERCIAL_SQFT_CSV,
+    CSV_TOURIST_YEAR_PREFIX, CSV_COMMERCIAL_YEAR_PREFIX,
+    QA_UNITS_BY_YEAR, QA_TAU_BY_YEAR, QA_CFA_BY_YEAR, QA_LOST_APNS,
     QA_DUPLICATE_APN_YEAR, QA_SPATIAL_COMPLETENESS,
     QA_GENEALOGY_APPLIED, QA_APN_CROSSWALK, QA_FC_NOT_IN_CSV,
     QA_UNIT_RECONCILIATION,
@@ -38,6 +41,7 @@ _3D = re.compile(r"^\d{3}-\d{2,3}-0\d{2}$")
 def _read_fc() -> pd.DataFrame:
     """Read the output FC into a DataFrame."""
     qa_fields = [FC_APN, FC_YEAR, FC_UNITS, FC_COUNTY,
+                 FC_TOURIST_UNITS, FC_COMMERCIAL_SQFT,
                  "WITHIN_TRPA_BNDY", "FC_Native_Units", "Unit_Source"] + SPATIAL_FIELDS
     existing  = {f.name for f in arcpy.ListFields(OUTPUT_FC)}
     read      = [f for f in qa_fields if f in existing]
@@ -54,10 +58,52 @@ def _read_fc() -> pd.DataFrame:
 
     df = pd.DataFrame(rows).rename(columns={
         FC_APN: "APN", FC_YEAR: "Year",
-        FC_UNITS: "FC_Units", FC_COUNTY: "COUNTY"})
+        FC_UNITS: "FC_Units", FC_COUNTY: "COUNTY",
+        FC_TOURIST_UNITS: "FC_TAU", FC_COMMERCIAL_SQFT: "FC_CFA"})
     df["FC_Units"] = df["FC_Units"].fillna(0)
+    if "FC_TAU" in df.columns: df["FC_TAU"] = df["FC_TAU"].fillna(0)
+    if "FC_CFA" in df.columns: df["FC_CFA"] = df["FC_CFA"].fillna(0)
     log.info("FC rows read: %d", len(df))
     return df
+
+
+def _load_wide_csv_totals(csv_path: str, year_prefix: str) -> pd.Series:
+    """Sum a wide-format APN x <prefix><year> CSV to per-year totals.
+    Returns Series indexed by Year with the summed value.
+    """
+    from pathlib import Path
+    if not Path(csv_path).exists():
+        return pd.Series(dtype=float)
+    df = pd.read_csv(csv_path, dtype=str)
+    if "APN" not in df.columns:
+        df = df.rename(columns={df.columns[0]: "APN"})
+    yr_cols = [c for c in df.columns if c.upper().startswith(year_prefix.upper())]
+    if not yr_cols:
+        return pd.Series(dtype=float)
+    long = df.melt(id_vars="APN", value_vars=yr_cols,
+                   var_name="Year_Label", value_name="Value")
+    long["Year"]  = long["Year_Label"].str.extract(r"(\d{4})").astype(int)
+    long["Value"] = pd.to_numeric(long["Value"], errors="coerce").fillna(0)
+    return long[long["Year"].isin(CSV_YEARS)].groupby("Year")["Value"].sum()
+
+
+def _check_wide_totals(label: str, csv_totals: pd.Series, fc_totals: pd.Series,
+                       gdb_table: str) -> None:
+    """Emit a per-year CSV-vs-FC diff check (parallel to Check 1)."""
+    df = pd.concat([csv_totals.rename("CSV_Total"),
+                    fc_totals.rename("FC_Total")], axis=1)
+    df = df.reindex(sorted(CSV_YEARS)).fillna(0)
+    df["Diff"]   = (df["FC_Total"] - df["CSV_Total"]).round(2)
+    df["Status"] = df["Diff"].apply(lambda d: "OK" if abs(d) < 0.5 else "FLAG")
+    df = df.reset_index().rename(columns={"index": "Year"})
+
+    log.info("\n  %-6s  %-12s  %-12s  %-10s  %s",
+             "Year", "CSV_Total", "FC_Total", "Diff", "Status")
+    for _, r in df.iterrows():
+        log.info("  %-6d  %-12.0f  %-12.0f  %-+10.0f  %s",
+                 r.Year, r.CSV_Total, r.FC_Total, r.Diff, r.Status)
+
+    write_qa_table(df, gdb_table)
 
 
 def _categorise_lost(apn: str, yrs_lost: list, yrs_in_fc: set) -> tuple[str, str]:
@@ -267,6 +313,20 @@ def run(df_csv: pd.DataFrame) -> None:
                  r.Year, r.CSV_Total, r.FC_Total, r.Diff, r.Status)
 
     write_qa_table(df_yr, QA_UNITS_BY_YEAR)
+
+    # ── Check 1b: Tourist Accommodation Units by year ──────────────────────
+    if "FC_TAU" in df_fc.columns:
+        log.info("Check 1b: Tourist Accommodation Units by year ...")
+        tau_csv_tot = _load_wide_csv_totals(TOURIST_UNITS_CSV, CSV_TOURIST_YEAR_PREFIX)
+        tau_fc_tot  = df_fc.groupby("Year")["FC_TAU"].sum()
+        _check_wide_totals("TAU", tau_csv_tot, tau_fc_tot, QA_TAU_BY_YEAR)
+
+    # ── Check 1c: Commercial Floor Area SqFt by year ───────────────────────
+    if "FC_CFA" in df_fc.columns:
+        log.info("Check 1c: Commercial Floor Area SqFt by year ...")
+        cfa_csv_tot = _load_wide_csv_totals(COMMERCIAL_SQFT_CSV, CSV_COMMERCIAL_YEAR_PREFIX)
+        cfa_fc_tot  = df_fc.groupby("Year")["FC_CFA"].sum()
+        _check_wide_totals("CFA", cfa_csv_tot, cfa_fc_tot, QA_CFA_BY_YEAR)
 
     # ── Check 2: Lost APNs ────────────────────────────────────────────────
     log.info("Check 2: Lost APNs ...")

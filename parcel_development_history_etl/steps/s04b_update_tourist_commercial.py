@@ -33,6 +33,7 @@ from config import (
     GENEALOGY_TAHOE,
     FC_TOURIST_UNITS, FC_COMMERCIAL_SQFT,
     CSV_TOURIST_YEAR_PREFIX, CSV_COMMERCIAL_YEAR_PREFIX,
+    QA_DATA_DIR,
 )
 from utils import get_logger, build_el_dorado_fix, apply_el_dorado_fix
 sys.path.insert(0, str(__import__('pathlib').Path(__file__).parent))  # steps/
@@ -107,6 +108,41 @@ def _load_wide_csv(csv_path: str, label: str, year_prefix: str,
     return lookup
 
 
+# ── Crosswalk application ─────────────────────────────────────────────────────
+
+def _apply_crosswalk(lookup: dict, label: str) -> dict:
+    """
+    Apply S03's QA_APN_Crosswalk to a (APN, Year) -> value lookup.
+
+    For each crosswalk row (CSV_APN → FC_APN, Year): if the lookup has a value
+    keyed on (CSV_APN, Year), sum that value onto (FC_APN, Year) so the write
+    step lands on the FC parcel that actually exists for that year.  Without
+    this, genealogy-remapped APNs whose target row is absent from OUTPUT_FC
+    have their units silently dropped by UpdateCursor.
+    """
+    xw_path = Path(QA_DATA_DIR) / "QA_APN_Crosswalk.csv"
+    if not xw_path.exists():
+        log.info("  %s: QA_APN_Crosswalk.csv not found — skipping crosswalk application.", label)
+        return lookup
+
+    xw = pd.read_csv(xw_path, dtype=str)
+    moved = 0
+    for _, row in xw.iterrows():
+        csv_apn = str(row["CSV_APN"]).strip()
+        fc_apn  = str(row["FC_APN"]).strip()
+        year    = int(row["Year"])
+        if csv_apn == fc_apn:
+            continue
+        val = lookup.get((csv_apn, year))
+        if val and val > 0:
+            lookup[(fc_apn, year)] = lookup.get((fc_apn, year), 0) + val
+            moved += 1
+
+    log.info("  %s: crosswalk applied — %d values summed onto FC parent APN rows",
+             label, moved)
+    return lookup
+
+
 # ── FC writer ─────────────────────────────────────────────────────────────────
 
 def _write_to_fc(tourist_lookup: dict, commercial_lookup: dict) -> None:
@@ -156,6 +192,11 @@ def run() -> None:
                                        CSV_TOURIST_YEAR_PREFIX,   pad_map, depad_map, gen)
     commercial_lookup = _load_wide_csv(COMMERCIAL_SQFT_CSV,  "Commercial sqft",
                                        CSV_COMMERCIAL_YEAR_PREFIX, pad_map, depad_map, gen)
+
+    # Re-route post-genealogy APNs whose target FC row is missing to their
+    # spatial parent (same rescue S03 does for residential csv_lookup).
+    tourist_lookup    = _apply_crosswalk(tourist_lookup,    "Tourist units")
+    commercial_lookup = _apply_crosswalk(commercial_lookup, "Commercial sqft")
 
     if not tourist_lookup and not commercial_lookup:
         log.info("No tourist or commercial data to write — skipping FC update.")

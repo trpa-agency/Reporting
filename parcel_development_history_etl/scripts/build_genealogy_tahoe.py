@@ -75,16 +75,15 @@ from datetime import date
 import arcpy
 import pandas as pd
 
-ROOT = Path(__file__).parents[2]
-RAW  = ROOT / "data" / "raw_data"
-OUT  = RAW / "apn_genealogy_tahoe.csv"
-
 sys.path.insert(0, str(Path(__file__).parents[1]))
 from config import (
     OUTPUT_FC, FC_APN, FC_COUNTY,
     GENEALOGY_MASTER, GENEALOGY_ACCELA, GENEALOGY_LTINFO, GENEALOGY_SPATIAL,
-    QA_LOST_APNS,
+    GENEALOGY_TAHOE, QA_LOST_APNS,
 )
+
+# Output path — honors config so relocated data dirs (raw_data vs qa_data) work.
+OUT = Path(GENEALOGY_TAHOE)
 from utils import el_pad as _pad, el_depad as _depad, _EL_2D as _2D, _EL_3D as _3D
 
 

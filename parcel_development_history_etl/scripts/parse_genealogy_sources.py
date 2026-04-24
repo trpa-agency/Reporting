@@ -22,13 +22,17 @@ from pathlib import Path
 
 import pandas as pd
 
+sys.path.insert(0, str(Path(__file__).parents[1]))
+from config import GENEALOGY_ACCELA, GENEALOGY_LTINFO
+
 ROOT = Path(__file__).parents[2]
 RAW  = ROOT / "data" / "raw_data"
 
+# Source Excel files still live in raw_data; only outputs go to qa_data
 LTINFO_XLSX  = RAW / "LTinfo_Parcel_Genealogy.xlsx"
 ACCELA_XLSX  = RAW / "Accela_Genealogy_March2026.xlsx"
-OUT_ACCELA   = RAW / "apn_genealogy_accela.csv"
-OUT_LTINFO   = RAW / "apn_genealogy_ltinfo.csv"
+OUT_ACCELA   = Path(GENEALOGY_ACCELA)
+OUT_LTINFO   = Path(GENEALOGY_LTINFO)
 
 
 # ── Accela ────────────────────────────────────────────────────────────────────

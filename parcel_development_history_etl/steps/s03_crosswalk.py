@@ -17,8 +17,11 @@ import arcpy
 import pandas as pd
 
 from config import (OUTPUT_FC, SOURCE_FC, FC_APN, FC_YEAR, CSV_YEARS,
-                    CLOSEST_MAX_METERS, QA_APN_CROSSWALK, ALL_PARCELS_CURRENT)
+                    CLOSEST_MAX_METERS, QA_APN_CROSSWALK, ALL_PARCELS_CURRENT,
+                    TOURIST_UNITS_CSV, COMMERCIAL_SQFT_CSV, GENEALOGY_TAHOE,
+                    CSV_TOURIST_YEAR_PREFIX, CSV_COMMERCIAL_YEAR_PREFIX)
 from utils  import get_logger, write_qa_table, el_depad, el_pad, _EL_2D, _EL_3D
+from utils  import build_el_dorado_fix
 
 log = get_logger("s03_crosswalk")
 
@@ -181,13 +184,45 @@ def _get_geometry_from_source_fc(apns: set, sr) -> dict:
     return result
 
 
+def _load_tau_cfa_apn_years() -> set:
+    """Return (APN, Year) combos with non-zero values from the Tourist and
+    Commercial CSVs, after El Dorado APN fix and genealogy substitution —
+    so the crosswalk also covers non-residential parcels that are missing
+    from OUTPUT_FC post-remap.
+    """
+    # Local import to avoid circular dep at module load time.
+    from steps.s04b_update_tourist_commercial import _load_wide_csv
+    from steps.s02b_genealogy import _load_master_table
+
+    pad_map, depad_map = build_el_dorado_fix(OUTPUT_FC, FC_APN)
+    gen = _load_master_table(GENEALOGY_TAHOE)
+
+    out = set()
+    for csv_path, label, prefix in [
+        (TOURIST_UNITS_CSV,  "TAU (for crosswalk)", CSV_TOURIST_YEAR_PREFIX),
+        (COMMERCIAL_SQFT_CSV, "CFA (for crosswalk)", CSV_COMMERCIAL_YEAR_PREFIX),
+    ]:
+        lookup = _load_wide_csv(csv_path, label, prefix, pad_map, depad_map, gen)
+        out |= set(lookup.keys())
+    return out
+
+
 def run(df_csv: pd.DataFrame, csv_lookup: dict) -> dict:
     log.info("=== Step 3: Build APN crosswalk ===")
 
     # -- Find missing APN x Year combos --------------------------------------
-    fc_apn_years  = _get_fc_apn_years()
-    csv_apn_years = set(zip(df_csv["APN"], df_csv["Year"]))
-    missing       = csv_apn_years - fc_apn_years
+    # Scope includes residential df_csv PLUS TAU/CFA so the crosswalk remaps
+    # non-residential parcels (commercial, TAUs) whose genealogy'd target APN
+    # isn't in OUTPUT_FC for the target year.  Without this, S04b's UpdateCursor
+    # silently drops TAU/CFA values for those rows.
+    fc_apn_years     = _get_fc_apn_years()
+    csv_apn_years    = set(zip(df_csv["APN"], df_csv["Year"]))
+    tau_cfa_combos   = _load_tau_cfa_apn_years()
+    csv_apn_years   |= tau_cfa_combos
+    missing          = csv_apn_years - fc_apn_years
+    log.info("Scope: residential=%d  TAU+CFA-added=%d  total=%d",
+             len(csv_apn_years) - len(tau_cfa_combos),
+             len(tau_cfa_combos), len(csv_apn_years))
 
     missing_apns  = {apn for apn, _ in missing}
     log.info("CSV APN x Year combos   : %d", len(csv_apn_years))
