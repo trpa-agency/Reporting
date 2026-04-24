@@ -24,7 +24,6 @@ notebooks/out/*
 # ETL logs — regenerated on each run
 parcel_development_history_etl/logs/*.log
 
-# Ledger prototype — rebuildable CSV outputs (keep hardcoded conversion_ratio)
-ledger_prototype/data/*.csv
-!ledger_prototype/data/conversion_ratio.csv
-ledger_prototype/views/*.csv
+# Ledger prototype — CSV outputs are tracked for review while the model is
+# still being validated against the public 2023 report. Revisit once the
+# numbers stabilize.
