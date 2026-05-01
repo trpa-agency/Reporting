@@ -3,8 +3,10 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Tahoe – Allocation Tracking</title>
-<link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<title>Allocation Tracking — TRPA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
 <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.0/dist/ag-grid-community.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.0/styles/ag-grid.css"/>
@@ -13,78 +15,150 @@
 <script src="https://js.arcgis.com/4.29/"></script>
 <style>
 :root {
-  --navy:   #0b1f41;
-  --green:  #6ebe44;
-  --blue:   #007dc3;
-  --orange: #f16022;
-  --purple: #7b4f9e;
-  --yellow: #e8c014;
-  --bg:     #f4f6f9;
-  --surface:#ffffff;
-  --border: #d5dde8;
-  --text-dark: #0b1f41;
-  --text-mid:  #4a5b73;
-  --text-light:#8a9bb2;
-  --shadow: 0 2px 16px rgba(11,31,65,0.09);
+  /* TRPA brand palette (PMS 285C primary) */
+  --trpa-blue:    #0072CE;
+  --trpa-navy:    #003B71;
+  --trpa-earth:   #B47E00;
+  --trpa-forest:  #4A6118;
+  --trpa-brick:   #9C3E27;
+  --trpa-olive:   #B5A64C;
+  --trpa-orange:  #E87722;
+  --trpa-purple:  #7B6A8A;
+  --trpa-ice:     #B4CBE8;
+
+  /* Functional neutrals */
+  --bg:          #f5f7fa;
+  --surface:     #ffffff;
+  --border:      #e1e7ee;
+  --text-dark:   #003B71;
+  --text-mid:    #5d6c7e;
+  --text-light:  #8a9bb2;
+  --shadow:      0 2px 16px rgba(0, 59, 113, 0.08);
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Lexend Deca', sans-serif; background: var(--bg); color: var(--text-dark); min-height: 100vh; }
+body {
+  font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text-dark);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
 
 /* ── Header ── */
-header { background: var(--navy); color: #fff; display: flex; align-items: stretch; }
-.header-accent { width: 8px; flex-shrink: 0; background: linear-gradient(180deg, var(--green) 0%, var(--blue) 50%, var(--orange) 100%); }
+header { background: var(--trpa-navy); color: #fff; display: flex; align-items: stretch; }
+.header-accent {
+  width: 8px; flex-shrink: 0;
+  background: linear-gradient(180deg, var(--trpa-forest) 0%, var(--trpa-blue) 50%, var(--trpa-orange) 100%);
+}
 .header-content { padding: 26px 40px 22px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex: 1; }
-.header-eyebrow { font-size: 0.64rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--green); margin-bottom: 7px; }
-header h1 { font-weight: 700; font-size: 1.8rem; line-height: 1.15; letter-spacing: -0.02em; }
-header h1 span { color: var(--blue); }
-.header-sub { font-size: 0.78rem; color: #8a9bb2; margin-top: 6px; }
-.header-meta { font-size: 0.73rem; color: #8a9bb2; text-align: right; line-height: 1.7; }
-.live-badge { display: inline-block; background: var(--green); color: var(--navy); font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; margin-bottom: 6px; }
+.header-eyebrow {
+  font-size: 0.66rem; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--trpa-ice); margin-bottom: 7px;
+}
+header h1 { font-weight: 700; font-size: 1.85rem; line-height: 1.15; letter-spacing: -0.02em; }
+header h1 span { color: var(--trpa-blue); }
+.header-sub { font-size: 0.82rem; color: var(--trpa-ice); margin-top: 6px; opacity: 0.85; }
+.header-meta { font-size: 0.75rem; color: var(--trpa-ice); text-align: right; line-height: 1.7; opacity: 0.85; }
+.live-badge {
+  display: inline-block; background: var(--trpa-forest); color: #fff;
+  font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 2px; margin-bottom: 6px;
+}
 
 /* ── Type Bar ── */
-.type-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 40px; display: flex; gap: 8px; align-items: center; }
-.type-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); margin-right: 6px; }
-.type-btn { padding: 6px 18px; border-radius: 4px; border: 1.5px solid var(--border); background: #fff; color: var(--text-mid); font-size: 0.78rem; font-family: 'Lexend Deca', sans-serif; cursor: pointer; transition: all 0.15s; font-weight: 600; }
-.type-btn.active.residential { background: var(--orange); border-color: var(--orange); color: #fff; }
-.type-btn.active.commercial  { background: var(--yellow); border-color: var(--yellow); color: var(--navy); }
-.type-btn.active.tourist     { background: var(--purple); border-color: var(--purple); color: #fff; }
+.type-bar {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 12px 40px; display: flex; gap: 8px; align-items: center;
+}
+.type-label {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--text-light); margin-right: 6px;
+}
+.type-btn {
+  padding: 6px 18px; border-radius: 4px; border: 1.5px solid var(--border);
+  background: #fff; color: var(--text-mid);
+  font-size: 0.8rem; font-family: inherit; cursor: pointer; transition: all 0.15s;
+  font-weight: 600;
+}
+.type-btn:hover { border-color: var(--trpa-blue); color: var(--trpa-blue); }
+.type-btn.active.residential { background: var(--trpa-blue);   border-color: var(--trpa-blue);   color: #fff; }
+.type-btn.active.commercial  { background: var(--trpa-earth);  border-color: var(--trpa-earth);  color: #fff; }
+.type-btn.active.tourist     { background: var(--trpa-purple); border-color: var(--trpa-purple); color: #fff; }
 
 /* ── KPI Row ── */
 .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--surface); border-bottom: 1px solid var(--border); }
 .kpi-card { padding: 22px 28px 18px; border-right: 1px solid var(--border); position: relative; }
 .kpi-card:last-child { border-right: none; }
 .kpi-accent { position: absolute; top: 0; left: 0; right: 0; height: 3px; }
-.kpi-label { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); margin-bottom: 8px; }
-.kpi-value { font-size: 2.2rem; font-weight: 700; color: var(--text-dark); letter-spacing: -0.03em; line-height: 1; }
-.kpi-sub { font-size: 0.71rem; color: var(--text-mid); margin-top: 7px; line-height: 1.4; }
+.kpi-label {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--text-light); margin-bottom: 8px;
+}
+.kpi-value {
+  font-size: 2.25rem; font-weight: 700; color: var(--text-dark);
+  letter-spacing: -0.03em; line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.kpi-sub { font-size: 0.73rem; color: var(--text-mid); margin-top: 7px; line-height: 1.4; }
 .kpi-progress { margin-top: 12px; height: 5px; border-radius: 3px; background: var(--border); overflow: hidden; }
 .kpi-progress-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
 
 /* ── Tab Nav ── */
 .tab-nav-wrapper { background: var(--surface); border-bottom: 2px solid var(--border); padding: 0 40px; display: flex; }
-.tab-btn { padding: 12px 22px; border: none; background: none; font-family: 'Lexend Deca', sans-serif; font-size: 0.8rem; font-weight: 600; color: var(--text-light); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: color 0.15s, border-color 0.15s; }
-.tab-btn.active { color: var(--navy); border-bottom-color: var(--orange); }
+.tab-btn {
+  padding: 12px 22px; border: none; background: none;
+  font-family: inherit; font-size: 0.82rem; font-weight: 600;
+  color: var(--text-light); cursor: pointer;
+  border-bottom: 3px solid transparent; margin-bottom: -2px;
+  transition: color 0.15s, border-color 0.15s;
+}
+.tab-btn:hover { color: var(--trpa-navy); }
+.tab-btn.active { color: var(--trpa-navy); border-bottom-color: var(--trpa-blue); }
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
 
 /* ── Controls ── */
-.ctrl-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 40px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-.ctrl-label { font-size: 0.73rem; font-weight: 600; color: var(--text-dark); white-space: nowrap; }
-.ctrl-select { padding: 5px 10px; border: 1.5px solid var(--border); border-radius: 4px; font-family: 'Lexend Deca', sans-serif; font-size: 0.75rem; color: var(--text-dark); background: #fff; cursor: pointer; }
+.ctrl-bar {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 12px 40px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+}
+.ctrl-label { font-size: 0.75rem; font-weight: 600; color: var(--text-dark); white-space: nowrap; }
+.ctrl-select {
+  padding: 5px 10px; border: 1.5px solid var(--border); border-radius: 4px;
+  font-family: inherit; font-size: 0.78rem; color: var(--text-dark);
+  background: #fff; cursor: pointer;
+}
 .ctrl-divider { width: 1px; height: 18px; background: var(--border); }
-.ctrl-count { margin-left: auto; font-size: 0.71rem; color: var(--text-light); }
+.ctrl-count { margin-left: auto; font-size: 0.73rem; color: var(--text-light); }
 
 /* ── Jurisdiction pills ── */
 .juris-pills { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.juris-pill { padding: 3px 12px; border-radius: 20px; border: 1.5px solid var(--border); background: #fff; color: var(--text-mid); font-size: 0.72rem; font-family: 'Lexend Deca', sans-serif; cursor: pointer; transition: all 0.12s; }
-.juris-pill.active { background: var(--navy); border-color: var(--navy); color: #fff; }
+.juris-pill {
+  padding: 3px 12px; border-radius: 20px; border: 1.5px solid var(--border);
+  background: #fff; color: var(--text-mid);
+  font-size: 0.73rem; font-family: inherit; cursor: pointer; transition: all 0.12s;
+}
+.juris-pill:hover { border-color: var(--trpa-blue); }
+.juris-pill.active { background: var(--trpa-navy); border-color: var(--trpa-navy); color: #fff; }
 
 /* ── Year slider ── */
 .slider-wrap { display: flex; align-items: center; gap: 10px; }
-#year-slider { -webkit-appearance: none; appearance: none; width: 180px; height: 4px; border-radius: 2px; background: var(--border); outline: none; cursor: pointer; }
-#year-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--navy); border: 2px solid #fff; box-shadow: 0 1px 4px rgba(11,31,65,0.3); }
-#year-slider::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--navy); border: 2px solid #fff; }
-.slider-val { font-size: 1rem; font-weight: 700; color: var(--navy); min-width: 36px; }
+#year-slider {
+  -webkit-appearance: none; appearance: none;
+  width: 180px; height: 4px; border-radius: 2px;
+  background: var(--border); outline: none; cursor: pointer;
+}
+#year-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--trpa-blue); border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 59, 113, 0.3);
+}
+#year-slider::-moz-range-thumb {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--trpa-blue); border: 2px solid #fff;
+}
+.slider-val { font-size: 1rem; font-weight: 700; color: var(--trpa-navy); min-width: 36px; }
 
 /* ── Two-chart grid ── */
 .chart-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 20px; }
@@ -92,31 +166,40 @@ header h1 span { color: var(--blue); }
 /* ── Sections / Cards ── */
 .section { padding: 24px 40px; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px 24px; box-shadow: var(--shadow); }
-.card h3 { font-size: 0.9rem; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
-.card p  { font-size: 0.71rem; color: var(--text-light); margin-bottom: 14px; }
+.card h3 { font-size: 0.95rem; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
+.card p  { font-size: 0.73rem; color: var(--text-light); margin-bottom: 14px; }
 
 /* ── Drawdown table ── */
-.dd-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; margin-top: 4px; }
-.dd-table th { text-align: left; padding: 6px 10px; background: var(--bg); color: var(--text-mid); font-size: 0.63rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+.dd-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 4px; }
+.dd-table th {
+  text-align: left; padding: 6px 10px; background: var(--bg); color: var(--text-mid);
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; border-bottom: 1px solid var(--border);
+}
 .dd-table th.r, .dd-table td.r { text-align: right; }
 .dd-table td { padding: 8px 10px; border-bottom: 1px solid #f0f3f6; }
-.dd-table tbody tr:hover { background: #f8f9fb; }
+.dd-table tbody tr:hover { background: #f8fafc; }
 .tfoot-row td { font-weight: 700; background: var(--bg); }
 .bar-cell { width: 130px; }
 .bar-track { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 2px; }
-.bar-fill  { height: 100%; background: var(--green); border-radius: 3px; }
-.bar-pct   { font-size: 0.67rem; color: var(--text-light); }
+.bar-fill  { height: 100%; background: var(--trpa-forest); border-radius: 3px; }
+.bar-pct   { font-size: 0.69rem; color: var(--text-light); }
 
 /* ── Grid ── */
 #grid-container { height: 400px; }
-.dl-btn { padding: 5px 14px; border: 1.5px solid var(--border); border-radius: 4px; background: #fff; font-family: 'Lexend Deca', sans-serif; font-size: 0.75rem; cursor: pointer; color: var(--text-mid); }
+.dl-btn {
+  padding: 5px 14px; border: 1.5px solid var(--border); border-radius: 4px;
+  background: #fff; font-family: inherit; font-size: 0.78rem;
+  cursor: pointer; color: var(--text-mid);
+}
+.dl-btn:hover { border-color: var(--trpa-blue); color: var(--trpa-blue); }
 
 /* ── Loading ── */
-#loading-overlay { position: fixed; inset: 0; background: rgba(11,31,65,0.6); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+#loading-overlay { position: fixed; inset: 0; background: rgba(0, 59, 113, 0.6); display: flex; align-items: center; justify-content: center; z-index: 9999; }
 .loading-card { background: #fff; border-radius: 10px; padding: 36px 48px; text-align: center; min-width: 260px; }
-.loading-card h3 { font-size: 1rem; color: var(--navy); margin-bottom: 20px; }
+.loading-card h3 { font-size: 1rem; color: var(--trpa-navy); margin-bottom: 20px; }
 .lb-bg { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
-#loading-bar { height: 100%; width: 0; background: linear-gradient(90deg, var(--blue), var(--green)); border-radius: 2px; transition: width 0.3s; }
+#loading-bar { height: 100%; width: 0; background: linear-gradient(90deg, var(--trpa-blue), var(--trpa-forest)); border-radius: 2px; transition: width 0.3s; }
 
 @media (max-width: 900px) {
   .kpi-row { grid-template-columns: 1fr 1fr; }
@@ -129,7 +212,7 @@ header h1 span { color: var(--blue); }
 
 <div id="loading-overlay">
   <div class="loading-card">
-    <h3>Loading allocation data…</h3>
+    <h3>Loading allocation data&hellip;</h3>
     <div class="lb-bg"><div id="loading-bar"></div></div>
   </div>
 </div>
@@ -141,12 +224,12 @@ header h1 span { color: var(--blue); }
     <div>
       <div class="header-eyebrow">Tahoe Regional Planning Agency</div>
       <h1>Allocation <span>Tracking</span></h1>
-      <div class="header-sub" id="header-sub">2,600 Authorized &nbsp;&middot;&nbsp; 2012 Regional Plan</div>
+      <div class="header-sub" id="header-sub">2,600 authorized &middot; 2012 Regional Plan additional &middot; of 8,687 since-1987 max</div>
     </div>
     <div class="header-meta">
       <div class="live-badge">Live Data</div><br>
       Source: TRPA Permit System<br>
-      Updated monthly
+      Latest pool balances per Ken&rsquo;s 2026 report
     </div>
   </div>
 </header>
@@ -162,32 +245,32 @@ header h1 span { color: var(--blue); }
 <!-- KPIs -->
 <div class="kpi-row">
   <div class="kpi-card">
-    <div class="kpi-accent" style="background:var(--navy)"></div>
-    <div class="kpi-label">Total Authorized</div>
+    <div class="kpi-accent" style="background:var(--trpa-navy)"></div>
+    <div class="kpi-label">Total authorized</div>
     <div class="kpi-value" id="kpi0-value">2,600</div>
-    <div class="kpi-sub"   id="kpi0-sub">2012 Regional Plan &nbsp;&middot;&nbsp; new homes</div>
-    <div class="kpi-progress"><div class="kpi-progress-fill" style="width:100%;background:var(--navy)"></div></div>
+    <div class="kpi-sub"   id="kpi0-sub">2012 Regional Plan additional &middot; of 8,687 since-1987 max</div>
+    <div class="kpi-progress"><div class="kpi-progress-fill" style="width:100%;background:var(--trpa-navy)"></div></div>
   </div>
   <div class="kpi-card">
-    <div class="kpi-accent" style="background:var(--green)"></div>
-    <div class="kpi-label" id="kpi1-label">Allocated to Development</div>
-    <div class="kpi-value" id="kpi1-value">—</div>
-    <div class="kpi-sub"   id="kpi1-sub">loading…</div>
-    <div class="kpi-progress"><div class="kpi-progress-fill" id="kpi1-bar" style="width:0%;background:var(--green)"></div></div>
+    <div class="kpi-accent" style="background:var(--trpa-forest)"></div>
+    <div class="kpi-label" id="kpi1-label">Allocated to development</div>
+    <div class="kpi-value" id="kpi1-value">&mdash;</div>
+    <div class="kpi-sub"   id="kpi1-sub">loading&hellip;</div>
+    <div class="kpi-progress"><div class="kpi-progress-fill" id="kpi1-bar" style="width:0%;background:var(--trpa-forest)"></div></div>
   </div>
   <div class="kpi-card">
-    <div class="kpi-accent" id="kpi2-accent" style="background:var(--orange)"></div>
-    <div class="kpi-label" id="kpi2-label">Available in Pools</div>
-    <div class="kpi-value" id="kpi2-value">—</div>
-    <div class="kpi-sub"   id="kpi2-sub">loading…</div>
-    <div class="kpi-progress"><div class="kpi-progress-fill" id="kpi2-bar" style="width:0%;background:var(--orange)"></div></div>
+    <div class="kpi-accent" id="kpi2-accent" style="background:var(--trpa-orange)"></div>
+    <div class="kpi-label" id="kpi2-label">Available in pools</div>
+    <div class="kpi-value" id="kpi2-value">&mdash;</div>
+    <div class="kpi-sub"   id="kpi2-sub">loading&hellip;</div>
+    <div class="kpi-progress"><div class="kpi-progress-fill" id="kpi2-bar" style="width:0%;background:var(--trpa-orange)"></div></div>
   </div>
   <div class="kpi-card">
-    <div class="kpi-accent" style="background:var(--text-light)"></div>
-    <div class="kpi-label" id="kpi3-label">Not Yet Assigned to Pool</div>
-    <div class="kpi-value" id="kpi3-value">—</div>
-    <div class="kpi-sub"   id="kpi3-sub">loading…</div>
-    <div class="kpi-progress"><div class="kpi-progress-fill" id="kpi3-bar" style="width:0%;background:var(--text-light)"></div></div>
+    <div class="kpi-accent" style="background:var(--trpa-ice)"></div>
+    <div class="kpi-label" id="kpi3-label">Not yet assigned to pool</div>
+    <div class="kpi-value" id="kpi3-value">&mdash;</div>
+    <div class="kpi-sub"   id="kpi3-sub">loading&hellip;</div>
+    <div class="kpi-progress"><div class="kpi-progress-fill" id="kpi3-bar" style="width:0%;background:var(--trpa-ice)"></div></div>
   </div>
 </div>
 
@@ -201,7 +284,7 @@ header h1 span { color: var(--blue); }
 <!-- Charts Tab -->
 <div class="tab-panel active" id="tab-charts">
   <div class="ctrl-bar">
-    <span class="ctrl-label">Through Year</span>
+    <span class="ctrl-label">Through year</span>
     <div class="slider-wrap">
       <input type="range" id="year-slider" min="2012" max="2025" step="1" value="2025" oninput="setSliderYear(this.value)">
       <span class="slider-val" id="slider-val">2025</span>
@@ -214,13 +297,13 @@ header h1 span { color: var(--blue); }
   <div class="section">
     <div class="chart-grid">
       <div class="card">
-        <h3>Allocation Flow</h3>
-        <p>Authorized &rarr; jurisdiction pools &rarr; development &nbsp;&middot;&nbsp; cumulative through <span id="sankey-year-label">2025</span></p>
+        <h3>Allocation flow</h3>
+        <p>Authorized &rarr; jurisdiction pools &rarr; development &middot; cumulative through <span id="sankey-year-label">2025</span></p>
         <div id="sankey-chart" style="height:400px;"></div>
       </div>
       <div class="card">
-        <h3>Pool Status by Jurisdiction</h3>
-        <p>Allocated (green) &nbsp;&middot;&nbsp; Available in Pool (orange) &nbsp;&middot;&nbsp; Not Yet Assigned (gray)</p>
+        <h3>Pool status by jurisdiction</h3>
+        <p>Allocated (forest) &middot; Available in pool (orange) &middot; Not yet assigned (ice)</p>
         <div id="bar-chart" style="height:400px;"></div>
       </div>
     </div>
@@ -232,14 +315,14 @@ header h1 span { color: var(--blue); }
   <div class="ctrl-bar">
     <span class="ctrl-label">Status</span>
     <select id="filter-status-map" class="ctrl-select" onchange="applyMapFilters()">
-      <option value="all">All Statuses</option>
-      <option value="Allocated">Allocated to Development</option>
-      <option value="In Pool">Available in Pool</option>
+      <option value="all">All statuses</option>
+      <option value="Allocated">Allocated to development</option>
+      <option value="In Pool">Available in pool</option>
     </select>
     <div class="ctrl-divider"></div>
     <span class="ctrl-label">Jurisdiction</span>
     <select id="filter-juris-map" class="ctrl-select" onchange="applyMapFilters()"><option value="all">All</option></select>
-    <span class="ctrl-count" id="map-count">— parcels</span>
+    <span class="ctrl-count" id="map-count">&mdash; parcels</span>
   </div>
   <div class="section" style="padding-top:16px;">
     <div id="map-view" style="height:520px;border-radius:8px;overflow:hidden;border:1px solid var(--border);"></div>
@@ -250,7 +333,7 @@ header h1 span { color: var(--blue); }
 <div class="tab-panel" id="tab-table">
   <div class="section" style="padding-bottom:0;">
     <div class="card" style="margin-bottom:20px;">
-      <h3 id="dd-title">Pool Summary by Jurisdiction</h3>
+      <h3 id="dd-title">Pool summary by jurisdiction</h3>
       <p id="dd-sub">Total authorized units per pool, allocation status, and utilization rate</p>
       <table class="dd-table">
         <thead>
@@ -274,10 +357,10 @@ header h1 span { color: var(--blue); }
       <span class="ctrl-label">Status</span>
       <select id="filter-status-tbl" class="ctrl-select" onchange="applyTableFilters()">
         <option value="all">All</option>
-        <option value="Allocated">Allocated to Development</option>
-        <option value="In Pool">Available in Pool</option>
+        <option value="Allocated">Allocated to development</option>
+        <option value="In Pool">Available in pool</option>
       </select>
-      <span class="ctrl-count" id="tbl-count">— records</span>
+      <span class="ctrl-count" id="tbl-count">&mdash; records</span>
       <button class="dl-btn" onclick="downloadCSV()">&#8595; CSV</button>
     </div>
     <div class="ag-theme-alpine" style="border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;overflow:hidden;box-shadow:var(--shadow);">
@@ -287,6 +370,25 @@ header h1 span { color: var(--blue); }
 </div>
 
 <script>
+// ─────────────────────────────────────────
+// TRPA brand color tokens (mirror CSS vars)
+// ─────────────────────────────────────────
+const TRPA = {
+  blue:   '#0072CE',
+  navy:   '#003B71',
+  earth:  '#B47E00',
+  forest: '#4A6118',
+  brick:  '#9C3E27',
+  olive:  '#B5A64C',
+  orange: '#E87722',
+  purple: '#7B6A8A',
+  ice:    '#B4CBE8',
+  border: '#e1e7ee',
+  textDark: '#003B71',
+  textMid:  '#5d6c7e',
+  textLight:'#8a9bb2',
+};
+
 // ─────────────────────────────────────────
 // STATE
 // ─────────────────────────────────────────
@@ -299,16 +401,26 @@ let activePills   = new Set();
 let sliderYear    = 2025;
 
 // ─────────────────────────────────────────
-// CONSTANTS
+// CONSTANTS — Regional Plan caps per Ken's 2026 PPTX slide 8
 // ─────────────────────────────────────────
-const TOTAL_AUTH = { residential: 2600, commercial: 200000, tourist: 342 };
+// Residential: 2,600 = 2012 Plan additional Board authorization (of 8,687 since-1987 cumulative max)
+// Commercial:  1,000,000 sq ft = since-1987 cumulative CFA max
+// Tourist:     400 = since-1987 cumulative TBU max
+const TOTAL_AUTH = { residential: 2600, commercial: 1000000, tourist: 400 };
 
 const TYPE_UNIT = { residential: 'units', commercial: 'sq ft', tourist: 'units' };
 
 const TYPE_DESC = {
-  residential: '2012 Regional Plan \u00b7 new homes',
+  residential: '2012 Regional Plan additional \u00b7 of 8,687 since-1987 max',
   commercial:  '2012 Regional Plan \u00b7 sq ft commercial floor area',
-  tourist:     '1987 Plan carry-forward \u00b7 tourist bonus units',
+  tourist:     'Tourist bonus units \u00b7 since-1987 cumulative max',
+};
+
+// Type-aware accent color for KPI #2 (Available in Pools)
+const TYPE_ACCENT = {
+  residential: TRPA.blue,
+  commercial:  TRPA.earth,
+  tourist:     TRPA.purple,
 };
 
 const RES_URL     = 'https://raw.githubusercontent.com/trpa-agency/Reporting/master/data/raw_data/residentialAllocationGridExport.csv';
@@ -432,16 +544,16 @@ function updateKPIs() {
 
   // Header subtitle
   const headerSubs = {
-    residential: '2,600 Authorized \u00a0\u00b7\u00a0 2012 Regional Plan',
-    commercial:  '200,000 sq ft Authorized \u00a0\u00b7\u00a0 2012 Regional Plan',
-    tourist:     '342 Authorized \u00a0\u00b7\u00a0 1987 Plan carry-forward',
+    residential: '2,600 authorized \u00b7 2012 Regional Plan additional \u00b7 of 8,687 since-1987 max',
+    commercial:  '1,000,000 sq ft authorized \u00b7 2012 Regional Plan',
+    tourist:     '400 authorized \u00b7 since-1987 cumulative tourist bonus units',
   };
   document.querySelector('#header-sub').textContent = headerSubs[currentType];
 
-  // kpi2 accent tracks type color
-  const tc = { residential: 'var(--orange)', commercial: 'var(--yellow)', tourist: 'var(--purple)' };
-  document.querySelector('#kpi2-accent').style.background = tc[currentType];
-  document.querySelector('#kpi2-bar').style.background    = tc[currentType];
+  // kpi2 accent tracks the type's brand color
+  const tc = TYPE_ACCENT[currentType];
+  document.querySelector('#kpi2-accent').style.background = tc;
+  document.querySelector('#kpi2-bar').style.background    = tc;
 
   // Jurisdiction rows filtered by slider year and active pills
   const allJurisRows = getJurisRows(sliderYear);
@@ -452,20 +564,20 @@ function updateKPIs() {
   // Not Yet Assigned is always the total-level gap (units not yet in any pool)
   const notYet       = total - sumQty(allJurisRows);
 
-  setKPI(1, 'Allocated to Development',
+  setKPI(1, 'Allocated to development',
     fmtVal(allocated),
     (allocated / total * 100).toFixed(1) + '% of ' + total.toLocaleString() + ' authorized',
-    allocated / total * 100, 'var(--green)');
+    allocated / total * 100, TRPA.forest);
 
-  setKPI(2, 'Available in Pools',
+  setKPI(2, 'Available in pools',
     fmtVal(available),
     (available / total * 100).toFixed(1) + '% \u00b7 ' + fmtVal(inPools) + ' in pools',
-    available / total * 100, tc[currentType]);
+    available / total * 100, tc);
 
-  setKPI(3, 'Not Yet Assigned to Pool',
+  setKPI(3, 'Not yet assigned to pool',
     fmtVal(notYet),
     (notYet / total * 100).toFixed(1) + '% \u00b7 pending distribution',
-    notYet / total * 100, 'var(--text-light)');
+    notYet / total * 100, TRPA.ice);
 }
 
 function setKPI(n, label, value, sub, pct, color) {
@@ -490,7 +602,7 @@ function buildPills() {
   const container = document.querySelector('#juris-pills');
 
   if (!pillJuris.length) {
-    container.innerHTML = '<span style="font-size:0.72rem;color:var(--text-light);">All units held in TRPA reserve \u2014 no jurisdiction pools yet</span>';
+    container.innerHTML = '<span style="font-size:0.74rem;color:var(--text-light);">All units held in TRPA reserve \u2014 no jurisdiction pools yet</span>';
     return;
   }
 
@@ -559,9 +671,9 @@ function getJurisRows(yr) {
 }
 
 // ─────────────────────────────────────────
-// CHARTS
+// CHARTS — Plotly with TRPA brand
 // ─────────────────────────────────────────
-const plotFont  = { family: 'Lexend Deca, sans-serif', color: '#0b1f41' };
+const plotFont  = { family: '"Open Sans", system-ui, sans-serif', color: TRPA.navy, size: 12 };
 const plotPaper = 'rgba(0,0,0,0)';
 
 function renderCharts() {
@@ -593,11 +705,11 @@ function renderSankey() {
     'Available in Pool',
   ];
   const nodeColors = [
-    '#0b1f41',
-    ...juris.map(() => '#007dc3'),
-    '#c8d4e3',
-    '#6ebe44',
-    '#f16022',
+    TRPA.navy,
+    ...juris.map(() => TRPA.blue),
+    TRPA.ice,
+    TRPA.forest,
+    TRPA.orange,
   ];
 
   const src = [], tgt = [], val = [], lnkColor = [];
@@ -606,23 +718,23 @@ function renderSankey() {
     const qty = sumQty(jRows.filter(r => r.jurisdiction === j));
     if (qty > 0) {
       src.push(iAuth); tgt.push(iJ(j)); val.push(qty);
-      lnkColor.push('rgba(0,125,195,0.25)');
+      lnkColor.push('rgba(0,114,206,0.25)');     // TRPA blue translucent
     }
     const allocQty = sumQty(jRows.filter(r => r.jurisdiction === j && r.status === 'Allocated'));
     const availQty = sumQty(jRows.filter(r => r.jurisdiction === j && r.status === 'In Pool'));
-    if (allocQty > 0) { src.push(iJ(j)); tgt.push(iAlloc); val.push(allocQty); lnkColor.push('rgba(110,190,68,0.35)'); }
-    if (availQty > 0) { src.push(iJ(j)); tgt.push(iAvail); val.push(availQty); lnkColor.push('rgba(241,96,34,0.35)'); }
+    if (allocQty > 0) { src.push(iJ(j)); tgt.push(iAlloc); val.push(allocQty); lnkColor.push('rgba(74,97,24,0.35)'); }   // forest
+    if (availQty > 0) { src.push(iJ(j)); tgt.push(iAvail); val.push(availQty); lnkColor.push('rgba(232,119,34,0.35)'); } // orange
   });
 
   const notYet = total - sumQty(jRows);
   if (notYet > 0) {
     src.push(iAuth); tgt.push(iNotYet); val.push(notYet);
-    lnkColor.push('rgba(200,212,227,0.45)');
+    lnkColor.push('rgba(180,203,232,0.55)');  // ice
   }
 
   Plotly.react('sankey-chart', [{
     type: 'sankey', orientation: 'h',
-    node: { pad: 14, thickness: 18, line: { color: '#d5dde8', width: 0.5 }, label: nodeLabels, color: nodeColors },
+    node: { pad: 14, thickness: 18, line: { color: TRPA.border, width: 0.5 }, label: nodeLabels, color: nodeColors },
     link: { source: src, target: tgt, value: val, color: lnkColor },
   }], {
     font: plotFont, paper_bgcolor: plotPaper,
@@ -659,27 +771,27 @@ function renderBar() {
     {
       name: 'Allocated to Development',
       type: 'bar', x: xLabels, y: [totalAlloc, ...allocated, 0],
-      marker: { color: '#6ebe44' },
+      marker: { color: TRPA.forest },
       hovertemplate: '<b>%{y:,}</b> allocated to development<extra>%{x}</extra>',
     },
     {
       name: 'Available in Pool',
       type: 'bar', x: xLabels, y: [totalAvail, ...available, 0],
-      marker: { color: '#f16022' },
+      marker: { color: TRPA.orange },
       hovertemplate: '<b>%{y:,}</b> available in pool<extra>%{x}</extra>',
     },
     {
       name: 'Not Yet Assigned to Pool',
       type: 'bar', x: xLabels, y: [notAssigned, ...juris.map(() => 0), notAssigned],
-      marker: { color: '#8a9bb2' },
+      marker: { color: TRPA.ice },
       hovertemplate: '<b>%{y:,}</b> not yet assigned to any jurisdiction pool<extra></extra>',
     },
   ], {
     font: plotFont, paper_bgcolor: plotPaper, plot_bgcolor: plotPaper,
     margin: { t: 16, r: 16, b: 60, l: 60 },
     barmode: 'stack', hovermode: 'x unified',
-    xaxis: { gridcolor: '#e8edf4', linecolor: '#d5dde8', tickfont: { size: 11 } },
-    yaxis: { gridcolor: '#e8edf4', linecolor: '#d5dde8', tickfont: { size: 11 }, rangemode: 'tozero',
+    xaxis: { gridcolor: '#e8edf4', linecolor: TRPA.border, tickfont: { size: 11 } },
+    yaxis: { gridcolor: '#e8edf4', linecolor: TRPA.border, tickfont: { size: 11 }, rangemode: 'tozero',
              title: { text: yTitle, font: { size: 11 } } },
     legend: { orientation: 'h', y: -0.22, font: { size: 10 } },
   }, { responsive: true, displayModeBar: false });
@@ -715,7 +827,7 @@ function renderDrawdownTable() {
     tr.innerHTML =
       '<td>' + j + '</td>' +
       '<td class="r">' + poolTotal.toLocaleString() + '</td>' +
-      '<td class="r" style="color:var(--green);font-weight:600">' + alloc.toLocaleString() + '</td>' +
+      '<td class="r" style="color:' + TRPA.forest + ';font-weight:600">' + alloc.toLocaleString() + '</td>' +
       '<td class="r">' + avail.toLocaleString() + '</td>' +
       '<td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:' + pct.toFixed(1) + '%"></div></div>' +
       '<div class="bar-pct">' + pct.toFixed(1) + '%</div></td>';
@@ -726,18 +838,18 @@ function renderDrawdownTable() {
   const ntr = document.createElement('tr');
   ntr.style.cssText = 'color:var(--text-light);';
   ntr.innerHTML =
-    '<td style="font-style:italic">Not Yet Assigned to Pool</td>' +
+    '<td style="font-style:italic">Not yet assigned to pool</td>' +
     '<td class="r">' + notYet.toLocaleString() + '</td>' +
-    '<td class="r">&#8212;</td><td class="r">&#8212;</td>' +
+    '<td class="r">&mdash;</td><td class="r">&mdash;</td>' +
     '<td class="bar-cell"><div class="bar-pct">' + (notYet / total * 100).toFixed(1) + '% of total</div></td>';
   tbody.appendChild(ntr);
 
   const gPct = gInPool ? (gAlloc / gInPool * 100) : 0;
   tfoot.innerHTML =
     '<tr class="tfoot-row">' +
-    '<td>Total In Pools</td>' +
+    '<td>Total in pools</td>' +
     '<td class="r">' + gInPool.toLocaleString() + '</td>' +
-    '<td class="r" style="color:var(--green)">' + gAlloc.toLocaleString() + '</td>' +
+    '<td class="r" style="color:' + TRPA.forest + '">' + gAlloc.toLocaleString() + '</td>' +
     '<td class="r">' + (gInPool - gAlloc).toLocaleString() + '</td>' +
     '<td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:' + gPct.toFixed(1) + '%"></div></div>' +
     '<div class="bar-pct">' + gPct.toFixed(1) + '% of in-pool total</div></td>' +
@@ -755,7 +867,7 @@ function getColDefs() {
       { field: 'jurisdiction', headerName: 'Jurisdiction', flex: 1,    sortable: true, filter: 'agTextColumnFilter' },
       { field: 'pool',         headerName: 'Pool',         flex: 1.5,  sortable: true, filter: 'agTextColumnFilter' },
       { field: 'status',       headerName: 'Status',       width: 180, sortable: true, filter: 'agTextColumnFilter',
-        cellStyle: p => ({ color: p.value === 'Allocated' ? '#6ebe44' : '#f16022', fontWeight: '600' }) },
+        cellStyle: p => ({ color: p.value === 'Allocated' ? TRPA.forest : TRPA.orange, fontWeight: '600' }) },
       { field: 'transaction',  headerName: 'Transaction',  flex: 1,    sortable: true, filter: 'agTextColumnFilter' },
       { field: 'apn',          headerName: 'APN',          flex: 1,    sortable: true, filter: 'agTextColumnFilter' },
     ];
@@ -768,7 +880,7 @@ function getColDefs() {
         valueFormatter: p => p.value || 'TRPA Reserve' },
       { field: 'pool',         headerName: 'Pool Code',     width: 110, sortable: true, filter: 'agTextColumnFilter' },
       { field: 'statusRaw',    headerName: 'Status',        width: 120, sortable: true, filter: 'agTextColumnFilter',
-        cellStyle: p => ({ color: p.value === 'Approved' ? '#6ebe44' : '#f16022', fontWeight: '600' }) },
+        cellStyle: p => ({ color: p.value === 'Approved' ? TRPA.forest : TRPA.orange, fontWeight: '600' }) },
       { field: 'qty',          headerName: qtyLabel,        width: 140, sortable: true, filter: 'agNumberColumnFilter',
         valueFormatter: p => (p.value || 0).toLocaleString() },
     ];
@@ -822,13 +934,14 @@ function populateJurisFilters() {
 }
 
 // ─────────────────────────────────────────
-// MAP
+// MAP — TRPA brand markers
 // ─────────────────────────────────────────
 let mapView = null, parcelsLayer = null, mapInit = false;
+// Per type: cluster + parcel-fill RGBA (matching the type accent)
 const TYPE_FILL = {
-  residential: [241, 96,  34,  0.55],
-  commercial:  [232, 192, 20,  0.55],
-  tourist:     [123, 79,  158, 0.55],
+  residential: [0,   114, 206, 0.55],   // TRPA blue
+  commercial:  [180, 126, 0,   0.55],   // TRPA earth
+  tourist:     [123, 106, 138, 0.55],   // TRPA purple
 };
 
 function initMap() {
@@ -843,7 +956,7 @@ function initMap() {
       outFields: ['APN'],
       renderer: {
         type: 'simple',
-        symbol: { type: 'simple-fill', color: TYPE_FILL[currentType], outline: { color: [11,31,65,0.8], width: 0.6 } },
+        symbol: { type: 'simple-fill', color: TYPE_FILL[currentType], outline: { color: [0, 59, 113, 0.8], width: 0.6 } },
       },
       definitionExpression: '1=0',
       featureReduction: {
@@ -860,7 +973,7 @@ function initMap() {
           symbol: {
             type: 'text',
             color: '#ffffff',
-            font: { weight: 'bold', family: 'Lexend Deca, sans-serif', size: '11px' },
+            font: { weight: 'bold', family: 'Open Sans, sans-serif', size: '11px' },
           },
           labelPlacement: 'center-center',
         }],
@@ -943,9 +1056,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (bar) bar.style.width = '100%';
   } catch (e) {
     document.querySelector('#loading-overlay').innerHTML =
-      '<div style="background:#fff;border-radius:10px;padding:32px 48px;text-align:center;font-family:\'Lexend Deca\',sans-serif;">' +
-      '<strong style="color:#f16022;font-size:1rem;">Error loading data</strong><br>' +
-      '<small style="color:#4a5b73;">' + e.message + '</small></div>';
+      '<div style="background:#fff;border-radius:10px;padding:32px 48px;text-align:center;font-family:\'Open Sans\',sans-serif;">' +
+      '<strong style="color:' + TRPA.orange + ';font-size:1rem;">Error loading data</strong><br>' +
+      '<small style="color:' + TRPA.textMid + ';">' + e.message + '</small></div>';
     return;
   }
   document.querySelector('#loading-overlay').style.display = 'none';
