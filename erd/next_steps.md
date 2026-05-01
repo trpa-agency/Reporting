@@ -11,8 +11,10 @@ and a per-APN history view from one source. It anchors on the five
 buckets from TRPA Code §16.8.2:
 
 ```
-Max Regional Capacity  =  Existing + Banked + Allocated + Bonus + Unused
+Max Regional Capacity  =  Existing + Banked + Remaining
+
 ```
+Remainging = Allocated + Not Allocated + Not Released
 
 Every event (allocation, assignment, transfer, conversion, banking,
 retirement) moves commodity between those buckets. The ledger records
