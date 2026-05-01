@@ -51,28 +51,26 @@
   <a href="README.html">README</a>
   <a href="target_schema.html">Target Schema</a>
   <a href="proposed_dashboards.html">Dashboards</a>
+  <a href="dashboards_to_schema_trace.html">Dashboards → Schema Trace</a>
   <a href="cumulative_accounting_reference.html">Cumulative Accounting Reference</a>
   <a href="raw_data_vs_corral.html">raw_data vs Corral</a>
   <a href="validation_findings.html" class="active">Validation Findings</a>
   <a href="xlsx_decomposition.html">XLSX Decomposition</a>
   <a href="corral_tables.html">Corral Tables</a>
+  <a href="next_steps.html">next_steps</a>
   <a class="viewer" href="development_rights_erd.html">Interactive ERD →</a>
 </header>
 <main class="content">
-<h1 id="validation-findings-can-corral-replace-raw_data">Validation findings — can Corral replace raw_data?</h1>
+<h1 id="validation-findings-corral-coverage-vs-the-raw_data-spreadsheets">Validation findings — Corral coverage vs the raw_data spreadsheets</h1>
 <blockquote>
-<p><strong>Purpose</strong>: empirical tests of two reproducibility claims about Corral.
-Both failed — which is why <a href="./target_schema.html">target_schema.md</a>
-introduces <code>ParcelExistingDevelopment</code>, <code>PermitCompletion</code>, and
-<code>CrossSystemID</code> instead of just writing views over Corral.
-<strong>Audience</strong>: skeptics of the "Corral can't do this" claim. These are the
-numbers.</p>
-<p><strong>The answer is no, and that's why the proposed schema exists.</strong>
-See <a href="./target_schema.html">target_schema.md</a> — the 61% PCI coverage gap
-here is why <code>ParcelExistingDevelopment</code> is sourced from the GIS enterprise
-GDB and not from Corral, and the 9-of-22 column gap in the transactions
-spreadsheet drives the <code>Permit</code>, <code>PermitAllocation</code>, <code>CrossSystemID</code>, and
-<code>ParcelDevelopmentChangeEvent</code> tables.</p>
+<p><strong>Purpose</strong>: empirical tests of two reproducibility claims about Corral,
+with the numbers behind each.
+<strong>Audience</strong>: technical reviewers evaluating the proposed schema.</p>
+<p><strong>TL;DR</strong>: Corral covers most but not all of what the spreadsheets carry.
+The 61% PCI coverage gap drives <code>ParcelExistingDevelopment</code> (GIS-sourced
+rather than Corral-sourced); the 9-of-22 column gap on the transactions
+spreadsheet drives <code>Permit</code>, <code>PermitAllocation</code>, <code>CrossSystemID</code>, and
+<code>ParcelDevelopmentChangeEvent</code>. Details below.</p>
 <p><strong>Context correction since this doc was first written</strong>: Corral IS the
 LTinfo backend. The snapshot tested here is a Feb-2024 backup. Live
 data flows through LTinfo JSON web services (confirmed with user); the
@@ -82,8 +80,8 @@ proposed schema syncs from those services, not from direct SQL.</p>
 Both are read-only against the Feb 2024 Corral snapshot.</p>
 <h2 id="tldr">TL;DR</h2>
 <ul>
-<li><strong>Claim A — AuditLog can reconstruct yearly commodity inventory: FALSE.</strong> Not because AuditLog doesn't work, but because <code>dbo.ParcelCommodityInventory</code> only tracks SFRUU/MFRUU for <strong>7 of 18 sampled residential parcels (39%)</strong>. Most physical dwellings in Tahoe were never entered into PCI for residential commodities. The CSV is capturing data Corral simply doesn't hold.</li>
-<li><strong>Claim B — a view over TdrTransaction* + Parcel + Commodity + permits reproduces the transactions spreadsheet: PARTIAL.</strong> 78% of rows join cleanly and 3 of 12 core columns match &gt;70%. <strong>9 of the 22 spreadsheet columns aren't sourced from Corral at all</strong> — they come from external permit/assessor systems that live alongside Corral.</li>
+<li><strong>Claim A — AuditLog can reconstruct yearly commodity inventory: does not hold.</strong> Not because AuditLog doesn't work, but because <code>dbo.ParcelCommodityInventory</code> only tracks SFRUU/MFRUU for <strong>7 of 18 sampled residential parcels (39%)</strong>. Most physical dwellings in Tahoe were never entered into PCI for residential commodities. The CSV is capturing data Corral simply doesn't hold.</li>
+<li><strong>Claim B — a view over TdrTransaction* + Parcel + Commodity + permits reproduces the transactions spreadsheet: partial.</strong> 78% of rows join cleanly and 3 of 12 core columns match &gt;70%. <strong>9 of the 22 spreadsheet columns aren't sourced from Corral at all</strong> — they come from external permit/assessor systems that live alongside Corral.</li>
 </ul>
 <p>Both results push the same direction: <strong>the raw_data spreadsheets are not redundant denormalizations of Corral</strong>. They're parallel sources filling gaps that the current Corral schema doesn't cover — physical inventory not triggered by permits, permit workflow status, county-assessor year-built, and external project identifiers.</p>
 <hr />

@@ -51,11 +51,13 @@
   <a href="README.html">README</a>
   <a href="target_schema.html" class="active">Target Schema</a>
   <a href="proposed_dashboards.html">Dashboards</a>
+  <a href="dashboards_to_schema_trace.html">Dashboards → Schema Trace</a>
   <a href="cumulative_accounting_reference.html">Cumulative Accounting Reference</a>
   <a href="raw_data_vs_corral.html">raw_data vs Corral</a>
   <a href="validation_findings.html">Validation Findings</a>
   <a href="xlsx_decomposition.html">XLSX Decomposition</a>
   <a href="corral_tables.html">Corral Tables</a>
+  <a href="next_steps.html">next_steps</a>
   <a class="viewer" href="development_rights_erd.html">Interactive ERD →</a>
 </header>
 <main class="content">
@@ -106,14 +108,14 @@ DDL is a later step.</p>
 <li><strong>Check the supporting docs if you want to know <em>why</em>:</strong>
    - <a href="./raw_data_vs_corral.html">raw_data_vs_corral.md</a> — what Corral doesn't hold.
    - <a href="./validation_findings.html">validation_findings.md</a> — empirical tests.
-   - <a href="./xlsx_decomposition.html">xlsx_decomposition.md</a> — why we don't load Ken's XLSX as a table.</li>
+   - <a href="./xlsx_decomposition.html">xlsx_decomposition.md</a> — how each XLSX column lands in the proposed schema.</li>
 </ol>
 <h3 id="key-numbers-at-a-glance">Key numbers at a glance</h3>
 <ul>
-<li><strong>The motivating fact: Corral's <code>ParcelCommodityInventory</code> tracks SFRUU/MFRUU
-  for only 39% of residential parcels.</strong> This 61% coverage gap is the single
-  strongest reason the proposal exists: Ken's spreadsheets are filling a
-  structural hole, not denormalizing what's already there. See
+<li><strong>Corral's <code>ParcelCommodityInventory</code> tracks SFRUU/MFRUU for only 39% of
+  residential parcels.</strong> This 61% coverage gap is the core reason the
+  proposal exists — the transactions spreadsheet fills a structural hole
+  that a Corral-only schema can't. See
   <a href="./validation_findings.html">validation_findings.md</a> for the empirical test.</li>
 <li><strong>7 new physical tables + 2 views + 3 materialized snapshots</strong> in this proposal.</li>
 <li><strong>16 Corral reference / transaction tables</strong> reused as-is (no duplication).</li>

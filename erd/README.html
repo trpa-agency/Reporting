@@ -51,11 +51,13 @@
   <a href="README.html" class="active">README</a>
   <a href="target_schema.html">Target Schema</a>
   <a href="proposed_dashboards.html">Dashboards</a>
+  <a href="dashboards_to_schema_trace.html">Dashboards → Schema Trace</a>
   <a href="cumulative_accounting_reference.html">Cumulative Accounting Reference</a>
   <a href="raw_data_vs_corral.html">raw_data vs Corral</a>
   <a href="validation_findings.html">Validation Findings</a>
   <a href="xlsx_decomposition.html">XLSX Decomposition</a>
   <a href="corral_tables.html">Corral Tables</a>
+  <a href="next_steps.html">next_steps</a>
   <a class="viewer" href="development_rights_erd.html">Interactive ERD →</a>
 </header>
 <main class="content">
@@ -78,14 +80,17 @@ geodatabase) to drive three v1 dashboards:</p>
 (plain-markdown copy of the Claude skill) so future sessions (and reviewers) share the same terms.</p>
 <hr />
 <h2 id="start-here">Start here</h2>
-<p><strong><a href="./target_schema.html">target_schema.md</a></strong> — the proposal itself. Read this
-first. It has:</p>
+<p><strong><a href="./next_steps.html">next_steps.md</a></strong> — 5-minute read for a working
+session. What we're building, where the data comes from, and the
+questions we need to close before DDL.</p>
+<p><strong><a href="./target_schema.html">target_schema.md</a></strong> — full proposal. Read after
+<code>next_steps.md</code> if you want the detail. It has:</p>
 <ul>
 <li>Design principles (never duplicate Corral; five-bucket model; ETL-only writes)</li>
 <li>5 Mermaid ERDs (reference entities · new core tables · movement ledger · permit completion · dashboard outputs)</li>
 <li>Loading strategy (where each table's data comes from)</li>
-<li><strong>Open questions for the team</strong> (~12 items to review)</li>
-<li>Final table list: <strong>8 new physical tables + 1 view + 2 materialized snapshots</strong></li>
+<li>Open questions for the team</li>
+<li>Final table list</li>
 </ul>
 <p><strong><a href="./development_rights_erd.html">development_rights_erd.html</a></strong> — browser-friendly
 viewer. 6 tabs total: 2 showing existing systems (Corral, LTinfo), 4 showing
@@ -97,9 +102,9 @@ the proposed new schema. Pan/zoom with scroll/drag. Dark theme.</p>
 2. The <code>trpa-cumulative-accounting</code> skill for vocabulary
 3. Go straight to the "Questions for the team" section at the end</p>
 <p><strong>If you want to know why these tables and not others (technical reviewers):</strong>
-1. <a href="./raw_data_vs_corral.html">raw_data_vs_corral.md</a> — what's missing from Corral
-2. <a href="./validation_findings.html">validation_findings.md</a> — empirical proof the spreadsheets can't be replaced by Corral views
-3. <a href="./xlsx_decomposition.html">xlsx_decomposition.md</a> — column-by-column response to "just load the XLSX"</p>
+1. <a href="./raw_data_vs_corral.html">raw_data_vs_corral.md</a> — what's in the spreadsheets that Corral doesn't hold
+2. <a href="./validation_findings.html">validation_findings.md</a> — empirical gap analysis between Corral and the XLSX
+3. <a href="./xlsx_decomposition.html">xlsx_decomposition.md</a> — column-by-column map from the XLSX into the proposed schema</p>
 <p><strong>If you're responsible for Corral, LTinfo, or the GIS systems:</strong>
 1. <a href="./development_rights_erd.md">development_rights_erd.md</a> — existing-systems inventory
 2. <a href="./target_schema.html">target_schema.md</a> <em>Loading strategy</em> section
@@ -142,6 +147,11 @@ the proposed new schema. Pan/zoom with scroll/drag. Dark theme.</p>
 <td>Dashboard &amp; visualization proposal (~25 candidates in 8 clusters); extends the existing <code>allocation_drawdown.html</code> prototype.</td>
 </tr>
 <tr>
+<td><a href="./dashboards_to_schema_trace.html">dashboards_to_schema_trace.md</a></td>
+<td>Draft — first pass</td>
+<td>Backward design from the 3 v1 dashboards through their view contracts to the schema columns they require. Surfaces concrete gap delta against <code>target_schema.md</code>.</td>
+</tr>
+<tr>
 <td><a href="./cumulative_accounting_reference.html">cumulative_accounting_reference.md</a></td>
 <td>Reference</td>
 <td>TRPA Cumulative Accounting framework (plain-markdown copy of the Claude skill) — vocabulary, bucket model, movement types, pool structure.</td>
@@ -171,17 +181,22 @@ the proposed new schema. Pan/zoom with scroll/drag. Dark theme.</p>
 <tr>
 <td><a href="./raw_data_vs_corral.html">raw_data_vs_corral.md</a></td>
 <td>Done</td>
-<td>Gap analysis — what's in Ken's spreadsheets that Corral doesn't hold.</td>
+<td>Gap analysis — what's in the transactions spreadsheet that Corral doesn't hold.</td>
 </tr>
 <tr>
 <td><a href="./validation_findings.html">validation_findings.md</a></td>
 <td>Done</td>
-<td>Empirical tests against the Feb-2024 Corral snapshot; proves the spreadsheets can't be replaced by Corral views.</td>
+<td>Empirical tests against the Feb-2024 Corral snapshot; quantifies what the spreadsheet covers beyond Corral views.</td>
 </tr>
 <tr>
 <td><a href="./xlsx_decomposition.html">xlsx_decomposition.md</a></td>
 <td>Done</td>
-<td>Column-by-column analysis of <code>Transactions_Allocations_Details.xlsx</code>. Answers the "just load the XLSX" proposal.</td>
+<td>Column-by-column map from <code>2025 Transactions and Allocations Details.xlsx</code> into the proposed schema.</td>
+</tr>
+<tr>
+<td><a href="./next_steps.html">next_steps.md</a></td>
+<td>Draft</td>
+<td>5-minute working-session brief: architecture summary + questions to close before DDL.</td>
 </tr>
 </tbody>
 </table>
@@ -298,8 +313,7 @@ python erd/build_erd_html.py             # rebuild development_rights_erd.html
 <li><strong>On the open questions</strong>: reply with your preferred option (or a new one).</li>
 <li><strong>On the overall shape</strong>: look at the HTML viewer; comment on what's
   missing, duplicated, or in the wrong place.</li>
-<li><strong>On the "just load the XLSX" question</strong>: see <a href="./xlsx_decomposition.html">xlsx_decomposition.md</a>
-  for the column-by-column response.</li>
+<li><strong>On how XLSX columns land in the schema</strong>: see <a href="./xlsx_decomposition.html">xlsx_decomposition.md</a>.</li>
 </ul>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>

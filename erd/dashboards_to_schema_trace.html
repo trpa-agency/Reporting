@@ -1,0 +1,1430 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboards → Schema Trace — TRPA Development-Rights ERD</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --panel: #161b22;
+    --fg: #c9d1d9;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --accent2: #3fb950;
+    --border: #30363d;
+    --code-bg: #161b22;
+  }
+  html, body { background: var(--bg); color: var(--fg); font-family: -apple-system, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; margin: 0; padding: 0; line-height: 1.6; }
+  header.docnav { background: var(--panel); padding: 10px 20px; border-bottom: 1px solid var(--border); font-size: 13px; position: sticky; top: 0; z-index: 10; display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; }
+  header.docnav .brand { font-weight: 600; color: var(--fg); }
+  header.docnav a { color: var(--accent); text-decoration: none; white-space: nowrap; }
+  header.docnav a.active { color: var(--fg); font-weight: 600; }
+  header.docnav a.viewer { color: var(--accent2); }
+  header.docnav a:hover { text-decoration: underline; }
+  main.content { max-width: 920px; margin: 0 auto; padding: 32px 24px 96px; }
+  h1, h2, h3, h4 { color: var(--fg); margin-top: 1.6em; margin-bottom: 0.6em; line-height: 1.25; }
+  h1 { border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-top: 0.5em; }
+  h2 { border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+  p { margin: 0.8em 0; }
+  a { color: var(--accent); }
+  a:hover { text-decoration: underline; }
+  code { background: var(--code-bg); padding: 2px 6px; border-radius: 3px; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 88%; color: #c9d1d9; }
+  pre { background: var(--code-bg); padding: 16px; border-radius: 6px; overflow-x: auto; border: 1px solid var(--border); }
+  pre code { background: none; padding: 0; font-size: 90%; line-height: 1.5; }
+  blockquote { border-left: 3px solid var(--accent); color: var(--muted); margin: 16px 0; padding: 4px 16px; background: rgba(88, 166, 255, 0.04); }
+  blockquote p { margin: 0.4em 0; }
+  table { border-collapse: collapse; margin: 16px 0; display: block; overflow-x: auto; }
+  th, td { border: 1px solid var(--border); padding: 6px 13px; text-align: left; vertical-align: top; }
+  th { background: var(--panel); font-weight: 600; }
+  tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+  ul, ol { padding-left: 28px; }
+  li { margin: 4px 0; }
+  hr { border: 0; border-top: 1px solid var(--border); margin: 32px 0; }
+  .mermaid { background: #0b0f14; padding: 20px; border-radius: 6px; border: 1px solid var(--border); margin: 16px 0; overflow-x: auto; text-align: center; }
+  img { max-width: 100%; }
+</style>
+</head>
+<body>
+<header class="docnav">
+  <span class="brand">TRPA ERD</span>
+  <a href="README.html">README</a>
+  <a href="target_schema.html">Target Schema</a>
+  <a href="proposed_dashboards.html">Dashboards</a>
+  <a href="dashboards_to_schema_trace.html" class="active">Dashboards → Schema Trace</a>
+  <a href="cumulative_accounting_reference.html">Cumulative Accounting Reference</a>
+  <a href="raw_data_vs_corral.html">raw_data vs Corral</a>
+  <a href="validation_findings.html">Validation Findings</a>
+  <a href="xlsx_decomposition.html">XLSX Decomposition</a>
+  <a href="corral_tables.html">Corral Tables</a>
+  <a href="next_steps.html">next_steps</a>
+  <a class="viewer" href="development_rights_erd.html">Interactive ERD →</a>
+</header>
+<main class="content">
+<h1 id="dashboards-views-schema-trace">Dashboards → Views → Schema trace</h1>
+<blockquote>
+<p><strong>Status: DRAFT — first pass.</strong> Working <em>backwards</em> from end-stage
+visualizations to confirm the view contracts and schema. Sibling to
+<a href="./proposed_dashboards.html">proposed_dashboards.md</a> (the broad catalog) and
+<a href="./target_schema.html">target_schema.md</a> (the proposed tables/views).</p>
+</blockquote>
+<h2 id="why-this-doc-exists">Why this doc exists</h2>
+<p>The repo had been growing schema/ERD definitions from the bottom up, which
+made it easy to over-spec tables that no dashboard actually needs. This doc
+flips the direction: it starts from the <strong>3 v1 dashboards already committed
+to</strong> and traces each one back through its view contract to the schema
+columns it requires.</p>
+<p>Anything in <code>target_schema.md</code> that doesn't show up here is a candidate for
+deferral. Anything <em>missing</em> from <code>target_schema.md</code> that shows up here is
+a real gap and belongs in a follow-up issue.</p>
+<h2 id="findings-from-kens-april-2026-deliverables-added-2026-04-30">Findings from Ken's April 2026 deliverables (added 2026-04-30)</h2>
+<p>Ken sent the 2026 Cumulative Accounting Report and 5 supporting XLSX files
+(at <a href="../from_ken/"><code>from_ken/</code></a> outside this worktree) on 2026-04-30. Reading
+them resolved several open gaps in this trace and surfaced four new ones.
+Detail in the gap sections below; summary here:</p>
+<table>
+<thead>
+<tr>
+<th>Gap</th>
+<th>Status after Ken's data</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>G1.2</strong> <code>MaxRegionalCapacity</code> source</td>
+<td>✅ Resolved — Regional Plan caps: RES Alloc <strong>8,687</strong>, RBU <strong>2,000</strong>, TBU <strong>400</strong>, CFA <strong>1,000,000 sq ft</strong> (since-1987 cumulative). The 2012 Plan's <em>additional</em> authorization on top of 1987 unused was 2,600.</td>
+</tr>
+<tr>
+<td><strong>G2.1</strong> <code>InitialCapacity</code> per pool</td>
+<td>✅ Resolved — Ken's <code>LT Info Pool Balances</code> sheet has the per-pool starting capacities; PPTX slide 5 has the per-jurisdiction unused breakdown.</td>
+</tr>
+<tr>
+<td><strong>G2.2</strong> CSLT sub-pools</td>
+<td>✅ Confirmed real — the prototype HTML's CSLT split into Single-Family / Multi-Family / Town Center matches Ken's pool breakdowns.</td>
+</tr>
+<tr>
+<td><strong>G3.1–G3.4</strong> ParcelDevelopmentChangeEvent</td>
+<td>⚠️ Now have load source — <code>CA Changes breakdown.xlsx</code> Sheet1 (44,372 rows) is the realized table; Sheet2 (52 rows) is the controlled-vocabulary correction-categories list.</td>
+</tr>
+<tr>
+<td><strong>NEW G2.7</strong> Unreleased pool</td>
+<td>Slide 5 names "UNRELEASED ALLOCATIONS = 770" as a distinct category — not modeled in current schema.</td>
+</tr>
+<tr>
+<td><strong>NEW G2.8</strong> Bonus Units as movement type</td>
+<td>Slide 3: "Bonus Units became the #1 source of 2024 and 2025 additions." Schema treats them as a <em>bucket</em> only, not a first-class movement-type column on <code>PoolDrawdownYearly</code>.</td>
+</tr>
+<tr>
+<td><strong>NEW G3.5</strong> Project-level annotations</td>
+<td>Each year's Summary has a free-text "Major Completed Projects" column (Sugar Pine, LTCC Dorms, Beach Club, etc.). Schema has no <code>Project</code> entity.</td>
+</tr>
+<tr>
+<td><strong>NEW G3.6</strong> APN format normalization</td>
+<td>Many parcels appear under both <code>015-331-04</code> and <code>015-331-004</code> formats (leading-zero change in 2018). Distinct from genealogy splits/merges; need canonicalization in the load layer.</td>
+</tr>
+</tbody>
+</table>
+<p>Two new design constraints to note even though they aren't standalone gaps:</p>
+<ul>
+<li><strong>TRPA Pool reconciliation</strong> — Ken annotated the LT Info pool report:
+  <em>"TRPA Pool: 154 — pool shows as 144, but that is incorrect — should be 154"</em>.
+  The current <a href="../html/allocation_drawdown.html">html/allocation_drawdown.html</a>
+  prototype displays the wrong (144) value Ken has flagged. The schema needs
+  a reconciliation rule: don't blindly carry LT Info pool values without
+  Ken's manual corrections layered in.</li>
+<li><strong>Biennial reporting cycles</strong> — Ken's CA Changes data tracks separate
+  2023 and 2026 cycles. Schema needs <code>ReportingCycleYear</code> on
+  <code>ParcelDevelopmentChangeEvent</code> so corrections-of-corrections stay legible.</li>
+</ul>
+<p>The full PowerPoint maps directly onto the dashboards in this trace —
+slide 8 (Regional Plan Additional Development Overview) is the headline
+[Trace 1] view, slide 5 (Allocations Remaining) is [Trace 2], and the
+per-APN data behind the report is [Trace 3].</p>
+<hr />
+<p>The 3 committed dashboards (per <a href="./target_schema.html">target_schema.md §"Ready-to-build v1" and
+proposed_dashboards.md §"Already committed"</a>):</p>
+<ol>
+<li><strong>Cumulative Accounting Report</strong> — annual XLSX replacement; 5-bucket
+   decomposition per (commodity × jurisdiction × year). Driven by
+   <code>CumulativeAccountingSnapshot</code>. Realized CSV proxy:
+   <a href="../ledger_prototype/views/v_cumulative_accounting.csv">ledger_prototype/views/v_cumulative_accounting.csv</a> (430 rows).</li>
+<li><strong>Allocation Drawdown</strong> — stacked area: pool × year → remaining balance.
+   Driven by <code>PoolDrawdownYearly</code>. Realized CSV proxy:
+   <a href="../ledger_prototype/views/v_pool_drawdown.csv">ledger_prototype/views/v_pool_drawdown.csv</a> (102 rows).
+   <strong>Live HTML prototype</strong>: <a href="../html/allocation_drawdown.html">html/allocation_drawdown.html</a>.</li>
+<li><strong>Parcel History Lookup</strong> — per-APN timeline with change-rationale
+   detail. Driven by <code>ParcelHistoryView</code> + <code>ParcelDevelopmentChangeEvent</code>.
+   No CSV proxy yet — pure schema-side proposal.</li>
+</ol>
+<h2 id="how-to-read-each-trace">How to read each trace</h2>
+<p>Each section below has the same five-part structure:</p>
+<ol>
+<li><strong>Chart shape</strong> — what the user sees (axes, marks, filters, drill paths,
+   audience).</li>
+<li><strong>View contract</strong> — the exact column shape the chart consumes
+   <code>(name, type, grain, refresh expectation)</code>.</li>
+<li><strong>Realized vs proposed</strong> — side-by-side: what the prototype actually
+   produces today vs what <code>target_schema.md</code> proposes.</li>
+<li><strong>Schema trace</strong> — every view column mapped back to the source column(s)
+   in <code>target_schema.md</code> or <code>dbo.*</code>.</li>
+<li><strong>Gaps</strong> — concrete deltas worth tracking as issues.</li>
+</ol>
+<hr />
+<h2 id="trace-1-cumulative-accounting-report">Trace 1 — Cumulative Accounting Report</h2>
+<blockquote>
+<p><strong>Status of source code</strong>: realized CSV exists; no live HTML prototype
+yet. The realized CSV is the closest ground truth.</p>
+</blockquote>
+<h3 id="chart-shape">Chart shape</h3>
+<p>The Cumulative Accounting Report is the <strong>annual XLSX replacement</strong> that
+TRPA publishes per TRPA Code §16.8.2. Today it lives in
+<a href="../data/raw_data/">Ken's transactions XLSX</a> and is published at
+<a href="https://thresholds.laketahoeinfo.org/CumulativeAccounting/Index/2023">thresholds.laketahoeinfo.org/CumulativeAccounting/Index/{Year}</a>.</p>
+<p>For v1 the dashboard form should be a <strong>filterable table + small-multiples
+bar chart</strong> (per <a href="../README.md">trpa-dashboard-stack</a> — AG Grid for the
+table, Plotly stacked bar per (jurisdiction × commodity)). Audience: Dan +
+governing board + partner jurisdictions.</p>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Spec</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Primary view</strong></td>
+<td>AG Grid table; rows are <code>(Year × Jurisdiction × Commodity)</code>; columns are the 5 buckets + <code>MaxRegionalCapacity</code>.</td>
+</tr>
+<tr>
+<td><strong>Secondary view</strong></td>
+<td>Stacked bar chart per (Jurisdiction × Commodity) showing the 5-bucket decomposition over time. Year on x-axis.</td>
+</tr>
+<tr>
+<td><strong>Filters</strong></td>
+<td>Year (default = latest), Jurisdiction (multi-select), Commodity (multi-select).</td>
+</tr>
+<tr>
+<td><strong>Drill</strong></td>
+<td>Click a cell → underlying ledger entries that summed to that bucket value (links to a future <code>vCommodityLedger</code> filtered query).</td>
+</tr>
+<tr>
+<td><strong>Branding</strong></td>
+<td>TRPA Blue (#0072CE) for the header bar; bucket colors picked from the chart palette per <a href="../resources/">trpa-brand</a> — Existing=Navy, Banked=Ice, Allocated=Orange, BonusUnits=Forest, UnusedCapacity=Earth.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="view-contract">View contract</h3>
+<p>The view feeding this dashboard is <code>CumulativeAccountingSnapshot</code> (proposed
+name in <a href="./target_schema.html">target_schema.md</a>). The realized prototype CSV
+is <a href="../ledger_prototype/views/v_cumulative_accounting.csv"><code>v_cumulative_accounting.csv</code></a>.</p>
+<p><strong>Required column shape</strong> (the dashboard's contract):</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Grain</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Year</code></td>
+<td>int</td>
+<td>One row per (Year × Jurisdiction × Commodity)</td>
+<td>2004–latest</td>
+</tr>
+<tr>
+<td><code>JurisdictionID</code></td>
+<td>int FK → <code>dbo.Jurisdiction</code></td>
+<td></td>
+<td>Schema proposes ID; realized uses string <code>JurisdictionAbbrev</code>. <strong>Both needed for join + display.</strong></td>
+</tr>
+<tr>
+<td><code>JurisdictionAbbrev</code></td>
+<td>varchar</td>
+<td></td>
+<td>Display label (SLT, EL, PL, DG, WA, TRPA)</td>
+</tr>
+<tr>
+<td><code>CommodityID</code></td>
+<td>int FK → <code>dbo.Commodity</code></td>
+<td></td>
+<td>Schema proposes ID</td>
+</tr>
+<tr>
+<td><code>CommodityShortName</code></td>
+<td>varchar</td>
+<td></td>
+<td>Display label (SFRUU, MFRUU, RBU, TAU, CFA, …)</td>
+</tr>
+<tr>
+<td><code>ExistingQuantity</code></td>
+<td>int (nullable)</td>
+<td></td>
+<td>bucket 1</td>
+</tr>
+<tr>
+<td><code>BankedQuantity</code></td>
+<td>int (nullable)</td>
+<td></td>
+<td>bucket 2</td>
+</tr>
+<tr>
+<td><code>AllocatedNotBuiltQuantity</code></td>
+<td>int (nullable)</td>
+<td></td>
+<td>bucket 3</td>
+</tr>
+<tr>
+<td><code>BonusUnitsRemaining</code></td>
+<td>int (nullable)</td>
+<td></td>
+<td>bucket 4</td>
+</tr>
+<tr>
+<td><code>UnusedCapacityRemaining</code></td>
+<td>int (nullable)</td>
+<td></td>
+<td>bucket 5</td>
+</tr>
+<tr>
+<td><code>MaxRegionalCapacity</code></td>
+<td>int (nullable)</td>
+<td></td>
+<td>for the accounting identity</td>
+</tr>
+<tr>
+<td><code>ComputedAt</code></td>
+<td>datetime</td>
+<td></td>
+<td>freshness label</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Refresh expectation</strong>: nightly recompute (per <code>target_schema.md</code> Q13).
+The annual XLSX replacement only <em>needs</em> yearly accuracy, but the dashboard
+should always reflect last-night's state.</p>
+<h3 id="realized-vs-proposed">Realized vs proposed</h3>
+<p><strong>Realized today</strong> (<a href="../ledger_prototype/views/v_cumulative_accounting.csv">v_cumulative_accounting.csv</a>, 430 rows):</p>
+<pre><code>Year, JurisdictionAbbrev, CommodityShortName, Allocated, Banked, Existing, UnusedCapacity
+</code></pre>
+<p><strong>Proposed in <a href="./target_schema.html">target_schema.md</a></strong> (<code>CumulativeAccountingSnapshot</code>):</p>
+<pre><code>SnapshotID, Year, JurisdictionID, CommodityID,
+ExistingQuantity, BankedQuantity, AllocatedNotBuiltQuantity,
+BonusUnitsRemaining, UnusedCapacityRemaining, MaxRegionalCapacity,
+ComputedAt
+</code></pre>
+<p>Differences:</p>
+<table>
+<thead>
+<tr>
+<th>Concern</th>
+<th>Realized CSV</th>
+<th>Proposed schema</th>
+<th>Direction</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Identity column</td>
+<td>none</td>
+<td><code>SnapshotID PK</code></td>
+<td>Schema is right (need PK for the table form).</td>
+</tr>
+<tr>
+<td>Jurisdiction key</td>
+<td><code>JurisdictionAbbrev</code> (string)</td>
+<td><code>JurisdictionID</code> (int FK)</td>
+<td><strong>Carry both</strong> — ID for joins, Abbrev for display. View materializer should output both.</td>
+</tr>
+<tr>
+<td>Commodity key</td>
+<td><code>CommodityShortName</code> (string)</td>
+<td><code>CommodityID</code> (int FK)</td>
+<td>Same — carry both.</td>
+</tr>
+<tr>
+<td>Bucket 1 (Existing)</td>
+<td><code>Existing</code></td>
+<td><code>ExistingQuantity</code></td>
+<td>Rename realized → proposed (more explicit).</td>
+</tr>
+<tr>
+<td>Bucket 2 (Banked)</td>
+<td><code>Banked</code></td>
+<td><code>BankedQuantity</code></td>
+<td>Same.</td>
+</tr>
+<tr>
+<td>Bucket 3 (Allocated-not-built)</td>
+<td><code>Allocated</code></td>
+<td><code>AllocatedNotBuiltQuantity</code></td>
+<td>Same — and clarify: the realized <code>Allocated</code> is <em>all</em> allocated quantity, not specifically "not yet built". The notebook's bucket comes from <code>BucketType='Allocated'</code> ledger entries. Need to confirm semantics match.</td>
+</tr>
+<tr>
+<td>Bucket 4 (Bonus Units)</td>
+<td><strong>MISSING</strong></td>
+<td><code>BonusUnitsRemaining</code></td>
+<td><strong>Gap</strong>. Realized notebook has a <code>classify_pool()</code> heuristic that assigns <code>BucketType='BonusUnits'</code> to pools with "bonus" in their name, but no rows landed in the prototype's output. Likely zero <code>BonusUnits</code> ledger entries exist yet because no movement type writes to that bucket.</td>
+</tr>
+<tr>
+<td>Bucket 5 (Unused Capacity)</td>
+<td><code>UnusedCapacity</code></td>
+<td><code>UnusedCapacityRemaining</code></td>
+<td>Same rename.</td>
+</tr>
+<tr>
+<td>Capacity ceiling</td>
+<td><strong>MISSING</strong></td>
+<td><code>MaxRegionalCapacity</code></td>
+<td><strong>Gap</strong>. Realized notebook leaves <code>MaxCapacity</code> null on <code>account.csv</code> ("until Ken confirms the authoritative source per commodity"). The dashboard <em>needs</em> this to show "% of capacity used."</td>
+</tr>
+<tr>
+<td>Freshness stamp</td>
+<td><strong>MISSING</strong></td>
+<td><code>ComputedAt</code></td>
+<td>Add to view output for the dashboard's "last updated" label.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="schema-trace">Schema trace</h3>
+<p>How each <code>CumulativeAccountingSnapshot</code> column traces back to source (per
+<a href="./target_schema.html">target_schema.md</a> and <a href="../ledger_prototype/build_ledger.ipynb">build_ledger.ipynb</a>):</p>
+<table>
+<thead>
+<tr>
+<th>View column</th>
+<th>Sourced from</th>
+<th>Logic</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Year</code></td>
+<td><code>vCommodityLedger.EntryDate</code> (year-extracted)</td>
+<td><code>YEAR(EntryDate)</code></td>
+</tr>
+<tr>
+<td><code>JurisdictionID</code></td>
+<td><code>dbo.Jurisdiction</code> via <code>vCommodityLedger.SendingParcelID</code> / <code>ReceivingParcelID</code> → <code>dbo.Parcel.JurisdictionID</code></td>
+<td>Parcel-keyed entries get jurisdiction via parcel; pool-keyed entries (no parcel) currently fall through to a synthetic "TRPA" row in the realized CSV. <strong>Confirm this is the intended behavior or document the rule.</strong></td>
+</tr>
+<tr>
+<td><code>CommodityID</code></td>
+<td><code>vCommodityLedger.CommodityID</code></td>
+<td>direct</td>
+</tr>
+<tr>
+<td><code>ExistingQuantity</code></td>
+<td><code>vCommodityLedger</code> filtered to <code>BucketType='Existing'</code>, cumulative sum through <code>Year</code></td>
+<td>running balance</td>
+</tr>
+<tr>
+<td><code>BankedQuantity</code></td>
+<td><code>vCommodityLedger</code> filtered to <code>BucketType='Banked'</code>, cumulative sum</td>
+<td>running balance</td>
+</tr>
+<tr>
+<td><code>AllocatedNotBuiltQuantity</code></td>
+<td><code>vCommodityLedger</code> filtered to <code>BucketType='Allocated'</code>, cumulative sum</td>
+<td>The "not built" qualifier comes from the lifecycle: once an allocation is <code>ALLOCASSGN</code>'d (assigned to a permit and built), the ledger debits <code>Allocated</code> and credits <code>Existing</code> — so the cumulative sum naturally reflects "allocated and not yet built."</td>
+</tr>
+<tr>
+<td><code>BonusUnitsRemaining</code></td>
+<td><strong>No source yet.</strong> Schema says "derivable from <code>dbo.CommodityPool</code> records plus the movement ledger, materialized nightly into <code>PoolDrawdownYearly</code>."</td>
+<td>Need rule for how a pool's "bonus units remaining" is computed: starting capacity (from <code>dbo.CommodityPool</code> — which column?) minus drawdown ledger entries pointing at that pool.</td>
+</tr>
+<tr>
+<td><code>UnusedCapacityRemaining</code></td>
+<td>Same shape as <code>BonusUnitsRemaining</code> for non-bonus pools</td>
+<td>Cumulative sum of <code>BucketType='UnusedCapacity'</code> ledger entries (negative = drawdown).</td>
+</tr>
+<tr>
+<td><code>MaxRegionalCapacity</code></td>
+<td><strong>No source yet.</strong></td>
+<td>Per Q3 in build notebook: "until Ken confirms the authoritative source per commodity." Likely lives on <code>dbo.CommodityPool</code> (one of the capacity columns) or in a TRPA Code reference table.</td>
+</tr>
+<tr>
+<td><code>ComputedAt</code></td>
+<td>Set at materialization time</td>
+<td><code>GETUTCDATE()</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="gaps-for-trace-1-issues-to-file">Gaps for Trace 1 (issues to file)</h3>
+<ul>
+<li><strong>G1.1 — <code>BonusUnitsRemaining</code> derivation.</strong> Define the rule: which
+  pools count as "bonus", which capacity column on <code>dbo.CommodityPool</code> is
+  the starting balance, what ledger movement types debit/credit it. Today
+  the realized CSV has zero rows in this bucket.</li>
+<li><strong>G1.2 — <code>MaxRegionalCapacity</code> source.</strong> ✅ <strong>Resolved by Ken's 2026
+  PPTX slide 8.</strong> The since-1987 cumulative caps are: Residential
+  Allocations 8,687 units, Residential Bonus Units 2,000 units, Tourist
+  Bonus Units 400 units, Commercial Floor Area 1,000,000 sq ft. The 2012
+  Regional Plan's <em>additional</em> authorization (Board-adopted 2013) on top
+  of any unused 1987 allocations was 2,600 units. <strong>Action</strong>: model as a
+  <code>RegionalPlanCapacity</code> reference table keyed by <code>(Commodity, PlanEra)</code>
+  where <code>PlanEra ∈ {1987, 2012, since-1987-cumulative}</code> so dashboards
+  can show whichever framing the audience needs.</li>
+<li><strong>G1.3 — Pool-keyed jurisdiction fallthrough.</strong> Realized CSV rolls
+  pool-keyed entries (no parcel) into a synthetic <code>TRPA</code> row. Confirm
+  this matches the published cumulative accounting report's convention,
+  or document a different aggregation rule.</li>
+<li><strong>G1.4 — Carry display labels alongside FK IDs.</strong> Schema currently
+  says <code>JurisdictionID</code> and <code>CommodityID</code>. Add <code>JurisdictionAbbrev</code> and
+  <code>CommodityShortName</code> to the view output (denormalized) so the
+  dashboard doesn't need an extra join just for labels.</li>
+<li><strong>G1.5 — Naming convention.</strong> <code>Allocated</code> vs <code>AllocatedNotBuiltQuantity</code>,
+  <code>Banked</code> vs <code>BankedQuantity</code> — pick one (proposed <code>*Quantity</code> suffix is
+  explicit; realized short names are friendlier). Recommend the schema
+  drop the <code>Quantity</code> suffix to match the realized prototype, since the
+  bucket name already implies a quantity.</li>
+</ul>
+<hr />
+<h2 id="trace-2-allocation-drawdown">Trace 2 — Allocation Drawdown</h2>
+<blockquote>
+<p><strong>Status of source code</strong>: realized CSV + <strong>live HTML prototype</strong>.
+The HTML is the most authoritative ground truth — it's what the
+dashboard already shows.</p>
+</blockquote>
+<h3 id="chart-shape_1">Chart shape</h3>
+<p><a href="../html/allocation_drawdown.html">html/allocation_drawdown.html</a> — a Plotly
+<strong>stacked area chart</strong>: x = Year (2013–2026), y = "Remaining Allocations",
+one stacked series per pool. <code>hovermode: "x unified"</code> so hovering a year
+shows all pools' remaining counts. <code>rangemode: "tozero"</code> on y-axis.</p>
+<p>Title: <strong>"Residential Allocation Drawdown by Pool (2013 Regional Plan)"</strong>.
+Series legend title: "Pool".</p>
+<p>The series in the prototype (9 pools, all <strong>residential allocation pools
+under the 2013 Regional Plan's 2,600-home authorization</strong> — this aligns
+with the user's MEMORY note about the 2,600 total):</p>
+<table>
+<thead>
+<tr>
+<th>Series name</th>
+<th style="text-align: right;">2013 value</th>
+<th style="text-align: right;">2026 value</th>
+<th style="text-align: right;">Approx drawdown over 13 years</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TRPA Pool</td>
+<td style="text-align: right;">162</td>
+<td style="text-align: right;">144</td>
+<td style="text-align: right;">-18</td>
+</tr>
+<tr>
+<td>Placer County</td>
+<td style="text-align: right;">462</td>
+<td style="text-align: right;">349</td>
+<td style="text-align: right;">-113</td>
+</tr>
+<tr>
+<td>El Dorado County</td>
+<td style="text-align: right;">407</td>
+<td style="text-align: right;">98</td>
+<td style="text-align: right;">-309</td>
+</tr>
+<tr>
+<td>City of South Lake Tahoe</td>
+<td style="text-align: right;">155</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-155 (exhausted)</td>
+</tr>
+<tr>
+<td>Washoe County</td>
+<td style="text-align: right;">124</td>
+<td style="text-align: right;">123</td>
+<td style="text-align: right;">-1</td>
+</tr>
+<tr>
+<td>CSLT – Single-Family</td>
+<td style="text-align: right;">143</td>
+<td style="text-align: right;">78</td>
+<td style="text-align: right;">-65</td>
+</tr>
+<tr>
+<td>Douglas County</td>
+<td style="text-align: right;">134</td>
+<td style="text-align: right;">93</td>
+<td style="text-align: right;">-41</td>
+</tr>
+<tr>
+<td>CSLT – Multi-Family</td>
+<td style="text-align: right;">59</td>
+<td style="text-align: right;">52</td>
+<td style="text-align: right;">-7</td>
+</tr>
+<tr>
+<td>CSLT – Town Center</td>
+<td style="text-align: right;">59</td>
+<td style="text-align: right;">51</td>
+<td style="text-align: right;">-8</td>
+</tr>
+<tr>
+<td><strong>Total starting capacity</strong></td>
+<td style="text-align: right;"><strong>1,705</strong></td>
+<td style="text-align: right;"><strong>988</strong></td>
+<td style="text-align: right;"><strong>−717 used</strong></td>
+</tr>
+</tbody>
+</table>
+<p>(2013-Plan total target is 2,600; 1,705 is the residential subset across
+the pools listed. Other 895 likely sit in pools not yet in this prototype.)</p>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Spec</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Mark</strong></td>
+<td>Stacked area; one trace per pool; <code>fill='tonexty'</code>; <code>mode='lines'</code>.</td>
+</tr>
+<tr>
+<td><strong>X axis</strong></td>
+<td>Year, integer, 2013→latest+future-projection (2026).</td>
+</tr>
+<tr>
+<td><strong>Y axis</strong></td>
+<td>"Remaining Allocations", <code>rangemode='tozero'</code>.</td>
+</tr>
+<tr>
+<td><strong>Hover</strong></td>
+<td><code>x unified</code> — single column shows all pools.</td>
+</tr>
+<tr>
+<td><strong>Color</strong></td>
+<td>Currently uses Wong/Tol palette (e.g., rgb 136,204,238). <strong>Should swap to TRPA brand chart sequence</strong> (<code>#0072CE, #003B71, #E87722, #4A6118, #9C3E27, #B5A64C, #7B6A8A, #B4CBE8</code>) per <a href="../resources/">trpa-brand</a>. With 9 series and 8 brand colors, the 9th wraps.</td>
+</tr>
+<tr>
+<td><strong>Filters (v1)</strong></td>
+<td>Pool group (jurisdiction vs CSLT subdivision vs TRPA-held).</td>
+</tr>
+<tr>
+<td><strong>Drill</strong></td>
+<td>Click a series at year Y → table of allocations released from that pool that year (links to <code>vCommodityLedger</code> filtered query).</td>
+</tr>
+</tbody>
+</table>
+<h3 id="view-contract_1">View contract</h3>
+<p>What the chart consumes:</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Grain</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Year</code></td>
+<td>int</td>
+<td>One row per (Pool × Year)</td>
+<td>2013–latest, but the prototype includes future projection rows (2024–2026 are flat extrapolations).</td>
+</tr>
+<tr>
+<td><code>PoolID</code></td>
+<td>int FK → <code>dbo.CommodityPool</code></td>
+<td></td>
+<td>Realized CSV uses this as <code>CommodityPoolID</code>.</td>
+</tr>
+<tr>
+<td><code>PoolName</code></td>
+<td>varchar</td>
+<td></td>
+<td>Display label. The HTML uses values like "TRPA Pool", "Placer County", "CSLT – Single-Family" — these come from <code>dbo.CommodityPool.CommodityPoolName</code>.</td>
+</tr>
+<tr>
+<td><code>RemainingBalance</code></td>
+<td>numeric</td>
+<td></td>
+<td>The y-value: cumulative remaining = StartingBalance − sum(drawdowns through Year).</td>
+</tr>
+<tr>
+<td><code>StartingBalance</code></td>
+<td>numeric</td>
+<td></td>
+<td>Optional; useful for the "% used" derived metric.</td>
+</tr>
+<tr>
+<td><code>Released</code> (or movement-typed columns)</td>
+<td>numeric</td>
+<td></td>
+<td>Per-year drawdown by movement type — wide format per <code>target_schema.md</code>. The chart only consumes the running remaining, but the underlying view should still expose movement detail for the drill-down.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Refresh expectation</strong>: nightly. The dashboard caption should read "as of
+{ComputedAt:date} — pulled from <code>PoolDrawdownYearly</code>."</p>
+<h3 id="realized-vs-proposed_1">Realized vs proposed</h3>
+<p><strong>Realized today</strong> (<a href="../ledger_prototype/views/v_pool_drawdown.csv">v_pool_drawdown.csv</a>, 102 rows):</p>
+<pre><code>Year, CommodityPoolID, CommodityShortName, ALLOC
+</code></pre>
+<p>The single value column <code>ALLOC</code> holds <strong>negative drawdown amounts</strong> — i.e.,
+how much was released from that pool in that year via <code>MovementType='ALLOC'</code>.
+All values negative because allocations leave <code>UnusedCapacity</code>.</p>
+<p><strong>Proposed in <a href="./target_schema.html">target_schema.md</a></strong> (<code>PoolDrawdownYearly</code>):</p>
+<pre><code>DrawdownID PK, PoolID, Year,
+StartingBalance, Released, Assigned, Used, Banked, Unbanked,
+Transferred, Converted, ConvertedWithTransfer, LandBankIn, LandBankOut,
+Retired, QAAdjusted, EndingBalance, ComputedAt
+</code></pre>
+<p><strong>HTML prototype's actual data shape</strong> (extracted from
+<a href="../html/allocation_drawdown.html">allocation_drawdown.html</a>):</p>
+<pre><code>{ PoolName: string, x: [Years], y: [RemainingBalance per year] }   x9 series
+</code></pre>
+<p>i.e., long format <code>(Year, PoolName, RemainingBalance)</code> after pivoting.</p>
+<p>Three different shapes for the same conceptual view. Differences:</p>
+<table>
+<thead>
+<tr>
+<th>Concern</th>
+<th>Realized CSV</th>
+<th>Proposed schema</th>
+<th>HTML actually consumes</th>
+<th>Direction</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Format</td>
+<td>Long, sparse: only <code>ALLOC</code> movements present</td>
+<td>Wide: 11 movement-type columns + StartingBalance + EndingBalance</td>
+<td>Long: pool/year/remaining</td>
+<td>View should produce wide (proposed); dashboard derives <code>RemainingBalance = StartingBalance − cumulative drawdowns</code> client-side. <strong>Or</strong> view materializes both <code>*RemainingBalance</code> and <code>*Drawdown</code> columns and dashboard reads <code>EndingBalance</code> directly. Recommend the latter — simpler client.</td>
+</tr>
+<tr>
+<td>Pool key</td>
+<td><code>CommodityPoolID</code> (int)</td>
+<td><code>PoolID</code> (int FK)</td>
+<td><code>PoolName</code> (string)</td>
+<td><strong>Carry both</strong> — ID for joins, Name for display. View should denormalize.</td>
+</tr>
+<tr>
+<td>Movement-type columns</td>
+<td>Just <code>ALLOC</code> because no other movements wrote <code>UnusedCapacity</code> rows in the prototype</td>
+<td>All 11: Released, Assigned, Used, Banked, Unbanked, Transferred, Converted, ConvertedWithTransfer, LandBankIn, LandBankOut, Retired, QAAdjusted</td>
+<td>None — chart only needs net remaining</td>
+<td>Schema is right (drill-down dashboards will need movement-typed detail); v1 prototype ships with mostly-zero columns until other movement types wire in.</td>
+</tr>
+<tr>
+<td>StartingBalance</td>
+<td>Not in realized</td>
+<td><code>StartingBalance</code> proposed</td>
+<td>Implied in y-values (the 2013 value is effectively the starting balance for the 2,600-home era)</td>
+<td><strong>Schema needs to specify what <code>StartingBalance</code> means</strong>: is it (a) the pool's authorized initial capacity per the 2013 Regional Plan, (b) the rolling prior-year <code>EndingBalance</code>, or (c) both as separate columns? Recommend (c): <code>InitialCapacity</code> (static, set when pool is created) + <code>OpeningBalance</code> (carry-forward from prior year).</td>
+</tr>
+<tr>
+<td>EndingBalance</td>
+<td>Not in realized</td>
+<td><code>EndingBalance</code> proposed</td>
+<td>This <em>is</em> the y-value</td>
+<td>Confirm: <code>EndingBalance = OpeningBalance + Released + Assigned + Used + ... + QAAdjusted</code> (signed sum). Document that signing convention.</td>
+</tr>
+<tr>
+<td>Pool-name granularity</td>
+<td>One row per <code>CommodityPoolID</code></td>
+<td>One row per pool</td>
+<td>The HTML splits CSLT into 3 sub-pools (Single-Family, Multi-Family, Town Center)</td>
+<td><strong>The HTML's CSLT split is finer than <code>CommodityPoolID</code> alone.</strong> Either CSLT has multiple pool IDs in <code>dbo.CommodityPool</code> (likely), or these are derived by joining <code>ResidentialAllocationUseType</code>. Need to confirm against <code>dbo.CommodityPool</code> directly. <strong>This is the highest-confidence schema gap from the trace.</strong></td>
+</tr>
+<tr>
+<td>Time horizon</td>
+<td>2010–2024 (full ledger history)</td>
+<td>not specified</td>
+<td>2013–2026 (start of Regional Plan + future projection)</td>
+<td>View should produce all years; dashboard filters to ≥2013 client-side. <strong>Future projection rows (post-current-year) need to come from somewhere</strong> — currently the HTML extrapolates flat. Document whether the view returns only historical rows or includes a forward-projection. Recommend historical only; projection logic stays in the dashboard.</td>
+</tr>
+<tr>
+<td>Refresh stamp</td>
+<td>Not in realized</td>
+<td><code>ComputedAt</code> proposed</td>
+<td>Not currently shown in HTML</td>
+<td>Add <code>ComputedAt</code> to view + caption to dashboard.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="schema-trace_1">Schema trace</h3>
+<p>How each <code>PoolDrawdownYearly</code> column traces back to source:</p>
+<table>
+<thead>
+<tr>
+<th>View column</th>
+<th>Sourced from</th>
+<th>Logic</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PoolID</code></td>
+<td><code>dbo.CommodityPool.CommodityPoolID</code></td>
+<td>direct</td>
+</tr>
+<tr>
+<td><code>PoolName</code></td>
+<td><code>dbo.CommodityPool.CommodityPoolName</code></td>
+<td>direct</td>
+</tr>
+<tr>
+<td><code>Year</code></td>
+<td><code>vCommodityLedger.EntryDate</code> (year-extracted), driven by ledger entries with <code>FromPoolID = PoolID</code> or <code>ToPoolID = PoolID</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>OpeningBalance</code></td>
+<td>Prior year's <code>EndingBalance</code> for this <code>PoolID</code>. First year = <code>InitialCapacity</code>.</td>
+<td>recursive</td>
+</tr>
+<tr>
+<td><code>InitialCapacity</code></td>
+<td><code>dbo.CommodityPool.{?}</code> — authoritative initial capacity column</td>
+<td><strong>Need to identify</strong>: which column on <code>dbo.CommodityPool</code> holds the 2013 Regional Plan authorization. May not exist; might need to seed from a static reference.</td>
+</tr>
+<tr>
+<td><code>Released</code></td>
+<td><code>SUM(Quantity)</code> from <code>vCommodityLedger WHERE MovementType='ALLOC' AND FromPoolID=PoolID</code> (negative — drawdowns)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>Assigned</code></td>
+<td><code>SUM(Quantity)</code> from <code>vCommodityLedger WHERE MovementType='ALLOCASSGN' AND FromPoolID=PoolID</code></td>
+<td>This is the schema's word for what the build notebook does in branch 1 of <code>corral_tdr</code>.</td>
+</tr>
+<tr>
+<td><code>Used</code></td>
+<td>"Built through permit completion" — unclear how this differs from <code>Assigned</code>.</td>
+<td><strong>Schema clarification needed</strong>: in the build notebook, <code>ALLOCASSGN</code> already moves the unit from <code>Allocated</code> to <code>Existing</code> (i.e., "built"). Is <code>Used</code> the same as <code>Assigned</code> or a separate event downstream of permit final inspection?</td>
+</tr>
+<tr>
+<td><code>Banked</code>, <code>Unbanked</code></td>
+<td><code>SUM(Quantity)</code> from <code>vCommodityLedger</code> filtered to <code>MovementType IN ('Banking','Unbanking')</code> and matching pool</td>
+<td><code>Unbanking</code> not yet in build notebook.</td>
+</tr>
+<tr>
+<td><code>Transferred</code>, <code>Converted</code>, <code>ConvertedWithTransfer</code>, <code>LandBankIn</code>, <code>LandBankOut</code>, <code>Retired</code></td>
+<td>Same pattern, filtered by MovementType</td>
+<td>All present in build notebook except <code>Unbanking</code>.</td>
+</tr>
+<tr>
+<td><code>QAAdjusted</code></td>
+<td><code>vCommodityLedger.MovementType='QACorrection'</code> filtered to pool</td>
+<td>Manual ledger branch — currently empty.</td>
+</tr>
+<tr>
+<td><code>EndingBalance</code></td>
+<td><code>OpeningBalance + Released + Assigned + Used + Banked + Unbanked + Transferred + Converted + ConvertedWithTransfer + LandBankIn + LandBankOut + Retired + QAAdjusted</code></td>
+<td>Signed sum of all movement-type columns.</td>
+</tr>
+<tr>
+<td><code>ComputedAt</code></td>
+<td><code>GETUTCDATE()</code> at materialization</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="gaps-for-trace-2-issues-to-file">Gaps for Trace 2 (issues to file)</h3>
+<ul>
+<li><strong>G2.1 — <code>InitialCapacity</code> source.</strong> ✅ <strong>Resolved by Ken's
+  <code>Additional Development as of April2026.xlsx</code> "LT Info Pools Balances"
+  sheet + PPTX slide 5.</strong> Per-pool starting capacities are in Ken's
+  spreadsheet; per-jurisdiction unused-allocation breakdown
+  (Placer 349, El Dorado 135, SLT 0, Washoe 93, Carson 98, Douglas 186,
+  TRPA Pool 154, Unreleased 770) is in slide 5. <strong>Action</strong>: load these
+  as the initial seed for <code>PoolDrawdownYearly.InitialCapacity</code>; flag
+  source as <code>kens_xlsx_april_2026</code> for traceability.</li>
+<li><strong>G2.2 — CSLT pool-name granularity.</strong> ✅ <strong>Confirmed real.</strong> Ken's
+  pool reports + PPTX confirm CSLT does have multiple sub-pools (Town
+  Center, Single-Family, Multi-Family). <strong>Action</strong>: model as 3 distinct
+  <code>CommodityPoolID</code> rows in the schema (matches the HTML prototype's
+  series); no derived <code>PoolSubgroup</code> column needed.</li>
+<li><strong>G2.7 — Unreleased allocations as a distinct category</strong> (NEW from
+  Ken's data). PPTX slide 5 names "UNRELEASED ALLOCATIONS = 770" as a
+  jurisdiction-tier category between "TRPA Pool" and the per-jurisdiction
+  pools. These are units the Regional Plan authorized but TRPA hasn't
+  yet released to any pool. May be equivalent to "TRPA-level
+  UnusedCapacity" but worth confirming. <strong>Action</strong>: either model as a
+  pseudo-pool (<code>PoolName='Unreleased', JurisdictionID=NULL</code>) or add a
+  <code>ReleaseStatus</code> column to <code>dbo.CommodityPool</code>. Decide before
+  populating <code>PoolDrawdownYearly</code>.</li>
+<li><strong>G2.8 — Bonus Units as a first-class movement type</strong> (NEW from Ken's
+  data). PPTX slide 3: "Bonus Units became the #1 source of 2024 and 2025
+  additions" (Sugar Pine 70 + LTCC 85 = 155 affordable bonus units).
+  Schema currently treats Bonus Units as a <em>bucket</em> on
+  <code>CumulativeAccountingSnapshot</code> and not as a movement-type column on
+  <code>PoolDrawdownYearly</code>. <strong>Action</strong>: add <code>BonusUnitReleased</code> and
+  <code>BonusUnitUsed</code> columns to <code>PoolDrawdownYearly</code>, OR stand up a sibling
+  <code>BonusUnitDrawdownYearly</code> view. Bonus units have their own pool with
+  its own 2,000-unit cap (per G1.2), so a separate view may be cleaner.</li>
+<li><strong>G2.3 — <code>Assigned</code> vs <code>Used</code> semantic.</strong> Schema lists both as separate
+  columns. Build notebook treats <code>ALLOCASSGN</code> as the moment
+  Allocated→Existing happens (i.e., the "built" event). Either rename one
+  or define the lifecycle stage that distinguishes them (e.g., <code>Assigned</code>
+  = allocated to a parcel; <code>Used</code> = permit finaled / CO issued). This
+  matters for the dashboard's drill-down semantics.</li>
+<li><strong>G2.4 — Branding swap.</strong> Replace the Wong/Tol palette in
+  <code>allocation_drawdown.html</code> with the TRPA chart sequence. Cosmetic but
+  visible. Tracks against <a href="../resources/">trpa-brand</a>.</li>
+<li><strong>G2.5 — Forward projection.</strong> The HTML extends to 2026 with flat
+  values for the latest 2 years (current = 2026, no real data yet for
+  beyond <code>EntryDate</code>). Document that <code>PoolDrawdownYearly</code> returns only
+  historical rows; any projection is dashboard logic.</li>
+<li><strong>G2.6 — <code>Unbanking</code> movement type.</strong> Schema lists it; build notebook
+  doesn't synthesize any. Document where <code>Unbanking</code> events come from
+  (re-permitting of a previously-banked right? a Corral table not yet
+  joined?) or remove from the schema.</li>
+</ul>
+<hr />
+<h2 id="trace-3-parcel-history-lookup">Trace 3 — Parcel History Lookup</h2>
+<blockquote>
+<p><strong>Status of source code</strong>: no HTML prototype, but Ken's
+<code>CA Changes breakdown.xlsx</code> Sheet1 (44,372 rows) is the realized
+<code>ParcelDevelopmentChangeEvent</code> data, and <code>FINAL RES SUMMARY 2012 to
+2025.xlsx</code> Sheet <code>Residential</code> (42,500 rows) is the realized
+<code>ParcelExistingDevelopment</code>. Use those as ground truth.</p>
+</blockquote>
+<h3 id="chart-shape_2">Chart shape</h3>
+<p>A <strong>per-APN lookup page</strong>. User enters a parcel number (or clicks a parcel
+on a map) → page renders that parcel's full development-rights history.
+Audience: TRPA staff for QA; eventually public for developer due-diligence
+(per <code>proposed_dashboards.md</code> cluster G2).</p>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Spec</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Hero panel</strong></td>
+<td>Current state: what commodities does this parcel have today, and how many of each. Plus a small map of the parcel.</td>
+</tr>
+<tr>
+<td><strong>Timeline</strong></td>
+<td>Vertical timeline of <code>(Year, Commodity, Quantity, ChangeSource, Rationale)</code> events for this APN. Each event is a card showing the change (Previous → New), the source, and a link to evidence (permit number, transaction ID).</td>
+</tr>
+<tr>
+<td><strong>Genealogy panel</strong></td>
+<td>If the APN has been split/merged/renamed, show the parent/child APNs and link to their pages.</td>
+</tr>
+<tr>
+<td><strong>Filters</strong></td>
+<td>Commodity (multi-select), Year range, ChangeSource (multi-select).</td>
+</tr>
+<tr>
+<td><strong>Branding</strong></td>
+<td>TRPA Blue header, Navy body. Links to permit / TDR records via <code>EvidenceURL</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="view-contract_2">View contract</h3>
+<p>This dashboard reads from <strong>two tables jointly</strong>: <code>ParcelHistoryView</code> (the
+year-by-year quantity snapshot) and <code>ParcelDevelopmentChangeEvent</code> (the
+change-rationale audit trail).</p>
+<p><strong><code>ParcelHistoryView</code> shape</strong> (per <a href="./target_schema.html">target_schema.md</a>):</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Grain</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HistoryID</code></td>
+<td>int PK</td>
+<td>one row per (Parcel × Year × Commodity)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>ParcelID</code></td>
+<td>int FK → <code>dbo.Parcel</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>ParcelNumber</code></td>
+<td>varchar</td>
+<td></td>
+<td>denormalized for display + lookup</td>
+</tr>
+<tr>
+<td><code>Year</code></td>
+<td>int</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>CommodityID</code></td>
+<td>int FK → <code>dbo.Commodity</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>CommodityShortName</code></td>
+<td>varchar</td>
+<td></td>
+<td>denormalized</td>
+</tr>
+<tr>
+<td><code>Quantity</code></td>
+<td>int</td>
+<td></td>
+<td>year-end count for that commodity</td>
+</tr>
+<tr>
+<td><code>ChangeCount</code></td>
+<td>int</td>
+<td></td>
+<td>how many <code>ParcelDevelopmentChangeEvent</code> rows fire'd this year for this (parcel, commodity)</td>
+</tr>
+<tr>
+<td><code>LastChangeSource</code></td>
+<td>varchar</td>
+<td></td>
+<td>summary; full detail comes from <code>ParcelDevelopmentChangeEvent</code></td>
+</tr>
+<tr>
+<td><code>LastChangeRationale</code></td>
+<td>varchar</td>
+<td></td>
+<td>summary</td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>ParcelDevelopmentChangeEvent</code> shape</strong> (per <a href="./target_schema.html">target_schema.md</a>):</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ChangeEventID</code></td>
+<td>int PK</td>
+<td></td>
+</tr>
+<tr>
+<td><code>ParcelID</code></td>
+<td>int FK</td>
+<td></td>
+</tr>
+<tr>
+<td><code>CommodityID</code></td>
+<td>int FK</td>
+<td></td>
+</tr>
+<tr>
+<td><code>Year</code></td>
+<td>int</td>
+<td></td>
+</tr>
+<tr>
+<td><code>PreviousQuantity</code></td>
+<td>int</td>
+<td></td>
+</tr>
+<tr>
+<td><code>NewQuantity</code></td>
+<td>int</td>
+<td></td>
+</tr>
+<tr>
+<td><code>ChangeSource</code></td>
+<td>varchar</td>
+<td>enum: permit_completion, tdr_transfer, qa_correction, genealogy_restatement, assessor_update, manual</td>
+</tr>
+<tr>
+<td><code>Rationale</code></td>
+<td>varchar</td>
+<td>free text</td>
+</tr>
+<tr>
+<td><code>EvidenceURL</code></td>
+<td>varchar</td>
+<td>link to permit / TDR / source doc</td>
+</tr>
+<tr>
+<td><code>LinkedTdrTransactionID</code></td>
+<td>int FK (nullable)</td>
+<td>exactly one of three Linked* must be non-null per CHECK</td>
+</tr>
+<tr>
+<td><code>LinkedParcelPermitBankedDevelopmentRightID</code></td>
+<td>int FK (nullable)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>LinkedManualAdjustmentID</code></td>
+<td>int FK (nullable)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>LinkedPermitID</code></td>
+<td>int FK (nullable)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>RecordedBy</code></td>
+<td>varchar</td>
+<td></td>
+</tr>
+<tr>
+<td><code>RecordedAt</code></td>
+<td>datetime</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Refresh expectation</strong>: weekly (matches the GIS sync cadence in
+<code>target_schema.md</code> §"Loading strategy"). Per-parcel reads, so query latency
+matters more than freshness.</p>
+<h3 id="realized-vs-proposed_2">Realized vs proposed</h3>
+<p><strong>Realized data found in Ken's deliverables (2026-04-30):</strong></p>
+<ul>
+<li><strong><code>FINAL RES SUMMARY 2012 to 2025.xlsx</code> → sheet <code>Residential</code></strong> (42,500
+  rows): wide format <code>(APN, Jurisdiction, 2012 Final, 2013 Final, …,
+  2025 Final)</code>. Unpivot to long → 14 years × ~30K non-null rows ≈ the
+  realized <code>ParcelExistingDevelopment</code> table for residential commodities.</li>
+<li><strong><code>CA Changes breakdown.xlsx</code> → sheet <code>Sheet1</code></strong> (44,372 rows):
+  per-APN change rationale, columns <code>(APN, 2023 Updates, 2023 Update
+  Reason, 2023 Summary Reason, 2026 Changes, 2026 Detailed, 2026 Changes
+  Reason, 2023 CA Report Change Reason, 2023 CA Report Change)</code>. This is
+  the realized <code>ParcelDevelopmentChangeEvent</code> table.</li>
+<li><strong><code>CA Changes breakdown.xlsx</code> → sheet <code>Sheet2</code></strong> (52 rows): controlled
+  vocabulary of 9 correction categories — the realized <code>CorrectionCategory</code>
+  enum:
+  1. <code>No Update Required</code>
+  2. <code>None - 2023 Update Correct</code>
+  3. <code>Under-Correction in 2023; Unit(s) added</code>
+  4. <code>Unit(s) Not Previously Counted - Added in 2026</code>
+  5. <code>Over-Correction in 2023; Unit(s) Removed in 2026</code>
+  6. <code>Unit(s) Incorrectly Removed in 2023 - Unit(s) Added Back in 2026</code>
+  7. <code>2026 Additional Corrections to Previously Reported - Unit(s) Previously Not Counted</code>
+  8. <code>Additional Unit(s) Removed in 2026</code>
+  9. <code>Correction to Prior Analysis - Additional Unit(s) Removed in 2026</code></li>
+</ul>
+<p>Three things to add to the schema before implementation:</p>
+<ol>
+<li><strong><code>ParcelHistoryView</code> denormalizations.</strong> The schema lists <code>ParcelID</code>
+   and <code>CommodityID</code> as FKs; for the dashboard's lookup-by-APN flow we
+   want <code>ParcelNumber</code> and <code>CommodityShortName</code> denormalized into the
+   view. Same pattern as G1.4 / G2.x.</li>
+<li><strong>Genealogy panel data.</strong> The dashboard needs to render parent/child
+   APNs. That comes from <code>ParcelGenealogyEventEnriched</code> (proposed, not
+   in <code>ParcelHistoryView</code>). Document: should the dashboard query
+   <code>ParcelGenealogyEventEnriched</code> directly, or should <code>ParcelHistoryView</code>
+   include a <code>RelatedAPNs</code> array column / linked table?
+   Recommend: dashboard queries <code>ParcelGenealogyEventEnriched</code> directly
+   for the genealogy panel; <code>ParcelHistoryView</code> stays focused on
+   <code>(Parcel × Year × Commodity)</code> quantity rows.</li>
+<li><strong><code>CorrectionCategory</code> enum + <code>ReportingCycleYear</code> column on
+   <code>ParcelDevelopmentChangeEvent</code>.</strong> Both required to load Ken's CA
+   Changes Sheet1 cleanly. The current <code>ChangeSource</code> value
+   <code>qa_correction</code> is too coarse — needs a sub-categorization column
+   sourced from the 9 Sheet2 values. <code>ReportingCycleYear</code> distinguishes
+   the 2023 cycle from the 2026 cycle (and future cycles). Without it,
+   a 2026 correction-of-a-2023-correction is indistinguishable from a
+   fresh 2026 finding.</li>
+</ol>
+<h3 id="schema-trace_2">Schema trace</h3>
+<table>
+<thead>
+<tr>
+<th>View / table column</th>
+<th>Sourced from</th>
+<th>Logic</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ParcelHistoryView.Quantity</code></td>
+<td><code>ParcelExistingDevelopment.Quantity</code> for <code>(ParcelID, Year, CommodityID)</code></td>
+<td>direct row pivot from the parcel snapshot table</td>
+</tr>
+<tr>
+<td><code>ParcelHistoryView.ChangeCount</code></td>
+<td><code>COUNT(*)</code> from <code>ParcelDevelopmentChangeEvent</code> for that <code>(Parcel, Year, Commodity)</code> triple</td>
+<td>aggregation</td>
+</tr>
+<tr>
+<td><code>ParcelHistoryView.LastChangeSource</code>, <code>.LastChangeRationale</code></td>
+<td><code>ParcelDevelopmentChangeEvent</code> ordered by <code>RecordedAt DESC</code> for that triple, take row 1</td>
+<td>window function</td>
+</tr>
+<tr>
+<td><code>ParcelDevelopmentChangeEvent.PreviousQuantity</code> / <code>NewQuantity</code></td>
+<td>Computed at change-event creation time from <code>ParcelExistingDevelopment</code> before/after</td>
+<td>snapshot</td>
+</tr>
+<tr>
+<td><code>ParcelDevelopmentChangeEvent.LinkedTdrTransactionID</code></td>
+<td><code>dbo.TdrTransaction.TdrTransactionID</code> (nullable)</td>
+<td>when source is permit-completion or tdr-transfer</td>
+</tr>
+<tr>
+<td><code>ParcelDevelopmentChangeEvent.LinkedParcelPermitBankedDevelopmentRightID</code></td>
+<td><code>dbo.ParcelPermitBankedDevelopmentRight.ParcelPermitBankedDevelopmentRightID</code> (nullable)</td>
+<td>when source is banking</td>
+</tr>
+<tr>
+<td><code>ParcelDevelopmentChangeEvent.LinkedManualAdjustmentID</code></td>
+<td><code>LedgerManualAdjustment.AdjustmentID</code> (nullable)</td>
+<td>when source is qa_correction or manual</td>
+</tr>
+<tr>
+<td><code>ParcelDevelopmentChangeEvent.LinkedPermitID</code></td>
+<td><code>dbo.ParcelPermit.ParcelPermitID</code> (nullable)</td>
+<td>the permit that drove the change, regardless of source</td>
+</tr>
+<tr>
+<td><code>ParcelDevelopmentChangeEvent.EvidenceURL</code></td>
+<td>Constructed in ETL: e.g., <code>https://thresholds.laketahoeinfo.org/.../{TdrTransactionID}</code> or <code>https://parcels.laketahoeinfo.org/.../{ParcelNumber}</code></td>
+<td>string template per <code>ChangeSource</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="gaps-for-trace-3-issues-to-file">Gaps for Trace 3 (issues to file)</h3>
+<ul>
+<li><strong>G3.1 — <code>ParcelHistoryView</code> denormalizations.</strong> Add <code>ParcelNumber</code> and
+  <code>CommodityShortName</code> to the view. Same pattern as G1.4 / G2 carry-both.</li>
+<li><strong>G3.2 — Genealogy panel data flow.</strong> Document whether the dashboard
+  queries <code>ParcelGenealogyEventEnriched</code> directly or via a join. Recommend
+  direct — keeps <code>ParcelHistoryView</code> focused on quantity rows.</li>
+<li><strong>G3.3 — <code>EvidenceURL</code> template per <code>ChangeSource</code>.</strong> Define the URL
+  patterns: permit_completion → permits site, tdr_transfer → thresholds
+  site, etc. Belongs in ETL spec, not schema, but should be referenced
+  from <code>target_schema.md</code> so it doesn't get lost.</li>
+<li><strong>G3.4 — Permission model.</strong> Per <code>proposed_dashboards.md</code>, this becomes
+  public eventually (G2 in cluster G). Confirm what subset of fields
+  goes public (e.g., redact <code>RecordedBy</code> for the public view) before
+  shipping the public-facing variant.</li>
+<li><strong>G3.5 — Project-level annotations</strong> (NEW from Ken's data). Each
+  year's Summary sheet has a free-text "Major Completed Projects" column
+  with project names (Sugar Pine = 69 units, LTCC Dorms = 41 units,
+  Beach Club, Edgewood Casitas, Lakeside Inn Banking, etc.). Schema has
+  no <code>Project</code> entity. <strong>Action</strong>: add a <code>Project</code> table
+  <code>(ProjectID PK, ProjectName, ProjectType, JurisdictionID,
+  CompletionYear, ParcelID nullable, AffordableUnits, MarketUnits, Notes)</code>
+  and a join table <code>ProjectChangeEventLink</code> so each
+  <code>ParcelDevelopmentChangeEvent</code> can reference 0..N projects. Enables a
+  project-rollup view for the dashboard's narrative panel.</li>
+<li><strong>G3.6 — APN format normalization</strong> (NEW from Ken's data). Many parcels
+  appear under both <code>015-331-04</code> and <code>015-331-004</code> formats — a leading-zero
+  change happened mid-stream in 2018. This is <strong>distinct</strong> from
+  <code>ParcelGenealogyEventEnriched</code>'s split/merge/rename concept.
+  <strong>Action</strong>: add a canonicalization function <code>fn_canonical_apn(@apn)</code> in
+  the load layer that strips leading zeros from the segment AND keeps a
+  <code>RawAPN</code> column on <code>ParcelExistingDevelopment</code> and
+  <code>ParcelDevelopmentChangeEvent</code> so we can trace back to source
+  spreadsheet rows. Loader UPSERTs by canonical APN; raw value carried for
+  audit.</li>
+</ul>
+<hr />
+<h2 id="roll-up-gap-delta-against-target_schemamd">Roll-up: gap delta against <code>target_schema.md</code></h2>
+<p>After Ken's April 2026 data: <strong>18 gaps total — 4 resolved by Ken's data,
+14 still open</strong> (10 original + 4 new). Sorted into three buckets:</p>
+<h3 id="add-to-schema">Add to schema</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>What</th>
+<th>Where</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>G1.1</td>
+<td>Rule for <code>BonusUnitsRemaining</code> derivation</td>
+<td><code>target_schema.md</code> §<code>PoolDrawdownYearly</code> and §<code>CumulativeAccountingSnapshot</code></td>
+</tr>
+<tr>
+<td>~~G1.2~~</td>
+<td>~~<code>MaxRegionalCapacity</code> source~~ — ✅ <strong>resolved</strong>: model as <code>RegionalPlanCapacity(Commodity, PlanEra)</code> lookup; seed from Ken's PPTX slide 8</td>
+<td><code>target_schema.md</code> §"reference entities"</td>
+</tr>
+<tr>
+<td>G1.4 / G2.x / G3.1</td>
+<td>Denormalize display labels (<code>JurisdictionAbbrev</code>, <code>CommodityShortName</code>, <code>PoolName</code>, <code>ParcelNumber</code>) into all 3 materialized views</td>
+<td><code>target_schema.md</code> §"materialized dashboard outputs"</td>
+</tr>
+<tr>
+<td>~~G2.1~~</td>
+<td>~~<code>InitialCapacity</code> column on <code>PoolDrawdownYearly</code>~~ — ✅ <strong>resolved</strong>: seed from Ken's <code>LT Info Pools Balances</code> sheet, flag <code>Source='kens_xlsx_april_2026'</code></td>
+<td><code>target_schema.md</code> §<code>PoolDrawdownYearly</code></td>
+</tr>
+<tr>
+<td>~~G2.2~~</td>
+<td>~~CSLT sub-pool derivation~~ — ✅ <strong>resolved</strong>: model as 3 distinct <code>CommodityPoolID</code> rows</td>
+<td><code>target_schema.md</code> §"reference entities" + <code>dbo.CommodityPool</code></td>
+</tr>
+<tr>
+<td><strong>G2.7</strong></td>
+<td>Unreleased pool category — model as pseudo-pool or add <code>ReleaseStatus</code> column on <code>dbo.CommodityPool</code></td>
+<td><code>target_schema.md</code> §<code>PoolDrawdownYearly</code> + §"reference entities"</td>
+</tr>
+<tr>
+<td><strong>G2.8</strong></td>
+<td>Bonus Units as movement-type columns on <code>PoolDrawdownYearly</code> OR sibling <code>BonusUnitDrawdownYearly</code> view</td>
+<td><code>target_schema.md</code> §<code>PoolDrawdownYearly</code></td>
+</tr>
+<tr>
+<td><strong>G3.3.* <code>CorrectionCategory</code> + <code>ReportingCycleYear</code></strong></td>
+<td>Required to load Ken's CA Changes Sheet1; sub-categorizes <code>ChangeSource='qa_correction'</code>; cycle column distinguishes 2023 / 2026 / future reporting cycles</td>
+<td><code>target_schema.md</code> §<code>ParcelDevelopmentChangeEvent</code></td>
+</tr>
+<tr>
+<td>G3.3</td>
+<td><code>EvidenceURL</code> template registry per <code>ChangeSource</code></td>
+<td>new section in <code>target_schema.md</code> or in an ETL spec</td>
+</tr>
+<tr>
+<td><strong>G3.5</strong></td>
+<td><code>Project</code> entity + <code>ProjectChangeEventLink</code> for the "Major Completed Projects" narrative</td>
+<td><code>target_schema.md</code> §"new core tables"</td>
+</tr>
+<tr>
+<td><strong>G3.6</strong></td>
+<td><code>fn_canonical_apn</code> + <code>RawAPN</code> audit column on parcel-keyed tables</td>
+<td>ETL spec; reference from <code>target_schema.md</code> §"loading strategy"</td>
+</tr>
+</tbody>
+</table>
+<h3 id="clarify-in-schema">Clarify in schema</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>What</th>
+<th>Where</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>G1.3</td>
+<td>Pool-keyed entries' jurisdiction fallthrough convention</td>
+<td><code>target_schema.md</code> §<code>CumulativeAccountingSnapshot</code></td>
+</tr>
+<tr>
+<td>G1.5</td>
+<td>Naming convention: drop <code>Quantity</code> suffix (or keep — pick one)</td>
+<td><code>target_schema.md</code> §<code>CumulativeAccountingSnapshot</code></td>
+</tr>
+<tr>
+<td>G2.3</td>
+<td><code>Assigned</code> vs <code>Used</code> lifecycle distinction</td>
+<td><code>target_schema.md</code> §<code>PoolDrawdownYearly</code> and §"Mapping Corral TransactionType → MovementType"</td>
+</tr>
+<tr>
+<td>G2.5</td>
+<td>Document: <code>PoolDrawdownYearly</code> returns historical only, projection is dashboard logic</td>
+<td><code>target_schema.md</code> §<code>PoolDrawdownYearly</code></td>
+</tr>
+<tr>
+<td>G2.6</td>
+<td>Either source <code>Unbanking</code> events or remove the column</td>
+<td><code>target_schema.md</code> §<code>PoolDrawdownYearly</code></td>
+</tr>
+<tr>
+<td>G3.2</td>
+<td>Document genealogy panel reads <code>ParcelGenealogyEventEnriched</code> directly</td>
+<td><code>target_schema.md</code> §<code>ParcelHistoryView</code></td>
+</tr>
+<tr>
+<td>G3.4</td>
+<td>Permission model for public variant of Parcel History Lookup</td>
+<td><code>target_schema.md</code> §<code>ParcelHistoryView</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="outside-schema-dashboard-branding-work">Outside schema (dashboard / branding work)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>What</th>
+<th>Where</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>G2.4</td>
+<td>Replace Wong/Tol palette with TRPA chart sequence in <code>allocation_drawdown.html</code></td>
+<td>dashboard task, separate from schema</td>
+</tr>
+<tr>
+<td><strong>G2.x TRPA Pool reconciliation</strong></td>
+<td>Dashboard currently shows TRPA Pool = 144; Ken says correct value is 154. Don't blindly carry LT Info pool values; require Ken's manual corrections layer before display.</td>
+<td>dashboard + ETL reconciliation, separate from schema</td>
+</tr>
+</tbody>
+</table>
+<h3 id="triage-suggestion">Triage suggestion</h3>
+<p>The over-generated database/ERD issues you mentioned should be sanity-checked
+against this list. <strong>An issue that doesn't ladder up to one of the 14 gaps
+above is a candidate for closing</strong>, since none of the 3 v1 dashboards needs
+it. (Exceptions: cluster A–H dashboards in <code>proposed_dashboards.md</code> may
+require things this trace doesn't surface — but that's a v2 conversation.)</p>
+<hr />
+<h2 id="open-questions-before-issue-creation">Open questions before issue creation</h2>
+<ol>
+<li><strong>CSLT sub-pool resolution.</strong> ✅ Resolved by Ken's data. Skip the
+   <code>dbo.CommodityPool</code> query — Ken's pool reports confirm 3 distinct
+   sub-pools.</li>
+<li><strong>Bonus pool roster.</strong> Before filing G1.1, list the actual pools in
+   <code>dbo.CommodityPool</code> whose names match the <code>classify_pool()</code>
+   "bonus" heuristic. If the list is empty, the bucket may legitimately
+   stay zero in v1 and G1.1 can defer to v2. (Now also relevant for
+   G2.8 — the bonus pool inventory determines whether bonus units get
+   their own sibling view.)</li>
+<li><strong>Initial-capacity column on <code>dbo.CommodityPool</code>.</strong> ✅ Resolved by
+   Ken's data. Skip the <code>SELECT TOP 1 *</code> — load initial capacities
+   directly from Ken's <code>LT Info Pools Balances</code> sheet, flag source.</li>
+<li><strong>Unreleased pool modeling.</strong> Before filing G2.7, decide: pseudo-pool
+   row (<code>PoolName='Unreleased', JurisdictionID=NULL</code>) vs <code>ReleaseStatus</code>
+   enum on <code>dbo.CommodityPool</code>. Talk through with Ken — this changes
+   the join shape of any "% remaining capacity" calculation.</li>
+<li><strong>Bonus Units as separate view vs columns.</strong> Before filing G2.8,
+   decide between sibling <code>BonusUnitDrawdownYearly</code> view (cleaner; bonus
+   pools have their own 2,000-unit cap) vs adding <code>BonusUnitReleased</code> /
+   <code>BonusUnitUsed</code> columns to <code>PoolDrawdownYearly</code>. The 2024–2025
+   bonus-unit surge (Sugar Pine + LTCC) makes this a near-term ask.</li>
+<li><strong><code>Project</code> entity granularity.</strong> Before filing G3.5, scope:
+   one <code>Project</code> per "Major Completed Projects" entry (~15-30 projects
+   total since 2012)? Or finer-grain (one per construction phase)?
+   Ken's narrative tracks at the report-card level — start there.</li>
+<li><strong>APN canonicalization edge cases.</strong> Before filing G3.6, verify the
+   leading-zero rule covers all observed APN-format issues. Spot-check
+   for other patterns (dashes, county prefixes, alpha suffixes) by
+   running uniqueness on <code>(canonical_apn, year)</code> against Ken's
+   Residential sheet.</li>
+</ol>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  if (typeof mermaid !== 'undefined') {
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: { darkMode: true, background: '#0b0f14' },
+      er: { useMaxWidth: true },
+      maxTextSize: 500000,
+      securityLevel: 'loose'
+    });
+  }
+</script>
+</body>
+</html>
