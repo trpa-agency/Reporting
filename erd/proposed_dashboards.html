@@ -192,16 +192,35 @@ Tahoe overall" in a single glance.</p>
 <h2 id="cluster-b-pool-allocation-tracking">Cluster B — Pool + allocation tracking</h2>
 <p>For internal TRPA staff doing allocation accounting. Extends the existing
 drawdown prototype.</p>
-<h3 id="b1-pool-balance-cards-v1">B1. Pool Balance Cards (v1)</h3>
+<h3 id="b1-pool-balance-cards-v1-built-b2-trajectory-included">B1. Pool Balance Cards ✅ (v1 — built; B2 trajectory included)</h3>
 <ul>
-<li><strong>What it shows</strong>: Grid of cards, one per active <code>CommodityPool</code>, showing
-  current balance / initial capacity, % remaining, and last disbursement
-  date. Click a card → B2 drill-down.</li>
-<li><strong>Audience</strong>: TRPA allocation staff, jurisdictions checking "what's left".</li>
-<li><strong>Data</strong>: <code>PoolDrawdownYearly</code> most-recent row + <code>dbo.CommodityPool</code>.</li>
-<li><strong>Complexity</strong>: M. ~30 cards (active pools only; inactive filtered out).</li>
+<li><strong>What it shows</strong>: Grid of 9 cards, one per residential allocation pool
+  (8 jurisdiction + sub-pool + 1 TRPA-central). Each card: current
+  remaining (big number), initial capacity, % remaining bar (TRPA brand
+  color per pool), drawn-down count, low/exhausted status flag. Click a
+  card to populate the detail panel below with the pool's year-by-year
+  trajectory (2013–26) as a Plotly area chart. KPI strip up top: total
+  remaining, drawn down since 2013, pools exhausted, unreleased held
+  centrally.</li>
+<li><strong>Audience</strong>: TRPA allocation staff (daily-use), jurisdictions checking
+  "what's left in our pool."</li>
+<li><strong>Data</strong>: remaining counts inlined from Ken's
+  <code>from_ken/Additional Development as of April2026.xlsx</code> LT Info Pools
+  sheet (with the TRPA Pool 144→154 correction applied). Trajectory
+  inlined from <code>html/allocation_drawdown.html</code>'s embedded series.
+  Eventually backed by <code>PoolDrawdownYearly</code> most-recent row +
+  <code>dbo.CommodityPool</code>.</li>
+<li><strong>Complexity</strong>: M. Built as
+  <a href="../html/pool-balance-cards.html"><code>html/pool-balance-cards.html</code></a> —
+  single-file Plotly + TRPA brand, no fetch.</li>
+<li><strong>Sort options</strong>: by remaining (default), by % used, by name.</li>
+<li><strong>Track context:</strong> see <a href="./allocation_track.html">allocation_track.md</a>.</li>
+<li><strong>B2 status</strong>: trajectory line (year-by-year remaining) covers the
+  high-level B2 ask. The fuller B2 — per-event ledger drill-down with
+  movement-type filtering — needs <code>vCommodityLedger</code> which is still
+  schema-side. Marked 🟡 partial below.</li>
 </ul>
-<h3 id="b2-pool-detail-drill-down-v1">B2. Pool Detail Drill-down (v1)</h3>
+<h3 id="b2-pool-detail-drill-down-v1-partial-trajectory-in-b1-per-event-detail-pending-vcommodityledger">B2. Pool Detail Drill-down 🟡 (v1 partial — trajectory in B1, per-event detail pending vCommodityLedger)</h3>
 <ul>
 <li><strong>What it shows</strong>: For a selected pool: timeline of every ledger entry
   (allocations released, used, banked, transferred). Filter by year / by

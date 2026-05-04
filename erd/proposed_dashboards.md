@@ -117,16 +117,35 @@ Tahoe overall" in a single glance.
 For internal TRPA staff doing allocation accounting. Extends the existing
 drawdown prototype.
 
-### B1. Pool Balance Cards (v1)
+### B1. Pool Balance Cards ✅ (v1 — built; B2 trajectory included)
 
-- **What it shows**: Grid of cards, one per active `CommodityPool`, showing
-  current balance / initial capacity, % remaining, and last disbursement
-  date. Click a card → B2 drill-down.
-- **Audience**: TRPA allocation staff, jurisdictions checking "what's left".
-- **Data**: `PoolDrawdownYearly` most-recent row + `dbo.CommodityPool`.
-- **Complexity**: M. ~30 cards (active pools only; inactive filtered out).
+- **What it shows**: Grid of 9 cards, one per residential allocation pool
+  (8 jurisdiction + sub-pool + 1 TRPA-central). Each card: current
+  remaining (big number), initial capacity, % remaining bar (TRPA brand
+  color per pool), drawn-down count, low/exhausted status flag. Click a
+  card to populate the detail panel below with the pool's year-by-year
+  trajectory (2013–26) as a Plotly area chart. KPI strip up top: total
+  remaining, drawn down since 2013, pools exhausted, unreleased held
+  centrally.
+- **Audience**: TRPA allocation staff (daily-use), jurisdictions checking
+  "what's left in our pool."
+- **Data**: remaining counts inlined from Ken's
+  `from_ken/Additional Development as of April2026.xlsx` LT Info Pools
+  sheet (with the TRPA Pool 144→154 correction applied). Trajectory
+  inlined from `html/allocation_drawdown.html`'s embedded series.
+  Eventually backed by `PoolDrawdownYearly` most-recent row +
+  `dbo.CommodityPool`.
+- **Complexity**: M. Built as
+  [`html/pool-balance-cards.html`](../html/pool-balance-cards.html) —
+  single-file Plotly + TRPA brand, no fetch.
+- **Sort options**: by remaining (default), by % used, by name.
+- **Track context:** see [allocation_track.md](./allocation_track.md).
+- **B2 status**: trajectory line (year-by-year remaining) covers the
+  high-level B2 ask. The fuller B2 — per-event ledger drill-down with
+  movement-type filtering — needs `vCommodityLedger` which is still
+  schema-side. Marked 🟡 partial below.
 
-### B2. Pool Detail Drill-down (v1)
+### B2. Pool Detail Drill-down 🟡 (v1 partial — trajectory in B1, per-event detail pending vCommodityLedger)
 
 - **What it shows**: For a selected pool: timeline of every ledger entry
   (allocations released, used, banked, transferred). Filter by year / by
