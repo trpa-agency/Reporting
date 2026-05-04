@@ -83,6 +83,7 @@ Full list in [target_schema.md](./target_schema.md). The three highest-priority:
 |---|---|---|
 | [target_schema.md](./target_schema.md) | **Draft — for team review** | The proposal itself. ERD + loading strategy + open questions. |
 | [proposed_dashboards.md](./proposed_dashboards.md) | Draft — for team review | Dashboard & visualization proposal (~25 candidates in 8 clusters); extends the existing `allocation_drawdown.html` prototype. |
+| [dashboards_to_schema_trace.md](./dashboards_to_schema_trace.md) | Draft — first pass | Backward design from the 3 v1 dashboards through their view contracts to the schema columns they require. Surfaces concrete gap delta against `target_schema.md`. |
 | [cumulative_accounting_reference.md](./cumulative_accounting_reference.md) | Reference | TRPA Cumulative Accounting framework (plain-markdown copy of the Claude skill) — vocabulary, bucket model, movement types, pool structure. |
 | [development_rights_erd.html](./development_rights_erd.html) | Draft | Browser viewer for all ERDs (existing + proposed). |
 
