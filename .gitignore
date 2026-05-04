@@ -5,7 +5,11 @@
 __pycache__/
 *.pyc
 *.pyo
+
+# OS metadata
 .DS_Store
+Thumbs.db
+desktop.ini
 
 # Large QA exports — too big for git
 data/qa_data/qa_all_flags.csv
