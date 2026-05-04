@@ -117,15 +117,27 @@ these visualizations would read from.</p>
 <h2 id="cluster-a-regional-capacity-buildout">Cluster A — Regional capacity + buildout</h2>
 <p>For Dan, the governing board, partner agencies. Communicates "where is
 Tahoe overall" in a single glance.</p>
-<h3 id="a1-regional-capacity-dial-v1">A1. Regional Capacity Dial (v1)</h3>
+<h3 id="a1-regional-capacity-dial-v1-built">A1. Regional Capacity Dial ✅ (v1 — built)</h3>
 <ul>
-<li><strong>What it shows</strong>: Single large gauge per commodity (RES, TAU, CFA) showing
-  <code>% of Max Regional Capacity built</code>. Hover reveals bucket breakdown.</li>
-<li><strong>Audience</strong>: Governing board, press, annual reporting.</li>
-<li><strong>Data</strong>: <code>CumulativeAccountingSnapshot</code> aggregated to Regional totals.</li>
-<li><strong>Complexity</strong>: S. One-page Plotly indicator chart.</li>
-<li><strong>Why now</strong>: Governing board communications want "Tahoe is at 92.5% of
-  residential capacity" as a headline number. This dial <em>is</em> that headline.</li>
+<li><strong>What it shows</strong>: 4 Plotly indicator gauges in a 2×2 grid — one per
+  commodity (Residential Allocations, Residential Bonus Units, Tourist
+  Bonus Units, Commercial Floor Area) showing <code>% built</code> against the
+  since-1987 cumulative Regional Plan max. Below: a stacked horizontal
+  bar showing all 4 capacities side-by-side (constructed in TRPA brand
+  color + remaining in ice). A framing strip distinguishes the 8,687
+  since-1987 cumulative max from the 2,600 2012-Plan additional Board
+  authorization.</li>
+<li><strong>Audience</strong>: Governing board, press, annual reporting. The single
+  page that answers "where is Tahoe overall."</li>
+<li><strong>Data</strong>: inlined today from Ken's 2026 PPTX slide 8 (5 numbers ×
+  4 commodities). Eventually backed by <code>CumulativeAccountingSnapshot</code>
+  aggregated to Regional totals.</li>
+<li><strong>Complexity</strong>: S. Built as
+  <a href="../html/regional-capacity-dial.html"><code>html/regional-capacity-dial.html</code></a>
+  — single-file Plotly + TRPA brand. No fetch, no state, no filters —
+  pure headline dashboard.</li>
+<li><strong>Track context:</strong> see <a href="./allocation_track.html">allocation_track.md</a>
+  for the broader Track B picture.</li>
 </ul>
 <h3 id="a2-buildout-projection-v2">A2. Buildout Projection (v2)</h3>
 <ul>

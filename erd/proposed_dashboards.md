@@ -39,15 +39,27 @@ Everything below is **new**, in addition to those three.
 For Dan, the governing board, partner agencies. Communicates "where is
 Tahoe overall" in a single glance.
 
-### A1. Regional Capacity Dial (v1)
+### A1. Regional Capacity Dial ✅ (v1 — built)
 
-- **What it shows**: Single large gauge per commodity (RES, TAU, CFA) showing
-  `% of Max Regional Capacity built`. Hover reveals bucket breakdown.
-- **Audience**: Governing board, press, annual reporting.
-- **Data**: `CumulativeAccountingSnapshot` aggregated to Regional totals.
-- **Complexity**: S. One-page Plotly indicator chart.
-- **Why now**: Governing board communications want "Tahoe is at 92.5% of
-  residential capacity" as a headline number. This dial *is* that headline.
+- **What it shows**: 4 Plotly indicator gauges in a 2×2 grid — one per
+  commodity (Residential Allocations, Residential Bonus Units, Tourist
+  Bonus Units, Commercial Floor Area) showing `% built` against the
+  since-1987 cumulative Regional Plan max. Below: a stacked horizontal
+  bar showing all 4 capacities side-by-side (constructed in TRPA brand
+  color + remaining in ice). A framing strip distinguishes the 8,687
+  since-1987 cumulative max from the 2,600 2012-Plan additional Board
+  authorization.
+- **Audience**: Governing board, press, annual reporting. The single
+  page that answers "where is Tahoe overall."
+- **Data**: inlined today from Ken's 2026 PPTX slide 8 (5 numbers ×
+  4 commodities). Eventually backed by `CumulativeAccountingSnapshot`
+  aggregated to Regional totals.
+- **Complexity**: S. Built as
+  [`html/regional-capacity-dial.html`](../html/regional-capacity-dial.html)
+  — single-file Plotly + TRPA brand. No fetch, no state, no filters —
+  pure headline dashboard.
+- **Track context:** see [allocation_track.md](./allocation_track.md)
+  for the broader Track B picture.
 
 ### A2. Buildout Projection (v2)
 

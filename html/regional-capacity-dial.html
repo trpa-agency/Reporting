@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Regional Plan Capacity Dial &mdash; TRPA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<style>
+:root {
+  --trpa-blue:    #0072CE;
+  --trpa-navy:    #003B71;
+  --trpa-earth:   #B47E00;
+  --trpa-forest:  #4A6118;
+  --trpa-brick:   #9C3E27;
+  --trpa-olive:   #B5A64C;
+  --trpa-orange:  #E87722;
+  --trpa-purple:  #7B6A8A;
+  --trpa-ice:     #B4CBE8;
+  --bg:           #f5f7fa;
+  --surface:      #ffffff;
+  --border:       #e1e7ee;
+  --text-dark:    #003B71;
+  --text-mid:     #5d6c7e;
+  --text-light:   #8a9bb2;
+  --shadow:       0 2px 16px rgba(0, 59, 113, 0.08);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg); color: var(--text-dark); min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+header { background: var(--trpa-navy); color: #fff; display: flex; align-items: stretch; }
+.header-accent { width: 8px; flex-shrink: 0; background: linear-gradient(180deg, var(--trpa-forest) 0%, var(--trpa-blue) 50%, var(--trpa-orange) 100%); }
+.header-content { padding: 26px 40px 22px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex: 1; }
+.header-eyebrow { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--trpa-ice); margin-bottom: 7px; }
+header h1 { font-weight: 700; font-size: 1.85rem; line-height: 1.15; letter-spacing: -0.02em; }
+header h1 span { color: var(--trpa-blue); }
+.header-sub { font-size: 0.82rem; color: var(--trpa-ice); margin-top: 6px; opacity: 0.9; max-width: 760px; }
+.header-meta { font-size: 0.75rem; color: var(--trpa-ice); text-align: right; line-height: 1.7; opacity: 0.85; white-space: nowrap; }
+.live-badge { display: inline-block; background: var(--trpa-forest); color: #fff; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; margin-bottom: 6px; }
+
+/* Section + cards */
+.section { padding: 24px 40px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px 24px; box-shadow: var(--shadow); }
+.card h3 { font-size: 0.95rem; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
+.card p { font-size: 0.73rem; color: var(--text-light); margin-bottom: 14px; }
+
+/* Gauge grid */
+.gauge-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.gauge-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 16px 12px 8px; box-shadow: var(--shadow); position: relative; min-height: 270px;
+}
+.gauge-accent { position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 8px 8px 0 0; }
+.gauge-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); text-align: center; margin-bottom: 4px; padding-top: 4px; }
+.gauge-sub { font-size: 0.74rem; color: var(--text-mid); text-align: center; margin-top: -8px; }
+.gauge-sub strong { color: var(--text-dark); font-weight: 600; }
+
+/* Comparison */
+.comparison { margin-top: 24px; }
+
+/* Framing strip (the 2,600 vs 8,687 distinction) */
+.framing {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+  margin-top: 24px; box-shadow: var(--shadow);
+}
+.framing-item { font-size: 0.83rem; color: var(--text-mid); line-height: 1.55; }
+.framing-item strong { color: var(--trpa-navy); display: block; font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; }
+.framing-item .num { color: var(--trpa-blue); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.footnote {
+  padding: 14px 40px 22px; font-size: 0.72rem; color: var(--text-light);
+  line-height: 1.6; background: var(--surface); border-top: 1px solid var(--border); margin-top: 24px;
+}
+.footnote code { background: var(--bg); padding: 1px 5px; border-radius: 3px; font-size: 0.7rem; }
+
+@media (max-width: 1100px) {
+  .gauge-grid { grid-template-columns: 1fr 1fr; }
+  .framing { grid-template-columns: 1fr; }
+}
+@media (max-width: 700px) {
+  .gauge-grid { grid-template-columns: 1fr; }
+  header .header-content, .section, .footnote { padding-left: 16px; padding-right: 16px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-accent"></div>
+  <div class="header-content">
+    <div>
+      <div class="header-eyebrow">Tahoe Regional Planning Agency</div>
+      <h1>Regional Plan <span>Capacity Dial</span></h1>
+      <div class="header-sub">
+        Where the Tahoe Region sits against its since-1987 cumulative capacity caps,
+        per Ken&rsquo;s 2026 Cumulative Accounting Report. One gauge per commodity:
+        constructed vs Regional Plan maximum.
+      </div>
+    </div>
+    <div class="header-meta">
+      <div class="live-badge">A1 / Headline</div><br>
+      Source: 2026 Cumulative Accounting Report (slide 8)<br>
+      Snapshot: Apr 30, 2026
+    </div>
+  </div>
+</header>
+
+<div class="section">
+  <div class="gauge-grid">
+    <div class="gauge-card">
+      <div class="gauge-accent" style="background:var(--trpa-blue)"></div>
+      <div class="gauge-label">Residential Allocations</div>
+      <div id="gauge-res" style="height:200px;"></div>
+      <div class="gauge-sub"><strong>6,731</strong> built &middot; max <strong>8,687</strong> units</div>
+    </div>
+    <div class="gauge-card">
+      <div class="gauge-accent" style="background:var(--trpa-forest)"></div>
+      <div class="gauge-label">Residential Bonus Units</div>
+      <div id="gauge-rbu" style="height:200px;"></div>
+      <div class="gauge-sub"><strong>736</strong> built &middot; max <strong>2,000</strong> units</div>
+    </div>
+    <div class="gauge-card">
+      <div class="gauge-accent" style="background:var(--trpa-purple)"></div>
+      <div class="gauge-label">Tourist Bonus Units</div>
+      <div id="gauge-tbu" style="height:200px;"></div>
+      <div class="gauge-sub"><strong>58</strong> built &middot; max <strong>400</strong> units</div>
+    </div>
+    <div class="gauge-card">
+      <div class="gauge-accent" style="background:var(--trpa-earth)"></div>
+      <div class="gauge-label">Commercial Floor Area</div>
+      <div id="gauge-cfa" style="height:200px;"></div>
+      <div class="gauge-sub"><strong>464K</strong> built &middot; max <strong>1.0M</strong> sq ft</div>
+    </div>
+  </div>
+
+  <div class="comparison card">
+    <h3>Capacity utilization comparison</h3>
+    <p>Constructed (TRPA brand colors) vs remaining (ice). All bars normalized to 100% of each commodity's Regional Plan max.</p>
+    <div id="comparison-chart" style="height:260px;"></div>
+  </div>
+
+  <div class="framing">
+    <div class="framing-item">
+      <strong>Two cap numbers, both correct:</strong>
+      <span class="num">8,687</span> = since-1987 cumulative residential allocations max (the long-running total across both 1987 + 2012 plans). What the gauges above measure against.
+    </div>
+    <div class="framing-item">
+      <strong>2012 Plan additional:</strong>
+      <span class="num">2,600</span> residential units &mdash; the TRPA Board&rsquo;s 2013 authorization for *additional new* units on top of any 1987 allocations remaining unused at adoption. A subset of the 8,687 cumulative since-1987 max.
+    </div>
+  </div>
+</div>
+
+<div class="footnote">
+  <strong>Data:</strong> inlined from <code>from_ken/Cumulative Accounting 2026 Report.pptx</code> slide 8 (Regional Plan Maximum Additional Development) and <code>from_ken/Additional Development as of April2026.xlsx</code>.
+  Eventually backed by <code>CumulativeAccountingSnapshot</code> aggregated to Regional totals — see
+  <a href="../erd/dashboards_to_schema_trace.md" style="color:var(--trpa-blue)">dashboards_to_schema_trace.md</a> Trace 1.
+  Cluster A1 in <a href="../erd/proposed_dashboards.md" style="color:var(--trpa-blue)">proposed_dashboards.md</a>.
+</div>
+
+<script>
+const TRPA = {
+  blue:'#0072CE', navy:'#003B71', earth:'#B47E00', forest:'#4A6118',
+  brick:'#9C3E27', olive:'#B5A64C', orange:'#E87722', purple:'#7B6A8A',
+  ice:'#B4CBE8',
+};
+
+// 2026 Cumulative Accounting Report, slide 8 — since-1987 cumulative max
+const COMMODITIES = [
+  { id: 'gauge-res', label: 'Residential Allocations', built: 6731,   max: 8687,    color: TRPA.blue   },
+  { id: 'gauge-rbu', label: 'Residential Bonus Units', built: 736,    max: 2000,    color: TRPA.forest },
+  { id: 'gauge-tbu', label: 'Tourist Bonus Units',     built: 58,     max: 400,     color: TRPA.purple },
+  { id: 'gauge-cfa', label: 'Commercial Floor Area',   built: 464144, max: 1000000, color: TRPA.earth  },
+];
+
+const plotFont = { family: '"Open Sans", system-ui, sans-serif', color: TRPA.navy };
+
+function fmt(n) { return n >= 1000 ? n.toLocaleString() : String(n); }
+
+function renderGauge(c) {
+  const pct = (c.built / c.max) * 100;
+  Plotly.react(c.id, [{
+    type: 'indicator',
+    mode: 'gauge+number',
+    value: pct,
+    number: { suffix: '%', font: { size: 36, color: TRPA.navy, family: '"Open Sans"' }, valueformat: '.1f' },
+    gauge: {
+      axis: { range: [0, 100], tickwidth: 1, tickcolor: TRPA.ice,
+              tickfont: { size: 9, color: TRPA.textLight }, ticksuffix: '%' },
+      bar: { color: c.color, thickness: 0.32 },
+      bgcolor: '#f5f7fa',
+      borderwidth: 1,
+      bordercolor: TRPA.ice,
+      steps: [
+        { range: [0, 100], color: 'rgba(180, 203, 232, 0.2)' },
+      ],
+      threshold: {
+        line: { color: TRPA.navy, width: 2 },
+        thickness: 0.85,
+        value: pct,
+      },
+    },
+  }], {
+    font: plotFont,
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    margin: { t: 10, r: 16, b: 8, l: 16 },
+  }, { responsive: true, displayModeBar: false });
+}
+
+function renderComparison() {
+  const labels = COMMODITIES.map(c => c.label);
+  const builtPct = COMMODITIES.map(c => (c.built / c.max) * 100);
+  const remPct   = COMMODITIES.map(c => 100 - (c.built / c.max) * 100);
+  const colors   = COMMODITIES.map(c => c.color);
+  const builtAbs = COMMODITIES.map(c => c.built);
+  const maxAbs   = COMMODITIES.map(c => c.max);
+
+  Plotly.react('comparison-chart', [
+    {
+      name: 'Constructed',
+      type: 'bar', orientation: 'h',
+      x: builtPct, y: labels,
+      marker: { color: colors },
+      text: COMMODITIES.map((c, i) => `${fmt(c.built)} / ${fmt(c.max)}`),
+      textposition: 'inside',
+      insidetextfont: { color: '#fff', size: 11, family: '"Open Sans"' },
+      hovertemplate: '%{y}: <b>%{x:.1f}%</b> built<extra></extra>',
+    },
+    {
+      name: 'Remaining capacity',
+      type: 'bar', orientation: 'h',
+      x: remPct, y: labels,
+      marker: { color: TRPA.ice },
+      text: COMMODITIES.map((c, i) => `${fmt(c.max - c.built)} remaining`),
+      textposition: 'inside',
+      insidetextfont: { color: TRPA.navy, size: 11, family: '"Open Sans"' },
+      hovertemplate: '%{y}: <b>%{x:.1f}%</b> remaining<extra></extra>',
+    },
+  ], {
+    barmode: 'stack',
+    font: plotFont,
+    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+    margin: { t: 8, r: 24, b: 32, l: 200 },
+    xaxis: { range: [0, 100], ticksuffix: '%', gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 11 } },
+    yaxis: { autorange: 'reversed', tickfont: { size: 12, color: TRPA.textDark }, automargin: true },
+    legend: { orientation: 'h', y: -0.18, font: { size: 11 } },
+    showlegend: true,
+  }, { responsive: true, displayModeBar: false });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  COMMODITIES.forEach(renderGauge);
+  renderComparison();
+});
+</script>
+</body>
+</html>
