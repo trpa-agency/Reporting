@@ -71,9 +71,8 @@ annual cumulative accounting report, the allocation drawdown chart,
 and a per-APN history view from one source. It anchors on the five
 buckets from TRPA Code §16.8.2:</p>
 <pre><code>Max Regional Capacity  =  Existing + Banked + Remaining
-
+where  Remaining  =  Allocated + Not Allocated + Not Released
 </code></pre>
-<p>Remainging = Allocated + Not Allocated + Not Released</p>
 <p>Every event (allocation, assignment, transfer, conversion, banking,
 retirement) moves commodity between those buckets. The ledger records
 each movement as a signed-quantity row; reports are <code>SUM(Quantity)</code>

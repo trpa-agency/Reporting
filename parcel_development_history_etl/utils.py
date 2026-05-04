@@ -30,6 +30,27 @@ def el_depad(apn: str) -> str:
     return f"{m.group(1)}-{m.group(2)}" if m else apn
 
 
+# ── Generic APN canonicalization (any standard CA/NV NNN-NNN-NN(N) format) ────
+# Broader than el_pad: pads ALL standard CA/NV APNs (not just El Dorado) to a
+# 3-digit third segment. The 2018 leading-zero reformat affected multiple
+# counties; observed pairs include 015-331-04↔015-331-004 (El Dorado),
+# 007-011-23↔007-011-023, 023-111-37↔023-111-037.
+# Other formats (Douglas long-form like 1418-03-301-010) pass through unchanged.
+_STD_APN_RE = re.compile(r"^(\d{3})-(\d{3})-(\d{2,3})$")
+
+
+def canonical_apn(raw):
+    """Return canonical APN form. Standard NNN-NNN-NN(N): pad third segment to
+    3 digits. Other formats stripped only. None/NaN/empty → None."""
+    if not isinstance(raw, str) or not raw.strip():
+        return None
+    s = raw.strip()
+    m = _STD_APN_RE.match(s)
+    if m:
+        return f"{m.group(1)}-{m.group(2)}-{m.group(3).zfill(3)}"
+    return s
+
+
 # ── Logging ───────────────────────────────────────────────────────────────────
 
 LOG_DIR = Path(__file__).parent / "logs"

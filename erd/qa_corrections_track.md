@@ -152,7 +152,7 @@ Once stable, fold both notebooks into `parcel_development_history_etl/steps/s07_
 | **B. Allocation Tracking** | Where allocations sit + pool drawdown | Mostly done — dashboards live (`html/allocation_drawdown.html`, `html/allocation-tracking.html`, `html/residential-additions-by-source.html`) |
 | **C. QA Corrections** *(this doc)* | Track every adjustment with rationale | Schema + loader + reconciliation landed; dashboard E1 next |
 
-Track C uses Track A's APN canonicalization (currently inlined in the loader; will switch to `parcel_development_history_etl/utils.py:el_pad` once Track A consolidates). Track C feeds Track B's per-parcel history view (`vParcelHistory` / `ParcelHistoryView`) once the DB load happens.
+Track C imports `canonical_apn` from `parcel_development_history_etl/utils.py` (added alongside the existing `el_pad`/`el_depad`). Track C feeds Track B's per-parcel history view (`vParcelHistory` / `ParcelHistoryView`) once the DB load happens.
 
 ## Files reference
 

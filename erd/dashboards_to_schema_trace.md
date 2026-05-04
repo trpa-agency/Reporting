@@ -37,17 +37,9 @@ Detail in the gap sections below; summary here:
 | **NEW G3.6** APN format normalization | ⚠️ Partial — `RawAPN` audit column landed on `ParcelDevelopmentChangeEvent`. Canonicalization function `fn_canonical_apn` still pending the loader notebook. |
 | **Q1 ADU modeling** | ✅ Resolved as option (b) — `IsADU bit` flag on `dbo.ResidentialAllocation` and `dbo.ResidentialBonusUnit*`, not a third use type. |
 
-Two new design constraints to note even though they aren't standalone gaps:
+**Design constraint to note** — TRPA Pool reconciliation: Ken annotated the LT Info pool report *"TRPA Pool: 154 — pool shows as 144, but that is incorrect — should be 154"*. The current [html/allocation_drawdown.html](../html/allocation_drawdown.html) prototype displays the wrong (144) value Ken has flagged. The schema needs a reconciliation rule: don't blindly carry LT Info pool values without Ken's manual corrections layered in.
 
-- **TRPA Pool reconciliation** — Ken annotated the LT Info pool report:
-  *"TRPA Pool: 154 — pool shows as 144, but that is incorrect — should be 154"*.
-  The current [html/allocation_drawdown.html](../html/allocation_drawdown.html)
-  prototype displays the wrong (144) value Ken has flagged. The schema needs
-  a reconciliation rule: don't blindly carry LT Info pool values without
-  Ken's manual corrections layered in.
-- **Biennial reporting cycles** — Ken's CA Changes data tracks separate
-  2023 and 2026 cycles. Schema needs `ReportingCycleYear` on
-  `ParcelDevelopmentChangeEvent` so corrections-of-corrections stay legible.
+(Reporting cadence note from earlier draft removed — see [qa_corrections_track.md](./qa_corrections_track.md) "Reporting cadence" section. TRPA reports annually; QA corrections are continuous; 2023 and 2026 are big-sweep campaigns, not biennial.)
 
 The full PowerPoint maps directly onto the dashboards in this trace —
 slide 8 (Regional Plan Additional Development Overview) is the headline

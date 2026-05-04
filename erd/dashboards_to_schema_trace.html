@@ -133,18 +133,8 @@ Detail in the gap sections below; summary here:</p>
 </tr>
 </tbody>
 </table>
-<p>Two new design constraints to note even though they aren't standalone gaps:</p>
-<ul>
-<li><strong>TRPA Pool reconciliation</strong> — Ken annotated the LT Info pool report:
-  <em>"TRPA Pool: 154 — pool shows as 144, but that is incorrect — should be 154"</em>.
-  The current <a href="../html/allocation_drawdown.html">html/allocation_drawdown.html</a>
-  prototype displays the wrong (144) value Ken has flagged. The schema needs
-  a reconciliation rule: don't blindly carry LT Info pool values without
-  Ken's manual corrections layered in.</li>
-<li><strong>Biennial reporting cycles</strong> — Ken's CA Changes data tracks separate
-  2023 and 2026 cycles. Schema needs <code>ReportingCycleYear</code> on
-  <code>ParcelDevelopmentChangeEvent</code> so corrections-of-corrections stay legible.</li>
-</ul>
+<p><strong>Design constraint to note</strong> — TRPA Pool reconciliation: Ken annotated the LT Info pool report <em>"TRPA Pool: 154 — pool shows as 144, but that is incorrect — should be 154"</em>. The current <a href="../html/allocation_drawdown.html">html/allocation_drawdown.html</a> prototype displays the wrong (144) value Ken has flagged. The schema needs a reconciliation rule: don't blindly carry LT Info pool values without Ken's manual corrections layered in.</p>
+<p>(Reporting cadence note from earlier draft removed — see <a href="./qa_corrections_track.html">qa_corrections_track.md</a> "Reporting cadence" section. TRPA reports annually; QA corrections are continuous; 2023 and 2026 are big-sweep campaigns, not biennial.)</p>
 <p>The full PowerPoint maps directly onto the dashboards in this trace —
 slide 8 (Regional Plan Additional Development Overview) is the headline
 [Trace 1] view, slide 5 (Allocations Remaining) is [Trace 2], and the

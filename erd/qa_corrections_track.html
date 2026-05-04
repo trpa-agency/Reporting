@@ -283,7 +283,7 @@ Over-Correction                                                                 
 </tr>
 </tbody>
 </table>
-<p>Track C uses Track A's APN canonicalization (currently inlined in the loader; will switch to <code>parcel_development_history_etl/utils.py:el_pad</code> once Track A consolidates). Track C feeds Track B's per-parcel history view (<code>vParcelHistory</code> / <code>ParcelHistoryView</code>) once the DB load happens.</p>
+<p>Track C imports <code>canonical_apn</code> from <code>parcel_development_history_etl/utils.py</code> (added alongside the existing <code>el_pad</code>/<code>el_depad</code>). Track C feeds Track B's per-parcel history view (<code>vParcelHistory</code> / <code>ParcelHistoryView</code>) once the DB load happens.</p>
 <h2 id="files-reference">Files reference</h2>
 <ul>
 <li><strong>Schema:</strong> <a href="./target_schema.html"><code>target_schema.md</code></a> §"ERD — QA corrections sidecar (Track C)"</li>
