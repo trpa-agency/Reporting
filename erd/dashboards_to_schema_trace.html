@@ -140,6 +140,47 @@ Detail in the gap sections below; summary here:</p>
 slide 8 (Regional Plan Additional Development Overview) is the headline
 [Trace 1] view, slide 5 (Allocations Remaining) is [Trace 2], and the
 per-APN data behind the report is [Trace 3].</p>
+<h2 id="lt-info-grid-pages-corral-tables-data-sources">LT Info grid pages → Corral tables (data sources)</h2>
+<p>The dashboards in <code>html/</code> fetch CSVs that are static exports of LT Info
+grid-view pages. <strong>LT Info is the front-end for <code>corral.db</code></strong> — every
+grid is just a SQL query against the Corral tables documented in
+<a href="./development_rights_erd.md">development_rights_erd.md</a>. The CSV step
+exists only because we don't yet have a direct read path from the
+browser to Corral.</p>
+<table>
+<thead>
+<tr>
+<th>Dashboard CSV (in <code>data/raw_data/</code>)</th>
+<th>LT Info source page</th>
+<th>Corral backing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../data/raw_data/residentialAllocationGridExport.csv">residentialAllocationGridExport.csv</a></td>
+<td><code>parcels.laketahoeinfo.org</code> → Residential Allocation grid</td>
+<td><code>dbo.ResidentialAllocation</code> joined to <code>ResidentialAllocationType</code>, <code>CommodityPool</code>, <code>Jurisdiction</code>, <code>TdrTransaction</code>, <code>TdrTransactionAllocation</code>, <code>Parcel</code>. ~2,113 rows ≈ 1:1 with <code>dbo.ResidentialAllocation</code>.</td>
+</tr>
+<tr>
+<td><a href="../data/raw_data/CFA_TAU_allocations.csv">CFA_TAU_allocations.csv</a></td>
+<td><code>parcels.laketahoeinfo.org</code> → CFA + TAU allocation grids</td>
+<td><code>dbo.TdrTransaction</code> filtered to CFA/TAU <code>CommodityID</code>, joined to <code>CommodityPool</code> and <code>Jurisdiction</code>.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Transaction number format</strong>: <code>{LeadAgencyAbbreviation}-{TransactionTypeAbbreviation}-{TdrTransactionID}</code> —
+e.g., <code>TRPA-ALLOCASSGN-1289</code>. Confirmed via the LT Info services probe at
+<a href="./ltinfo_services.json">ltinfo_services.json</a> and visible on the live
+<a href="https://parcels.laketahoeinfo.org/TdrTransaction/TransactionList">TdrTransaction TransactionList page</a> (login required).</p>
+<p><strong>Refresh path today</strong>: re-export the grid as CSV from LT Info → drop
+into <code>data/raw_data/</code> → commit + push to MTB-Edits. Dashboards fetch
+from the GitHub raw URL on the MTB-Edits branch.</p>
+<p><strong>Long-term path</strong> (per <code>target_schema.md</code>): replace the CSV-fetch with
+a direct query against <code>vCommodityLedger</code> — same data, no manual export
+step. The view UNIONs the same <code>dbo.TdrTransaction*</code> source tables that
+LT Info's grid pages already query, plus
+<code>dbo.ParcelPermitBankedDevelopmentRight</code> for banking events Corral
+doesn't model as transactions.</p>
 <hr />
 <p>The 3 committed dashboards (per <a href="./target_schema.html">target_schema.md §"Ready-to-build v1" and
 proposed_dashboards.md §"Already committed"</a>):</p>

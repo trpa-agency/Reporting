@@ -52,6 +52,36 @@ slide 8 (Regional Plan Additional Development Overview) is the headline
 [Trace 1] view, slide 5 (Allocations Remaining) is [Trace 2], and the
 per-APN data behind the report is [Trace 3].
 
+## LT Info grid pages → Corral tables (data sources)
+
+The dashboards in `html/` fetch CSVs that are static exports of LT Info
+grid-view pages. **LT Info is the front-end for `corral.db`** — every
+grid is just a SQL query against the Corral tables documented in
+[development_rights_erd.md](./development_rights_erd.md). The CSV step
+exists only because we don't yet have a direct read path from the
+browser to Corral.
+
+| Dashboard CSV (in `data/raw_data/`) | LT Info source page | Corral backing |
+|---|---|---|
+| [residentialAllocationGridExport.csv](../data/raw_data/residentialAllocationGridExport.csv) | `parcels.laketahoeinfo.org` → Residential Allocation grid | `dbo.ResidentialAllocation` joined to `ResidentialAllocationType`, `CommodityPool`, `Jurisdiction`, `TdrTransaction`, `TdrTransactionAllocation`, `Parcel`. ~2,113 rows ≈ 1:1 with `dbo.ResidentialAllocation`. |
+| [CFA_TAU_allocations.csv](../data/raw_data/CFA_TAU_allocations.csv) | `parcels.laketahoeinfo.org` → CFA + TAU allocation grids | `dbo.TdrTransaction` filtered to CFA/TAU `CommodityID`, joined to `CommodityPool` and `Jurisdiction`. |
+
+**Transaction number format**: `{LeadAgencyAbbreviation}-{TransactionTypeAbbreviation}-{TdrTransactionID}` —
+e.g., `TRPA-ALLOCASSGN-1289`. Confirmed via the LT Info services probe at
+[ltinfo_services.json](./ltinfo_services.json) and visible on the live
+[TdrTransaction TransactionList page](https://parcels.laketahoeinfo.org/TdrTransaction/TransactionList) (login required).
+
+**Refresh path today**: re-export the grid as CSV from LT Info → drop
+into `data/raw_data/` → commit + push to MTB-Edits. Dashboards fetch
+from the GitHub raw URL on the MTB-Edits branch.
+
+**Long-term path** (per `target_schema.md`): replace the CSV-fetch with
+a direct query against `vCommodityLedger` — same data, no manual export
+step. The view UNIONs the same `dbo.TdrTransaction*` source tables that
+LT Info's grid pages already query, plus
+`dbo.ParcelPermitBankedDevelopmentRight` for banking events Corral
+doesn't model as transactions.
+
 ---
 
 The 3 committed dashboards (per [target_schema.md §"Ready-to-build v1" and
