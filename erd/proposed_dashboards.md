@@ -236,15 +236,29 @@ For staff tracking permit workflow and construction cadence.
 
 Directly serves Dan's ask for "a separate database of change rationale."
 
-### E1. Change Rationale Audit Trail (v1)
+### E1. Change Rationale Audit Trail ✅ (v1 — built)
 
-- **What it shows**: Filterable table — every `ParcelDevelopmentChangeEvent`
-  with APN, year, commodity, previous → new quantity, source, rationale,
-  evidence link, recorded-by. Filter by year, source, commodity, jurisdiction.
-- **Audience**: Dan + any staff auditing the 2023–2025 residential changes
-  he specifically called out.
-- **Data**: `ParcelDevelopmentChangeEvent` + joins.
-- **Complexity**: S. Paged table with filters.
+- **What it shows**: Filterable AG Grid table of every QA change event
+  with APN (raw + canonical), reporting year, sweep campaign, quantity
+  delta, correction category, rationale, recorded-by. Filters: reporting
+  year, sweep campaign, vocab-canonicality (canonical vs noncanonical),
+  free-text search across APN/rationale/category. Sidebar bar chart
+  showing top 12 correction categories color-coded by canonicality.
+- **Audience**: Dan + any staff auditing the 2023 and 2026 residential
+  big-sweep corrections.
+- **Data**: realized today from
+  [`data/qa_data/qa_change_events.csv`](../data/qa_data/qa_change_events.csv)
+  + [`qa_correction_detail.csv`](../data/qa_data/qa_correction_detail.csv)
+  (5,925 events, joined client-side on `ChangeEventID`). Outputs of
+  [`notebooks/04_load_ca_changes.ipynb`](../notebooks/04_load_ca_changes.ipynb)
+  (Track C). Eventually backed by `ParcelDevelopmentChangeEvent` +
+  `QaCorrectionDetail` once the DB load happens.
+- **Complexity**: S. Built as
+  [`html/qa-change-rationale.html`](../html/qa-change-rationale.html) —
+  single-file Plotly + AG Grid + TRPA brand. KPIs surface the 30%
+  canonical-vocab match as a "needs Ken's triage" signal.
+- **Track context**: see [qa_corrections_track.md](./qa_corrections_track.md)
+  for the full data flow + open issues.
 
 ### E2. Changes By Source Dashboard (v1)
 

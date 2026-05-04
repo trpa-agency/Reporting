@@ -300,15 +300,29 @@ where we visualize that.</p>
 <hr />
 <h2 id="cluster-e-change-rationale-qa">Cluster E — Change-rationale + QA</h2>
 <p>Directly serves Dan's ask for "a separate database of change rationale."</p>
-<h3 id="e1-change-rationale-audit-trail-v1">E1. Change Rationale Audit Trail (v1)</h3>
+<h3 id="e1-change-rationale-audit-trail-v1-built">E1. Change Rationale Audit Trail ✅ (v1 — built)</h3>
 <ul>
-<li><strong>What it shows</strong>: Filterable table — every <code>ParcelDevelopmentChangeEvent</code>
-  with APN, year, commodity, previous → new quantity, source, rationale,
-  evidence link, recorded-by. Filter by year, source, commodity, jurisdiction.</li>
-<li><strong>Audience</strong>: Dan + any staff auditing the 2023–2025 residential changes
-  he specifically called out.</li>
-<li><strong>Data</strong>: <code>ParcelDevelopmentChangeEvent</code> + joins.</li>
-<li><strong>Complexity</strong>: S. Paged table with filters.</li>
+<li><strong>What it shows</strong>: Filterable AG Grid table of every QA change event
+  with APN (raw + canonical), reporting year, sweep campaign, quantity
+  delta, correction category, rationale, recorded-by. Filters: reporting
+  year, sweep campaign, vocab-canonicality (canonical vs noncanonical),
+  free-text search across APN/rationale/category. Sidebar bar chart
+  showing top 12 correction categories color-coded by canonicality.</li>
+<li><strong>Audience</strong>: Dan + any staff auditing the 2023 and 2026 residential
+  big-sweep corrections.</li>
+<li><strong>Data</strong>: realized today from
+  <a href="../data/qa_data/qa_change_events.csv"><code>data/qa_data/qa_change_events.csv</code></a></li>
+<li><a href="../data/qa_data/qa_correction_detail.csv"><code>qa_correction_detail.csv</code></a>
+  (5,925 events, joined client-side on <code>ChangeEventID</code>). Outputs of
+  <a href="../notebooks/04_load_ca_changes.ipynb"><code>notebooks/04_load_ca_changes.ipynb</code></a>
+  (Track C). Eventually backed by <code>ParcelDevelopmentChangeEvent</code> +
+  <code>QaCorrectionDetail</code> once the DB load happens.</li>
+<li><strong>Complexity</strong>: S. Built as
+  <a href="../html/qa-change-rationale.html"><code>html/qa-change-rationale.html</code></a> —
+  single-file Plotly + AG Grid + TRPA brand. KPIs surface the 30%
+  canonical-vocab match as a "needs Ken's triage" signal.</li>
+<li><strong>Track context</strong>: see <a href="./qa_corrections_track.html">qa_corrections_track.md</a>
+  for the full data flow + open issues.</li>
 </ul>
 <h3 id="e2-changes-by-source-dashboard-v1">E2. Changes By Source Dashboard (v1)</h3>
 <ul>
