@@ -117,11 +117,17 @@ DDL is a later step.</p>
   proposal exists — the transactions spreadsheet fills a structural hole
   that a Corral-only schema can't. See
   <a href="./validation_findings.html">validation_findings.md</a> for the empirical test.</li>
-<li><strong>7 new physical tables + 2 views + 3 materialized snapshots</strong> in this proposal.</li>
+<li><strong>Regional Plan caps (since-1987 cumulative max, per Ken's 2026 PPTX slide 8):</strong></li>
+<li><strong>8,687</strong> residential allocations (6,731 constructed as of 2025, 78%)</li>
+<li><strong>2,000</strong> residential bonus units (736 constructed, 37%)</li>
+<li><strong>400</strong> tourist bonus units (58 constructed, 15%)</li>
+<li><strong>1,000,000 sq ft</strong> commercial floor area (464K constructed, 46%)</li>
+<li>The <strong>2012 Regional Plan's additional Board authorization</strong> (adopted 2013) on top of unused 1987 allocations was <strong>2,600 residential units</strong> — a subset of the 8,687 cumulative since-1987 max.</li>
+<li><strong>8 new physical tables + 2 views + 3 materialized snapshots</strong> in this proposal (was 7 — added <code>QaCorrectionDetail</code> sidecar).</li>
 <li><strong>16 Corral reference / transaction tables</strong> reused as-is (no duplication).</li>
-<li><strong>5 buckets per (Commodity, Jurisdiction)</strong>: Existing, Banked, Allocated, Bonus Units, Unused Capacity.</li>
+<li><strong>5 buckets per (Commodity, Jurisdiction)</strong>: Existing, Banked, Allocated, Bonus Units, Unused Capacity. Equivalently, the 3-bucket condensation: <code>Existing + Banked + Remaining</code>, where <code>Remaining = Allocated + Not Allocated + Not Released</code> (Ken's framing in <code>next_steps.md</code>).</li>
 <li><strong>10 ledger movement types</strong> (9 from Corral's <code>TransactionType</code> + Banking + QACorrection, minus Shorezone).</li>
-<li><strong>3 v1 dashboards</strong>: partial cumulative accounting (residential + TAU + CFA only), allocation drawdown, parcel history lookup.</li>
+<li><strong>3 v1 dashboards</strong>: partial cumulative accounting (residential + TAU + CFA only), allocation drawdown, parcel history lookup. <strong>A4 (Residential Additions by Source)</strong> built as well — see <code>proposed_dashboards.md</code>.</li>
 <li><strong>Corral freshness</strong>: our backup is Feb 2024; live reads use LTinfo web services until deployment.</li>
 <li><strong>GIS freshness</strong>: FC covers 2006–2023 with a 2016–2017 gap (see Questions).</li>
 </ul>
@@ -264,7 +270,16 @@ Corral and the enterprise GIS geodatabase. That means:</p>
 <pre><code>Max Regional Capacity  =  Existing + Banked + Allocated (not built)
                        +  Bonus Units + Unused Capacity
 </code></pre>
-<p>Every event moves commodity between these five buckets.</p>
+<p>Equivalently, the 3-bucket condensation Ken uses in
+<a href="./next_steps.html">next_steps.md</a>:</p>
+<pre><code>Max Regional Capacity  =  Existing + Banked + Remaining
+where  Remaining  =  Allocated + Not Allocated + Not Released
+</code></pre>
+<p>Both framings describe the same data — the 5-bucket version is what the
+schema stores in <code>CumulativeAccountingSnapshot</code>; the 3-bucket version is
+what dashboards typically display because it matches how staff and the
+public think about it.</p>
+<p>Every event moves commodity between these buckets.</p>
 <h2 id="reference-entities-reused-from-corral">Reference entities — reused from Corral</h2>
 <p>These tables <strong>already exist in <code>dbo.*</code></strong> and don't get recreated. Listed so
 you can see what the new tables FK into.</p>
@@ -738,6 +753,7 @@ erDiagram
     ParcelDevelopmentChangeEvent {
         int ChangeEventID PK
         int ParcelID FK &quot;dbo.Parcel&quot;
+        varchar RawAPN &quot;audit: pre-canonicalization APN string from source (e.g. 015-331-04 vs 015-331-004)&quot;
         int CommodityID FK &quot;dbo.Commodity&quot;
         int Year
         int PreviousQuantity
@@ -749,6 +765,7 @@ erDiagram
         int LinkedParcelPermitBankedDevelopmentRightID FK &quot;dbo.ParcelPermitBankedDevelopmentRight - null unless ChangeSource=&#x27;banking&#x27;&quot;
         int LinkedManualAdjustmentID FK &quot;LedgerManualAdjustment - null unless ChangeSource=&#x27;qa_correction&#x27; or &#x27;manual&#x27;&quot;
         int LinkedPermitID FK &quot;dbo.ParcelPermit&quot;
+        int LinkedQaCorrectionDetailID FK &quot;QaCorrectionDetail - null unless ChangeSource=&#x27;qa_correction&#x27;; sidecar table&quot;
         varchar RecordedBy
         datetime RecordedAt
     }
@@ -779,6 +796,63 @@ erDiagram
 new tables — they're derivable from the existing <code>dbo.CommodityPool</code>
 records plus the movement ledger, materialized nightly into
 <code>PoolDrawdownYearly</code> (below).</p>
+<h2 id="erd-qa-corrections-sidecar-track-c">ERD — QA corrections sidecar (Track C)</h2>
+<p>When a <code>ParcelDevelopmentChangeEvent</code> row has <code>ChangeSource='qa_correction'</code>,
+a sidecar <code>QaCorrectionDetail</code> row carries the QA-specific metadata:
+which annual reporting year the correction applies to, whether it was
+part of a periodic big-sweep campaign (2023, 2026, future), and the
+controlled-vocabulary correction category Ken assigns. The sidecar keeps
+non-QA change events clean.</p>
+<div class="mermaid">
+erDiagram
+    ParcelDevelopmentChangeEvent {
+        int ChangeEventID PK
+        varchar ChangeSource &quot;qa_correction triggers a sidecar row&quot;
+    }
+    QaCorrectionDetail {
+        int QaCorrectionDetailID PK
+        int ChangeEventID FK &quot;ParcelDevelopmentChangeEvent (1:0..1)&quot;
+        int ReportingYear &quot;annual; any year (corrections happen continuously)&quot;
+        varchar SweepCampaign &quot;nullable: &#x27;2023_big_sweep&#x27;, &#x27;2026_big_sweep&#x27;, or NULL for trickle corrections&quot;
+        varchar CorrectionCategory &quot;one of Sheet2&#x27;s 9 controlled-vocab values&quot;
+        varchar SummaryReason &quot;Ken&#x27;s free-text categorical from CA Changes Sheet1&quot;
+        varchar SourceFileSnapshot &quot;e.g. &#x27;CA Changes breakdown.xlsx@2026-05-03&#x27; for traceability&quot;
+        datetime LoadedAt
+    }
+
+    ParcelDevelopmentChangeEvent ||--o| QaCorrectionDetail : &quot;1:0..1 when ChangeSource=qa_correction&quot;
+</div>
+
+<h3 id="correctioncategory-controlled-vocabulary">CorrectionCategory controlled vocabulary</h3>
+<p>The 9 values from Ken's <code>data/qa_data/CA Changes breakdown.xlsx</code> Sheet2.
+Loaders MUST fail closed on unknown values (don't silently coerce):</p>
+<ol>
+<li><code>No Update Required</code></li>
+<li><code>None - 2023 Update Correct</code></li>
+<li><code>Under-Correction in 2023; Unit(s) added</code></li>
+<li><code>Unit(s) Not Previously Counted - Added in 2026</code></li>
+<li><code>Over-Correction in 2023; Unit(s) Removed in 2026</code></li>
+<li><code>Unit(s) Incorrectly Removed in 2023 - Unit(s) Added Back in 2026</code></li>
+<li><code>2026 Additional Corrections to Previously Reported - Unit(s) Previously Not Counted</code></li>
+<li><code>Additional Unit(s) Removed in 2026</code></li>
+<li><code>Correction to Prior Analysis - Additional Unit(s) Removed in 2026</code></li>
+</ol>
+<p>The list is <strong>extensible</strong> — future big sweeps may surface new categories.
+Loader should warn on first occurrence of a new value, then operators
+decide whether to add it to the canonical list.</p>
+<h3 id="cadence-model">Cadence model</h3>
+<ul>
+<li><strong>Annual reporting cycle</strong> — TRPA reports cumulative accounting every
+  year, so <code>ReportingYear</code> is unrestricted (any annual value).</li>
+<li><strong>Big QA sweep campaigns</strong> happen periodically — TRPA ran one in 2023
+  and another in 2026; future big sweeps will too. <code>SweepCampaign</code>
+  flags those years specifically (<code>'2023_big_sweep'</code>, <code>'2026_big_sweep'</code>,
+  etc.). Most years will have null <code>SweepCampaign</code> (just the trickle of
+  ongoing corrections).</li>
+<li>Reports can pivot on either: "corrections per reporting year" (annual
+  trickle + sweep spikes), or "corrections by sweep campaign" (the big
+  cleanup pushes specifically).</li>
+</ul>
 <h2 id="erd-movement-ledger">ERD — movement ledger</h2>
 <p><strong>No physical ledger table.</strong> Corral is the system of record for every TDR
 transaction (<code>dbo.TdrTransaction</code> + children) and every banked right
@@ -1335,16 +1409,21 @@ quality drift.</p>
 task is to confirm, override, or add context. Mark with ✅ / ❌ / comment as
 you go.</p>
 <h3 id="data-model">Data model</h3>
-<p><strong>Q1. ADU modeling.</strong> Corral's <code>dbo.ResidentialAllocationUseType</code> has only
-two values: <code>SingleFamily</code> and <code>MultiFamily</code>. No ADU. How should we represent
-ADUs?</p>
+<p><strong>Q1. ADU modeling.</strong> ✅ <strong>RESOLVED — option (b).</strong> ADU is a yes/no flag
+on the allocation or bonus unit, not a third use type and not a separate
+concept tied to a parent unit. Add <code>IsADU bit NOT NULL DEFAULT 0</code> to:</p>
 <ul>
-<li>(a) Add a third value <code>ADU</code> to <code>ResidentialAllocationUseType</code>.</li>
-<li>(b) Add an <code>IsADU</code> bit to the allocation or permit.</li>
-<li>(c) Separate ADU concept tied to a parent unit (ADU = accessory to an existing SFRUU).</li>
-<li><strong>Proposed</strong>: (a). Cleanest — ADU becomes a first-class use type alongside Single/Multi-Family.</li>
-<li><em>Needs input from</em>: Ken + whoever manages the ADU Tracking XLSX today.</li>
+<li><code>dbo.ResidentialAllocation</code> (or a sidecar if we don't want to alter
+  the Corral table directly)</li>
+<li><code>dbo.ResidentialBonusUnit*</code> rows</li>
 </ul>
+<p><code>dbo.ResidentialAllocationUseType</code> stays at 2 values (SingleFamily,
+MultiFamily). Reports filter <code>WHERE IsADU = 1</code> to slice ADUs out of
+the broader residential population.</p>
+<p>(Original options preserved for record:)
+- ~~(a) Add a third value <code>ADU</code> to <code>ResidentialAllocationUseType</code>.~~
+- <strong>(b) Add an <code>IsADU</code> bit to the allocation or bonus unit.</strong> ← chosen
+- ~~(c) Separate ADU concept tied to a parent unit (ADU = accessory to an existing SFRUU).~~</p>
 <p><strong>Q2. <code>AllocationType</code> enum values.</strong> <code>dbo.ResidentialAllocationType</code> has:
 <code>Original</code>, <code>Reissued</code>, <code>LitigationSettlement</code>, <code>AllocationPool</code>. Does that
 cover all the allocation "sources" TRPA cares about, or are there more we'll
@@ -1493,10 +1572,11 @@ Every item holds data Corral doesn't — no duplication.</p>
 <li><code>ParcelExistingDevelopment</code> — per-parcel × year × commodity quantity (GIS-sourced; Corral has no year-indexed inventory for non-permit-verified parcels)</li>
 <li><code>ParcelSpatialAttribute</code> — per-parcel × year spatial context (GIS-sourced year snapshot; distinct from <code>dbo.Parcel</code> current state)</li>
 <li><code>ParcelGenealogyEventEnriched</code> — 10+ metadata columns on top of <code>dbo.ParcelGenealogy</code> (3 columns)</li>
-<li><code>ParcelDevelopmentChangeEvent</code> — Dan's change rationale; no Corral analog</li>
+<li><code>ParcelDevelopmentChangeEvent</code> — Dan's change rationale; no Corral analog. Now includes <code>RawAPN</code> (audit) and <code>LinkedQaCorrectionDetailID</code> FK.</li>
 <li><code>PermitCompletion</code> — sidecar on <code>dbo.ParcelPermit</code> with YearBuilt, CertificateOfOccupancyDate, CompletionStatusEnriched, DetailedDevelopmentType (all net-new)</li>
 <li><code>LedgerManualAdjustment</code> — manual QA-correction ledger entries only (TDR + Banking live in Corral)</li>
 <li><code>CrossSystemID</code> — polymorphic ID map (Accela, LTinfo, TRPA_MOU, Local Jurisdiction, Assessor)</li>
+<li><strong><code>QaCorrectionDetail</code> (NEW, Track C)</strong> — sidecar to <code>ParcelDevelopmentChangeEvent</code> (1:0..1) when <code>ChangeSource='qa_correction'</code>. Holds <code>ReportingYear</code>, <code>SweepCampaign</code>, <code>CorrectionCategory</code> (9-value enum from Ken's CA Changes Sheet2), <code>SummaryReason</code>, <code>SourceFileSnapshot</code>. Loaded from <code>data/qa_data/CA Changes breakdown.xlsx</code> by <code>notebooks/04_load_ca_changes.ipynb</code>.</li>
 </ol>
 <p>Views (no physical storage — Corral remains the source of truth):</p>
 <ul>

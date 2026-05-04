@@ -104,7 +104,7 @@ Detail in the gap sections below; summary here:</p>
 </tr>
 <tr>
 <td><strong>G3.1–G3.4</strong> ParcelDevelopmentChangeEvent</td>
-<td>⚠️ Now have load source — <code>CA Changes breakdown.xlsx</code> Sheet1 (44,372 rows) is the realized table; Sheet2 (52 rows) is the controlled-vocabulary correction-categories list.</td>
+<td>✅ Schema landed — <code>target_schema.md</code> now has <code>RawAPN</code> audit column on <code>ParcelDevelopmentChangeEvent</code> and a sidecar <code>QaCorrectionDetail</code> (1:0..1) for QA-specific metadata. Loader notebook pending.</td>
 </tr>
 <tr>
 <td><strong>NEW G2.7</strong> Unreleased pool</td>
@@ -115,12 +115,20 @@ Detail in the gap sections below; summary here:</p>
 <td>Slide 3: "Bonus Units became the #1 source of 2024 and 2025 additions." Schema treats them as a <em>bucket</em> only, not a first-class movement-type column on <code>PoolDrawdownYearly</code>.</td>
 </tr>
 <tr>
+<td><strong>G3.3.</strong>* <code>CorrectionCategory</code> + cycle-year column</td>
+<td>✅ Resolved by Track C — <code>QaCorrectionDetail</code> sidecar carries <code>ReportingYear</code> (annual, any value) + <code>SweepCampaign</code> (nullable big-sweep tag) + <code>CorrectionCategory</code> (9-value enum). Earlier draft used <code>ReportingCycleYear</code> and assumed biennial; corrected to <code>ReportingYear</code> per user's annual-cadence + periodic-sweep clarification.</td>
+</tr>
+<tr>
 <td><strong>NEW G3.5</strong> Project-level annotations</td>
 <td>Each year's Summary has a free-text "Major Completed Projects" column (Sugar Pine, LTCC Dorms, Beach Club, etc.). Schema has no <code>Project</code> entity.</td>
 </tr>
 <tr>
 <td><strong>NEW G3.6</strong> APN format normalization</td>
-<td>Many parcels appear under both <code>015-331-04</code> and <code>015-331-004</code> formats (leading-zero change in 2018). Distinct from genealogy splits/merges; need canonicalization in the load layer.</td>
+<td>⚠️ Partial — <code>RawAPN</code> audit column landed on <code>ParcelDevelopmentChangeEvent</code>. Canonicalization function <code>fn_canonical_apn</code> still pending the loader notebook.</td>
+</tr>
+<tr>
+<td><strong>Q1 ADU modeling</strong></td>
+<td>✅ Resolved as option (b) — <code>IsADU bit</code> flag on <code>dbo.ResidentialAllocation</code> and <code>dbo.ResidentialBonusUnit*</code>, not a third use type.</td>
 </tr>
 </tbody>
 </table>
@@ -1444,9 +1452,9 @@ and stop depending on Ken's manual aggregation.</p>
 <td><code>target_schema.md</code> §<code>PoolDrawdownYearly</code></td>
 </tr>
 <tr>
-<td><strong>G3.3.* <code>CorrectionCategory</code> + <code>ReportingCycleYear</code></strong></td>
-<td>Required to load Ken's CA Changes Sheet1; sub-categorizes <code>ChangeSource='qa_correction'</code>; cycle column distinguishes 2023 / 2026 / future reporting cycles</td>
-<td><code>target_schema.md</code> §<code>ParcelDevelopmentChangeEvent</code></td>
+<td>~~G3.3.* <code>CorrectionCategory</code> + cycle-year column~~</td>
+<td>✅ <strong>resolved</strong> — <code>QaCorrectionDetail</code> sidecar in <code>target_schema.md</code> carries <code>ReportingYear</code> (annual) + <code>SweepCampaign</code> + <code>CorrectionCategory</code> (9-value enum). Loader notebook still pending.</td>
+<td><code>target_schema.md</code> §"ERD — QA corrections sidecar"</td>
 </tr>
 <tr>
 <td>G3.3</td>
@@ -1459,9 +1467,14 @@ and stop depending on Ken's manual aggregation.</p>
 <td><code>target_schema.md</code> §"new core tables"</td>
 </tr>
 <tr>
-<td><strong>G3.6</strong></td>
-<td><code>fn_canonical_apn</code> + <code>RawAPN</code> audit column on parcel-keyed tables</td>
-<td>ETL spec; reference from <code>target_schema.md</code> §"loading strategy"</td>
+<td><strong>G3.6 (partial)</strong></td>
+<td>✅ <code>RawAPN</code> audit column landed on <code>ParcelDevelopmentChangeEvent</code>; <code>fn_canonical_apn</code> still pending the loader notebook</td>
+<td><code>target_schema.md</code> §<code>ParcelDevelopmentChangeEvent</code> (column added); ETL spec for the function</td>
+</tr>
+<tr>
+<td>~~Q1 ADU modeling~~</td>
+<td>✅ <strong>resolved as option (b)</strong> — <code>IsADU bit</code> flag on <code>dbo.ResidentialAllocation</code> + <code>dbo.ResidentialBonusUnit*</code>; not a third use type</td>
+<td><code>target_schema.md</code> Q1</td>
 </tr>
 </tbody>
 </table>
