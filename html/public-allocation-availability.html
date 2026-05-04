@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Residential Allocation Availability &mdash; Lake Tahoe Basin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --trpa-blue:    #0072CE;
+  --trpa-navy:    #003B71;
+  --trpa-earth:   #B47E00;
+  --trpa-forest:  #4A6118;
+  --trpa-brick:   #9C3E27;
+  --trpa-olive:   #B5A64C;
+  --trpa-orange:  #E87722;
+  --trpa-purple:  #7B6A8A;
+  --trpa-ice:     #B4CBE8;
+  --bg:           #f5f7fa;
+  --surface:      #ffffff;
+  --border:       #e1e7ee;
+  --text-dark:    #003B71;
+  --text-mid:     #5d6c7e;
+  --text-light:   #8a9bb2;
+  --shadow:       0 2px 16px rgba(0, 59, 113, 0.08);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg); color: var(--text-dark); min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+header { background: var(--trpa-navy); color: #fff; display: flex; align-items: stretch; }
+.header-accent { width: 8px; flex-shrink: 0; background: linear-gradient(180deg, var(--trpa-forest) 0%, var(--trpa-blue) 50%, var(--trpa-orange) 100%); }
+.header-content { padding: 32px 40px 26px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex: 1; }
+.header-eyebrow { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--trpa-ice); margin-bottom: 7px; }
+header h1 { font-weight: 700; font-size: 2.05rem; line-height: 1.15; letter-spacing: -0.02em; }
+header h1 span { color: var(--trpa-blue); }
+.header-sub { font-size: 0.92rem; color: var(--trpa-ice); margin-top: 8px; opacity: 0.92; max-width: 760px; line-height: 1.5; }
+.header-meta { font-size: 0.75rem; color: var(--trpa-ice); text-align: right; line-height: 1.7; opacity: 0.85; white-space: nowrap; }
+.live-badge { display: inline-block; background: var(--trpa-forest); color: #fff; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; margin-bottom: 6px; }
+
+/* Section */
+.section { padding: 28px 40px; }
+.intro { max-width: 760px; font-size: 0.95rem; color: var(--text-mid); line-height: 1.6; margin-bottom: 24px; }
+.intro strong { color: var(--text-dark); }
+
+/* Jurisdiction tiles */
+.jurisdictions { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.juris-tile {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  padding: 24px 24px 20px; box-shadow: var(--shadow); position: relative;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.juris-tile:hover { transform: translateY(-2px); box-shadow: 0 4px 24px rgba(0, 59, 113, 0.14); }
+.juris-accent { position: absolute; top: 0; left: 0; right: 0; height: 5px; border-radius: 10px 10px 0 0; }
+.juris-name {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--text-light); margin-top: 10px; line-height: 1.3;
+}
+.juris-num {
+  font-size: 3.4rem; font-weight: 700; color: var(--text-dark);
+  letter-spacing: -0.04em; line-height: 1; margin-top: 10px;
+  font-variant-numeric: tabular-nums;
+}
+.juris-unit { font-size: 0.78rem; color: var(--text-mid); margin-top: 4px; line-height: 1.4; }
+.juris-bar-track { height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; margin-top: 14px; }
+.juris-bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+.juris-context { font-size: 0.68rem; color: var(--text-light); margin-top: 7px; }
+.juris-context strong { color: var(--text-mid); font-weight: 600; }
+.juris-out { color: var(--trpa-brick); font-weight: 700; }
+
+/* Total / aggregated */
+.total-strip {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  padding: 20px 28px; margin-bottom: 24px; box-shadow: var(--shadow);
+  display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap;
+}
+.total-num {
+  font-size: 2.6rem; font-weight: 700; color: var(--trpa-navy);
+  letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums;
+}
+.total-label { font-size: 0.85rem; color: var(--text-mid); margin-top: 4px; }
+.total-extra { font-size: 0.78rem; color: var(--text-mid); line-height: 1.55; max-width: 520px; }
+.total-extra strong { color: var(--trpa-navy); font-weight: 700; }
+
+/* What is this section */
+.explainer {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  padding: 22px 28px; margin-top: 28px; box-shadow: var(--shadow);
+}
+.explainer h3 { font-size: 1rem; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; }
+.explainer p { font-size: 0.88rem; color: var(--text-mid); line-height: 1.6; margin-bottom: 10px; }
+.explainer p:last-child { margin-bottom: 0; }
+.explainer a { color: var(--trpa-blue); }
+
+.footnote {
+  padding: 14px 40px 22px; font-size: 0.72rem; color: var(--text-light);
+  line-height: 1.6; background: var(--surface); border-top: 1px solid var(--border); margin-top: 28px;
+}
+.footnote code { background: var(--bg); padding: 1px 5px; border-radius: 3px; font-size: 0.7rem; }
+.footnote a { color: var(--trpa-blue); }
+
+@media (max-width: 700px) {
+  header .header-content, .section, .footnote { padding-left: 16px; padding-right: 16px; }
+  header h1 { font-size: 1.6rem; }
+  .juris-num { font-size: 2.6rem; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-accent"></div>
+  <div class="header-content">
+    <div>
+      <div class="header-eyebrow">Tahoe Regional Planning Agency</div>
+      <h1>Residential Allocation <span>Availability</span></h1>
+      <div class="header-sub">
+        How many residential allocations remain in each Lake Tahoe Basin jurisdiction.
+        Find your county or city and see what&rsquo;s left in its allocation pool.
+      </div>
+    </div>
+    <div class="header-meta">
+      <div class="live-badge">G1 / Public</div><br>
+      Source: TRPA 2026 report<br>
+      Updated: April 2026
+    </div>
+  </div>
+</header>
+
+<div class="section">
+  <div class="total-strip">
+    <div>
+      <div class="total-num" id="total-rem">&mdash;</div>
+      <div class="total-label">total residential allocations remaining across the Tahoe Basin</div>
+    </div>
+    <div class="total-extra" id="total-extra">
+      <strong>Plus 770</strong> unreleased allocations held centrally by TRPA, not yet distributed to any jurisdiction.
+      The since-1987 cumulative Regional Plan max is <strong>8,687</strong> residential allocations across the basin.
+    </div>
+  </div>
+
+  <div class="jurisdictions" id="jurisdictions"></div>
+
+  <div class="explainer">
+    <h3>What&rsquo;s a residential allocation?</h3>
+    <p>
+      A <strong>residential allocation</strong> is a permission slip from TRPA that lets a property owner build one new
+      residential unit in the Lake Tahoe Basin. The Regional Plan caps how many can ever be built &mdash; <strong>8,687
+      cumulative since 1987</strong> &mdash; to keep development paced with the basin&rsquo;s environmental capacity.
+    </p>
+    <p>
+      Each county and the City of South Lake Tahoe gets a <strong>pool</strong> of allocations to distribute as new
+      home permits get approved. When a pool runs out, the jurisdiction has to wait for the next round, transfer
+      development rights from elsewhere, or use bonus units (a separate program for affordable housing). This page
+      shows what each pool has left as of the most recent TRPA report.
+    </p>
+    <p>
+      Looking for a specific parcel&rsquo;s allocation history?
+      <a href="https://parcels.laketahoeinfo.org/">parcels.laketahoeinfo.org</a> has the per-APN detail.
+    </p>
+  </div>
+</div>
+
+<div class="footnote">
+  <strong>Data:</strong> from <code>from_ken/Additional Development as of April2026.xlsx</code>
+  (LT Info Pools Balances sheet) with the TRPA Pool 144&rarr;154 correction applied.
+  Eventually backed by <code>PoolDrawdownYearly</code>; see
+  <a href="../erd/dashboards_to_schema_trace.md">dashboards_to_schema_trace.md</a> Trace 2.
+  This page is the public-facing slice (G1) of the broader B1 staff dashboard at
+  <a href="./pool-balance-cards.html">pool-balance-cards.html</a>. Cluster G1 in
+  <a href="../erd/proposed_dashboards.md">proposed_dashboards.md</a>.
+</div>
+
+<script>
+const TRPA = {
+  blue:'#0072CE', navy:'#003B71', earth:'#B47E00', forest:'#4A6118',
+  brick:'#9C3E27', olive:'#B5A64C', orange:'#E87722', purple:'#7B6A8A',
+  ice:'#B4CBE8',
+};
+
+// Six Lake Tahoe Basin jurisdictions with residential allocation pools.
+// Source: from_ken/Additional Development as of April2026.xlsx + PPTX slide 5.
+// Carson is included even though it has just 4 residential units total — listed for completeness.
+// CSLT row aggregates the 3 CSLT sub-pools (Single-Family + Multi-Family + Town Center).
+const JURISDICTIONS = [
+  {
+    name: 'Placer County',
+    initial: 462, remaining: 349, color: TRPA.blue,
+  },
+  {
+    name: 'El Dorado County',
+    initial: 407, remaining: 98, color: TRPA.orange,
+  },
+  {
+    name: 'City of South Lake Tahoe',
+    initial: 416, remaining: 181, color: TRPA.brick,
+    note: 'sum of CSLT main pool (0) + Single-Family (78) + Multi-Family (52) + Town Center (51)',
+  },
+  {
+    name: 'Washoe County',
+    initial: 124, remaining: 123, color: TRPA.purple,
+  },
+  {
+    name: 'Douglas County',
+    initial: 134, remaining: 93, color: TRPA.forest,
+  },
+  {
+    name: 'Carson City',
+    initial: 4, remaining: 4, color: TRPA.olive,
+    note: 'Carson has only 4 residential units in the basin total; pool is essentially full.',
+  },
+];
+
+function renderJurisdictions() {
+  const container = document.querySelector('#jurisdictions');
+  container.innerHTML = '';
+  JURISDICTIONS.forEach(j => {
+    const used = j.initial - j.remaining;
+    const pctRem = (j.remaining / j.initial) * 100;
+    const isOut = j.remaining === 0;
+
+    const tile = document.createElement('div');
+    tile.className = 'juris-tile';
+    tile.innerHTML = `
+      <div class="juris-accent" style="background:${j.color}"></div>
+      <div class="juris-name">${j.name}</div>
+      <div class="juris-num">${j.remaining.toLocaleString()}</div>
+      <div class="juris-unit">${j.remaining === 1 ? 'allocation' : 'allocations'} remaining</div>
+      <div class="juris-bar-track">
+        <div class="juris-bar-fill" style="width:${pctRem.toFixed(1)}%;background:${j.color}"></div>
+      </div>
+      <div class="juris-context">
+        ${isOut
+          ? '<span class="juris-out">Pool exhausted</span>'
+          : `<strong>${used.toLocaleString()}</strong> of ${j.initial.toLocaleString()} initial used &middot; ${pctRem.toFixed(0)}% remaining`}
+      </div>
+      ${j.note ? `<div class="juris-context" style="font-style:italic;margin-top:4px">${j.note}</div>` : ''}
+    `;
+    container.appendChild(tile);
+  });
+}
+
+function renderTotal() {
+  const totalRem = JURISDICTIONS.reduce((s, j) => s + j.remaining, 0);
+  document.querySelector('#total-rem').textContent = totalRem.toLocaleString();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderTotal();
+  renderJurisdictions();
+});
+</script>
+</body>
+</html>

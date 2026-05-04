@@ -346,14 +346,31 @@ Directly serves Dan's ask for "a separate database of change rationale."
 
 ## Cluster G — Public-facing
 
-### G1. Public Allocation Availability (v1)
+### G1. Public Allocation Availability ✅ (v1 — built)
 
-- **What it shows**: Simple public page — "My jurisdiction has N residential
-  allocations remaining this year." Pick a jurisdiction from a dropdown or
-  click a map.
-- **Audience**: Developers, general public, partner jurisdictions.
-- **Data**: `PoolDrawdownYearly` most-recent.
-- **Complexity**: S. Deliberately simple — no permit detail, no parcel detail.
+- **What it shows**: 6 large jurisdiction tiles, each showing residential
+  allocations remaining as a big number with a TRPA brand-colored
+  progress bar and a usage caption ("X of Y initial used"). Above the
+  tiles: a total-strip summarizing basin-wide remaining + the 770
+  unreleased-to-jurisdiction count + the 8,687 cumulative cap context.
+  Below: an "What's a residential allocation?" plain-language explainer
+  for the public audience, with a pointer to parcels.laketahoeinfo.org
+  for per-APN detail.
+- **Audience**: Developers, general public, partner jurisdictions
+  checking "what's left in my pool."
+- **Data**: same source as B1 Pool Balance Cards — Ken's
+  `from_ken/Additional Development as of April2026.xlsx` LT Info Pools
+  Balances, with the TRPA Pool 144→154 correction. The 3 CSLT
+  sub-pools roll up into a single CSLT row for the public view.
+  Eventually backed by `PoolDrawdownYearly` most-recent.
+- **Complexity**: S. Built as
+  [`html/public-allocation-availability.html`](../html/public-allocation-availability.html)
+  — single-file HTML/CSS, no Plotly (just CSS), no fetch. Deliberately
+  no filters, no map, no detail panel — public-facing means lowest-
+  cognitive-load.
+- **Pairs with B1**: B1 (`pool-balance-cards.html`) is the staff view
+  showing all 9 pools including CSLT sub-pools; G1 is the public view
+  rolling sub-pools up. Same data, different framing.
 
 ### G2. Parcel Development Rights Lookup (public) (v1)
 
