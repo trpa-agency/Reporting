@@ -70,6 +70,34 @@ Tahoe overall" in a single glance.
 - **Data**: `CumulativeAccountingSnapshot` + `PoolDrawdownYearly`.
 - **Complexity**: M. 4 jurisdictions × 3 commodities = 12 cards in a grid.
 
+### A4. Residential Additions by Source ✅ (v1 — built)
+
+- **What it shows**: Multi-line chart by year tracking five sources of
+  added residential units — **Allocations, Bonus Units, Transfers,
+  Conversions, Banked**. Toggle between counts (lines), stacked area, and
+  stacked percent. Sidebar of major completed projects per year (Sugar
+  Pine, LTCC Dorms, Beach Club, etc.) anchors the inflections in narrative.
+- **Audience**: Governing board, Dan, planning staff. The "where did the
+  units come from" story that the cumulative accounting report
+  (PPTX slide 4) tells in static form. Surfaces the 2024–25 bonus surge
+  (Sugar Pine 70 + LTCC 85 = 155 affordable units) as the dominant
+  recent driver.
+- **Data**: realized today from
+  [`from_ken/FINAL RES SUMMARY 2012 to 2025.xlsx`](../from_ken/FINAL%20RES%20SUMMARY%202012%20to%202025.xlsx)
+  Summary sheet (the categorical "Added Residential Units from {Source}"
+  rows). Eventually backed by `vCommodityLedger` filtered to residential
+  commodities, grouped by year and movement type.
+- **Complexity**: S. Built as
+  [`html/residential-additions-by-source.html`](../html/residential-additions-by-source.html)
+  — single-file Plotly + TRPA brand, ~13×6 dataset inlined.
+- **Reverse-engineering**: see [dashboards_to_schema_trace.md](./dashboards_to_schema_trace.md)
+  §"A4 reverse engineering" for the SQL shape against `vCommodityLedger`
+  and the corresponding LT Info endpoint candidate.
+- **Why it matters**: PPTX slide 3 calls out *"Bonus Units became the #1
+  source of 2024 and 2025 additions"* — A4 is that finding made
+  interactive. Pairs naturally with A1 (Regional Capacity Dial) for
+  board-meeting use: A1 says "where are we", A4 says "how did we get here."
+
 ---
 
 ## Cluster B — Pool + allocation tracking

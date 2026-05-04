@@ -595,6 +595,124 @@ Three things to add to the schema before implementation:
 
 ---
 
+## Trace 4 — Residential Additions by Source (A4, built)
+
+> **Status of source code**: built today as
+> [`html/residential-additions-by-source.html`](../html/residential-additions-by-source.html)
+> with data inlined (Option A — see `proposed_dashboards.md` A4). Reverse-
+> engineering this trace establishes how the dashboard re-binds when the
+> view layer (`vCommodityLedger`) lands.
+
+### Chart shape
+
+Multi-line chart by year, x = 2013–2025, y = residential units added that
+year, **5 lines** (one per source category): Allocations, Bonus Units,
+Transfers, Conversions, Banked. Toggle: lines → stacked area → stacked %.
+Annotation highlights the 2024–25 bonus-units inflection. Sidebar of
+"Major Completed Projects" per year (Sugar Pine, LTCC Dorms, Beach Club,
+etc.) anchors inflections in narrative.
+
+### Where Ken got this data (today)
+
+The 5 categorical totals per year live in
+[`from_ken/FINAL RES SUMMARY 2012 to 2025.xlsx`](../from_ken/FINAL%20RES%20SUMMARY%202012%20to%202025.xlsx)
+**Summary sheet** under rows labeled *"Added Residential Units from
+{Allocations, Bonus Units, Transfers, Conversions, Banked}"*. These are
+**hand-aggregated by Ken** from the per-APN data on the same workbook's
+Residential sheet (42,500 rows). Cross-checked annually against the
+public cumulative accounting report at
+[`thresholds.laketahoeinfo.org/CumulativeAccounting/Index/{Year}`](https://thresholds.laketahoeinfo.org/CumulativeAccounting/Index/2023).
+
+The "Major Completed Projects" narrative column is **also Ken's** — manual
+project tagging that doesn't currently exist in any structured store
+(this is gap **G3.5** — `Project` entity proposal).
+
+### View contract (target shape, once `vCommodityLedger` exists)
+
+The dashboard wants one row per `(Year, Source)` with a count:
+
+| Column | Type | Notes |
+|---|---|---|
+| `Year` | int | 2013–latest |
+| `Source` | varchar | enum: `Allocations`, `BonusUnits`, `Transfers`, `Conversions`, `Banked` |
+| `UnitsAdded` | int | residential units (SFRUU + MFRUU + ADU per Q1) added in that year via that source |
+
+That's 5 sources × 13 years = 65 rows for the current data window.
+
+### Schema trace — SQL against `vCommodityLedger`
+
+Approximate query (assumes the schema additions for G2.8 land — Bonus
+Units as a first-class movement type):
+
+```sql
+WITH residential_adds AS (
+  SELECT
+    YEAR(EntryDate)                        AS Year,
+    CASE
+      WHEN MovementType = 'ALLOCASSGN'                THEN 'Allocations'
+      WHEN MovementType = 'BonusUnitAssigned'         THEN 'BonusUnits'    -- needs G2.8
+      WHEN MovementType = 'TRF'                       THEN 'Transfers'
+      WHEN MovementType IN ('CONV','CONVTRF')         THEN 'Conversions'
+      WHEN MovementType = 'Unbanking'                 THEN 'Banked'        -- needs G2.6
+    END                                    AS Source,
+    Quantity
+  FROM vCommodityLedger l
+  JOIN dbo.Commodity c ON c.CommodityID = l.CommodityID
+  WHERE c.CommodityShortName IN ('SFRUU','MFRUU')         -- residential only
+    AND l.ToBucketType = 'Existing'                       -- only counts as an "add" when it lands as Existing
+    AND l.Quantity > 0                                    -- only positive adds
+)
+SELECT Year, Source, SUM(Quantity) AS UnitsAdded
+FROM residential_adds
+WHERE Source IS NOT NULL
+GROUP BY Year, Source
+ORDER BY Year, Source;
+```
+
+The query **depends on**:
+- **G2.8 (Bonus Units as movement type)** — the schema currently treats
+  bonus units as a *bucket*, not a movement. Without a `BonusUnitAssigned`
+  (or similar) `MovementType`, Ken's "From Bonus Units" line can't be
+  derived from `vCommodityLedger`. **A4 is the dashboard that makes G2.8
+  unavoidable.**
+- **G2.6 (`Unbanking` movement type)** — Ken's "From Banked" line counts
+  rebuild-from-banked events. The schema lists `Unbanking` as a planned
+  `MovementType` but the build notebook doesn't yet synthesize it. Same
+  unblock as G2.8 — needed for A4 to drop the spreadsheet dependency.
+
+### LT Info endpoint candidate
+
+No single LT Info JSON endpoint returns this exact 5-source breakdown.
+The closest is **`GetTransactedAndBankedDevelopmentRights`** (5,186 records
+per [ltinfo_services.json](./ltinfo_services.json)) — covers all
+transacted and banked dev-rights events. Aggregating that response by
+year and movement-type maps to the same Source enum above. Worth probing
+whether that endpoint already exposes a `MovementType` (or equivalent)
+field; if so, the dashboard can switch to a JSON fetch instead of CSV
+and stop depending on Ken's manual aggregation.
+
+### Why this trace strengthens existing gaps
+
+A4 doesn't surface *new* schema gaps. It strengthens two existing ones:
+
+- **G2.6 (Unbanking)** — A4's "From Banked" line is a 171-unit total
+  across 13 years. Real, non-trivial signal. Concrete reason to land
+  `Unbanking` as a real movement type, not "TBD."
+- **G2.8 (Bonus Units as movement type)** — 222 units / 14 percent of
+  total additions, with the 2024–25 surge being the dashboard's
+  headline finding. This is the single highest-impact schema clarification
+  for the v1 dashboards shelf.
+
+### Gaps for Trace 4 (no new gaps)
+
+- ↗ **G2.6** (Unbanking) — strengthened, no change to action.
+- ↗ **G2.8** (Bonus Units as movement type) — strengthened, no change to action.
+- ↗ **G3.5** (Project entity) — strengthened by A4's project sidebar.
+  Without a `Project` entity, the dashboard hardcodes the 10-year
+  project list in HTML. With it, the sidebar reads from a query.
+
+---
+
 ## Roll-up: gap delta against `target_schema.md`
 
 After Ken's April 2026 data: **18 gaps total — 4 resolved by Ken's data,

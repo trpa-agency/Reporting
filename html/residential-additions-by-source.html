@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Residential Additions by Source &mdash; TRPA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<style>
+:root {
+  /* TRPA brand palette (PMS 285C primary) */
+  --trpa-blue:    #0072CE;
+  --trpa-navy:    #003B71;
+  --trpa-earth:   #B47E00;
+  --trpa-forest:  #4A6118;
+  --trpa-brick:   #9C3E27;
+  --trpa-olive:   #B5A64C;
+  --trpa-orange:  #E87722;
+  --trpa-purple:  #7B6A8A;
+  --trpa-ice:     #B4CBE8;
+
+  /* Functional neutrals */
+  --bg:          #f5f7fa;
+  --surface:     #ffffff;
+  --border:      #e1e7ee;
+  --text-dark:   #003B71;
+  --text-mid:    #5d6c7e;
+  --text-light:  #8a9bb2;
+  --shadow:      0 2px 16px rgba(0, 59, 113, 0.08);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text-dark);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Header ── */
+header { background: var(--trpa-navy); color: #fff; display: flex; align-items: stretch; }
+.header-accent {
+  width: 8px; flex-shrink: 0;
+  background: linear-gradient(180deg, var(--trpa-forest) 0%, var(--trpa-blue) 50%, var(--trpa-orange) 100%);
+}
+.header-content { padding: 26px 40px 22px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex: 1; }
+.header-eyebrow { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--trpa-ice); margin-bottom: 7px; }
+header h1 { font-weight: 700; font-size: 1.85rem; line-height: 1.15; letter-spacing: -0.02em; }
+header h1 span { color: var(--trpa-blue); }
+.header-sub { font-size: 0.82rem; color: var(--trpa-ice); margin-top: 6px; opacity: 0.9; max-width: 760px; }
+.header-meta { font-size: 0.75rem; color: var(--trpa-ice); text-align: right; line-height: 1.7; opacity: 0.85; white-space: nowrap; }
+.live-badge { display: inline-block; background: var(--trpa-forest); color: #fff; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; margin-bottom: 6px; }
+
+/* ── KPIs ── */
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--surface); border-bottom: 1px solid var(--border); }
+.kpi-card { padding: 22px 28px 18px; border-right: 1px solid var(--border); position: relative; }
+.kpi-card:last-child { border-right: none; }
+.kpi-accent { position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.kpi-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); margin-bottom: 8px; }
+.kpi-value { font-size: 2.25rem; font-weight: 700; color: var(--text-dark); letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+.kpi-sub { font-size: 0.73rem; color: var(--text-mid); margin-top: 7px; line-height: 1.4; }
+
+/* ── Toggle bar ── */
+.toggle-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 40px; display: flex; gap: 10px; align-items: center; }
+.toggle-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); margin-right: 6px; }
+.toggle-btn { padding: 6px 18px; border-radius: 4px; border: 1.5px solid var(--border); background: #fff; color: var(--text-mid); font-size: 0.8rem; font-family: inherit; cursor: pointer; transition: all 0.15s; font-weight: 600; }
+.toggle-btn:hover { border-color: var(--trpa-blue); color: var(--trpa-blue); }
+.toggle-btn.active { background: var(--trpa-navy); border-color: var(--trpa-navy); color: #fff; }
+.toggle-btn.active:hover { color: #fff; }
+
+/* ── Sections / Cards ── */
+.section { padding: 24px 40px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px 24px; box-shadow: var(--shadow); }
+.card h3 { font-size: 0.95rem; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
+.card p { font-size: 0.75rem; color: var(--text-light); margin-bottom: 14px; }
+.split { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+
+/* ── Projects sidebar ── */
+.proj-list { font-size: 0.83rem; line-height: 1.55; }
+.proj-list .yr { display: inline-block; min-width: 38px; font-weight: 700; color: var(--trpa-navy); }
+.proj-list .desc { color: var(--text-mid); }
+.proj-list .item { padding: 5px 0; border-bottom: 1px dashed var(--border); }
+.proj-list .item:last-child { border-bottom: none; }
+.proj-list .aff { color: var(--trpa-forest); font-weight: 600; }
+
+/* ── Footnote ── */
+.footnote {
+  padding: 12px 40px 22px;
+  font-size: 0.72rem;
+  color: var(--text-light);
+  line-height: 1.6;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+.footnote code { background: var(--bg); padding: 1px 5px; border-radius: 3px; font-size: 0.7rem; }
+
+@media (max-width: 1100px) {
+  .split { grid-template-columns: 1fr; }
+}
+@media (max-width: 900px) {
+  .kpi-row { grid-template-columns: 1fr 1fr; }
+  .kpi-card { border-bottom: 1px solid var(--border); }
+  header .header-content, .toggle-bar, .section, .footnote { padding-left: 16px; padding-right: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="header-accent"></div>
+  <div class="header-content">
+    <div>
+      <div class="header-eyebrow">Tahoe Regional Planning Agency</div>
+      <h1>Residential Additions <span>by Source</span></h1>
+      <div class="header-sub">
+        Where the 1,573 added residential units came from each year, 2013&ndash;2025. Net growth of 1,469 after 110 removals (banked or converted out).
+      </div>
+    </div>
+    <div class="header-meta">
+      <div class="live-badge">2026 Cycle</div><br>
+      Source: 2026 Cumulative Accounting Report<br>
+      Compiled by Ken &middot; latest snapshot Apr 30, 2026
+    </div>
+  </div>
+</header>
+
+<!-- KPIs -->
+<div class="kpi-row">
+  <div class="kpi-card">
+    <div class="kpi-accent" style="background:var(--trpa-navy)"></div>
+    <div class="kpi-label">Total added 2013&ndash;2025</div>
+    <div class="kpi-value">1,573</div>
+    <div class="kpi-sub">Avg 121 units/yr &middot; net +1,469 after removals</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-accent" style="background:var(--trpa-blue)"></div>
+    <div class="kpi-label">Largest source overall</div>
+    <div class="kpi-value">887</div>
+    <div class="kpi-sub">From Allocations &middot; 56 percent of total additions</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-accent" style="background:var(--trpa-forest)"></div>
+    <div class="kpi-label">2024&ndash;25 bonus surge</div>
+    <div class="kpi-value">155</div>
+    <div class="kpi-sub">Sugar Pine 70 + LTCC 85 affordable units</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-accent" style="background:var(--trpa-orange)"></div>
+    <div class="kpi-label">Peak year</div>
+    <div class="kpi-value">215</div>
+    <div class="kpi-sub">2025 &middot; +207 net (next-highest 2024 at +186)</div>
+  </div>
+</div>
+
+<!-- Toggle -->
+<div class="toggle-bar">
+  <span class="toggle-label">View</span>
+  <button class="toggle-btn active" id="btn-lines"  onclick="setMode('lines')">Lines (counts)</button>
+  <button class="toggle-btn"        id="btn-stack"  onclick="setMode('stack')">Stacked area</button>
+  <button class="toggle-btn"        id="btn-pct"    onclick="setMode('pct')">Stacked &percnt;</button>
+</div>
+
+<!-- Main -->
+<div class="section">
+  <div class="split">
+    <div class="card">
+      <h3>Composition of added residential units by source</h3>
+      <p>One line per source. Hover any year to see all five sources together. Removals (banked or converted) not shown &mdash; this view is gross additions.</p>
+      <div id="main-chart" style="height:480px;"></div>
+    </div>
+    <div class="card">
+      <h3>Major completed projects</h3>
+      <p>The story behind the inflections. Affordable / achievable units highlighted.</p>
+      <div class="proj-list" id="proj-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Footnote -->
+<div class="footnote">
+  <strong>Data:</strong> compiled from <code>from_ken/FINAL RES SUMMARY 2012 to 2025.xlsx</code> &mdash; the Summary sheet's
+  <em>Added Residential Units from {Allocations, Bonus Units, Transfers, Conversions, Banked}</em> rows and the per-year
+  <em>Major Completed Projects</em> column. Ultimate source: <code>dbo.TdrTransaction</code> + <code>dbo.ParcelPermitBankedDevelopmentRight</code>
+  + <code>dbo.ResidentialBonusUnit*</code> in Corral, aggregated by year &times; movement type and filtered to residential commodities (SFRUU + MFRUU).
+  Once <code>vCommodityLedger</code> exists, this dashboard reads it directly &mdash; same shape.
+  See <a href="../erd/dashboards_to_schema_trace.md" style="color:var(--trpa-blue);">dashboards_to_schema_trace.md</a> for the full reverse-engineering trace.
+</div>
+
+<script>
+// ─────────────────────────────────────────
+// TRPA brand color tokens (mirror CSS vars)
+// ─────────────────────────────────────────
+const TRPA = {
+  blue:   '#0072CE',
+  navy:   '#003B71',
+  earth:  '#B47E00',
+  forest: '#4A6118',
+  brick:  '#9C3E27',
+  olive:  '#B5A64C',
+  orange: '#E87722',
+  purple: '#7B6A8A',
+  ice:    '#B4CBE8',
+};
+
+// ─────────────────────────────────────────
+// DATA — from Ken's FINAL RES SUMMARY 2012 to 2025.xlsx, Summary sheet
+// "Added Residential Units from {Source}" rows
+// ─────────────────────────────────────────
+const YEARS = [2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025];
+
+const SOURCES = [
+  { key: 'allocations', name: 'Allocations',  color: TRPA.blue,
+    data:  [51, 56, 88, 72, 66, 76, 64, 103, 69, 83, 47, 50, 62] },
+  { key: 'bonus',       name: 'Bonus Units',  color: TRPA.forest,
+    data:  [ 0, 48,  0,  0,  0,  0,  9,   1,  1,  4,  4, 70, 85] },
+  { key: 'transfers',   name: 'Transfers',    color: TRPA.orange,
+    data:  [ 1,  3,  7,  4,  8,  6,  8,  43, 10,  7, 10, 15, 16] },
+  { key: 'conversions', name: 'Conversions',  color: TRPA.earth,
+    data:  [ 1,  2,  4, 10,  3,  0,  3,  19, 27,  2, 17, 42, 31] },
+  { key: 'banked',      name: 'From Banked',  color: TRPA.purple,
+    data:  [ 5,  8,  3,  3,  3,  5, 14,  32, 29,  7, 28, 13, 21] },
+];
+
+// Major completed projects (PPTX slide 4 + Ken's Summary "Major Completed Projects" row)
+const PROJECTS = [
+  { yr: 2014, items: ['Aspens: 48 units (47 affordable, 1 moderate)'] },
+  { yr: 2016, items: ['Peak 10: 10 units'] },
+  { yr: 2018, items: ['Sierra Colina: 1 unit'] },
+  { yr: 2019, items: ['Tahoe City Marina: 10 units', 'Sierra Colina: 4 units'] },
+  { yr: 2020, items: ['Beach Club: 25 units', 'Wildwood Commons: 23 units', 'Gondola Vista: 20 units', 'Sierra Colina: 5 units'] },
+  { yr: 2021, items: ['Beach Club: 21 units', 'Sierra Colina: 6 units', 'WoodVista: 6 units', 'Tahoe Cedars: 4 units'] },
+  { yr: 2022, items: ['Emerald Bay Cabins: 6 units', 'Sierra Colina: 3 units'] },
+  { yr: 2023, items: ['Beach Club: 24 units', 'Sierra Colina: 6 units'] },
+  { yr: 2024, items: ['Sugar Pine: 69 units (67 affordable)', 'Birds Nest: 21 MF units (affordable)', '395 N Lake: 12 MF units', 'Sierra Colina: 11 units', 'Beach Club: 8 units'] },
+  { yr: 2025, items: ['Sugar Pine: 60 units (59 affordable)', 'LTCC Dorms: 41 units (19 affordable / 1 achievable)', 'Beach Club: 16 units', 'Sierra Colina: 8 units'] },
+];
+
+// ─────────────────────────────────────────
+// CHART RENDERING
+// ─────────────────────────────────────────
+const plotFont = { family: '"Open Sans", system-ui, sans-serif', color: TRPA.navy, size: 12 };
+
+let mode = 'lines';
+
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('#btn-' + (m === 'lines' ? 'lines' : m === 'stack' ? 'stack' : 'pct')).classList.add('active');
+  render();
+}
+
+function render() {
+  const isLines = mode === 'lines';
+  const isStack = mode === 'stack';
+  const isPct   = mode === 'pct';
+
+  // Compute % data if needed
+  let series = SOURCES.map(s => ({ ...s }));
+  if (isPct) {
+    series = SOURCES.map(s => ({
+      ...s,
+      data: s.data.map((v, i) => {
+        const total = SOURCES.reduce((sum, ss) => sum + ss.data[i], 0);
+        return total > 0 ? (v / total * 100) : 0;
+      }),
+    }));
+  }
+
+  const traces = series.map(s => ({
+    name: s.name,
+    type: 'scatter',
+    mode: isLines ? 'lines+markers' : 'lines',
+    x: YEARS,
+    y: s.data,
+    line:  { color: s.color, width: isLines ? 2.5 : 0.5 },
+    marker: isLines ? { color: s.color, size: 7, line: { color: '#fff', width: 1 } } : undefined,
+    stackgroup: !isLines ? 'one' : undefined,
+    groupnorm:  isPct ? 'percent' : undefined,
+    fill:      !isLines ? 'tonexty' : undefined,
+    fillcolor: !isLines ? hexA(s.color, 0.6) : undefined,
+    hovertemplate: isPct
+      ? '<b>%{y:.1f}%</b> &middot; ' + s.name + '<extra>%{x}</extra>'
+      : '<b>%{y:,}</b> units &middot; ' + s.name + '<extra>%{x}</extra>',
+  }));
+
+  const layout = {
+    font: plotFont,
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor:  'rgba(0,0,0,0)',
+    margin: { t: 16, r: 24, b: 56, l: 56 },
+    hovermode: 'x unified',
+    xaxis: {
+      title: { text: 'Year', font: { size: 12 } },
+      tickmode: 'linear', dtick: 1,
+      gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 11 },
+    },
+    yaxis: {
+      title: { text: isPct ? 'Percent of total added' : 'Residential units added', font: { size: 12 } },
+      gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 11 },
+      rangemode: 'tozero',
+      ticksuffix: isPct ? '%' : '',
+    },
+    legend: { orientation: 'h', y: -0.18, font: { size: 11 }, traceorder: 'normal' },
+    annotations: isLines ? bonusAnnotation() : [],
+  };
+
+  Plotly.react('main-chart', traces, layout, { responsive: true, displayModeBar: false });
+}
+
+// Highlight the 2024-25 bonus surge inflection in line mode
+function bonusAnnotation() {
+  return [{
+    x: 2024.5, y: 78,
+    text: 'Bonus units overtake<br>allocations as #1 source',
+    showarrow: true, arrowhead: 2, arrowcolor: TRPA.forest, arrowwidth: 1.5,
+    ax: -90, ay: -40,
+    font: { color: TRPA.forest, size: 10.5, family: '"Open Sans"' },
+    bgcolor: 'rgba(255,255,255,0.95)',
+    bordercolor: TRPA.forest, borderwidth: 1, borderpad: 4,
+  }];
+}
+
+// hex + alpha → rgba string for Plotly fillcolor
+function hexA(hex, a) {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
+}
+
+// ─────────────────────────────────────────
+// PROJECTS SIDEBAR
+// ─────────────────────────────────────────
+function renderProjects() {
+  const container = document.querySelector('#proj-list');
+  container.innerHTML = PROJECTS.map(p =>
+    '<div class="item">' +
+      '<span class="yr">' + p.yr + '</span> ' +
+      '<span class="desc">' + p.items.map(i =>
+        i.replace(/(\d+\s+affordable[^)]*)/g, '<span class="aff">$1</span>')
+      ).join(' &middot; ') + '</span>' +
+    '</div>'
+  ).join('');
+}
+
+// ─────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  render();
+  renderProjects();
+});
+</script>
+</body>
+</html>

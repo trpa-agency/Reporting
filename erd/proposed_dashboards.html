@@ -145,6 +145,34 @@ Tahoe overall" in a single glance.</p>
 <li><strong>Data</strong>: <code>CumulativeAccountingSnapshot</code> + <code>PoolDrawdownYearly</code>.</li>
 <li><strong>Complexity</strong>: M. 4 jurisdictions × 3 commodities = 12 cards in a grid.</li>
 </ul>
+<h3 id="a4-residential-additions-by-source-v1-built">A4. Residential Additions by Source ✅ (v1 — built)</h3>
+<ul>
+<li><strong>What it shows</strong>: Multi-line chart by year tracking five sources of
+  added residential units — <strong>Allocations, Bonus Units, Transfers,
+  Conversions, Banked</strong>. Toggle between counts (lines), stacked area, and
+  stacked percent. Sidebar of major completed projects per year (Sugar
+  Pine, LTCC Dorms, Beach Club, etc.) anchors the inflections in narrative.</li>
+<li><strong>Audience</strong>: Governing board, Dan, planning staff. The "where did the
+  units come from" story that the cumulative accounting report
+  (PPTX slide 4) tells in static form. Surfaces the 2024–25 bonus surge
+  (Sugar Pine 70 + LTCC 85 = 155 affordable units) as the dominant
+  recent driver.</li>
+<li><strong>Data</strong>: realized today from
+  <a href="../from_ken/FINAL%20RES%20SUMMARY%202012%20to%202025.xlsx"><code>from_ken/FINAL RES SUMMARY 2012 to 2025.xlsx</code></a>
+  Summary sheet (the categorical "Added Residential Units from {Source}"
+  rows). Eventually backed by <code>vCommodityLedger</code> filtered to residential
+  commodities, grouped by year and movement type.</li>
+<li><strong>Complexity</strong>: S. Built as
+  <a href="../html/residential-additions-by-source.html"><code>html/residential-additions-by-source.html</code></a>
+  — single-file Plotly + TRPA brand, ~13×6 dataset inlined.</li>
+<li><strong>Reverse-engineering</strong>: see <a href="./dashboards_to_schema_trace.html">dashboards_to_schema_trace.md</a>
+  §"A4 reverse engineering" for the SQL shape against <code>vCommodityLedger</code>
+  and the corresponding LT Info endpoint candidate.</li>
+<li><strong>Why it matters</strong>: PPTX slide 3 calls out <em>"Bonus Units became the #1
+  source of 2024 and 2025 additions"</em> — A4 is that finding made
+  interactive. Pairs naturally with A1 (Regional Capacity Dial) for
+  board-meeting use: A1 says "where are we", A4 says "how did we get here."</li>
+</ul>
 <hr />
 <h2 id="cluster-b-pool-allocation-tracking">Cluster B — Pool + allocation tracking</h2>
 <p>For internal TRPA staff doing allocation accounting. Extends the existing
