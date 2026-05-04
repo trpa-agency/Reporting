@@ -83,7 +83,10 @@ Full list in [target_schema.md](./target_schema.md). The three highest-priority:
 |---|---|---|
 | [target_schema.md](./target_schema.md) | **Draft — for team review** | The proposal itself. ERD + loading strategy + open questions. |
 | [proposed_dashboards.md](./proposed_dashboards.md) | Draft — for team review | Dashboard & visualization proposal (~25 candidates in 8 clusters); extends the existing `allocation_drawdown.html` prototype. |
-| [dashboards_to_schema_trace.md](./dashboards_to_schema_trace.md) | Draft — first pass | Backward design from the 3 v1 dashboards through their view contracts to the schema columns they require. Surfaces concrete gap delta against `target_schema.md`. |
+| [dashboards_to_schema_trace.md](./dashboards_to_schema_trace.md) | Active | Backward design from built dashboards through view contracts to schema columns. 14 open gaps roll-up against `target_schema.md`. |
+| [genealogy_track.md](./genealogy_track.md) | Active | **Track A** — APN canonicalization + genealogy event sourcing + resolver. The substrate every other track joins through. |
+| [allocation_track.md](./allocation_track.md) | Active | **Track B** — Allocation accounting layer: schema, view contracts, 5 built dashboards, 14 open gaps. The public-facing reporting work. |
+| [qa_corrections_track.md](./qa_corrections_track.md) | Active | **Track C** — Ken's CA Changes XLSX → schema sidecar + loader + reconciliation + dashboard E1. Full track docs. |
 | [cumulative_accounting_reference.md](./cumulative_accounting_reference.md) | Reference | TRPA Cumulative Accounting framework (plain-markdown copy of the Claude skill) — vocabulary, bucket model, movement types, pool structure. |
 | [development_rights_erd.html](./development_rights_erd.html) | Draft | Browser viewer for all ERDs (existing + proposed). |
 
