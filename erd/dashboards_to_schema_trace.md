@@ -29,23 +29,17 @@ Detail in the gap sections below; summary here:
 | **G1.2** `MaxRegionalCapacity` source | ✅ Resolved — Regional Plan caps: RES Alloc **8,687**, RBU **2,000**, TBU **400**, CFA **1,000,000 sq ft** (since-1987 cumulative). The 2012 Plan's *additional* authorization on top of 1987 unused was 2,600. |
 | **G2.1** `InitialCapacity` per pool | ✅ Resolved — Ken's `LT Info Pool Balances` sheet has the per-pool starting capacities; PPTX slide 5 has the per-jurisdiction unused breakdown. |
 | **G2.2** CSLT sub-pools | ✅ Confirmed real — the prototype HTML's CSLT split into Single-Family / Multi-Family / Town Center matches Ken's pool breakdowns. |
-| **G3.1–G3.4** ParcelDevelopmentChangeEvent | ⚠️ Now have load source — `CA Changes breakdown.xlsx` Sheet1 (44,372 rows) is the realized table; Sheet2 (52 rows) is the controlled-vocabulary correction-categories list. |
+| **G3.1–G3.4** ParcelDevelopmentChangeEvent | ✅ Schema landed — `target_schema.md` now has `RawAPN` audit column on `ParcelDevelopmentChangeEvent` and a sidecar `QaCorrectionDetail` (1:0..1) for QA-specific metadata. Loader notebook pending. |
 | **NEW G2.7** Unreleased pool | Slide 5 names "UNRELEASED ALLOCATIONS = 770" as a distinct category — not modeled in current schema. |
 | **NEW G2.8** Bonus Units as movement type | Slide 3: "Bonus Units became the #1 source of 2024 and 2025 additions." Schema treats them as a *bucket* only, not a first-class movement-type column on `PoolDrawdownYearly`. |
+| **G3.3.*** `CorrectionCategory` + cycle-year column | ✅ Resolved by Track C — `QaCorrectionDetail` sidecar carries `ReportingYear` (annual, any value) + `SweepCampaign` (nullable big-sweep tag) + `CorrectionCategory` (9-value enum). Earlier draft used `ReportingCycleYear` and assumed biennial; corrected to `ReportingYear` per user's annual-cadence + periodic-sweep clarification. |
 | **NEW G3.5** Project-level annotations | Each year's Summary has a free-text "Major Completed Projects" column (Sugar Pine, LTCC Dorms, Beach Club, etc.). Schema has no `Project` entity. |
-| **NEW G3.6** APN format normalization | Many parcels appear under both `015-331-04` and `015-331-004` formats (leading-zero change in 2018). Distinct from genealogy splits/merges; need canonicalization in the load layer. |
+| **NEW G3.6** APN format normalization | ⚠️ Partial — `RawAPN` audit column landed on `ParcelDevelopmentChangeEvent`. Canonicalization function `fn_canonical_apn` still pending the loader notebook. |
+| **Q1 ADU modeling** | ✅ Resolved as option (b) — `IsADU bit` flag on `dbo.ResidentialAllocation` and `dbo.ResidentialBonusUnit*`, not a third use type. |
 
-Two new design constraints to note even though they aren't standalone gaps:
+**Design constraint to note** — TRPA Pool reconciliation: Ken annotated the LT Info pool report *"TRPA Pool: 154 — pool shows as 144, but that is incorrect — should be 154"*. The current [html/allocation_drawdown.html](../html/allocation_drawdown.html) prototype displays the wrong (144) value Ken has flagged. The schema needs a reconciliation rule: don't blindly carry LT Info pool values without Ken's manual corrections layered in.
 
-- **TRPA Pool reconciliation** — Ken annotated the LT Info pool report:
-  *"TRPA Pool: 154 — pool shows as 144, but that is incorrect — should be 154"*.
-  The current [html/allocation_drawdown.html](../html/allocation_drawdown.html)
-  prototype displays the wrong (144) value Ken has flagged. The schema needs
-  a reconciliation rule: don't blindly carry LT Info pool values without
-  Ken's manual corrections layered in.
-- **Biennial reporting cycles** — Ken's CA Changes data tracks separate
-  2023 and 2026 cycles. Schema needs `ReportingCycleYear` on
-  `ParcelDevelopmentChangeEvent` so corrections-of-corrections stay legible.
+(Reporting cadence note from earlier draft removed — see [qa_corrections_track.md](./qa_corrections_track.md) "Reporting cadence" section. TRPA reports annually; QA corrections are continuous; 2023 and 2026 are big-sweep campaigns, not biennial.)
 
 The full PowerPoint maps directly onto the dashboards in this trace —
 slide 8 (Regional Plan Additional Development Overview) is the headline
@@ -729,10 +723,11 @@ After Ken's April 2026 data: **18 gaps total — 4 resolved by Ken's data,
 | ~~G2.2~~ | ~~CSLT sub-pool derivation~~ — ✅ **resolved**: model as 3 distinct `CommodityPoolID` rows | `target_schema.md` §"reference entities" + `dbo.CommodityPool` |
 | **G2.7** | Unreleased pool category — model as pseudo-pool or add `ReleaseStatus` column on `dbo.CommodityPool` | `target_schema.md` §`PoolDrawdownYearly` + §"reference entities" |
 | **G2.8** | Bonus Units as movement-type columns on `PoolDrawdownYearly` OR sibling `BonusUnitDrawdownYearly` view | `target_schema.md` §`PoolDrawdownYearly` |
-| **G3.3.* `CorrectionCategory` + `ReportingCycleYear`** | Required to load Ken's CA Changes Sheet1; sub-categorizes `ChangeSource='qa_correction'`; cycle column distinguishes 2023 / 2026 / future reporting cycles | `target_schema.md` §`ParcelDevelopmentChangeEvent` |
+| ~~G3.3.* `CorrectionCategory` + cycle-year column~~ | ✅ **resolved** — `QaCorrectionDetail` sidecar in `target_schema.md` carries `ReportingYear` (annual) + `SweepCampaign` + `CorrectionCategory` (9-value enum). Loader notebook still pending. | `target_schema.md` §"ERD — QA corrections sidecar" |
 | G3.3 | `EvidenceURL` template registry per `ChangeSource` | new section in `target_schema.md` or in an ETL spec |
 | **G3.5** | `Project` entity + `ProjectChangeEventLink` for the "Major Completed Projects" narrative | `target_schema.md` §"new core tables" |
-| **G3.6** | `fn_canonical_apn` + `RawAPN` audit column on parcel-keyed tables | ETL spec; reference from `target_schema.md` §"loading strategy" |
+| **G3.6 (partial)** | ✅ `RawAPN` audit column landed on `ParcelDevelopmentChangeEvent`; `fn_canonical_apn` still pending the loader notebook | `target_schema.md` §`ParcelDevelopmentChangeEvent` (column added); ETL spec for the function |
+| ~~Q1 ADU modeling~~ | ✅ **resolved as option (b)** — `IsADU bit` flag on `dbo.ResidentialAllocation` + `dbo.ResidentialBonusUnit*`; not a third use type | `target_schema.md` Q1 |
 
 ### Clarify in schema
 

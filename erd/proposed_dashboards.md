@@ -39,15 +39,27 @@ Everything below is **new**, in addition to those three.
 For Dan, the governing board, partner agencies. Communicates "where is
 Tahoe overall" in a single glance.
 
-### A1. Regional Capacity Dial (v1)
+### A1. Regional Capacity Dial ✅ (v1 — built)
 
-- **What it shows**: Single large gauge per commodity (RES, TAU, CFA) showing
-  `% of Max Regional Capacity built`. Hover reveals bucket breakdown.
-- **Audience**: Governing board, press, annual reporting.
-- **Data**: `CumulativeAccountingSnapshot` aggregated to Regional totals.
-- **Complexity**: S. One-page Plotly indicator chart.
-- **Why now**: Governing board communications want "Tahoe is at 92.5% of
-  residential capacity" as a headline number. This dial *is* that headline.
+- **What it shows**: 4 Plotly indicator gauges in a 2×2 grid — one per
+  commodity (Residential Allocations, Residential Bonus Units, Tourist
+  Bonus Units, Commercial Floor Area) showing `% built` against the
+  since-1987 cumulative Regional Plan max. Below: a stacked horizontal
+  bar showing all 4 capacities side-by-side (constructed in TRPA brand
+  color + remaining in ice). A framing strip distinguishes the 8,687
+  since-1987 cumulative max from the 2,600 2012-Plan additional Board
+  authorization.
+- **Audience**: Governing board, press, annual reporting. The single
+  page that answers "where is Tahoe overall."
+- **Data**: inlined today from Ken's 2026 PPTX slide 8 (5 numbers ×
+  4 commodities). Eventually backed by `CumulativeAccountingSnapshot`
+  aggregated to Regional totals.
+- **Complexity**: S. Built as
+  [`html/regional-capacity-dial.html`](../html/regional-capacity-dial.html)
+  — single-file Plotly + TRPA brand. No fetch, no state, no filters —
+  pure headline dashboard.
+- **Track context:** see [allocation_track.md](./allocation_track.md)
+  for the broader Track B picture.
 
 ### A2. Buildout Projection (v2)
 
@@ -105,16 +117,35 @@ Tahoe overall" in a single glance.
 For internal TRPA staff doing allocation accounting. Extends the existing
 drawdown prototype.
 
-### B1. Pool Balance Cards (v1)
+### B1. Pool Balance Cards ✅ (v1 — built; B2 trajectory included)
 
-- **What it shows**: Grid of cards, one per active `CommodityPool`, showing
-  current balance / initial capacity, % remaining, and last disbursement
-  date. Click a card → B2 drill-down.
-- **Audience**: TRPA allocation staff, jurisdictions checking "what's left".
-- **Data**: `PoolDrawdownYearly` most-recent row + `dbo.CommodityPool`.
-- **Complexity**: M. ~30 cards (active pools only; inactive filtered out).
+- **What it shows**: Grid of 9 cards, one per residential allocation pool
+  (8 jurisdiction + sub-pool + 1 TRPA-central). Each card: current
+  remaining (big number), initial capacity, % remaining bar (TRPA brand
+  color per pool), drawn-down count, low/exhausted status flag. Click a
+  card to populate the detail panel below with the pool's year-by-year
+  trajectory (2013–26) as a Plotly area chart. KPI strip up top: total
+  remaining, drawn down since 2013, pools exhausted, unreleased held
+  centrally.
+- **Audience**: TRPA allocation staff (daily-use), jurisdictions checking
+  "what's left in our pool."
+- **Data**: remaining counts inlined from Ken's
+  `from_ken/Additional Development as of April2026.xlsx` LT Info Pools
+  sheet (with the TRPA Pool 144→154 correction applied). Trajectory
+  inlined from `html/allocation_drawdown.html`'s embedded series.
+  Eventually backed by `PoolDrawdownYearly` most-recent row +
+  `dbo.CommodityPool`.
+- **Complexity**: M. Built as
+  [`html/pool-balance-cards.html`](../html/pool-balance-cards.html) —
+  single-file Plotly + TRPA brand, no fetch.
+- **Sort options**: by remaining (default), by % used, by name.
+- **Track context:** see [allocation_track.md](./allocation_track.md).
+- **B2 status**: trajectory line (year-by-year remaining) covers the
+  high-level B2 ask. The fuller B2 — per-event ledger drill-down with
+  movement-type filtering — needs `vCommodityLedger` which is still
+  schema-side. Marked 🟡 partial below.
 
-### B2. Pool Detail Drill-down (v1)
+### B2. Pool Detail Drill-down 🟡 (v1 partial — trajectory in B1, per-event detail pending vCommodityLedger)
 
 - **What it shows**: For a selected pool: timeline of every ledger entry
   (allocations released, used, banked, transferred). Filter by year / by
@@ -236,15 +267,29 @@ For staff tracking permit workflow and construction cadence.
 
 Directly serves Dan's ask for "a separate database of change rationale."
 
-### E1. Change Rationale Audit Trail (v1)
+### E1. Change Rationale Audit Trail ✅ (v1 — built)
 
-- **What it shows**: Filterable table — every `ParcelDevelopmentChangeEvent`
-  with APN, year, commodity, previous → new quantity, source, rationale,
-  evidence link, recorded-by. Filter by year, source, commodity, jurisdiction.
-- **Audience**: Dan + any staff auditing the 2023–2025 residential changes
-  he specifically called out.
-- **Data**: `ParcelDevelopmentChangeEvent` + joins.
-- **Complexity**: S. Paged table with filters.
+- **What it shows**: Filterable AG Grid table of every QA change event
+  with APN (raw + canonical), reporting year, sweep campaign, quantity
+  delta, correction category, rationale, recorded-by. Filters: reporting
+  year, sweep campaign, vocab-canonicality (canonical vs noncanonical),
+  free-text search across APN/rationale/category. Sidebar bar chart
+  showing top 12 correction categories color-coded by canonicality.
+- **Audience**: Dan + any staff auditing the 2023 and 2026 residential
+  big-sweep corrections.
+- **Data**: realized today from
+  [`data/qa_data/qa_change_events.csv`](../data/qa_data/qa_change_events.csv)
+  + [`qa_correction_detail.csv`](../data/qa_data/qa_correction_detail.csv)
+  (5,925 events, joined client-side on `ChangeEventID`). Outputs of
+  [`notebooks/04_load_ca_changes.ipynb`](../notebooks/04_load_ca_changes.ipynb)
+  (Track C). Eventually backed by `ParcelDevelopmentChangeEvent` +
+  `QaCorrectionDetail` once the DB load happens.
+- **Complexity**: S. Built as
+  [`html/qa-change-rationale.html`](../html/qa-change-rationale.html) —
+  single-file Plotly + AG Grid + TRPA brand. KPIs surface the 30%
+  canonical-vocab match as a "needs Ken's triage" signal.
+- **Track context**: see [qa_corrections_track.md](./qa_corrections_track.md)
+  for the full data flow + open issues.
 
 ### E2. Changes By Source Dashboard (v1)
 
@@ -301,14 +346,31 @@ Directly serves Dan's ask for "a separate database of change rationale."
 
 ## Cluster G — Public-facing
 
-### G1. Public Allocation Availability (v1)
+### G1. Public Allocation Availability ✅ (v1 — built)
 
-- **What it shows**: Simple public page — "My jurisdiction has N residential
-  allocations remaining this year." Pick a jurisdiction from a dropdown or
-  click a map.
-- **Audience**: Developers, general public, partner jurisdictions.
-- **Data**: `PoolDrawdownYearly` most-recent.
-- **Complexity**: S. Deliberately simple — no permit detail, no parcel detail.
+- **What it shows**: 6 large jurisdiction tiles, each showing residential
+  allocations remaining as a big number with a TRPA brand-colored
+  progress bar and a usage caption ("X of Y initial used"). Above the
+  tiles: a total-strip summarizing basin-wide remaining + the 770
+  unreleased-to-jurisdiction count + the 8,687 cumulative cap context.
+  Below: an "What's a residential allocation?" plain-language explainer
+  for the public audience, with a pointer to parcels.laketahoeinfo.org
+  for per-APN detail.
+- **Audience**: Developers, general public, partner jurisdictions
+  checking "what's left in my pool."
+- **Data**: same source as B1 Pool Balance Cards — Ken's
+  `from_ken/Additional Development as of April2026.xlsx` LT Info Pools
+  Balances, with the TRPA Pool 144→154 correction. The 3 CSLT
+  sub-pools roll up into a single CSLT row for the public view.
+  Eventually backed by `PoolDrawdownYearly` most-recent.
+- **Complexity**: S. Built as
+  [`html/public-allocation-availability.html`](../html/public-allocation-availability.html)
+  — single-file HTML/CSS, no Plotly (just CSS), no fetch. Deliberately
+  no filters, no map, no detail panel — public-facing means lowest-
+  cognitive-load.
+- **Pairs with B1**: B1 (`pool-balance-cards.html`) is the staff view
+  showing all 9 pools including CSLT sub-pools; G1 is the public view
+  rolling sub-pools up. Same data, different framing.
 
 ### G2. Parcel Development Rights Lookup (public) (v1)
 

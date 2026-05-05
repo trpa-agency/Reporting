@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>QA Change Rationale Audit &mdash; TRPA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.0/dist/ag-grid-community.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.0/styles/ag-grid.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.0/styles/ag-theme-alpine.css"/>
+<style>
+:root {
+  --trpa-blue:    #0072CE;
+  --trpa-navy:    #003B71;
+  --trpa-earth:   #B47E00;
+  --trpa-forest:  #4A6118;
+  --trpa-brick:   #9C3E27;
+  --trpa-olive:   #B5A64C;
+  --trpa-orange:  #E87722;
+  --trpa-purple:  #7B6A8A;
+  --trpa-ice:     #B4CBE8;
+  --bg:           #f5f7fa;
+  --surface:      #ffffff;
+  --border:       #e1e7ee;
+  --text-dark:    #003B71;
+  --text-mid:     #5d6c7e;
+  --text-light:   #8a9bb2;
+  --shadow:       0 2px 16px rgba(0, 59, 113, 0.08);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg); color: var(--text-dark); min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+header { background: var(--trpa-navy); color: #fff; display: flex; align-items: stretch; }
+.header-accent { width: 8px; flex-shrink: 0; background: linear-gradient(180deg, var(--trpa-forest) 0%, var(--trpa-blue) 50%, var(--trpa-orange) 100%); }
+.header-content { padding: 26px 40px 22px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex: 1; }
+.header-eyebrow { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--trpa-ice); margin-bottom: 7px; }
+header h1 { font-weight: 700; font-size: 1.85rem; line-height: 1.15; letter-spacing: -0.02em; }
+header h1 span { color: var(--trpa-blue); }
+.header-sub { font-size: 0.82rem; color: var(--trpa-ice); margin-top: 6px; opacity: 0.9; max-width: 760px; }
+.header-meta { font-size: 0.75rem; color: var(--trpa-ice); text-align: right; line-height: 1.7; opacity: 0.85; white-space: nowrap; }
+.live-badge { display: inline-block; background: var(--trpa-forest); color: #fff; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; margin-bottom: 6px; }
+
+/* KPIs */
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--surface); border-bottom: 1px solid var(--border); }
+.kpi-card { padding: 22px 28px 18px; border-right: 1px solid var(--border); position: relative; }
+.kpi-card:last-child { border-right: none; }
+.kpi-accent { position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.kpi-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); margin-bottom: 8px; }
+.kpi-value { font-size: 2.25rem; font-weight: 700; color: var(--text-dark); letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+.kpi-sub { font-size: 0.73rem; color: var(--text-mid); margin-top: 7px; line-height: 1.4; }
+
+/* Filter bar */
+.filter-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 40px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+.filter-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); }
+.filter-select, .filter-search {
+  padding: 5px 10px; border: 1.5px solid var(--border); border-radius: 4px;
+  font-family: inherit; font-size: 0.78rem; color: var(--text-dark); background: #fff;
+}
+.filter-search { min-width: 220px; }
+.filter-divider { width: 1px; height: 18px; background: var(--border); }
+.filter-count { margin-left: auto; font-size: 0.74rem; color: var(--text-light); }
+.dl-btn { padding: 5px 14px; border: 1.5px solid var(--border); border-radius: 4px; background: #fff; font-family: inherit; font-size: 0.78rem; cursor: pointer; color: var(--text-mid); }
+.dl-btn:hover { border-color: var(--trpa-blue); color: var(--trpa-blue); }
+
+/* Sections / Cards */
+.section { padding: 24px 40px; }
+.split { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px 24px; box-shadow: var(--shadow); }
+.card h3 { font-size: 0.95rem; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
+.card p { font-size: 0.73rem; color: var(--text-light); margin-bottom: 14px; }
+
+/* Grid */
+#grid-container { height: 520px; }
+
+/* Loading */
+#loading-overlay { position: fixed; inset: 0; background: rgba(0, 59, 113, 0.6); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+.loading-card { background: #fff; border-radius: 10px; padding: 36px 48px; text-align: center; min-width: 260px; }
+.loading-card h3 { font-size: 1rem; color: var(--trpa-navy); margin-bottom: 20px; }
+.lb-bg { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+#loading-bar { height: 100%; width: 0; background: linear-gradient(90deg, var(--trpa-blue), var(--trpa-forest)); border-radius: 2px; transition: width 0.3s; }
+
+.footnote {
+  padding: 12px 40px 22px; font-size: 0.72rem; color: var(--text-light);
+  line-height: 1.6; background: var(--surface); border-top: 1px solid var(--border);
+}
+.footnote code { background: var(--bg); padding: 1px 5px; border-radius: 3px; font-size: 0.7rem; }
+
+@media (max-width: 1100px) {
+  .split { grid-template-columns: 1fr; }
+}
+@media (max-width: 900px) {
+  .kpi-row { grid-template-columns: 1fr 1fr; }
+  .kpi-card { border-bottom: 1px solid var(--border); }
+  header .header-content, .filter-bar, .section, .footnote { padding-left: 16px; padding-right: 16px; }
+}
+</style>
+</head>
+<body>
+
+<div id="loading-overlay">
+  <div class="loading-card">
+    <h3>Loading QA change events&hellip;</h3>
+    <div class="lb-bg"><div id="loading-bar"></div></div>
+  </div>
+</div>
+
+<header>
+  <div class="header-accent"></div>
+  <div class="header-content">
+    <div>
+      <div class="header-eyebrow">Tahoe Regional Planning Agency</div>
+      <h1>QA Change Rationale <span>Audit Trail</span></h1>
+      <div class="header-sub">
+        Per-APN audit log of QA corrections to existing residential development.
+        2023 and 2026 big-sweep campaigns from Ken&rsquo;s <code>CA Changes breakdown.xlsx</code>.
+      </div>
+    </div>
+    <div class="header-meta">
+      <div class="live-badge">Cluster E1</div><br>
+      Source: <code>data/qa_data/qa_change_events.csv</code><br>
+      + <code>qa_correction_detail.csv</code> (joined client-side)
+    </div>
+  </div>
+</header>
+
+<!-- KPIs -->
+<div class="kpi-row">
+  <div class="kpi-card">
+    <div class="kpi-accent" style="background:var(--trpa-navy)"></div>
+    <div class="kpi-label">Total change events</div>
+    <div class="kpi-value" id="kpi-total">&mdash;</div>
+    <div class="kpi-sub" id="kpi-total-sub">loading&hellip;</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-accent" style="background:var(--trpa-blue)"></div>
+    <div class="kpi-label">2023 big sweep</div>
+    <div class="kpi-value" id="kpi-2023">&mdash;</div>
+    <div class="kpi-sub" id="kpi-2023-sub">loading&hellip;</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-accent" style="background:var(--trpa-forest)"></div>
+    <div class="kpi-label">2026 big sweep</div>
+    <div class="kpi-value" id="kpi-2026">&mdash;</div>
+    <div class="kpi-sub" id="kpi-2026-sub">loading&hellip;</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-accent" style="background:var(--trpa-orange)"></div>
+    <div class="kpi-label">Canonical-vocab match</div>
+    <div class="kpi-value" id="kpi-vocab">&mdash;</div>
+    <div class="kpi-sub" id="kpi-vocab-sub">loading&hellip;</div>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="filter-bar">
+  <span class="filter-label">Reporting year</span>
+  <select id="filter-year" class="filter-select"></select>
+  <div class="filter-divider"></div>
+  <span class="filter-label">Sweep</span>
+  <select id="filter-sweep" class="filter-select"></select>
+  <div class="filter-divider"></div>
+  <span class="filter-label">Vocab</span>
+  <select id="filter-vocab" class="filter-select">
+    <option value="all">All</option>
+    <option value="canonical">Canonical only</option>
+    <option value="noncanonical">Noncanonical only</option>
+  </select>
+  <div class="filter-divider"></div>
+  <span class="filter-label">Search</span>
+  <input id="filter-search" class="filter-search" placeholder="APN, rationale, category&hellip;"/>
+  <span class="filter-count" id="filter-count">&mdash; rows</span>
+  <button class="dl-btn" onclick="downloadCSV()">&#8595; CSV</button>
+</div>
+
+<!-- Main split: grid + sidebar -->
+<div class="section">
+  <div class="split">
+    <div class="card">
+      <h3>Change events</h3>
+      <p>One row per (APN, ReportingYear) cycle with a non-zero quantity delta. <strong>Quantity_Delta</strong> is positive for adds, negative for removals.</p>
+      <div class="ag-theme-alpine">
+        <div id="grid-container"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Top correction categories</h3>
+      <p>Highlights where Ken's wording paraphrases Sheet2&rsquo;s controlled vocab &mdash; non-canonical bars are mapping candidates.</p>
+      <div id="cat-chart" style="height:480px;"></div>
+    </div>
+  </div>
+</div>
+
+<div class="footnote">
+  <strong>Data:</strong> <a href="https://raw.githubusercontent.com/trpa-agency/Reporting/MTB-Edits/data/qa_data/qa_change_events.csv" style="color:var(--trpa-blue)">qa_change_events.csv</a>
+  + <a href="https://raw.githubusercontent.com/trpa-agency/Reporting/MTB-Edits/data/qa_data/qa_correction_detail.csv" style="color:var(--trpa-blue)">qa_correction_detail.csv</a>
+  &mdash; outputs of <code>notebooks/04_load_ca_changes.ipynb</code>. Joined client-side on <code>ChangeEventID</code>. Re-run the notebook when Ken sends a new XLSX; see
+  <a href="../erd/qa_corrections_track.md" style="color:var(--trpa-blue)">erd/qa_corrections_track.md</a> for the full Track C plan.
+</div>
+
+<script>
+const TRPA = {
+  blue:'#0072CE', navy:'#003B71', earth:'#B47E00', forest:'#4A6118',
+  brick:'#9C3E27', olive:'#B5A64C', orange:'#E87722', purple:'#7B6A8A',
+  ice:'#B4CBE8',
+};
+
+const EVENTS_URL = 'https://raw.githubusercontent.com/trpa-agency/Reporting/MTB-Edits/data/qa_data/qa_change_events.csv';
+const DETAIL_URL = 'https://raw.githubusercontent.com/trpa-agency/Reporting/MTB-Edits/data/qa_data/qa_correction_detail.csv';
+
+let allRows  = [];   // joined event + detail rows
+let gridApi  = null;
+let activeFilters = { year: 'all', sweep: 'all', vocab: 'all', search: '' };
+
+// ─── Minimal CSV parser (handles quoted fields with commas) ───
+function parseCSV(text) {
+  const lines = text.split(/\r?\n/).filter(l => l.length > 0);
+  if (!lines.length) return [];
+  const headers = parseRow(lines[0]);
+  return lines.slice(1).map(line => {
+    const cells = parseRow(line);
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = cells[i] !== undefined ? cells[i] : '');
+    return obj;
+  });
+}
+function parseRow(line) {
+  const out = []; let cur = ''; let inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (inQ) {
+      if (c === '"' && line[i+1] === '"') { cur += '"'; i++; }
+      else if (c === '"') { inQ = false; }
+      else cur += c;
+    } else {
+      if (c === ',') { out.push(cur); cur = ''; }
+      else if (c === '"') { inQ = true; }
+      else cur += c;
+    }
+  }
+  out.push(cur);
+  return out;
+}
+
+// ─── Join + populate ───
+function joinAndPopulate(events, details) {
+  const detailById = {};
+  for (const d of details) detailById[d.ChangeEventID] = d;
+  allRows = events.map(e => {
+    const d = detailById[e.ChangeEventID] || {};
+    return {
+      ChangeEventID:        e.ChangeEventID,
+      RawAPN:               e.RawAPN,
+      CanonicalAPN:         e.CanonicalAPN,
+      ReportingYear:        d.ReportingYear || e.Year,
+      SweepCampaign:        d.SweepCampaign || '',
+      Quantity_Delta:       parseInt(e.Quantity_Delta, 10) || 0,
+      CorrectionCategory:   d.CorrectionCategory || '',
+      Canonical:            d.CorrectionCategoryCanonical === 'True',
+      Rationale:            e.Rationale || '',
+      RecordedBy:           e.RecordedBy || '',
+    };
+  });
+}
+
+function updateKPIs() {
+  const total = allRows.length;
+  const y23 = allRows.filter(r => String(r.ReportingYear) === '2023').length;
+  const y26 = allRows.filter(r => String(r.ReportingYear) === '2026').length;
+  const can = allRows.filter(r => r.Canonical).length;
+  const canPct = total ? (can / total * 100) : 0;
+
+  document.querySelector('#kpi-total').textContent = total.toLocaleString();
+  document.querySelector('#kpi-total-sub').textContent =
+    `${y23 + y26} from sweep campaigns; rolling-correction years populate when added`;
+
+  document.querySelector('#kpi-2023').textContent = y23.toLocaleString();
+  document.querySelector('#kpi-2023-sub').textContent = '2023_big_sweep events';
+
+  document.querySelector('#kpi-2026').textContent = y26.toLocaleString();
+  document.querySelector('#kpi-2026-sub').textContent = '2026_big_sweep events';
+
+  document.querySelector('#kpi-vocab').textContent = canPct.toFixed(1) + '%';
+  document.querySelector('#kpi-vocab-sub').textContent =
+    `${can.toLocaleString()} match Sheet2 vocab; ${(total-can).toLocaleString()} need mapping`;
+}
+
+// ─── Filter populators ───
+function uniq(arr) { return Array.from(new Set(arr)).sort(); }
+function populateFilters() {
+  const years = uniq(allRows.map(r => String(r.ReportingYear)).filter(Boolean));
+  const sweeps = uniq(allRows.map(r => r.SweepCampaign).filter(Boolean));
+  const yEl = document.querySelector('#filter-year');
+  yEl.innerHTML = '<option value="all">All</option>' + years.map(y => `<option value="${y}">${y}</option>`).join('');
+  const sEl = document.querySelector('#filter-sweep');
+  sEl.innerHTML = '<option value="all">All</option>' + sweeps.map(s => `<option value="${s}">${s}</option>`).join('');
+  yEl.onchange = () => { activeFilters.year = yEl.value; applyFilters(); };
+  sEl.onchange = () => { activeFilters.sweep = sEl.value; applyFilters(); };
+  document.querySelector('#filter-vocab').onchange = (e) => { activeFilters.vocab = e.target.value; applyFilters(); };
+  document.querySelector('#filter-search').oninput = (e) => { activeFilters.search = e.target.value.toLowerCase(); applyFilters(); };
+}
+
+function applyFilters() {
+  const f = activeFilters;
+  const filtered = allRows.filter(r => {
+    if (f.year  !== 'all' && String(r.ReportingYear) !== f.year) return false;
+    if (f.sweep !== 'all' && r.SweepCampaign !== f.sweep) return false;
+    if (f.vocab === 'canonical'    && !r.Canonical) return false;
+    if (f.vocab === 'noncanonical' && r.Canonical)  return false;
+    if (f.search) {
+      const hay = `${r.RawAPN} ${r.CanonicalAPN} ${r.CorrectionCategory} ${r.Rationale}`.toLowerCase();
+      if (!hay.includes(f.search)) return false;
+    }
+    return true;
+  });
+  if (gridApi) gridApi.setGridOption('rowData', filtered);
+  document.querySelector('#filter-count').innerHTML = `<strong>${filtered.length.toLocaleString()}</strong> rows`;
+  renderCategoryChart(filtered);
+}
+
+// ─── AG Grid ───
+function initGrid() {
+  gridApi = agGrid.createGrid(document.querySelector('#grid-container'), {
+    columnDefs: [
+      { field: 'CanonicalAPN', headerName: 'APN (canonical)', width: 150, sortable: true, filter: 'agTextColumnFilter' },
+      { field: 'RawAPN',       headerName: 'APN (raw)',       width: 130, sortable: true, filter: 'agTextColumnFilter' },
+      { field: 'ReportingYear', headerName: 'Year',           width: 80,  sortable: true, filter: 'agNumberColumnFilter' },
+      { field: 'SweepCampaign', headerName: 'Sweep',          width: 150, sortable: true, filter: 'agTextColumnFilter' },
+      { field: 'Quantity_Delta', headerName: 'Δ Units',       width: 90, sortable: true, filter: 'agNumberColumnFilter',
+        cellStyle: p => ({ color: p.value > 0 ? TRPA.forest : (p.value < 0 ? TRPA.brick : TRPA.textMid),
+                           fontWeight: '600', textAlign: 'right' }) },
+      { field: 'CorrectionCategory', headerName: 'Category', flex: 1.6, sortable: true, filter: 'agTextColumnFilter',
+        cellStyle: p => ({ color: p.data.Canonical ? TRPA.navy : TRPA.orange }) },
+      { field: 'Rationale', headerName: 'Rationale', flex: 2.2, sortable: true, filter: 'agTextColumnFilter',
+        tooltipField: 'Rationale' },
+      { field: 'RecordedBy', headerName: 'By', width: 80, sortable: true },
+    ],
+    rowData: allRows,
+    pagination: true, paginationPageSize: 50, paginationPageSizeSelector: [25, 50, 100, 250],
+    defaultColDef: { resizable: true }, animateRows: true, rowHeight: 36, headerHeight: 42,
+    enableBrowserTooltips: true,
+  });
+}
+
+// ─── Categories chart ───
+function renderCategoryChart(rows) {
+  const counts = {};
+  for (const r of rows) {
+    const k = r.CorrectionCategory || '(blank)';
+    counts[k] = (counts[k] || 0) + 1;
+  }
+  const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 12);
+  if (!sorted.length) {
+    Plotly.purge('cat-chart');
+    return;
+  }
+  const labels = sorted.map(([k]) => k.length > 60 ? k.slice(0, 57) + '…' : k);
+  const values = sorted.map(([,v]) => v);
+  // Color each bar based on canonicality of any row with that category
+  const isCanon = sorted.map(([k]) => {
+    const hit = rows.find(r => r.CorrectionCategory === k);
+    return hit ? hit.Canonical : false;
+  });
+  const colors = isCanon.map(c => c ? TRPA.navy : TRPA.orange);
+
+  Plotly.react('cat-chart', [{
+    type: 'bar', orientation: 'h',
+    x: values, y: labels, marker: { color: colors },
+    hovertemplate: '<b>%{x:,}</b> events<extra>%{y}</extra>',
+  }], {
+    font: { family: '"Open Sans", system-ui, sans-serif', color: TRPA.navy, size: 11 },
+    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+    margin: { t: 8, r: 16, b: 30, l: 280 },
+    xaxis: { gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 10 } },
+    yaxis: { autorange: 'reversed', tickfont: { size: 10 }, automargin: true },
+    showlegend: false,
+  }, { responsive: true, displayModeBar: false });
+}
+
+// ─── CSV download ───
+function downloadCSV() {
+  if (!gridApi) return;
+  const filtered = [];
+  gridApi.forEachNodeAfterFilterAndSort(n => filtered.push(n.data));
+  const headers = ['CanonicalAPN','RawAPN','ReportingYear','SweepCampaign','Quantity_Delta','CorrectionCategory','Canonical','Rationale','RecordedBy'];
+  const rows = filtered.map(r => headers.map(h => {
+    const v = r[h] == null ? '' : String(r[h]);
+    return v.includes(',') || v.includes('"') ? '"' + v.replace(/"/g, '""') + '"' : v;
+  }).join(','));
+  const csv = [headers.join(','), ...rows].join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  a.download = 'qa_change_events_filtered.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+// ─── INIT ───
+document.addEventListener('DOMContentLoaded', async () => {
+  const bar = document.querySelector('#loading-bar');
+  try {
+    if (bar) bar.style.width = '20%';
+    const [evResp, dtResp] = await Promise.all([fetch(EVENTS_URL), fetch(DETAIL_URL)]);
+    if (!evResp.ok) throw new Error('events: HTTP ' + evResp.status);
+    if (!dtResp.ok) throw new Error('details: HTTP ' + dtResp.status);
+    if (bar) bar.style.width = '60%';
+    const [evText, dtText] = await Promise.all([evResp.text(), dtResp.text()]);
+    if (bar) bar.style.width = '85%';
+    const events  = parseCSV(evText);
+    const details = parseCSV(dtText);
+    joinAndPopulate(events, details);
+    if (bar) bar.style.width = '100%';
+  } catch (e) {
+    document.querySelector('#loading-overlay').innerHTML =
+      '<div style="background:#fff;border-radius:10px;padding:32px 48px;text-align:center;font-family:Open Sans,sans-serif;">' +
+      '<strong style="color:' + TRPA.orange + ';font-size:1rem;">Error loading data</strong><br>' +
+      '<small style="color:' + TRPA.navy + ';">' + e.message + '</small></div>';
+    return;
+  }
+  document.querySelector('#loading-overlay').style.display = 'none';
+  updateKPIs();
+  populateFilters();
+  initGrid();
+  applyFilters();
+});
+</script>
+</body>
+</html>

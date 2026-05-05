@@ -12,9 +12,8 @@ buckets from TRPA Code §16.8.2:
 
 ```
 Max Regional Capacity  =  Existing + Banked + Remaining
-
+where  Remaining  =  Allocated + Not Allocated + Not Released
 ```
-Remainging = Allocated + Not Allocated + Not Released
 
 Every event (allocation, assignment, transfer, conversion, banking,
 retirement) moves commodity between those buckets. The ledger records

@@ -32,10 +32,9 @@ pip install -r requirements.txt
 | `parcel_development_history_etl/` | Full parcel-history pipeline: `main.py` + `steps/` + `scripts/` + `validation.py` |
 | `notebooks/` | Reproducible Corral-vs-XLSX diff + the transition-table build (v1 staging) |
 | `erd/` | Schema design docs + validators + Corral schema dump (published to GitHub Pages) |
-| `general/` | Legacy pre-refactor scripts + notebooks (superseded by the two `*_etl/` folders) |
 | `html/` | Static dashboards published to GitHub Pages |
 | `resources/` | Lookup tables + reference spreadsheets |
-| `utils.py` | Shared helpers imported by `general/`; also imported as local `utils` inside `parcel_development_history_etl/` (that folder has its own `utils.py`) |
+| `utils.py` | Shared helpers (imported by ad-hoc scripts; the ETL has its own `parcel_development_history_etl/utils.py`) |
 
 ## GitHub Pages
 
