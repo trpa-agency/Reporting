@@ -52,6 +52,19 @@ SERVICE_ONLY_CSV = (
     r"C:\Users\mbindl\Documents\GitHub\Reporting"
     r"\data\raw_data\apn_service_only.csv"
 )
+# Original year-built lookup (CSV form of from_ken/OriginalYrBuilt.xlsx).
+# One row per APN, single integer year. Mixed pre/post-2018 APN formats —
+# canonicalize before joining.
+ORIGINAL_YR_BUILT_CSV = (
+    r"C:\Users\mbindl\Documents\GitHub\Reporting"
+    r"\data\raw_data\original_year_built.csv"
+)
+# Output of build_2025_yrbuilt.py — PDH 2025 rows joined to OriginalYrBuilt
+# with APN-genealogy fallback for unmatched rows.
+PDH_2025_YRBUILT_CSV = (
+    r"C:\Users\mbindl\Documents\GitHub\Reporting"
+    r"\data\processed_data\PDH_2025_OriginalYrBuilt.csv"
+)
 
 # ── Parcel genealogy ───────────────────────────────────────────────────────────
 # Raw notes CSVs from the CSV author (free-text, parsed once by build_genealogy_master.py)
@@ -140,6 +153,10 @@ CSV_YEARS        = list(range(2012, 2026))   # 2012 – 2025 inclusive
 # from prior team efforts.  These years support a two-source reconciliation
 # between the CSV (coworker's latest effort) and the FC native values.
 FC_NATIVE_YEARS  = [2012] + list(range(2018, 2026))
+
+# ── Parcels FeatureService (county-source attributes incl. YEAR_BUILT) ───────
+# Used by build_2025_yrbuilt.py as a filler for OriginalYrBuilt gaps.
+PARCELS_FS = "https://maps.trpa.org/server/rest/services/Parcels/FeatureServer/0"
 
 # ── AllParcels MapServer (geometry fetch for missing parcels) ─────────────────
 ALLPARCELS_URL = "https://maps.trpa.org/server/rest/services/AllParcels/MapServer"
