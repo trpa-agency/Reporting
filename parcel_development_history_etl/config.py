@@ -83,6 +83,13 @@ BUILDINGS_INVENTORY_CSV = (
     r"C:\Users\mbindl\Documents\GitHub\Reporting"
     r"\data\processed_data\buildings_inventory_2025.csv"
 )
+# Output of build_buildings_with_units.py — per-building unit assignment
+# (sqft-weighted split of parcel units) + aggregated unit time series for the
+# development-history-units dashboard.
+BUILDINGS_WITH_UNITS_JSON = (
+    r"C:\Users\mbindl\Documents\GitHub\Reporting"
+    r"\data\processed_data\buildings_with_units.json"
+)
 
 # ── Parcel genealogy ───────────────────────────────────────────────────────────
 # Raw notes CSVs from the CSV author (free-text, parsed once by build_genealogy_master.py)

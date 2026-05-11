@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Development History &mdash; Residential Units &mdash; TRPA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+
+<!-- Plotly MUST load before ArcGIS — ArcGIS injects Dojo's AMD loader, which
+     captures Plotly's UMD wrapper and prevents window.Plotly from being set. -->
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+<!-- ArcGIS Maps SDK -->
+<link rel="stylesheet" href="https://js.arcgis.com/4.31/esri/themes/light/main.css" />
+<script src="https://js.arcgis.com/4.31/"></script>
+
+<style>
+:root {
+  --trpa-blue:    #0072CE;
+  --trpa-navy:    #003B71;
+  --trpa-earth:   #B47E00;
+  --trpa-forest:  #4A6118;
+  --trpa-brick:   #9C3E27;
+  --trpa-olive:   #B5A64C;
+  --trpa-orange:  #E87722;
+  --trpa-purple:  #7B6A8A;
+  --trpa-ice:     #B4CBE8;
+  --bg:          #f5f7fa;
+  --surface:     #ffffff;
+  --border:      #e1e7ee;
+  --text-dark:   #003B71;
+  --text-mid:    #5d6c7e;
+  --text-light:  #8a9bb2;
+  --shadow:      0 2px 16px rgba(0, 59, 113, 0.08);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text-dark); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+/* Header */
+header { background: var(--trpa-navy); color: #fff; display: flex; align-items: stretch; }
+.header-accent { width: 8px; flex-shrink: 0; background: linear-gradient(180deg, var(--trpa-forest) 0%, var(--trpa-blue) 50%, var(--trpa-orange) 100%); }
+.header-content { padding: 26px 40px 22px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex: 1; }
+.header-eyebrow { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--trpa-ice); margin-bottom: 7px; }
+header h1 { font-weight: 700; font-size: 1.85rem; line-height: 1.15; letter-spacing: -0.02em; }
+header h1 span { color: var(--trpa-blue); }
+.header-sub { font-size: 0.82rem; color: var(--trpa-ice); margin-top: 6px; opacity: 0.9; max-width: 760px; }
+.header-meta { font-size: 0.75rem; color: var(--trpa-ice); text-align: right; line-height: 1.7; opacity: 0.85; white-space: nowrap; }
+.live-badge { display: inline-block; background: var(--trpa-forest); color: #fff; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; margin-bottom: 6px; }
+
+/* KPIs */
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--surface); border-bottom: 1px solid var(--border); }
+.kpi-card { padding: 22px 28px 18px; border-right: 1px solid var(--border); position: relative; }
+.kpi-card:last-child { border-right: none; }
+.kpi-accent { position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.kpi-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); margin-bottom: 8px; }
+.kpi-value { font-size: 2.25rem; font-weight: 700; color: var(--text-dark); letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+.kpi-sub { font-size: 0.73rem; color: var(--text-mid); margin-top: 7px; line-height: 1.4; }
+
+/* Slider bar */
+.slider-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 18px 40px 20px; display: flex; gap: 22px; align-items: center; }
+.slider-bar .slider-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); }
+.slider-bar .year-display { font-size: 1.8rem; font-weight: 700; color: var(--trpa-navy); font-variant-numeric: tabular-nums; min-width: 70px; text-align: center; }
+.slider-bar .slider-track { flex: 1; position: relative; }
+.slider-bar input[type=range] { width: 100%; -webkit-appearance: none; appearance: none; background: transparent; height: 8px; }
+.slider-bar input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--trpa-forest) 0%, var(--trpa-blue) 60%, var(--trpa-orange) 100%); }
+.slider-bar input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 3px solid var(--trpa-navy); margin-top: -8px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.18); }
+.slider-bar input[type=range]::-moz-range-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--trpa-forest) 0%, var(--trpa-blue) 60%, var(--trpa-orange) 100%); }
+.slider-bar input[type=range]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 3px solid var(--trpa-navy); cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.18); }
+.slider-bar .play-btn { width: 38px; height: 38px; border-radius: 50%; border: none; background: var(--trpa-blue); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; transition: background 0.15s; }
+.slider-bar .play-btn:hover { background: var(--trpa-navy); }
+.slider-bar .year-ticks { display: flex; justify-content: space-between; margin-top: 4px; font-size: 0.65rem; color: var(--text-light); }
+
+/* Map filter toggle */
+.toggle-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 40px; display: flex; gap: 10px; align-items: center; }
+.toggle-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); margin-right: 6px; }
+.toggle-btn { padding: 6px 18px; border-radius: 4px; border: 1.5px solid var(--border); background: #fff; color: var(--text-mid); font-size: 0.8rem; font-family: inherit; cursor: pointer; transition: all 0.15s; font-weight: 600; }
+.toggle-btn:hover { border-color: var(--trpa-blue); color: var(--trpa-blue); }
+.toggle-btn.active { background: var(--trpa-navy); border-color: var(--trpa-navy); color: #fff; }
+.toggle-btn.active:hover { color: #fff; }
+
+/* Sections */
+.section { padding: 24px 40px; }
+.split { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px 24px; box-shadow: var(--shadow); }
+.card h3 { font-size: 0.95rem; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
+.card p { font-size: 0.75rem; color: var(--text-light); margin-bottom: 14px; }
+
+#map-view { width: 100%; height: 560px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+#area-chart { width: 100%; height: 280px; margin-bottom: 16px; }
+#histo-chart { width: 100%; height: 220px; }
+
+.era-legend { display: flex; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+.era-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--text-mid); }
+.era-chip .swatch { width: 12px; height: 12px; border-radius: 2px; }
+
+.footnote { padding: 12px 40px 22px; font-size: 0.72rem; color: var(--text-light); line-height: 1.6; background: var(--surface); border-top: 1px solid var(--border); }
+.footnote code { background: var(--bg); padding: 1px 5px; border-radius: 3px; font-size: 0.7rem; }
+
+@media (max-width: 1100px) { .split { grid-template-columns: 1fr; } }
+@media (max-width: 900px) {
+  .kpi-row { grid-template-columns: 1fr 1fr; }
+  .kpi-card { border-bottom: 1px solid var(--border); }
+  header .header-content, .slider-bar, .toggle-bar, .section, .footnote { padding-left: 16px; padding-right: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="header-accent"></div>
+  <div class="header-content">
+    <div>
+      <div class="header-eyebrow">Tahoe Regional Planning Agency</div>
+      <h1>Development History <span>&middot; Residential Units</span></h1>
+      <div class="header-sub">
+        Where units came online and which buildings host them.
+        Each parcel&rsquo;s units are split across its building footprints by square footage &mdash; see footnote for the
+        approximation method.
+      </div>
+    </div>
+    <div class="header-meta">
+      <div class="live-badge">2026 Cycle</div><br>
+      Source: residential_units_inventory + Buildings_2019<br>
+      Joined via parcel APN
+    </div>
+  </div>
+</header>
+
+<!-- KPIs -->
+<div class="kpi-row">
+  <div class="kpi-card">
+    <div class="kpi-accent" style="background:var(--trpa-navy)"></div>
+    <div class="kpi-label">Residential units as of year</div>
+    <div class="kpi-value" id="kpi-units">&mdash;</div>
+    <div class="kpi-sub" id="kpi-units-sub">Sum of units assigned to buildings built &le; selected year</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-accent" style="background:var(--trpa-blue)"></div>
+    <div class="kpi-label">Residential buildings</div>
+    <div class="kpi-value" id="kpi-bldgs">&mdash;</div>
+    <div class="kpi-sub" id="kpi-bldgs-sub">Buildings hosting at least one unit</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-accent" style="background:var(--trpa-orange)"></div>
+    <div class="kpi-label">Multifamily buildings</div>
+    <div class="kpi-value" id="kpi-multi">&mdash;</div>
+    <div class="kpi-sub" id="kpi-multi-sub">Buildings hosting 2 or more units</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-accent" style="background:var(--trpa-forest)"></div>
+    <div class="kpi-label">Largest building (units)</div>
+    <div class="kpi-value" id="kpi-max">&mdash;</div>
+    <div class="kpi-sub" id="kpi-max-sub">Most units on one footprint</div>
+  </div>
+</div>
+
+<!-- Year slider -->
+<div class="slider-bar">
+  <button class="play-btn" id="play-btn" title="Animate">&#9658;</button>
+  <span class="slider-label">Year</span>
+  <span class="year-display" id="year-display">2025</span>
+  <div class="slider-track">
+    <input type="range" id="year-slider" min="1900" max="2025" step="1" value="2025" />
+    <div class="year-ticks">
+      <span>1900</span><span>1925</span><span>1950</span><span>1975</span><span>1987</span><span>2000</span><span>2012</span><span>2025</span>
+    </div>
+  </div>
+</div>
+
+<!-- Map filter toggle -->
+<div class="toggle-bar">
+  <span class="toggle-label">Map filter</span>
+  <button class="toggle-btn active" id="filter-all" onclick="setMapFilter('all')">All buildings</button>
+  <button class="toggle-btn"        id="filter-res" onclick="setMapFilter('res')">Residential (&ge;1 unit)</button>
+  <button class="toggle-btn"        id="filter-multi" onclick="setMapFilter('multi')">Multifamily (&ge;2 units)</button>
+</div>
+
+<!-- Main -->
+<div class="section">
+  <div class="split">
+    <div class="card">
+      <h3>Building footprints &middot; colored by Regional Plan era</h3>
+      <p>Buildings constructed on or before the selected year. Use the filter above to show only those that host residential units.</p>
+      <div id="map-view"></div>
+    </div>
+    <div class="card">
+      <h3>Cumulative residential units</h3>
+      <p>Units assigned to buildings (sqft-weighted), by Regional Plan era. The vertical line marks the selected year.</p>
+      <div class="era-legend">
+        <span class="era-chip"><span class="swatch" style="background:var(--trpa-forest)"></span> Pre-1987 Plan</span>
+        <span class="era-chip"><span class="swatch" style="background:var(--trpa-blue)"></span> 1987 Plan</span>
+        <span class="era-chip"><span class="swatch" style="background:var(--trpa-orange)"></span> 2012 Plan</span>
+      </div>
+      <div id="area-chart"></div>
+      <h3 style="margin-top:8px;">Units per building (distribution)</h3>
+      <p>How many residential buildings host 1, 2, 3, 4+ units as of the selected year.</p>
+      <div id="histo-chart"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Footnote -->
+<div class="footnote">
+  <strong>Method:</strong> the residential units inventory holds unit counts at the <em>parcel</em> level, but Buildings_2019 has no per-building unit count.
+  We split each parcel&rsquo;s units across its footprints in proportion to <code>Square_Feet</code>, rounding via Hamilton&rsquo;s largest-remainder method so each parcel&rsquo;s
+  units total stays exact. A 3-unit parcel with two buildings (1,500 sqft + 500 sqft) gets <strong>2&ndash;1</strong>. A 4-plex parcel with one building gets all 4 on
+  that building. <strong>Caveats:</strong> assumes unit density scales with footprint area (not always true for ADUs vs main residences); ignores subterranean / multi-story differences.
+  Parcels with units but no Buildings_2019 footprint (post-2019 construction) contribute to the unit inventory but not to this map.
+  <br><br>
+  <strong>Data:</strong> joined offline by
+  <code>parcel_development_history_etl/scripts/build_buildings_with_units.py</code>;
+  see <a href="../erd/inventory_tables_erd.md" style="color:var(--trpa-blue);">inventory_tables_erd.md</a> for the table schemas.
+  Map layer: <a href="https://services5.arcgis.com/fXXSUzHD5JjcOt1v/arcgis/rest/services/Tahoe_Buildings/FeatureServer/0"
+     style="color:var(--trpa-blue);">Tahoe Buildings FeatureServer</a>.
+</div>
+
+<script>
+// ─────────────────────────────────────────
+// Brand color tokens + constants
+// ─────────────────────────────────────────
+const TRPA = {
+  blue:   '#0072CE', navy: '#003B71', forest: '#4A6118',
+  orange: '#E87722', ice: '#B4CBE8', gray: '#cbd5e0',
+};
+
+const MIN_YEAR = 1900;
+const MAX_YEAR = 2025;
+
+const BUILDINGS_URL = 'https://services5.arcgis.com/fXXSUzHD5JjcOt1v/arcgis/rest/services/Tahoe_Buildings/FeatureServer/0';
+const DATA_URL      = '../data/processed_data/buildings_with_units.json';
+
+// ─────────────────────────────────────────
+// State
+// ─────────────────────────────────────────
+let currentYear   = MAX_YEAR;
+let dataset       = null;     // { meta, buildings:[...], by_year_era:[...] }
+let buildingLayer = null;
+let mapFilter     = 'all';
+let playing       = false;
+let playTimer     = null;
+
+// ─────────────────────────────────────────
+// Load the pre-computed JSON
+// ─────────────────────────────────────────
+async function fetchDataset() {
+  const r = await fetch(DATA_URL);
+  if (!r.ok) throw new Error(`Failed to fetch ${DATA_URL}: ${r.status}`);
+  return await r.json();
+}
+
+// ─────────────────────────────────────────
+// Plotly: stacked-area cumulative units by era
+// ─────────────────────────────────────────
+function drawAreaChart(yearIdx) {
+  const rows = dataset.by_year_era;
+  const x   = rows.map(d => d.year);
+  const pre = rows.map(d => d.cum_units_pre87);
+  const p87 = rows.map(d => d.cum_units_p87);
+  const p12 = rows.map(d => d.cum_units_p12);
+  const highlight = rows[yearIdx].year;
+  const traces = [
+    { x, y: pre, name: 'Pre-1987 Plan', type: 'scatter', mode: 'none', stackgroup: 'one',
+      fillcolor: TRPA.forest, hovertemplate: 'Pre-1987 Plan: %{y:,}<extra></extra>' },
+    { x, y: p87, name: '1987 Plan',     type: 'scatter', mode: 'none', stackgroup: 'one',
+      fillcolor: TRPA.blue,   hovertemplate: '1987 Plan: %{y:,}<extra></extra>' },
+    { x, y: p12, name: '2012 Plan',     type: 'scatter', mode: 'none', stackgroup: 'one',
+      fillcolor: TRPA.orange, hovertemplate: '2012 Plan: %{y:,}<extra></extra>' },
+  ];
+  const layout = {
+    font: { family: 'Open Sans, system-ui, sans-serif', color: TRPA.navy, size: 12 },
+    paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
+    margin: { t: 10, r: 18, b: 36, l: 56 },
+    xaxis: { gridcolor: '#eef1f6', linecolor: '#d8dde6', range: [MIN_YEAR, MAX_YEAR] },
+    yaxis: { gridcolor: '#eef1f6', linecolor: '#d8dde6', title: { text: 'Cumulative units', font: { size: 11 } }, tickformat: ',' },
+    showlegend: false,
+    shapes: [{ type: 'line', xref: 'x', yref: 'paper',
+        x0: highlight, x1: highlight, y0: 0, y1: 1,
+        line: { color: TRPA.navy, width: 2, dash: 'dot' } }],
+    annotations: [{ xref: 'x', yref: 'paper', x: highlight, y: 1.02,
+        text: `<b>${highlight}</b>`, showarrow: false,
+        font: { color: TRPA.navy, size: 11 } }]
+  };
+  Plotly.react('area-chart', traces, layout, { responsive: true, displayModeBar: false });
+}
+
+// ─────────────────────────────────────────
+// Plotly: units-per-building histogram for the selected year
+// ─────────────────────────────────────────
+function drawHistoChart(year) {
+  // Bucket the buildings: each building's "year" is its parcel's earliest
+  // structure year, so we filter by year ≤ slider.
+  const buckets = { '1': 0, '2': 0, '3': 0, '4+': 0 };
+  for (const b of dataset.buildings) {
+    if (b.units_assigned < 1) continue;
+    if (b.year == null || b.year > year) continue;
+    const u = b.units_assigned;
+    if (u === 1)      buckets['1']++;
+    else if (u === 2) buckets['2']++;
+    else if (u === 3) buckets['3']++;
+    else              buckets['4+']++;
+  }
+  const cats = ['1', '2', '3', '4+'];
+  const colors = [TRPA.blue, TRPA.navy, TRPA.orange, TRPA.forest];
+  const trace = {
+    x: cats,
+    y: cats.map(c => buckets[c]),
+    type: 'bar',
+    marker: { color: colors },
+    text: cats.map(c => buckets[c].toLocaleString()),
+    textposition: 'outside',
+    hovertemplate: '%{x} unit(s): %{y:,} buildings<extra></extra>'
+  };
+  const layout = {
+    font: { family: 'Open Sans, system-ui, sans-serif', color: TRPA.navy, size: 12 },
+    paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
+    margin: { t: 16, r: 18, b: 36, l: 56 },
+    xaxis: { title: { text: 'Units per building', font: { size: 11 } } },
+    yaxis: { gridcolor: '#eef1f6', linecolor: '#d8dde6', tickformat: ',' },
+    bargap: 0.3
+  };
+  Plotly.react('histo-chart', [trace], layout, { responsive: true, displayModeBar: false });
+}
+
+// ─────────────────────────────────────────
+// KPI updates
+// ─────────────────────────────────────────
+function updateKpis(year) {
+  // Walk buildings once for residential-building stats (excludes non-residential)
+  let cum_units = 0, res_bldgs = 0, multi = 0, max_units = 0;
+  for (const b of dataset.buildings) {
+    if (b.units_assigned >= 1 && b.year != null && b.year <= year) {
+      cum_units += b.units_assigned;
+      res_bldgs++;
+      if (b.units_assigned >= 2) multi++;
+      if (b.units_assigned > max_units) max_units = b.units_assigned;
+    }
+  }
+
+  const fmt = n => n.toLocaleString();
+  document.getElementById('kpi-units').textContent = fmt(cum_units);
+  document.getElementById('kpi-bldgs').textContent = fmt(res_bldgs);
+  document.getElementById('kpi-multi').textContent = fmt(multi);
+  document.getElementById('kpi-max').textContent   = fmt(max_units);
+
+  const avg = res_bldgs > 0 ? (cum_units / res_bldgs).toFixed(2) : '—';
+  document.getElementById('kpi-units-sub').textContent =
+    `Avg ${avg} units per residential building`;
+  document.getElementById('kpi-bldgs-sub').textContent =
+    `${(100 * multi / Math.max(res_bldgs,1)).toFixed(1)} percent are multifamily`;
+}
+
+// ─────────────────────────────────────────
+// ArcGIS map + year-era renderer (matches the buildings dashboard pattern)
+// ─────────────────────────────────────────
+function makeRenderer(year) {
+  return {
+    type: 'simple',
+    symbol: { type: 'simple-fill', color: [80, 80, 80, 0.85],
+              outline: { color: [255,255,255,0.4], width: 0.25 } },
+    visualVariables: [
+      { type: 'opacity', field: 'YEAR_BUILT',
+        stops: [
+          { value: 1800,        opacity: 0.95 },
+          { value: year,        opacity: 0.95 },
+          { value: year + 0.5,  opacity: 0   },
+          { value: 2100,        opacity: 0   }
+        ] },
+      { type: 'color', field: 'YEAR_BUILT',
+        stops: [
+          { value: 1900, color: TRPA.forest },
+          { value: 1987, color: TRPA.forest },
+          { value: 1988, color: TRPA.blue   },
+          { value: 2011, color: TRPA.blue   },
+          { value: 2012, color: TRPA.orange },
+          { value: 2025, color: TRPA.orange }
+        ] }
+    ]
+  };
+}
+
+// ─────────────────────────────────────────
+// Map filter — Residential / Multifamily based on building IDs from dataset
+// ─────────────────────────────────────────
+function buildFilterExpression(mode) {
+  if (mode === 'all') return 'YEAR_BUILT > 0';
+  const ids = dataset.buildings
+    .filter(b => mode === 'multi' ? b.units_assigned >= 2 : b.units_assigned >= 1)
+    .map(b => b.id);
+  // FeatureLayer accepts long IN clauses; for ~35K IDs the query URL gets big
+  // but ArcGIS handles it via POST under the hood. If the layer pushes back,
+  // chunking could be added.
+  if (!ids.length) return '1=0';
+  return `OBJECTID IN (${ids.join(',')})`;
+}
+
+function setMapFilter(mode) {
+  mapFilter = mode;
+  document.querySelectorAll('.toggle-bar .toggle-btn').forEach(btn => btn.classList.remove('active'));
+  document.getElementById('filter-' + mode).classList.add('active');
+  if (buildingLayer) {
+    buildingLayer.definitionExpression = buildFilterExpression(mode);
+  }
+}
+
+function initMap() {
+  return new Promise(resolve => {
+    require([
+      'esri/Map', 'esri/views/MapView',
+      'esri/layers/FeatureLayer',
+      'esri/widgets/Home', 'esri/widgets/Fullscreen'
+    ], (Map, MapView, FeatureLayer, Home, Fullscreen) => {
+      buildingLayer = new FeatureLayer({
+        url: BUILDINGS_URL,
+        definitionExpression: 'YEAR_BUILT > 0',
+        title: 'Building Footprints',
+        renderer: makeRenderer(currentYear),
+        popupTemplate: {
+          title: 'Building footprint',
+          content: [{ type: 'fields', fieldInfos: [
+            { fieldName: 'YEAR_BUILT',    label: 'Year built' },
+            { fieldName: 'APN',           label: 'APN' },
+            { fieldName: 'BUILDING_SQFT', label: 'Building sqft', format: { digitSeparator: true, places: 0 } }
+          ] }]
+        }
+      });
+      const map = new Map({ basemap: 'gray-vector', layers: [buildingLayer] });
+      const view = new MapView({ container: 'map-view', map, center: [-120.04, 39.09], zoom: 10 });
+      view.ui.add(new Home({ view }), 'top-left');
+      view.ui.add(new Fullscreen({ view }), 'top-right');
+      view.when(() => resolve(view));
+    });
+  });
+}
+
+// ─────────────────────────────────────────
+// Year change handler
+// ─────────────────────────────────────────
+function setYear(y) {
+  currentYear = y;
+  document.getElementById('year-display').textContent = y;
+  document.getElementById('year-slider').value = y;
+  if (buildingLayer) buildingLayer.renderer = makeRenderer(y);
+  if (dataset) {
+    drawAreaChart(y - MIN_YEAR);
+    drawHistoChart(y);
+    updateKpis(y);
+  }
+}
+
+// ─────────────────────────────────────────
+// Animation
+// ─────────────────────────────────────────
+function togglePlay() {
+  playing = !playing;
+  const btn = document.getElementById('play-btn');
+  btn.innerHTML = playing ? '&#10074;&#10074;' : '&#9658;';
+  if (playing) {
+    if (currentYear >= MAX_YEAR) setYear(MIN_YEAR);
+    playTimer = setInterval(() => {
+      if (currentYear >= MAX_YEAR) { togglePlay(); return; }
+      setYear(currentYear + 1);
+    }, 90);
+  } else {
+    clearInterval(playTimer);
+  }
+}
+
+// ─────────────────────────────────────────
+// Init
+// ─────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+  document.getElementById('year-slider').addEventListener('input', e => {
+    if (playing) togglePlay();
+    setYear(parseInt(e.target.value, 10));
+  });
+  document.getElementById('play-btn').addEventListener('click', togglePlay);
+
+  try {
+    const [_, data] = await Promise.all([initMap(), fetchDataset()]);
+    dataset = data;
+  } catch (e) {
+    console.error('Init failed:', e);
+    return;
+  }
+  setYear(MAX_YEAR);
+});
+</script>
+
+</body>
+</html>

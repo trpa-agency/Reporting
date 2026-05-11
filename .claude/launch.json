@@ -4,7 +4,7 @@
     {
       "name": "html-static",
       "runtimeExecutable": "C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/python.exe",
-      "runtimeArgs": ["-m", "http.server", "8123", "--directory", "html"],
+      "runtimeArgs": ["-m", "http.server", "8123"],
       "port": 8123
     }
   ]
