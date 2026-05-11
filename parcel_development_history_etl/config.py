@@ -65,6 +65,31 @@ PDH_2025_YRBUILT_CSV = (
     r"C:\Users\mbindl\Documents\GitHub\Reporting"
     r"\data\processed_data\PDH_2025_OriginalYrBuilt.csv"
 )
+# Output of build_residential_units_inventory.py — one row per current
+# (2025) residential unit in Tahoe.
+RESIDENTIAL_UNITS_INVENTORY_CSV = (
+    r"C:\Users\mbindl\Documents\GitHub\Reporting"
+    r"\data\processed_data\residential_units_inventory_2025.csv"
+)
+# 2025 Transactions and Allocations Details (from Ken / TRPA permit system).
+# Per-APN TransactionID + allocation metadata. Sourced from the 2025
+# cumulative-accounting cycle.
+TRANSACTIONS_2025_XLSX = (
+    r"C:\Users\mbindl\Documents\GitHub\Reporting"
+    r"\data\raw_data\2025 Transactions and Allocations Details.xlsx"
+)
+# Output of build_buildings_inventory.py — one row per Buildings_2019 footprint.
+BUILDINGS_INVENTORY_CSV = (
+    r"C:\Users\mbindl\Documents\GitHub\Reporting"
+    r"\data\processed_data\buildings_inventory_2025.csv"
+)
+# Output of build_buildings_with_units.py — per-building unit assignment
+# (sqft-weighted split of parcel units) + aggregated unit time series for the
+# development-history-units dashboard.
+BUILDINGS_WITH_UNITS_JSON = (
+    r"C:\Users\mbindl\Documents\GitHub\Reporting"
+    r"\data\processed_data\buildings_with_units.json"
+)
 
 # ── Parcel genealogy ───────────────────────────────────────────────────────────
 # Raw notes CSVs from the CSV author (free-text, parsed once by build_genealogy_master.py)
