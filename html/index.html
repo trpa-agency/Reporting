@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TRPA Dashboards &mdash; Cumulative Accounting</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --trpa-blue:    #0072CE;
+  --trpa-navy:    #003B71;
+  --trpa-earth:   #B47E00;
+  --trpa-forest:  #4A6118;
+  --trpa-brick:   #9C3E27;
+  --trpa-olive:   #B5A64C;
+  --trpa-orange:  #E87722;
+  --trpa-purple:  #7B6A8A;
+  --trpa-ice:     #B4CBE8;
+  --bg:          #f5f7fa;
+  --surface:     #ffffff;
+  --border:      #e1e7ee;
+  --text-dark:   #003B71;
+  --text-mid:    #5d6c7e;
+  --text-light:  #8a9bb2;
+  --shadow:      0 2px 16px rgba(0, 59, 113, 0.08);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text-dark);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--trpa-blue); }
+code { background: var(--bg); padding: 1px 6px; border-radius: 3px; font-size: 0.88em; font-family: 'Consolas', monospace; }
+
+header { background: var(--trpa-navy); color: #fff; display: flex; align-items: stretch; }
+.header-accent { width: 8px; flex-shrink: 0; background: linear-gradient(180deg, var(--trpa-forest) 0%, var(--trpa-blue) 50%, var(--trpa-orange) 100%); }
+.header-content { padding: 28px 40px 24px; flex: 1; }
+.eyebrow { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--trpa-ice); margin-bottom: 6px; }
+h1 { font-weight: 700; font-size: 1.95rem; line-height: 1.15; letter-spacing: -0.02em; }
+h1 span { color: var(--trpa-blue); }
+.subtitle { font-size: 0.86rem; color: var(--trpa-ice); margin-top: 8px; opacity: 0.92; max-width: 760px; }
+
+.section { padding: 28px 40px 12px; max-width: 1280px; }
+h2 { font-size: 1.4rem; font-weight: 700; color: var(--trpa-navy); margin: 28px 0 8px; padding-top: 6px; }
+h2 .tag { display: inline-block; background: var(--trpa-blue); color: #fff; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 3px; vertical-align: middle; margin-left: 8px; }
+h3 { font-size: 1rem; font-weight: 600; color: var(--trpa-navy); margin: 14px 0 6px; }
+.tagline { font-size: 0.9rem; color: var(--text-mid); margin-bottom: 12px; font-style: italic; }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 16px; margin-bottom: 12px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 18px 22px 16px; box-shadow: var(--shadow); position: relative; }
+.card.primary { border-left: 4px solid var(--trpa-blue); }
+.card .name { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.card .name a { font-size: 1.05rem; font-weight: 700; color: var(--trpa-navy); text-decoration: none; }
+.card .name a:hover { color: var(--trpa-blue); text-decoration: underline; }
+.card .name .star { color: var(--trpa-orange); font-size: 0.85rem; }
+.card .meta { font-size: 0.74rem; color: var(--text-light); margin-bottom: 8px; display: flex; gap: 12px; flex-wrap: wrap; }
+.card .meta strong { color: var(--text-mid); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.62rem; }
+.card .desc { font-size: 0.85rem; color: var(--text-mid); margin: 6px 0 8px; }
+.card .src { font-size: 0.72rem; color: var(--text-light); font-style: italic; }
+.card .src code { font-size: 0.78em; }
+
+.archived-card { opacity: 0.6; border-style: dashed; }
+.archived-card .name a { color: var(--text-mid); }
+
+table { width: 100%; border-collapse: collapse; margin: 8px 0 18px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; box-shadow: var(--shadow); }
+th { background: var(--trpa-navy); color: #fff; font-weight: 600; text-align: left; padding: 8px 12px; font-size: 0.78rem; letter-spacing: 0.04em; }
+td { padding: 8px 12px; border-top: 1px solid var(--border); font-size: 0.82rem; vertical-align: top; }
+td code { font-size: 0.78em; }
+tr:nth-child(even) td { background: #fafbfd; }
+
+pre { background: var(--trpa-navy); color: #d9e6f3; padding: 14px 18px; border-radius: 6px; overflow-x: auto; font-family: 'Consolas', monospace; font-size: 0.78rem; line-height: 1.45; margin: 8px 0 18px; }
+pre code { background: none; color: inherit; padding: 0; }
+
+.intro { background: var(--surface); border-radius: 8px; padding: 14px 20px; box-shadow: var(--shadow); margin-bottom: 8px; font-size: 0.9rem; color: var(--text-mid); }
+.intro strong { color: var(--text-dark); }
+
+footer { padding: 16px 40px 28px; font-size: 0.72rem; color: var(--text-light); border-top: 1px solid var(--border); background: var(--surface); margin-top: 24px; }
+
+@media (max-width: 720px) {
+  .header-content, .section, footer { padding-left: 18px; padding-right: 18px; }
+  .cards { grid-template-columns: 1fr; }
+  h1 { font-size: 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-accent"></div>
+  <div class="header-content">
+    <div class="eyebrow">Tahoe Regional Planning Agency</div>
+    <h1>Cumulative Accounting <span>Dashboards</span></h1>
+    <div class="subtitle">
+      Single-file HTML pages for the TRPA annual cumulative-accounting cycle. Organized by Dan&rsquo;s four conceptual tracks (5/11/2026).
+    </div>
+  </div>
+</header>
+
+<div class="section">
+  <div class="intro">
+    <strong>Active set:</strong> 8 dashboards (&starf; marks the primary view in each track).
+    Source markdown: <a href="https://github.com/trpa-agency/Reporting/blob/MTB-Edits/html/index.md">index.md</a> &middot;
+    Repo: <a href="https://github.com/trpa-agency/Reporting">trpa-agency/Reporting</a>
+  </div>
+
+  <h2>1 &middot; Allocation tracking</h2>
+  <p class="tagline">Where every residential allocation sits. Three pool states: <strong>TRPA pool &middot; Jurisdiction pool &middot; Private development pool.</strong></p>
+  <div class="cards">
+
+    <div class="card primary">
+      <div class="name">
+        <a href="https://trpa-agency.github.io/Reporting/html/allocation-tracking.html">allocation-tracking.html</a>
+        <span class="star">&starf;</span>
+      </div>
+      <div class="meta"><span><strong>Audience</strong> Staff &middot; daily ops</span></div>
+      <div class="desc">Sankey + bar + map + AG Grid table; type switcher RES / CFA / TAU; year slider; jurisdiction pills. The most feature-complete page.</div>
+      <div class="src">Data: <code>data/raw_data/residentialAllocationGridExport.csv</code> (one row per allocation, 2,600 total)</div>
+    </div>
+
+    <div class="card">
+      <div class="name"><a href="https://trpa-agency.github.io/Reporting/html/pool-balance-cards.html">pool-balance-cards.html</a></div>
+      <div class="meta"><span><strong>Audience</strong> Staff &middot; per-pool drilldown</span></div>
+      <div class="desc">Daily-use staff view. One card per residential allocation pool with current remaining, % drawn, and trajectory since 2013.</div>
+      <div class="src">Data: Ken&rsquo;s <code>Additional Development as of April2026.xlsx</code> LT Info Pools Balances sheet</div>
+    </div>
+
+    <div class="card">
+      <div class="name"><a href="https://trpa-agency.github.io/Reporting/html/public-allocation-availability.html">public-allocation-availability.html</a></div>
+      <div class="meta"><span><strong>Audience</strong> Public</span></div>
+      <div class="desc">Public-facing slice of the pool-balance dashboard. How many residential allocations remain in each Lake Tahoe Basin jurisdiction.</div>
+      <div class="src">Data: same as pool-balance-cards</div>
+    </div>
+
+  </div>
+
+  <h2>2 &middot; Source of rights</h2>
+  <p class="tagline">Where each year&rsquo;s added units came from. Categories: Pre-1987 / 1987 RP / 2012 RP / Banked / Conversion.</p>
+  <div class="cards">
+
+    <div class="card primary">
+      <div class="name">
+        <a href="https://trpa-agency.github.io/Reporting/html/residential-additions-by-source.html">residential-additions-by-source.html</a>
+        <span class="star">&starf;</span>
+      </div>
+      <div class="meta"><span><strong>Audience</strong> Leadership &middot; public</span></div>
+      <div class="desc">Yearly added residential units by source, four toggle modes: <em>Lines &middot; Stacked area &middot; Stacked % &middot; Facet</em> (one chart per source).</div>
+      <div class="src">Data: Ken&rsquo;s <code>FINAL RES SUMMARY 2012 to 2025.xlsx</code> Summary sheet</div>
+    </div>
+
+  </div>
+
+  <h2>3 &middot; Total potential development</h2>
+  <p class="tagline">Constructed + Banked + Converted + still in pools. The full pipeline.</p>
+  <div class="intro" style="font-style:italic">No standalone dashboard yet &mdash; coverage split across #1 and #4. Building out post-ESA collab in June.</div>
+
+  <h2>4 &middot; Total development tracking</h2>
+  <p class="tagline">How much of everything is actually built. Combines headline caps with live state breakdown.</p>
+  <div class="cards">
+
+    <div class="card primary">
+      <div class="name">
+        <a href="https://trpa-agency.github.io/Reporting/html/regional-capacity-dial.html">regional-capacity-dial.html</a>
+        <span class="star">&starf;</span>
+      </div>
+      <div class="meta"><span><strong>Audience</strong> Executive &middot; board</span></div>
+      <div class="desc">
+        4 since-1987 gauges (Residential / RBU / TBU / CFA), capacity utilization bar,
+        2012 Plan additional 4-card grid (Constructed 681 / Private dev pool 151 / Jurisdiction pool 844 / TRPA pool 924 = 2,600),
+        completed-by-source 7-card breakdown (1,431 total), annual residential construction stacked area (2009&ndash;2026).
+      </div>
+      <div class="src">Data: Ken&rsquo;s 2026 PPTX slide 8 + <code>residentialAllocationGridExport.csv</code> + <code>residential_transactions_summary.json</code></div>
+    </div>
+
+  </div>
+
+  <h2>Companion views</h2>
+  <p class="tagline">Broader development context &mdash; not strictly cumulative accounting, but reads against it.</p>
+  <div class="cards">
+
+    <div class="card">
+      <div class="name"><a href="https://trpa-agency.github.io/Reporting/html/development_history.html">development_history.html</a></div>
+      <div class="meta"><span><strong>Audience</strong> Planners &middot; analysts</span></div>
+      <div class="desc">Live map of every building footprint in the Basin, colored by Regional Plan era. Year slider 1900&ndash;2025 with play/pause animation; cumulative buildings stacked area; per-year construction histogram.</div>
+      <div class="src">Data: live <a href="https://services5.arcgis.com/fXXSUzHD5JjcOt1v/arcgis/rest/services/Tahoe_Buildings/FeatureServer/0">Tahoe Buildings FeatureServer</a></div>
+    </div>
+
+    <div class="card">
+      <div class="name"><a href="https://trpa-agency.github.io/Reporting/html/development_history_units.html">development_history_units.html</a></div>
+      <div class="meta"><span><strong>Audience</strong> Housing analysts</span></div>
+      <div class="desc">Companion to buildings dashboard, pivoted to <strong>residential units</strong>. Each parcel&rsquo;s units split across its building footprints by sqft (Hamilton&rsquo;s largest-remainder method). Map filter: All / Residential / Multifamily.</div>
+      <div class="src">Data: Tahoe Buildings + <code>data/processed_data/buildings_with_units.json</code></div>
+    </div>
+
+    <div class="card">
+      <div class="name"><a href="https://trpa-agency.github.io/Reporting/html/qa-change-rationale.html">qa-change-rationale.html</a></div>
+      <div class="meta"><span><strong>Audience</strong> Ken &middot; Dan &middot; QA leads</span></div>
+      <div class="desc">Per-APN audit log of 2023 / 2026 QA correction campaigns. Searchable by APN, change type, year.</div>
+      <div class="src">Data: <code>qa_change_events.csv</code> from <code>notebooks/04_load_ca_changes.ipynb</code></div>
+    </div>
+
+  </div>
+
+  <h2>Archived <span class="tag" style="background:var(--text-light)">2026-05-11</span></h2>
+  <p class="tagline">Superseded by newer dashboards. Kept for link stability; not in the active set above.</p>
+  <div class="cards">
+
+    <div class="card archived-card">
+      <div class="name"><a href="https://trpa-agency.github.io/Reporting/html/_archive/residential-allocations-dashboard.html">_archive/residential-allocations-dashboard.html</a></div>
+      <div class="meta"><span><strong>Superseded by</strong> <code>allocation-tracking.html</code></span></div>
+    </div>
+
+    <div class="card archived-card">
+      <div class="name"><a href="https://trpa-agency.github.io/Reporting/html/_archive/allocation_drawdown.html">_archive/allocation_drawdown.html</a></div>
+      <div class="meta"><span><strong>Superseded by</strong> <code>allocation-tracking.html</code> (year slider) + <code>pool-balance-cards.html</code></span></div>
+    </div>
+
+  </div>
+
+  <h2>Data sources at a glance</h2>
+  <table>
+    <thead><tr><th style="width: 38%">Source</th><th>Used by</th></tr></thead>
+    <tbody>
+      <tr><td><code>residentialAllocationGridExport_fromKen.xlsx</code> &rarr; CSV (one row per allocation, 2,600 rows, 11 cols incl. Construction Status)</td><td>allocation-tracking &middot; regional-capacity-dial (live cards)</td></tr>
+      <tr><td><code>Additional Development as of April2026.xlsx</code></td><td>pool-balance-cards &middot; public-allocation-availability &middot; regional-capacity-dial (gauges)</td></tr>
+      <tr><td><code>FINAL RES SUMMARY 2012 to 2025.xlsx</code></td><td>residential-additions-by-source</td></tr>
+      <tr><td><code>CA Changes breakdown.xlsx</code> (via <code>04_load_ca_changes.ipynb</code>)</td><td>qa-change-rationale</td></tr>
+      <tr><td><code>2025 Transactions and Allocations Details.xlsx</code> &rarr; summary JSON</td><td>regional-capacity-dial (source-of-rights + annual construction) &middot; residential_units_inventory (downstream)</td></tr>
+      <tr><td>Tahoe Buildings FeatureServer (AGOL)</td><td>development_history &middot; development_history_units</td></tr>
+      <tr><td>TRPA ArcGIS REST</td><td>allocation-tracking (map tab)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Refresh commands</h3>
+  <p>When Ken sends a refreshed xlsx, drop it in <code>data/raw_data/</code> and run the matching converter. All dashboards <code>fetch(..., {cache: 'no-cache'})</code> so reloads pick up new data immediately.</p>
+  <pre><code># Set up alias once
+PY="C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/python.exe"
+
+# Per-allocation grid &rarr; CSV (allocation-tracking + regional-capacity-dial cards)
+PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/convert_allocation_grid.py
+
+# Transactions summary &rarr; JSON (regional-capacity-dial source-of-rights + annual chart)
+PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/convert_transactions_summary.py
+
+# Buildings &times; units join &rarr; JSON (development_history_units)
+PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/build_buildings_with_units.py</code></pre>
+
+  <h2>Tech stack</h2>
+  <ul style="font-size: 0.88rem; line-height: 1.7; padding-left: 22px; margin-bottom: 12px;">
+    <li><strong>Plotly.js</strong> (charts) &mdash; load <strong>before</strong> ArcGIS; Dojo&rsquo;s AMD loader captures Plotly&rsquo;s UMD wrapper otherwise</li>
+    <li><strong>ArcGIS Maps SDK 4.31</strong> (maps, where needed)</li>
+    <li><strong>AG Grid Community</strong> (sortable / filterable tables)</li>
+    <li><strong>Open Sans</strong> + TRPA brand tokens (<code>--trpa-blue #0072CE</code>, <code>--trpa-navy #003B71</code>, <code>--trpa-orange #E87722</code>, <code>--trpa-forest #4A6118</code>)</li>
+  </ul>
+
+</div>
+
+<footer>
+  Base URL pattern: <code>https://trpa-agency.github.io/Reporting/html/&lt;filename&gt;</code> &middot;
+  Local preview: from the repo root, <code>python -m http.server 8123</code> then <code>http://localhost:8123/html/&lt;filename&gt;</code> &middot;
+  Source: <a href="https://github.com/trpa-agency/Reporting/tree/MTB-Edits/html">trpa-agency/Reporting on GitHub</a>
+</footer>
+
+</body>
+</html>
