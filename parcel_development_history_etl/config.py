@@ -96,6 +96,14 @@ RESIDENTIAL_TRANSACTIONS_SUMMARY_JSON = (
     r"C:\Users\mbindl\Documents\GitHub\Reporting"
     r"\data\processed_data\residential_transactions_summary.json"
 )
+# Many-to-many junction table: one row per (Residential_Unit_ID, Transaction_ID)
+# pair. Captures the chronology of transactions affecting each unit and
+# carries the transaction metadata inline so the table is self-sufficient
+# for analysis.
+RESIDENTIAL_UNIT_TRANSACTIONS_CSV = (
+    r"C:\Users\mbindl\Documents\GitHub\Reporting"
+    r"\data\processed_data\residential_unit_transactions.csv"
+)
 # Output of build_buildings_inventory.py — one row per Buildings_2019 footprint.
 BUILDINGS_INVENTORY_CSV = (
     r"C:\Users\mbindl\Documents\GitHub\Reporting"

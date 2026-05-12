@@ -25,10 +25,13 @@ Buildings_2019 FC ──┐
 PDH 2025 (LARGEST_OVERLAP) ──► APN + parcel context ─┘
 ```
 
-Sources by script:
-- [`build_2025_yrbuilt.py`](../parcel_development_history_etl/scripts/build_2025_yrbuilt.py) → `PDH_2025_OriginalYrBuilt.csv`
-- [`build_residential_units_inventory.py`](../parcel_development_history_etl/scripts/build_residential_units_inventory.py) → `residential_units_inventory_2025.csv`
-- [`build_buildings_inventory.py`](../parcel_development_history_etl/scripts/build_buildings_inventory.py) → `buildings_inventory_2025.csv`
+Sources by script — **run in this order** (the buildings ↔ units assignment requires this DAG):
+1. [`build_2025_yrbuilt.py`](../parcel_development_history_etl/scripts/build_2025_yrbuilt.py) → `PDH_2025_OriginalYrBuilt.csv`
+2. [`build_buildings_inventory.py`](../parcel_development_history_etl/scripts/build_buildings_inventory.py) → `buildings_inventory_2025.csv` *(first pass — `Units_Assigned` null)*
+3. [`build_buildings_with_units.py`](../parcel_development_history_etl/scripts/build_buildings_with_units.py) → `buildings_with_units.json` *(sqft-weighted unit-to-building assignment)*
+4. [`build_buildings_inventory.py`](../parcel_development_history_etl/scripts/build_buildings_inventory.py) → `buildings_inventory_2025.csv` *(second pass — backfills `Units_Assigned`)*
+5. [`build_residential_units_inventory.py`](../parcel_development_history_etl/scripts/build_residential_units_inventory.py) → `residential_units_inventory_2025.csv`
+6. [`build_unit_transaction_relations.py`](../parcel_development_history_etl/scripts/build_unit_transaction_relations.py) → `residential_unit_transactions.csv` (junction)
 
 ---
 
@@ -39,8 +42,9 @@ erDiagram
     Parcel2025 ||--o{ ResidentialUnit : "explodes_into_units"
     Parcel2025 ||--o{ Building        : "contains_footprints"
     Parcel2025 }o--o{ GenealogyEvent  : "has_predecessors"
-    Parcel2025 }o--o{ Transaction     : "matched_by_APN"
-    ResidentialUnit }o--o{ Building   : "Building_IDs_concat"
+    ResidentialUnit ||--o{ UnitTransaction : "has_chronology"
+    UnitTransaction }o--|| Transaction : "references"
+    Building ||--o{ ResidentialUnit   : "hosts"
 
     Parcel2025 {
         string APN_canon PK
@@ -70,10 +74,35 @@ erDiagram
         string Pool
         string Transaction_ID
         string Permit_Number
-        string Building_IDs
+        int Building_ID FK
         string Address
         string COUNTY
         string JURISDICTION
+    }
+
+    UnitTransaction {
+        string Relation_ID PK
+        string Residential_Unit_ID FK
+        string APN_canon
+        string Transaction_ID FK
+        int Sequence
+        bool Is_Latest
+        string Transaction_Type
+        string Development_Type
+        string Detailed_Development_Type
+        string Allocation_Number
+        int Quantity
+        date Transaction_Created_Date
+        date Transaction_Acknowledged_Date
+        int Year_Built
+        string TRPA_Project_Number
+        string Local_Project_Number
+        string TRPA_Status
+        date TRPA_Status_Date
+        string Local_Status
+        date Local_Status_Date
+        string Status_Jan_2026
+        string Notes
     }
 
     Building {
@@ -86,6 +115,7 @@ erDiagram
         string Surface
         float Parcel_Acres
         int Residential_Units
+        int Units_Assigned
         string COUNTY
         string JURISDICTION
     }
@@ -119,7 +149,8 @@ erDiagram
 - **`Parcel2025 ‖−o{ Building`** — one parcel can have 0..N building footprints; a parcel with no detected footprint (1.3% of unit parcels) gets `Building_IDs` empty.
 - **`Parcel2025 }o−o{ GenealogyEvent`** — many-to-many. A parcel can appear in many genealogy events (as either `apn_old` or `apn_new`); a single event can have multiple parents/children. Predecessors are walked up to 5 hops back from each current APN.
 - **`Parcel2025 }o−o{ Transaction`** — many-to-many. A parcel can have multiple transactions (allocation + transfer, banking + conversion, etc.); the `Source` and `Pool` fields capture the **highest-priority** transaction per the order Allocation > Bonus Unit > Banked Unit > Transfer > Conversion.
-- **`ResidentialUnit }o−o{ Building`** — many-to-many, modeled as a **concatenated string** in `Building_IDs` (semicolon-separated `BLDG-<id>` values) rather than a junction table. Units on the same parcel share the same Building_IDs string. The set of buildings on a parcel comes from the **same `LARGEST_OVERLAP` assignment used in the buildings inventory** — each building has exactly one primary parcel, no double-listing across boundaries. A future SDE promotion would split this into a proper junction table.
+- **`Building ‖−o{ ResidentialUnit`** — proper one-to-many. Each unit has exactly one `Building_ID` (foreign key to `Building.Building_ID`), and a building can host many units. Assignment is **sqft-weighted via Hamilton's largest-remainder method**: on a parcel with N units and M buildings, the units are distributed in proportion to each building's `Square_Feet`, with leftover units handed to the largest-remainder buildings first. The buildings inventory's `Units_Assigned` column carries the corresponding count per building (sum equals the parcel's `Residential_Units`). When a parcel has fewer building footprints than units (post-2019 construction not in `Buildings_2019`, or no overlapping footprint at all), some units get `Building_ID = null` — currently 8,830 of 49,018 units (18%).
+- **`ResidentialUnit ‖−o{ UnitTransaction }o−‖ Transaction`** — many-to-many between units and transactions, properly normalized via the `UnitTransaction` junction. Each row pairs one `Residential_Unit_ID` with one `Transaction_ID` and carries the transaction's metadata inline so the table is self-sufficient for analysis. `Sequence` orders transactions chronologically per unit (by `Transaction_Created_Date`, falling back to TRPA / Local status dates); `Is_Latest=true` marks the most recent transaction per unit. The summary `Transaction_ID` semicolon-string on the inventory is kept as a convenience for human scans; the junction is the queryable source of truth.
 
 ---
 
@@ -140,7 +171,7 @@ erDiagram
 | `Pool` | enum | Transactions xlsx | Which account the allocation drew from: `TRPA`, `El Dorado`, `Placer`, `Washoe`, `Douglas`, `Carson City`, `CSLT`, `Banked Inventory`, `Private`, `N/A (Pre-Allocation)`, `Unknown`. Derived from `Development Right` text + `Allocation Number` prefix (EL/PL/DG/WA/SLT). |
 | `Transaction_ID` | string | Transactions xlsx | Semicolon-separated `TransactionID` values from `2025 Transactions and Allocations Details.xlsx` matching this APN (e.g., `TRPA-ALLOC-758`, `WCNV-ALLOC-613`). |
 | `Permit_Number` | string | Transactions xlsx | Semicolon-separated permit IDs prefixed `TRPA-` (from `TRPA/MOU Project #`) and `LOCAL-` (from `Local Jurisdiction Project #`). E.g., `TRPA-ERSP2023-0515; LOCAL-WDADAR24-0004`. |
-| `Building_IDs` | string | `LARGEST_OVERLAP` spatial join of `Buildings_2019` to PDH 2025 polygons, inverted | Semicolon-separated `BLDG-<OBJECTID>` values for every Buildings_2019 footprint whose **primary** parcel (largest area overlap) is this one. E.g., `BLDG-30876; BLDG-30890; BLDG-30920`. Same assignment logic as the buildings inventory — no double-listing across neighboring parcels. Empty for parcels with no primary footprint (~18% of unit rows — post-2019 construction or buildings primarily on a neighbor). |
+| `Building_ID` | int FK (nullable) | sqft-weighted Hamilton assignment from `buildings_with_units.json` | Single `Buildings_2019.OBJECTID` this unit is hosted by. Building→Unit is 1:N (a building hosts many units; each unit has exactly one building). Within a parcel, units are sorted into buildings by descending sqft, with leftover units handed to the largest-remainder buildings. Null for ~18% of units (8,830) where the parcel has no overlapping footprint — post-2019 construction or no primary building match. |
 | `Address` | string | Parcels FS `APO_ADDRESS` | Mailing/site address from the public Parcels FeatureService. 100% populated (49,017 of 49,018). |
 | `COUNTY` | string | PDH FC | 2-char code: `EL`, `PL`, `DG`, `WA`, `CSLT`, `CC`. |
 | `JURISDICTION` | string | PDH FC | Same as COUNTY in most cases; CSLT may differ from EL. |
@@ -159,10 +190,44 @@ erDiagram
 | `Feature` | string | `Buildings_2019.Feature` | Building type from source. Currently always `"Building"` — no further subtype data. |
 | `Surface` | string | `Buildings_2019.Surface` | Building material/surface — sparsely populated in source. |
 | `Parcel_Acres` | float | PDH FC | Parent parcel acreage (context). |
-| `Residential_Units` | int | PDH FC | Number of residential units on the parent parcel (0 for non-residential parcels). |
+| `Residential_Units` | int | PDH FC | Number of residential units on the **parent parcel** (0 for non-residential parcels). Same value for all buildings on the same parcel. |
+| `Units_Assigned` | int (nullable) | `buildings_with_units.json` | Number of units hosted by **this specific building** — the sqft-weighted Hamilton split of the parcel's `Residential_Units` across its building footprints. Sum across a parcel's buildings equals `Residential_Units`. Null on first build before `buildings_with_units.json` exists; re-run this script after it's built to backfill. |
 | `COUNTY`, `JURISDICTION` | string | PDH FC | Same as parent parcel. |
 
 **Row scope**: One row per Buildings_2019 footprint (44,739 total). 269 footprints (0.6%) don't match a 2025 parcel — usually dock/pier polygons outside the PDH boundary.
+
+**Top multi-unit buildings** (highest `Units_Assigned`): Building 8122 at parcel `032-291-028` hosts 91 units (Sugar Pine), Building 39142 at `127-040-09` hosts 51, Building 2203 at `034-270-059` hosts 43.
+
+### `residential_unit_transactions.csv` — junction: one row per (unit × transaction) pair
+
+| Field | Type | Source | Notes |
+|---|---|---|---|
+| `Relation_ID` | string PK | synthetic | `RUT-<APN_canon>-<unit_seq>-<tx_seq>`; stable, regenerates deterministically. |
+| `Residential_Unit_ID` | string FK | units inventory | `RU-<APN_canon>-<seq>`. |
+| `APN` | string | units inventory | Raw APN (PDH form). |
+| `APN_canon` | string | units inventory | Canonical join key. |
+| `Transaction_ID` | string FK | Ken's transactions xlsx | e.g. `TRPA-ALLOC-758`. Compound IDs (`A/B`) are preserved as-is — Ken's batch-allocation format. |
+| `Sequence` | int | derived | Chronological order within the unit (1 = earliest). Tie-breaks by stable input order. |
+| `Is_Latest` | bool | derived | `true` on the most recent transaction per unit; exactly one row per unit has it true. |
+| `Transaction_Type` | enum | xlsx | `Residential Allocation`, `Allocation`, `Allocation Assignment`, `Transfer`, `Banking of Existing Development`, `Conversion`, `Conversion With Transfer`, `Residential Bonus Unit (RBU)`, `Land Bank Transfer`, … |
+| `Development_Type` | string | xlsx | `Allocation`, `Banked Unit`, `Transfer`, `Banking From`, `Conversion`, … |
+| `Detailed_Development_Type` | string | xlsx | Ken's free-text description (e.g. `New Single-Family Residential from Allocation`). |
+| `Development_Right` | string | xlsx | The kind of right being moved (e.g. `Residential Allocation - El Dorado County`, `SFRUU`, `MFRUU`, `RBU`). |
+| `Allocation_Number` | string | xlsx | e.g. `EL-21-O-08`; prefix encodes the source pool (EL / PL / DG / WA / SLT). |
+| `Quantity` | int | xlsx | Usually 1, occasionally batch (>1). |
+| `Transaction_Created_Date` | date | xlsx | Primary chronology key. |
+| `Transaction_Acknowledged_Date` | date | xlsx | When TRPA acknowledged. |
+| `Year_Built` | int (nullable) | xlsx | The construction year recorded by Ken on this transaction. Distinct from the parcel's `Original_Year_Built`. |
+| `TRPA_Project_Number` | string | xlsx | `TRPA/MOU Project #`. |
+| `Local_Project_Number` | string | xlsx | `Local Jurisdiction Project #`. |
+| `TRPA_Status` / `TRPA_Status_Date` | string / date | xlsx | TRPA permit state and date. |
+| `Local_Status` / `Local_Status_Date` | string / date | xlsx | Local permit state and date. |
+| `Status_Jan_2026` | enum | xlsx | `Completed` / `Not Completed` / `No Project` / `TBD`. The construction-rolled-up status as of the January 2026 snapshot. |
+| `Notes` | string | xlsx | Ken's free-text notes (often parcel/project-specific). |
+
+**Row scope**: 2,220 rows (1,529 units with at least one transaction; 295 units have >1 transaction; max 9 transactions on one unit). 1,135 unique transactions referenced.
+
+**Assignment caveat (v1)**: every transaction on an APN is linked to every unit on that APN. This is over-inclusive when one parcel had transactions of different kinds affecting different sub-sets of units (e.g. an allocation creating Unit 1 + a separate banking event for Unit 2). A future v2 using `Quantity` + chronology could bind specific transactions to specific units. Until then, expect the relation table to slightly over-count for multi-event parcels — the totals on a per-transaction basis are correct, but the per-unit transaction lists may include transactions that semantically belong to a sibling unit on the same parcel.
 
 ### `PDH_2025_OriginalYrBuilt.csv` — intermediate: parcel × year built
 
@@ -189,8 +254,9 @@ erDiagram
 | Table | Rows | Notable coverage |
 |---|---:|---|
 | `PDH_2025_OriginalYrBuilt.csv` | 61,240 | 73.4% have a year-built from any source; 16,023 truly null (mostly vacant land) |
-| `residential_units_inventory_2025.csv` | 49,018 | 98.7% Original_Year_Built; 82.0% Building_IDs (primary-parcel only); 100% Address; 3.3% Permit_Number; 3.0% Era=2012 Plan |
-| `buildings_inventory_2025.csv` | 44,739 | 99.4% APN-matched; 93.1% Original_Year_Built; 86.9M sq ft total footprint |
+| `residential_units_inventory_2025.csv` | 49,018 | 98.7% Original_Year_Built; 82.0% Building_ID assigned (sqft-weighted); 100% Address; 3.3% Permit_Number; 3.0% Era=2012 Plan |
+| `buildings_inventory_2025.csv` | 44,739 | 99.4% APN-matched; 93.1% Original_Year_Built; 79.1% with `Units_Assigned ≥ 1` (35,368 buildings host 40,188 units); 86.9M sq ft total footprint |
+| `residential_unit_transactions.csv` | 2,220 | 1,529 units linked; 1,135 unique transactions; 295 units with >1 transaction; max 9 transactions on a single unit; 1,926 Completed / 249 Not Completed / 44 No Project |
 
 ## Known data limitations
 
