@@ -13,7 +13,7 @@ geodatabase) to drive three v1 dashboards:
 
 All of this is anchored on the TRPA Cumulative Accounting framework
 (TRPA Code §16.8.2). The vocabulary is documented in the
-[`cumulative_accounting_reference.md`](./cumulative_accounting_reference.md)
+[`_archive/cumulative_accounting_reference.md`](./_archive/cumulative_accounting_reference.md) (archived — the `trpa-cumulative-accounting` Claude skill is the source of truth)
 (plain-markdown copy of the Claude skill) so future sessions (and reviewers) share the same terms.
 
 ---
@@ -82,12 +82,9 @@ Full list in [target_schema.md](./target_schema.md). The three highest-priority:
 | File | Status | Purpose |
 |---|---|---|
 | [target_schema.md](./target_schema.md) | **Draft — for team review** | The proposal itself. ERD + loading strategy + open questions. |
-| [proposed_dashboards.md](./proposed_dashboards.md) | Draft — for team review | Dashboard & visualization proposal (~25 candidates in 8 clusters); extends the existing `allocation_drawdown.html` prototype. |
+| [tracks_status.md](./tracks_status.md) | Active | **Tracks A / B / C combined.** Track A — APN canonicalization + genealogy. Track B — Allocation accounting + dashboards. Track C — Ken's CA Changes loader + reconciliation. |
 | [dashboards_to_schema_trace.md](./dashboards_to_schema_trace.md) | Active | Backward design from built dashboards through view contracts to schema columns. 14 open gaps roll-up against `target_schema.md`. |
-| [genealogy_track.md](./genealogy_track.md) | Active | **Track A** — APN canonicalization + genealogy event sourcing + resolver. The substrate every other track joins through. |
-| [allocation_track.md](./allocation_track.md) | Active | **Track B** — Allocation accounting layer: schema, view contracts, 5 built dashboards, 14 open gaps. The public-facing reporting work. |
-| [qa_corrections_track.md](./qa_corrections_track.md) | Active | **Track C** — Ken's CA Changes XLSX → schema sidecar + loader + reconciliation + dashboard E1. Full track docs. |
-| [cumulative_accounting_reference.md](./cumulative_accounting_reference.md) | Reference | TRPA Cumulative Accounting framework (plain-markdown copy of the Claude skill) — vocabulary, bucket model, movement types, pool structure. |
+| [inventory_tables_erd.md](./inventory_tables_erd.md) | Active | Analyst-facing inventory tables (Residential Units / Buildings / PDH 2025 join) with field dictionaries. Built in the 2026 cycle. |
 | [development_rights_erd.html](./development_rights_erd.html) | Draft | Browser viewer for all ERDs (existing + proposed). |
 
 ### Supporting analysis (context for the proposal)

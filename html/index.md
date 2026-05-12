@@ -1,168 +1,119 @@
-# TRPA Dashboards — Index
+# TRPA Dashboards
 
-> Single-file HTML dashboards for the TRPA Cumulative Accounting cycle and parcel-development history. Each page loads its libraries from CDN; no build step required. Drop the file into a browser or open the GitHub Pages link below.
+Single-file HTML pages for the TRPA Cumulative Accounting cycle. Open from a browser; no build step.
 
-**Base URL** (all pages): `https://trpa-agency.github.io/Reporting/html/<filename>`
-
-**Local preview** — from the repo root:
-
-```bash
-PYTHONIOENCODING=utf-8 "C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/python.exe" -m http.server 8123
-# then open http://localhost:8123/html/<filename>
-```
-
-The `.claude/launch.json` config wires this up for the Claude Code preview MCP — call `preview_start` with name `html-static`.
+- **Base URL**: `https://trpa-agency.github.io/Reporting/html/<filename>`
+- **Local preview**: from the repo root, `python -m http.server 8123` then `http://localhost:8123/html/<filename>`
+- **Active dashboards**: 8 (★ marks the primary view in each track)
 
 ---
 
-## Cumulative-accounting headline views
+Organized by Dan's four conceptual tracks (5/11/2026):
 
-### [Regional Plan Capacity Dial](https://trpa-agency.github.io/Reporting/html/regional-capacity-dial.html)
+## 1 · Allocation tracking
 
-> Local: [`regional-capacity-dial.html`](regional-capacity-dial.html)
+> *Where every residential allocation sits.* Three pool states: **TRPA pool · Jurisdiction pool · Private development pool.**
 
-Where the Tahoe Region sits against its since-1987 cumulative capacity caps. One gauge per commodity (residential allocations, residential bonus units, tourist bonus units, commercial floor area) showing constructed vs Regional Plan maximum.
+| Dashboard | Audience | Data |
+|---|---|---|
+| [**allocation-tracking.html**](allocation-tracking.html) ★ | Staff · daily ops | `data/raw_data/residentialAllocationGridExport.csv` (one row per allocation, 2,600 total) |
+| [pool-balance-cards.html](pool-balance-cards.html) | Staff · per-pool drilldown | Ken's `Additional Development as of April2026.xlsx` + inlined trajectory |
+| [public-allocation-availability.html](public-allocation-availability.html) | Public | Same as pool-balance-cards |
 
-- **Data:** inlined from `from_ken/Cumulative Accounting 2026 Report.pptx` slide 8 and `from_ken/Additional Development as of April2026.xlsx`
-- **Target SDE table:** `CumulativeAccountingSnapshot` aggregated to Regional totals (see [`erd/dashboards_to_schema_trace.md`](../erd/dashboards_to_schema_trace.md) Trace 1; Cluster A1)
-- **Audience:** executive / board level — headline numbers
+## 2 · Source of rights
 
-### [Residential Additions by Source](https://trpa-agency.github.io/Reporting/html/residential-additions-by-source.html)
+> *Where each year's added units came from.* Categories: Pre-1987 / 1987 RP / 2012 RP / Banked / Conversion.
 
-> Local: [`residential-additions-by-source.html`](residential-additions-by-source.html)
+| Dashboard | Audience | Data |
+|---|---|---|
+| [**residential-additions-by-source.html**](residential-additions-by-source.html) ★ | Leadership · public | Ken's `FINAL RES SUMMARY 2012 to 2025.xlsx` Summary sheet |
 
-Where the 1,573 added residential units came from each year, 2013–2025. Lines / stacked area / stacked percent toggle. Net growth of 1,469 after 110 removals (banked or converted out).
+## 3 · Total potential development
 
-- **Data:** compiled from `from_ken/FINAL RES SUMMARY 2012 to 2025.xlsx` — Summary sheet's "Added Residential Units from {Allocations, Bonus Units, Transfers, Conversions, Banked}" rows + per-year "Major Completed Projects" column
-- **Ultimate source:** `dbo.TdrTransaction` + `dbo.ParcelPermitBankedDevelopmentRight` + `dbo.ResidentialBonusUnit*` in Corral; once `vCommodityLedger` exists it reads directly
-- **Audience:** analysts, leadership, public — the story of new construction by mechanism
+> *Constructed + Banked + Converted + still in pools.* The full pipeline.
 
----
+*No standalone dashboard yet — coverage split across #1 and #4. Building out post-ESA collab in June.*
 
-## Allocation tracking & drawdown
+## 4 · Total development tracking
 
-### [Allocation Tracking](https://trpa-agency.github.io/Reporting/html/allocation-tracking.html)
+> *How much of everything is actually built.* Headline caps + live state breakdown + source-of-rights mix + annual construction.
 
-> Local: [`allocation-tracking.html`](allocation-tracking.html)
+| Dashboard | Audience | Data |
+|---|---|---|
+| [**regional-capacity-dial.html**](regional-capacity-dial.html) ★ | Executive · board | Ken's 2026 PPTX slide 8 (gauges) + `residentialAllocationGridExport.csv` (2012 Plan cards) + `residential_transactions_summary.json` (source-of-rights cards + annual chart) |
 
-Comprehensive operational dashboard: 2,600 authorized 2012 Regional Plan additional · of 8,687 since-1987 max. Tabs for charts / map / data table; filters by type, jurisdiction, year. AG Grid with CSV export.
+Four sections, stacked top to bottom on the page:
+- **4 since-1987 cumulative gauges** (Residential / RBU / TBU / CFA)
+- **Capacity utilization horizontal stacked bar**
+- **2012 Plan additional grid** — 4 cards (Constructed · Private dev pool · Jurisdiction pool · TRPA pool = 2,600)
+- **Completed residential by source** — 7 cards (Allocation 894 / Banked 232 / Transfer 135 / Conversion 80 / Allocation-Transfer 54 / Bonus Unit 35 / Other 1 = 1,431)
+- **Annual residential construction** — stacked area 2009–2026 by source
 
-- **Data:** live from TRPA ArcGIS REST services + permit system
-- **Audience:** allocation staff (daily ops); the most feature-complete page
-- **Stack:** Plotly + Calcite + ArcGIS Maps SDK + AG Grid — the reference implementation called out in [`trpa-dashboard-stack`](../.claude/skills/trpa-dashboard-stack/SKILL.md)
+## Companion views (broader development)
 
-### [Residential Allocation Drawdown](https://trpa-agency.github.io/Reporting/html/allocation_drawdown.html)
+| Dashboard | What it shows | Data |
+|---|---|---|
+| [development_history.html](development_history.html) | Building footprints by era; year slider | Tahoe Buildings FeatureServer (live AGOL) |
+| [development_history_units.html](development_history_units.html) | Residential units associated with buildings (sqft-weighted split) | Above + `data/processed_data/buildings_with_units.json` |
+| [qa-change-rationale.html](qa-change-rationale.html) | Per-APN audit log of 2023/2026 QA corrections | `qa_change_events.csv` from `04_load_ca_changes.ipynb` |
 
-> Local: [`allocation_drawdown.html`](allocation_drawdown.html)
+## Archived
 
-Stacked area chart of residential allocation drawdown by pool × year. Shows how each jurisdiction's pool has been used down from its original capacity.
+Moved to [`_archive/`](_archive/) on 2026-05-11 — superseded by newer dashboards. Kept for reference / link-stability; not linked from the active set above.
 
-- **Data:** Ken's *LT Info Pool Balance Report* snapshot (with TRPA Pool 144→154 correction applied)
-- **Target SDE table:** `PoolDrawdownYearly` (see Trace 2)
-
-### [Pool Balance Cards](https://trpa-agency.github.io/Reporting/html/pool-balance-cards.html)
-
-> Local: [`pool-balance-cards.html`](pool-balance-cards.html)
-
-Daily-use staff view. One card per residential allocation pool with current remaining count, percent of original capacity drawn down, and trajectory since 2013. Click any card for per-year detail.
-
-- **Data:** remaining counts inlined from `from_ken/Additional Development as of April2026.xlsx` LT Info Pools Balances sheet (with the TRPA Pool 144→154 correction). Per-year trajectory inlined from `allocation_drawdown.html`'s embedded series.
-- **Target SDE table:** `PoolDrawdownYearly` (Trace 2 / G2.1)
-- **Audience:** allocation staff
-
-### [Residential Allocation Availability](https://trpa-agency.github.io/Reporting/html/public-allocation-availability.html)
-
-> Local: [`public-allocation-availability.html`](public-allocation-availability.html)
-
-Public-facing slice of the pool-balance dashboard. How many residential allocations remain in each Lake Tahoe Basin jurisdiction — county / city searchable.
-
-- **Data:** `from_ken/Additional Development as of April2026.xlsx` LT Info Pools Balances sheet (TRPA Pool 144→154 correction applied)
-- **Audience:** public — simplified version of the staff `pool-balance-cards.html` (Cluster G1)
-
-### [Tahoe Residential Allocations](https://trpa-agency.github.io/Reporting/html/residential-allocations-dashboard.html)
-
-> Local: [`residential-allocations-dashboard.html`](residential-allocations-dashboard.html)
-
-Detailed allocations table with AG Grid filters/exports. The largest dashboard in the folder — likely a v1 staff workspace before the more focused B1/G1 splits were built.
-
-- **Data:** allocations registry (in-page)
-- **Audience:** staff — granular per-allocation lookup
-
----
-
-## Development history (new)
-
-### [Development History — Buildings](https://trpa-agency.github.io/Reporting/html/development_history.html)
-
-> Local: [`development_history.html`](development_history.html)
-
-Map of every building footprint in the Lake Tahoe Basin, colored by Regional Plan era of construction. Drag the year slider (1900–2025) to play back development. Two charts on the right: stacked-area cumulative buildings, per-year construction histogram.
-
-- **Map source:** live [Tahoe Buildings FeatureServer](https://services5.arcgis.com/fXXSUzHD5JjcOt1v/arcgis/rest/services/Tahoe_Buildings/FeatureServer/0) (Esri AGOL mirror of `Buildings_2019` GDB)
-- **Chart source:** statistics query on the same FeatureServer (count of buildings grouped by `YEAR_BUILT`)
-- **Era classification:** `≤1987` Pre-1987 Plan / `1988–2011` 1987 Plan / `≥2012` 2012 Plan
-- **Audience:** planners, analysts; great for spotting development booms and the post-1987 slow-down
-
-### [Development History — Residential Units](https://trpa-agency.github.io/Reporting/html/development_history_units.html)
-
-> Local: [`development_history_units.html`](development_history_units.html)
-
-Companion to the buildings dashboard, pivoted to **residential units**. Each parcel's units are split across its building footprints in proportion to `Square_Feet` (Hamilton's largest-remainder method). KPI cards show residential buildings vs multifamily; charts show cumulative units and the units-per-building distribution. Map filter toggle: All buildings / Residential / Multifamily.
-
-- **Pre-computed source:** [`data/processed_data/buildings_with_units.json`](../data/processed_data/buildings_with_units.json) — 44,739 buildings each tagged with `units_assigned`, `era`, `year_built`
-- **Built by:** [`parcel_development_history_etl/scripts/build_buildings_with_units.py`](../parcel_development_history_etl/scripts/build_buildings_with_units.py) — joins `residential_units_inventory_2025.csv` × `buildings_inventory_2025.csv`
-- **Map layer:** Tahoe Buildings FeatureServer (same as the buildings dashboard); the filter toggle uses an `OBJECTID IN (…)` definitionExpression built from the JSON
-- **Audience:** housing analysts. Caveats (ADUs, post-2019 construction without footprints) called out in the in-page footnote.
-
----
-
-## QA / audit
-
-### [QA Change Rationale Audit Trail](https://trpa-agency.github.io/Reporting/html/qa-change-rationale.html)
-
-> Local: [`qa-change-rationale.html`](qa-change-rationale.html)
-
-Per-APN audit log of QA corrections to existing residential development. Captures the 2023 and 2026 big-sweep correction campaigns out of Ken's `CA Changes breakdown.xlsx`. Searchable by APN, change type, year.
-
-- **Data:** `qa_change_events.csv` + `qa_correction_detail.csv` — outputs of `notebooks/04_load_ca_changes.ipynb`. Joined client-side on `ChangeEventID`.
-- **Refresh:** re-run the notebook when Ken sends a new XLSX
-- **Track docs:** [`erd/qa_corrections_track.md`](../erd/qa_corrections_track.md) (Track C)
+| Dashboard | Superseded by |
+|---|---|
+| [`_archive/residential-allocations-dashboard.html`](_archive/residential-allocations-dashboard.html) | `allocation-tracking.html` |
+| [`_archive/allocation_drawdown.html`](_archive/allocation_drawdown.html) | `allocation-tracking.html` (year slider) + `pool-balance-cards.html` |
 
 ---
 
 ## Data sources at a glance
 
-| Source | What's in it | Used by |
-|---|---|---|
-| `from_ken/Additional Development as of April2026.xlsx` | LT Info pool balances · banked development · headline balances | `pool-balance-cards`, `public-allocation-availability`, `regional-capacity-dial` |
-| `from_ken/FINAL RES SUMMARY 2012 to 2025.xlsx` | Per-APN 14-year residential history + per-year added/removed totals | `residential-additions-by-source` (raw also drives the PDH ETL) |
-| `from_ken/CA Changes breakdown.xlsx` | Per-APN audit log of 2023 + 2026 QA correction campaigns | `qa-change-rationale` |
-| `from_ken/Cumulative Accounting 2026 Report.pptx` slide 8 | Headline Regional Plan caps + constructed counts | `regional-capacity-dial` |
-| `from_ken/2025 Transactions and Allocations Details.xlsx` | Per-APN TransactionID, Development Right, Allocation Number, TRPA/Local Permit # | `residential_units_inventory_2025.csv` Source/Pool/Permit columns (consumed by the units dashboard) |
-| `from_ken/OriginalYrBuilt.xlsx` → `data/raw_data/original_year_built.csv` | Per-APN original year built, 284K rows | `PDH_2025_OriginalYrBuilt.csv` derivation |
-| Tahoe Buildings FeatureServer (AGOL) | Live building footprints; YEAR_BUILT, BUILDING_SQFT, APN | both `development_history*` pages |
-| Parcels FeatureServer (`maps.trpa.org`) | Live parcel attributes incl. APO_ADDRESS, YEAR_BUILT | `residential_units_inventory` (addresses, county-source year built filler) |
-| `C:\GIS\ParcelHistory.gdb\Parcel_Development_History` | Authoritative per-parcel-per-year unit history; 2012–2025 | upstream of every residential dashboard |
-| TRPA ArcGIS REST | Live allocations + permit data | `allocation-tracking`, `residential-allocations-dashboard` |
-| Corral (`sql24`, Feb-2024 snapshot) | The LTinfo backend — `dbo.TdrTransaction`, `dbo.ParcelPermitBankedDevelopmentRight`, etc. | Ultimate source for `residential-additions-by-source`; not queried live yet |
+| Source | Used by |
+|---|---|
+| `residentialAllocationGridExport_fromKen.xlsx` → CSV (one row per allocation, 2,600 rows, 11 cols incl. Construction Status) | allocation-tracking · regional-capacity-dial (live cards) |
+| `Additional Development as of April2026.xlsx` | pool-balance-cards · public-allocation-availability · regional-capacity-dial (gauges) |
+| `FINAL RES SUMMARY 2012 to 2025.xlsx` | residential-additions-by-source |
+| `CA Changes breakdown.xlsx` (via `04_load_ca_changes.ipynb`) | qa-change-rationale |
+| `2025 Transactions and Allocations Details.xlsx` → summary JSON | regional-capacity-dial (source-of-rights + annual construction) · residential_units_inventory (downstream of development_history_units) |
+| Tahoe Buildings FeatureServer (AGOL) | development_history · development_history_units |
+| TRPA ArcGIS REST | allocation-tracking (map tab) |
 
-For the full ERD / proposed-schema work see [`../erd/`](../erd/) — start with [`erd/README.md`](../erd/README.md).
+### Refresh commands
+
+When Ken sends a refreshed xlsx, drop it in `data/raw_data/` and run the matching converter. All dashboards `fetch(..., {cache: 'no-cache'})` so reloads pick up new data immediately.
+
+```bash
+# Set up alias once
+PY="C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/python.exe"
+
+# Per-allocation grid → CSV (allocation-tracking + regional-capacity-dial cards)
+PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/convert_allocation_grid.py
+
+# Transactions summary → JSON (regional-capacity-dial source-of-rights + annual chart)
+PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/convert_transactions_summary.py
+
+# Buildings × units join → JSON (development_history_units)
+PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/build_buildings_with_units.py
+```
+
+The PDH ETL pipeline (`main.py`) is upstream of all of the above — re-run when SDE parcels or Ken's residential CSVs change.
 
 ---
 
-## Tech stack (consistent across all pages)
+## Tech stack
 
-- **Plotly.js** (charts) — load **before** ArcGIS, otherwise Dojo's AMD loader captures Plotly's UMD wrapper and `window.Plotly` is never set
-- **ArcGIS Maps SDK 4.31** (maps) — only on pages that need a map
-- **AG Grid Community** (tables) — `allocation-tracking`, `residential-allocations-dashboard`, `qa-change-rationale`
-- **Calcite Design System** — used on `allocation-tracking`; the rest use a lightweight custom CSS with the TRPA palette
-- **Open Sans** from Google Fonts
-- All CSS variables defined per [`trpa-brand`](../.claude/skills/trpa-brand/SKILL.md): `--trpa-blue #0072CE` / `--trpa-navy #003B71` / `--trpa-orange #E87722` / `--trpa-forest #4A6118`
+- **Plotly.js** (charts) — load **before** ArcGIS; Dojo's AMD loader captures Plotly's UMD wrapper otherwise
+- **ArcGIS Maps SDK 4.31** (maps, where needed)
+- **AG Grid Community** (sortable/filterable tables)
+- **Open Sans** + TRPA brand tokens (`--trpa-blue #0072CE`, `--trpa-navy #003B71`, `--trpa-orange #E87722`, `--trpa-forest #4A6118`)
 
-## Adding a new dashboard
+See [`.claude/skills/trpa-brand`](../.claude/skills/trpa-brand) and [`.claude/skills/trpa-dashboard-stack`](../.claude/skills/trpa-dashboard-stack) for the agency conventions.
 
-1. Drop a new `.html` file in this folder. Single-file is the rule — no `node_modules/`, no build step.
-2. Use the structural pattern from [`development_history.html`](development_history.html) (header → KPI row → toggle/slider bar → split content). Mirror brand tokens.
-3. If you need server-side data, prefer pre-computing into `data/processed_data/*.json` and `fetch('../data/processed_data/<file>')` — keeps the page snappy. Live FeatureServer queries are fine for thin attribute pulls.
-4. Add an entry here.
-5. Commit. GitHub Pages picks it up automatically.
+## Adding a dashboard
+
+1. Single-file `.html` in this folder.
+2. Mirror the structural pattern from `development_history.html` (navy header → KPI row → controls → split content).
+3. Pre-compute heavy data into `data/processed_data/*.json` and fetch by relative path; reserve live FeatureServer queries for thin attribute pulls.
+4. Add an entry above.

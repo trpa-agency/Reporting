@@ -6,7 +6,7 @@
 Proposed ERD for new tables in the **existing SDE SQL backend** that hosts
 Corral + the enterprise GIS geodatabase. Anchored on the TRPA Cumulative
 Accounting framework (TRPA Code §16.8.2). See
-[cumulative_accounting_reference.md](./cumulative_accounting_reference.md)
+[`trpa-cumulative-accounting` skill](../../.claude/skills/trpa-cumulative-accounting) (or archived [`_archive/cumulative_accounting_reference.md`](./_archive/cumulative_accounting_reference.md))
 for the full vocabulary.
 
 > **Scope**: residential (SFRUU, MFRUU, RBU, ADU), tourist accommodation
@@ -66,7 +66,7 @@ Addressing issues found by an architectural review before circulation:
 - **16 Corral reference / transaction tables** reused as-is (no duplication).
 - **5 buckets per (Commodity, Jurisdiction)**: Existing, Banked, Allocated, Bonus Units, Unused Capacity. Equivalently, the 3-bucket condensation: `Existing + Banked + Remaining`, where `Remaining = Allocated + Not Allocated + Not Released` (Ken's framing in `next_steps.md`).
 - **10 ledger movement types** (9 from Corral's `TransactionType` + Banking + QACorrection, minus Shorezone).
-- **3 v1 dashboards**: partial cumulative accounting (residential + TAU + CFA only), allocation drawdown, parcel history lookup. **A4 (Residential Additions by Source)** built as well — see `proposed_dashboards.md`.
+- **3 v1 dashboards**: partial cumulative accounting (residential + TAU + CFA only), allocation drawdown, parcel history lookup. **A4 (Residential Additions by Source)** built as well — see [`_archive/proposed_dashboards.md`](./_archive/proposed_dashboards.md) and [`../html/index.md`](../html/index.md).
 - **Corral freshness**: our backup is Feb 2024; live reads use LTinfo web services until deployment.
 - **GIS freshness**: FC covers 2006–2023 with a 2016–2017 gap (see Questions).
 
@@ -93,7 +93,7 @@ Terms that appear throughout this doc, defined once:
 | **Corral** | The SQL Server DB that backs the LTinfo web app; our read connection is a Feb-2024 snapshot |
 | **LTinfo** | `laketahoeinfo.org` — public web app sitting on top of Corral |
 
-See [cumulative_accounting_reference.md](./cumulative_accounting_reference.md)
+See [`trpa-cumulative-accounting` skill](../../.claude/skills/trpa-cumulative-accounting) (or archived [`_archive/cumulative_accounting_reference.md`](./_archive/cumulative_accounting_reference.md))
 for the full vocabulary with examples.
 
 ### Worked example — how one TDR transaction lands in the accounting

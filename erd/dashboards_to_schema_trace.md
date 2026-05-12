@@ -2,7 +2,7 @@
 
 > **Status: DRAFT — first pass.** Working *backwards* from end-stage
 > visualizations to confirm the view contracts and schema. Sibling to
-> [proposed_dashboards.md](./proposed_dashboards.md) (the broad catalog) and
+> [_archive/proposed_dashboards.md](./_archive/proposed_dashboards.md) (the broad catalog) and
 > [target_schema.md](./target_schema.md) (the proposed tables/views).
 
 ## Why this doc exists
@@ -39,7 +39,7 @@ Detail in the gap sections below; summary here:
 
 **Design constraint to note** — TRPA Pool reconciliation: Ken annotated the LT Info pool report *"TRPA Pool: 154 — pool shows as 144, but that is incorrect — should be 154"*. The current [html/allocation_drawdown.html](../html/allocation_drawdown.html) prototype displays the wrong (144) value Ken has flagged. The schema needs a reconciliation rule: don't blindly carry LT Info pool values without Ken's manual corrections layered in.
 
-(Reporting cadence note from earlier draft removed — see [qa_corrections_track.md](./qa_corrections_track.md) "Reporting cadence" section. TRPA reports annually; QA corrections are continuous; 2023 and 2026 are big-sweep campaigns, not biennial.)
+(Reporting cadence note from earlier draft removed — see [tracks_status.md](./tracks_status.md) "Reporting cadence" section. TRPA reports annually; QA corrections are continuous; 2023 and 2026 are big-sweep campaigns, not biennial.)
 
 The full PowerPoint maps directly onto the dashboards in this trace —
 slide 8 (Regional Plan Additional Development Overview) is the headline
@@ -79,7 +79,7 @@ doesn't model as transactions.
 ---
 
 The 3 committed dashboards (per [target_schema.md §"Ready-to-build v1" and
-proposed_dashboards.md §"Already committed"](./target_schema.md)):
+_archive/proposed_dashboards.md §"Already committed"](./target_schema.md)):
 
 1. **Cumulative Accounting Report** — annual XLSX replacement; 5-bucket
    decomposition per (commodity × jurisdiction × year). Driven by
@@ -433,7 +433,7 @@ How each `PoolDrawdownYearly` column traces back to source:
 A **per-APN lookup page**. User enters a parcel number (or clicks a parcel
 on a map) → page renders that parcel's full development-rights history.
 Audience: TRPA staff for QA; eventually public for developer due-diligence
-(per `proposed_dashboards.md` cluster G2).
+(per `_archive/proposed_dashboards.md` cluster G2).
 
 | Element | Spec |
 |---|---|
@@ -562,7 +562,7 @@ Three things to add to the schema before implementation:
   patterns: permit_completion → permits site, tdr_transfer → thresholds
   site, etc. Belongs in ETL spec, not schema, but should be referenced
   from `target_schema.md` so it doesn't get lost.
-- **G3.4 — Permission model.** Per `proposed_dashboards.md`, this becomes
+- **G3.4 — Permission model.** Per `_archive/proposed_dashboards.md`, this becomes
   public eventually (G2 in cluster G). Confirm what subset of fields
   goes public (e.g., redact `RecordedBy` for the public view) before
   shipping the public-facing variant.
@@ -593,7 +593,7 @@ Three things to add to the schema before implementation:
 
 > **Status of source code**: built today as
 > [`html/residential-additions-by-source.html`](../html/residential-additions-by-source.html)
-> with data inlined (Option A — see `proposed_dashboards.md` A4). Reverse-
+> with data inlined (Option A — see `_archive/proposed_dashboards.md` A4). Reverse-
 > engineering this trace establishes how the dashboard re-binds when the
 > view layer (`vCommodityLedger`) lands.
 
@@ -753,7 +753,7 @@ After Ken's April 2026 data: **18 gaps total — 4 resolved by Ken's data,
 The over-generated database/ERD issues you mentioned should be sanity-checked
 against this list. **An issue that doesn't ladder up to one of the 14 gaps
 above is a candidate for closing**, since none of the 3 v1 dashboards needs
-it. (Exceptions: cluster A–H dashboards in `proposed_dashboards.md` may
+it. (Exceptions: cluster A–H dashboards in `_archive/proposed_dashboards.md` may
 require things this trace doesn't surface — but that's a v2 conversation.)
 
 ---

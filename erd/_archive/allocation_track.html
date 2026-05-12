@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Track B (Allocations) — TRPA Development-Rights ERD</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --panel: #161b22;
+    --fg: #c9d1d9;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --accent2: #3fb950;
+    --border: #30363d;
+    --code-bg: #161b22;
+  }
+  html, body { background: var(--bg); color: var(--fg); font-family: -apple-system, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; margin: 0; padding: 0; line-height: 1.6; }
+  header.docnav { background: var(--panel); padding: 10px 20px; border-bottom: 1px solid var(--border); font-size: 13px; position: sticky; top: 0; z-index: 10; display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; }
+  header.docnav .brand { font-weight: 600; color: var(--fg); }
+  header.docnav a { color: var(--accent); text-decoration: none; white-space: nowrap; }
+  header.docnav a.active { color: var(--fg); font-weight: 600; }
+  header.docnav a.viewer { color: var(--accent2); }
+  header.docnav a:hover { text-decoration: underline; }
+  main.content { max-width: 920px; margin: 0 auto; padding: 32px 24px 96px; }
+  h1, h2, h3, h4 { color: var(--fg); margin-top: 1.6em; margin-bottom: 0.6em; line-height: 1.25; }
+  h1 { border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-top: 0.5em; }
+  h2 { border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+  p { margin: 0.8em 0; }
+  a { color: var(--accent); }
+  a:hover { text-decoration: underline; }
+  code { background: var(--code-bg); padding: 2px 6px; border-radius: 3px; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 88%; color: #c9d1d9; }
+  pre { background: var(--code-bg); padding: 16px; border-radius: 6px; overflow-x: auto; border: 1px solid var(--border); }
+  pre code { background: none; padding: 0; font-size: 90%; line-height: 1.5; }
+  blockquote { border-left: 3px solid var(--accent); color: var(--muted); margin: 16px 0; padding: 4px 16px; background: rgba(88, 166, 255, 0.04); }
+  blockquote p { margin: 0.4em 0; }
+  table { border-collapse: collapse; margin: 16px 0; display: block; overflow-x: auto; }
+  th, td { border: 1px solid var(--border); padding: 6px 13px; text-align: left; vertical-align: top; }
+  th { background: var(--panel); font-weight: 600; }
+  tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+  ul, ol { padding-left: 28px; }
+  li { margin: 4px 0; }
+  hr { border: 0; border-top: 1px solid var(--border); margin: 32px 0; }
+  .mermaid { background: #0b0f14; padding: 20px; border-radius: 6px; border: 1px solid var(--border); margin: 16px 0; overflow-x: auto; text-align: center; }
+  img { max-width: 100%; }
+</style>
+</head>
+<body>
+<header class="docnav">
+  <span class="brand">TRPA ERD</span>
+  <a href="README.html">README</a>
+  <a href="target_schema.html">Target Schema</a>
+  <a href="proposed_dashboards.html">Dashboards</a>
+  <a href="dashboards_to_schema_trace.html">Dashboards → Schema Trace</a>
+  <a href="genealogy_track.html">Track A (Genealogy)</a>
+  <a href="allocation_track.html" class="active">Track B (Allocations)</a>
+  <a href="qa_corrections_track.html">Track C (QA Corrections)</a>
+  <a href="cumulative_accounting_reference.html">Cumulative Accounting Reference</a>
+  <a href="raw_data_vs_corral.html">raw_data vs Corral</a>
+  <a href="validation_findings.html">Validation Findings</a>
+  <a href="xlsx_decomposition.html">XLSX Decomposition</a>
+  <a href="corral_tables.html">Corral Tables</a>
+  <a href="next_steps.html">next_steps</a>
+  <a class="viewer" href="development_rights_erd.html">Interactive ERD →</a>
+</header>
+<main class="content">
+<h1 id="track-b-allocation-tracking">Track B — Allocation Tracking</h1>
+<blockquote>
+<p><strong>Status: schema + 5 dashboards landed; A1 next; 14 open gaps in the trace doc.</strong>
+<strong>Audience: TRPA dev team, Dan, governing board, partner jurisdictions.</strong></p>
+</blockquote>
+<p>One of three parallel tracks of work in this repo (the others are Track A — Genealogy → Current Parcel, and Track C — QA Corrections). Track B owns the <strong>allocation accounting</strong> layer: where do development allocations sit, where did they go, and how does pool drawdown progress against the Regional Plan caps. Most of the public-facing reporting comes out of this track.</p>
+<h2 id="what-this-track-does">What this track does</h2>
+<p>Three layers, each with a canonical doc:</p>
+<ol>
+<li><strong>Schema</strong> — 8 physical tables + 2 views + 3 materialized snapshots in <a href="./target_schema.html"><code>target_schema.md</code></a>. The big ones: <code>vCommodityLedger</code> (UNION of all <code>dbo.TdrTransaction*</code> + banking + manual QA), <code>PoolDrawdownYearly</code>, <code>CumulativeAccountingSnapshot</code>, <code>ParcelHistoryView</code>.</li>
+<li><strong>Backward-engineering trace</strong> — <a href="./dashboards_to_schema_trace.html"><code>dashboards_to_schema_trace.md</code></a> walks each built dashboard backwards through its view contract to the schema columns it needs. Surfaces 14 open gaps.</li>
+<li><strong>Dashboards</strong> — 5 built (<code>html/</code>), all TRPA-branded.</li>
+</ol>
+<h2 id="regional-plan-caps-since-1987-cumulative-max">Regional Plan caps (since-1987 cumulative max)</h2>
+<p>The headline numbers Track B reports against. From Ken's 2026 PPTX slide 8:</p>
+<table>
+<thead>
+<tr>
+<th>Commodity</th>
+<th style="text-align: right;">Max</th>
+<th style="text-align: right;">Constructed (2025)</th>
+<th style="text-align: right;">% built</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Residential Allocations</td>
+<td style="text-align: right;"><strong>8,687 units</strong></td>
+<td style="text-align: right;">6,731</td>
+<td style="text-align: right;">78%</td>
+</tr>
+<tr>
+<td>Residential Bonus Units</td>
+<td style="text-align: right;"><strong>2,000 units</strong></td>
+<td style="text-align: right;">736</td>
+<td style="text-align: right;">37%</td>
+</tr>
+<tr>
+<td>Tourist Bonus Units</td>
+<td style="text-align: right;"><strong>400 units</strong></td>
+<td style="text-align: right;">58</td>
+<td style="text-align: right;">15%</td>
+</tr>
+<tr>
+<td>Commercial Floor Area</td>
+<td style="text-align: right;"><strong>1,000,000 sq ft</strong></td>
+<td style="text-align: right;">464K</td>
+<td style="text-align: right;">46%</td>
+</tr>
+</tbody>
+</table>
+<p>The 2012 Regional Plan's <em>additional</em> Board authorization (adopted 2013) on top of unused 1987 allocations was <strong>2,600 residential units</strong> — a subset of the 8,687 cumulative since-1987 max.</p>
+<h2 id="built-dashboards">Built dashboards</h2>
+<p>All in <a href="../html/"><code>html/</code></a>, TRPA-branded (Open Sans + full TRPA palette per <code>trpa-brand</code> skill):</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Cluster</th>
+<th>What it shows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../html/allocation_drawdown.html"><code>allocation_drawdown.html</code></a></td>
+<td>(prototype)</td>
+<td>Stacked area: pool × year → remaining balance. 2013–2026, 9 pools. The original anchor that proved the stack works.</td>
+</tr>
+<tr>
+<td><a href="../html/allocation-tracking.html"><code>allocation-tracking.html</code></a></td>
+<td>(prototype)</td>
+<td>Sankey + bar chart + map + AG Grid table; type switcher RES/CFA/TAU; year slider; jurisdiction pills.</td>
+</tr>
+<tr>
+<td><a href="../html/residential-allocations-dashboard.html"><code>residential-allocations-dashboard.html</code></a></td>
+<td>(prototype)</td>
+<td>Earlier prototype, jurisdiction-specific residential view.</td>
+</tr>
+<tr>
+<td><a href="../html/residential-additions-by-source.html"><code>residential-additions-by-source.html</code></a></td>
+<td>A4</td>
+<td>Multi-line by year: 5 sources of added residential units (Allocations / Bonus / Transfers / Conversions / Banked). 2024–25 bonus surge is the headline.</td>
+</tr>
+<tr>
+<td><a href="../html/qa-change-rationale.html"><code>qa-change-rationale.html</code></a></td>
+<td>E1</td>
+<td>(Track C) — listed for completeness; QA audit trail with AG Grid.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="data-flow">Data flow</h2>
+<pre><code>                     ┌─────────────────────────────────┐
+                     │  Corral (sql24/Corral)          │
+                     │  dbo.TdrTransaction* (9 types)  │
+                     │  dbo.ParcelPermitBanked...      │
+                     │  dbo.ResidentialAllocation      │
+                     │  dbo.CommodityPool, Parcel, ... │
+                     └──────────────────┬──────────────┘
+                                        │
+                  [vCommodityLedger view + nightly materialization]
+                                        │
+                ┌───────────────────────┼───────────────────────┐
+                ▼                       ▼                       ▼
+   ┌────────────────────┐ ┌──────────────────────┐ ┌─────────────────────┐
+   │ CumulativeAccount- │ │ PoolDrawdownYearly   │ │ ParcelHistoryView   │
+   │ ingSnapshot        │ │ (annual per pool +   │ │ (per APN x year x   │
+   │ (5-bucket per      │ │  movement-type cols) │ │  commodity)         │
+   │  jur x commodity)  │ │                      │ │                     │
+   └─────────┬──────────┘ └──────────┬───────────┘ └──────────┬──────────┘
+             │                       │                        │
+             ▼                       ▼                        ▼
+   ┌────────────────────┐ ┌──────────────────────┐ ┌─────────────────────┐
+   │ Cumulative         │ │ Allocation           │ │ Parcel History      │
+   │ Accounting Report  │ │ Drawdown dashboard   │ │ Lookup (per-APN)    │
+   │ (annual XLSX repl) │ │                      │ │                     │
+   └────────────────────┘ └──────────────────────┘ └─────────────────────┘
+</code></pre>
+<p>Today the dashboards bypass the schema layer and fetch CSV exports from LT Info grid pages (manual export → committed to <code>data/raw_data/</code> → fetched via GitHub raw URL). Once <code>vCommodityLedger</code> lands as a real DB view + REST service, dashboards switch to direct query. See <a href="./dashboards_to_schema_trace.html"><code>dashboards_to_schema_trace.md</code></a> §"LT Info grid pages → Corral tables" for the data-source mapping.</p>
+<h2 id="cadence">Cadence</h2>
+<ul>
+<li><strong>Annual reporting</strong> — cumulative accounting report published each year.</li>
+<li><strong>Nightly recompute</strong> (proposed) — <code>CumulativeAccountingSnapshot</code> and <code>PoolDrawdownYearly</code> rebuild nightly from <code>vCommodityLedger</code>. See <code>target_schema.md</code> Q13.</li>
+<li><strong>Manual CSV refresh</strong> — until the schema lands, LT Info grid CSVs in <code>data/raw_data/</code> are re-exported and committed when staff need fresh dashboard data.</li>
+</ul>
+<h2 id="open-issues">Open issues</h2>
+<p>The trace doc has 14 open gaps; the highest-leverage are:</p>
+<ul>
+<li><strong>G1.1</strong> Rule for <code>BonusUnitsRemaining</code> derivation — currently zero rows in the prototype CSV.</li>
+<li><strong>G2.6</strong> <code>Unbanking</code> movement type — 171 units / 13 yr is non-trivial; needs a real source.</li>
+<li><strong>G2.7</strong> Unreleased pool category — 770 residential allocations TRPA hasn't released to jurisdictions.</li>
+<li><strong>G2.8</strong> Bonus Units as a first-class movement type — 2024–25 bonus surge (Sugar Pine + LTCC = 155 units) makes this the most-asked-for clarification.</li>
+<li><strong>G3.5</strong> <code>Project</code> entity — needed to make the "Major Completed Projects" narrative on dashboards query-driven instead of HTML-hardcoded.</li>
+</ul>
+<p>Full list in <a href="./dashboards_to_schema_trace.html"><code>dashboards_to_schema_trace.md</code></a> §"Roll-up: gap delta against target_schema.md."</p>
+<h2 id="refresh-workflow-until-schema-lands">Refresh workflow (until schema lands)</h2>
+<p>For the LT Info CSV-fed dashboards (<code>allocation-tracking.html</code>, the drawdowns):</p>
+<ol>
+<li>Re-export the relevant LT Info grid as CSV.</li>
+<li>Drop into <a href="../data/raw_data/"><code>data/raw_data/</code></a>.</li>
+<li>Commit + push to MTB-Edits. Dashboards fetch from <code>raw.githubusercontent.com/.../MTB-Edits/...</code> so they pick up automatically.</li>
+</ol>
+<p>For the Ken-XLSX-fed dashboards (<code>residential-additions-by-source.html</code>):</p>
+<ol>
+<li>Drop the new XLSX in <a href="../from_ken/"><code>from_ken/</code></a> (or <code>data/qa_data/</code>).</li>
+<li>Re-extract the 5×13 categorical matrix and update the dashboard's inlined <code>SOURCES</code> array.</li>
+<li>Commit + push.</li>
+</ol>
+<h2 id="where-this-fits-in-the-broader-3-track-plan">Where this fits in the broader 3-track plan</h2>
+<table>
+<thead>
+<tr>
+<th>Track</th>
+<th>Relationship to Track B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A — Genealogy</strong></td>
+<td>substrate: Track B's parcel joins use <code>canonical_apn</code> from Track A's utils</td>
+</tr>
+<tr>
+<td><strong>B — Allocations</strong> <em>(this doc)</em></td>
+<td>the public-facing reporting layer</td>
+</tr>
+<tr>
+<td><strong>C — QA Corrections</strong></td>
+<td>feeds Track B's <code>vParcelHistory</code> / <code>ParcelHistoryView</code> once the DB load happens; surfaces in dashboard E1</td>
+</tr>
+</tbody>
+</table>
+<p>Track B has the most surface area (5 dashboards, 8 schema tables, 14 open gaps). The plan stays terse; the trace doc carries the per-dashboard detail.</p>
+<h2 id="files-reference">Files reference</h2>
+<ul>
+<li><strong>Catalog:</strong> <a href="./proposed_dashboards.html"><code>proposed_dashboards.md</code></a> — 25+ candidates in clusters A–H, every entry buildability-marked</li>
+<li><strong>Trace:</strong> <a href="./dashboards_to_schema_trace.html"><code>dashboards_to_schema_trace.md</code></a> — backward-engineering for built dashboards + LT Info grid → Corral mapping</li>
+<li><strong>Schema:</strong> <a href="./target_schema.html"><code>target_schema.md</code></a> — full 8-table proposal</li>
+<li><strong>Built dashboards:</strong> <a href="../html/"><code>../html/</code></a> (5 files listed above)</li>
+<li><strong>Realized view CSVs:</strong> <a href="../ledger_prototype/views/v_pool_drawdown.csv"><code>../ledger_prototype/views/v_pool_drawdown.csv</code></a>, <a href="../ledger_prototype/views/v_cumulative_accounting.csv"><code>../ledger_prototype/views/v_cumulative_accounting.csv</code></a></li>
+<li><strong>Ledger prototype:</strong> <a href="../ledger_prototype/build_ledger.ipynb"><code>../ledger_prototype/build_ledger.ipynb</code></a> — Python proof-of-concept for <code>vCommodityLedger</code></li>
+<li><strong>Dashboard tech stack:</strong> see <code>trpa-dashboard-stack</code> skill (Plotly + Calcite + ArcGIS Maps SDK + AG Grid)</li>
+</ul>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  if (typeof mermaid !== 'undefined') {
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: { darkMode: true, background: '#0b0f14' },
+      er: { useMaxWidth: true },
+      maxTextSize: 500000,
+      securityLevel: 'loose'
+    });
+  }
+</script>
+</body>
+</html>
