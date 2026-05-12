@@ -397,7 +397,7 @@ function updateKpis(year) {
 
   const pct = row.total ? Math.round(100 * row.pre87 / row.total) : 0;
   document.getElementById('kpi-pre87-sub').textContent =
-    `${pct} percent of total &middot; built &le; 1987`.replace('&middot;','·').replace('&le;','≤');
+    `${pct} percent of total · built ≤ 1987`;
 
   if (year >= 2012) {
     const pct12 = row.total ? Math.round(100 * row.p12 / row.total) : 0;
