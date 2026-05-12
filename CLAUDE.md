@@ -52,6 +52,13 @@ Bare `python` does not resolve in bash on this machine — always full path.
 - **Logging**: `from utils import get_logger; log = get_logger("module")`. Logs to console + `parcel_development_history_etl/logs/etl_YYYYMMDD.log`.
 - **QA outputs**: use `utils.write_qa_table(df, gdb_path)` — writes both the GDB table and a CSV mirror in `data/qa_data/`.
 - **Field name constants**: never hard-code `"APN"`, `"YEAR"`, etc. Use `FC_APN`, `FC_YEAR`, etc. from `config.py`.
+- **Plotly hover convention** (dashboards in `html/`): value + unit in the body; category / series name in `<extra>` (renders as the tooltip title). Use `,` thousands formatting for counts. Examples:
+  - Lines / area: `'<b>%{y:,}</b> units<extra>%{x}</extra>'` (year in extra) or `'<b>%{y:,}</b> units<extra>1987 Plan</extra>'` (series in extra)
+  - Vertical bars: `'<b>%{y:,}</b> units<extra>%{x}</extra>'`
+  - Horizontal bars: `'<b>%{x:,}</b> units<extra>%{y}</extra>'`
+  - Percentages: `'<b>%{y:.1f}%</b><extra>%{x}</extra>'`
+  - Stacked area with `hovermode: 'x unified'`: put the **series** in `<extra>` so it renders as the per-row label; the unified tooltip header gives the year automatically.
+- **Plotly color**: always pull from the TRPA palette JS constants (`TRPA.blue` / `TRPA.navy` / `TRPA.orange` etc.); use the `hexA(hex, alpha)` helper for translucent fills / Sankey link colors — never hardcode `rgba(...)` strings inline.
 
 ## Genealogy methodology
 

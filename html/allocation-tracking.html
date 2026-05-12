@@ -297,8 +297,8 @@ header h1 span { color: var(--trpa-blue); }
   <div class="section">
     <div class="chart-grid">
       <div class="card">
-        <h3>Allocation flow</h3>
-        <p>Authorized &rarr; jurisdiction pools &rarr; development &middot; cumulative through <span id="sankey-year-label">2025</span></p>
+        <h3>Allocation flow &middot; authorized &rarr; pool &rarr; current state</h3>
+        <p>Total authorized (left) distributes across 6 pools (middle: TRPA central + 5 jurisdictions), which in turn flow to the 3 current states (right): still in TRPA Pool, still in jurisdiction pool, or drawn to a parcel for private development. Cumulative through <span id="sankey-year-label">2025</span>.</p>
         <div id="sankey-chart" style="height:400px;"></div>
       </div>
       <div class="card">
@@ -450,6 +450,12 @@ const JURIS_SHORT = {
 // ─────────────────────────────────────────
 // HELPERS
 // ─────────────────────────────────────────
+// hex + alpha → rgba string for Plotly fillcolor / link color.
+function hexA(hex, a) {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
+}
+
 function poolToJuris(pool) {
   if (pool.includes('Douglas'))                                     return 'Douglas County';
   if (pool.includes('El Dorado'))                                   return 'El Dorado County';
@@ -716,68 +722,92 @@ function renderCharts() {
 }
 
 function renderSankey() {
+  // 3-column lifecycle Sankey per Dan's framing (2026-05-11):
+  //   LEFT   ─►  Total Authorized (2,600)
+  //   MIDDLE ─►  6 pools (TRPA Pool + 5 jurisdiction pools — where allocations went)
+  //   RIGHT  ─►  3 current states (Still in TRPA / Still in Juris / Private Dev)
+  // Each row counts exactly once: total flow = 2,600.
   const total    = TOTAL_AUTH[currentType];
   const yr       = sliderYear;
   const allJuris = activeJurisOrder().filter(j => activePills.has(j));
   const jRows    = getJurisRows(yr).filter(r => activePills.has(r.jurisdiction));
+  const juris    = allJuris.filter(j => jRows.some(r => r.jurisdiction === j));
 
-  // Only include jurisdictions that have records in filtered set
-  const juris = allJuris.filter(j => jRows.some(r => r.jurisdiction === j));
+  // Per-pool totals
+  const trpaHeld  = sumQty(rawData.filter(r => r.status === 'TRPA Pool'));
+  const trpaDrawn = sumQty(rawData.filter(r =>
+    r.status === 'Allocated' && !r.jurisdiction && (r.year || 0) <= yr));
+  const trpaTotal = trpaHeld + trpaDrawn;
 
   // Node indices
-  const iAuth   = 0;
-  const iJ      = j => juris.indexOf(j) + 1;
-  const iNotYet = juris.length + 1;
-  const iAlloc  = juris.length + 2;
-  const iAvail  = juris.length + 3;
+  const iAuth      = 0;                                        // LEFT — Total Authorized
+  const iTrpaPool  = 1;                                        // MIDDLE — TRPA Pool
+  const iJ         = j => juris.indexOf(j) + 2;                // MIDDLE — 5 jurisdiction pools
+  const iTrpaDest  = juris.length + 2;                         // RIGHT — Still in TRPA Pool
+  const iJurisDest = juris.length + 3;                         // RIGHT — Still in Jurisdiction Pool
+  const iPrivate   = juris.length + 4;                         // RIGHT — Private Development Pool
 
   const nodeLabels = [
-    'Total Authorized',
-    ...juris.map(j => JURIS_SHORT[j] || j),
-    'TRPA Pool',
-    'Private Development Pool',
-    'Jurisdiction Pool',
+    'Total Authorized',                            // 0 — left
+    'TRPA Pool',                                   // 1 — middle
+    ...juris.map(j => JURIS_SHORT[j] || j),        // 2..N+1 — middle (5 jurisdictions)
+    'Still in TRPA Pool',                          // N+2 — right state
+    'Still in Jurisdiction Pool',                  // N+3 — right state
+    'Private Development Pool',                    // N+4 — right state
   ];
   const nodeColors = [
-    TRPA.navy,
-    ...juris.map(() => TRPA.blue),
-    TRPA.ice,
-    TRPA.forest,
-    TRPA.orange,
+    TRPA.navy,                                     // Total Authorized
+    TRPA.purple,                                   // TRPA Pool (middle)
+    ...juris.map(() => TRPA.blue),                 // jurisdictions (middle)
+    TRPA.ice,                                      // Still in TRPA Pool (right)
+    TRPA.orange,                                   // Still in Jurisdiction Pool (right)
+    TRPA.forest,                                   // Private Development Pool (right)
   ];
 
   const src = [], tgt = [], val = [], lnkColor = [];
 
+  // Column 1 → Column 2: Authorized to each pool
+  if (trpaTotal > 0) {
+    src.push(iAuth); tgt.push(iTrpaPool); val.push(trpaTotal);
+    lnkColor.push(hexA(TRPA.purple, 0.30));
+  }
   juris.forEach(j => {
-    const qty = sumQty(jRows.filter(r => r.jurisdiction === j));
-    if (qty > 0) {
-      src.push(iAuth); tgt.push(iJ(j)); val.push(qty);
-      lnkColor.push('rgba(0,114,206,0.25)');     // TRPA blue translucent
+    const jurisTotal = sumQty(jRows.filter(r => r.jurisdiction === j));
+    if (jurisTotal > 0) {
+      src.push(iAuth); tgt.push(iJ(j)); val.push(jurisTotal);
+      lnkColor.push(hexA(TRPA.blue, 0.25));
     }
-    const allocQty = sumQty(jRows.filter(r => r.jurisdiction === j && r.status === 'Allocated'));
-    const availQty = sumQty(jRows.filter(r => r.jurisdiction === j && r.status === 'In Pool'));
-    if (allocQty > 0) { src.push(iJ(j)); tgt.push(iAlloc); val.push(allocQty); lnkColor.push('rgba(74,97,24,0.35)'); }   // forest
-    if (availQty > 0) { src.push(iJ(j)); tgt.push(iAvail); val.push(availQty); lnkColor.push('rgba(232,119,34,0.35)'); } // orange
   });
 
-  const trpaPoolCount = sumQty(rawData.filter(r => r.status === 'TRPA Pool'));
-  // Plus the small set of TRPA-Pool-drawn Allocated rows (jurisdiction=null,
-  // status='Allocated'). Flow them straight from Authorized to Allocated so
-  // they don't get lost.
-  const trpaDrawn = sumQty(rawData.filter(r =>
-    r.status === 'Allocated' && !r.jurisdiction && (r.year || 0) <= yr));
-  if (trpaPoolCount > 0) {
-    src.push(iAuth); tgt.push(iNotYet); val.push(trpaPoolCount);
-    lnkColor.push('rgba(180,203,232,0.55)');  // ice → TRPA pool
+  // Column 2 → Column 3: TRPA Pool to states
+  if (trpaHeld > 0) {
+    src.push(iTrpaPool); tgt.push(iTrpaDest); val.push(trpaHeld);
+    lnkColor.push(hexA(TRPA.ice, 0.55));
   }
   if (trpaDrawn > 0) {
-    src.push(iAuth); tgt.push(iAlloc); val.push(trpaDrawn);
-    lnkColor.push('rgba(74,97,24,0.20)');  // forest, lighter — TRPA-drawn → Allocated
+    src.push(iTrpaPool); tgt.push(iPrivate); val.push(trpaDrawn);
+    lnkColor.push(hexA(TRPA.forest, 0.30));
   }
+
+  // Column 2 → Column 3: each jurisdiction pool to states
+  juris.forEach(j => {
+    const allocQty = sumQty(jRows.filter(r => r.jurisdiction === j && r.status === 'Allocated'));
+    const availQty = sumQty(jRows.filter(r => r.jurisdiction === j && r.status === 'In Pool'));
+    if (allocQty > 0) {
+      src.push(iJ(j)); tgt.push(iPrivate); val.push(allocQty);
+      lnkColor.push(hexA(TRPA.forest, 0.35));
+    }
+    if (availQty > 0) {
+      src.push(iJ(j)); tgt.push(iJurisDest); val.push(availQty);
+      lnkColor.push(hexA(TRPA.orange, 0.35));
+    }
+  });
 
   Plotly.react('sankey-chart', [{
     type: 'sankey', orientation: 'h',
-    node: { pad: 14, thickness: 18, line: { color: TRPA.border, width: 0.5 }, label: nodeLabels, color: nodeColors },
+    node: { pad: 14, thickness: 18,
+            line: { color: TRPA.border, width: 0.5 },
+            label: nodeLabels, color: nodeColors },
     link: { source: src, target: tgt, value: val, color: lnkColor },
   }], {
     font: plotFont, paper_bgcolor: plotPaper,

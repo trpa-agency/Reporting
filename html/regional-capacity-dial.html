@@ -468,7 +468,7 @@ async function renderTransactionsSummary() {
       textposition: 'inside',
       insidetextfont: { color: (SRC_COLOR[s.source] === TRPA.ice) ? TRPA.navy : '#fff',
                         size: 11, family: '"Open Sans"' },
-      hovertemplate: `<b>${s.source}</b>: %{x:,}<extra></extra>`,
+      hovertemplate: `<b>%{x:,}</b> completed<extra>${s.source}</extra>`,
     }));
   Plotly.react('src-stack', traces, {
     barmode: 'stack',
@@ -495,7 +495,7 @@ async function renderTransactionsSummary() {
     name: src, x: years, y: ySeries[src],
     type: 'scatter', mode: 'none', stackgroup: 'one',
     fillcolor: SRC_COLOR[src] || TRPA.ice,
-    hovertemplate: `<b>${src}</b>: %{y:,}<extra></extra>`,
+    hovertemplate: `<b>%{y:,}</b> completed<extra>${src}</extra>`,
   }));
   Plotly.react('annual-chart', annualTraces, {
     font: plotFont,

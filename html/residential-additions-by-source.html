@@ -161,6 +161,7 @@ header h1 span { color: var(--trpa-blue); }
   <button class="toggle-btn active" id="btn-lines"  onclick="setMode('lines')">Lines (counts)</button>
   <button class="toggle-btn"        id="btn-stack"  onclick="setMode('stack')">Stacked area</button>
   <button class="toggle-btn"        id="btn-pct"    onclick="setMode('pct')">Stacked &percnt;</button>
+  <button class="toggle-btn"        id="btn-facet"  onclick="setMode('facet')">Facet (one per source)</button>
 </div>
 
 <!-- Main -->
@@ -248,13 +249,19 @@ let mode = 'lines';
 function setMode(m) {
   mode = m;
   document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
-  document.querySelector('#btn-' + (m === 'lines' ? 'lines' : m === 'stack' ? 'stack' : 'pct')).classList.add('active');
+  const btn = document.querySelector('#btn-' + m);
+  if (btn) btn.classList.add('active');
+  // Use newPlot (not react) when switching to/from facet so subplot axes
+  // are re-created cleanly. Also wipes prior chart state so undefined-prop
+  // edge cases in Plotly.react can't bite us.
+  Plotly.purge('main-chart');
   render();
 }
 
 function render() {
+  if (mode === 'facet') return renderFacet();
+
   const isLines = mode === 'lines';
-  const isStack = mode === 'stack';
   const isPct   = mode === 'pct';
 
   // Compute % data if needed
@@ -269,22 +276,29 @@ function render() {
     }));
   }
 
-  const traces = series.map(s => ({
-    name: s.name,
-    type: 'scatter',
-    mode: isLines ? 'lines+markers' : 'lines',
-    x: YEARS,
-    y: s.data,
-    line:  { color: s.color, width: isLines ? 2.5 : 0.5 },
-    marker: isLines ? { color: s.color, size: 7, line: { color: '#fff', width: 1 } } : undefined,
-    stackgroup: !isLines ? 'one' : undefined,
-    groupnorm:  isPct ? 'percent' : undefined,
-    fill:      !isLines ? 'tonexty' : undefined,
-    fillcolor: !isLines ? hexA(s.color, 0.6) : undefined,
-    hovertemplate: isPct
-      ? '<b>%{y:.1f}%</b> &middot; ' + s.name + '<extra>%{x}</extra>'
-      : '<b>%{y:,}</b> units &middot; ' + s.name + '<extra>%{x}</extra>',
-  }));
+  // Build trace objects WITHOUT undefined keys (Plotly chokes on `marker: undefined`)
+  const traces = series.map(s => {
+    const t = {
+      name: s.name,
+      type: 'scatter',
+      mode: isLines ? 'lines+markers' : 'lines',
+      x: YEARS,
+      y: s.data,
+      line: { color: s.color, width: isLines ? 2.5 : 0.5 },
+      hovertemplate: isPct
+        ? '<b>%{y:.1f}%</b> &middot; ' + s.name + '<extra>%{x}</extra>'
+        : '<b>%{y:,}</b> units &middot; ' + s.name + '<extra>%{x}</extra>',
+    };
+    if (isLines) {
+      t.marker = { color: s.color, size: 7, line: { color: '#fff', width: 1 } };
+    } else {
+      t.stackgroup = 'one';
+      t.fill       = 'tonexty';
+      t.fillcolor  = hexA(s.color, 0.6);
+      if (isPct) t.groupnorm = 'percent';
+    }
+    return t;
+  });
 
   const layout = {
     font: plotFont,
@@ -307,7 +321,96 @@ function render() {
     annotations: isLines ? bonusAnnotation() : [],
   };
 
-  Plotly.react('main-chart', traces, layout, { responsive: true, displayModeBar: false });
+  Plotly.newPlot('main-chart', traces, layout, { responsive: true, displayModeBar: false });
+}
+
+// ─────────────────────────────────────────
+// FACET MODE — one small chart per source, 3x2 grid
+// ─────────────────────────────────────────
+function renderFacet() {
+  // Common Y range for visual comparability across panels
+  const maxY = Math.max(...SOURCES.flatMap(s => s.data));
+  const yMax = Math.ceil(maxY / 10) * 10 + 5;
+
+  // 3 columns × 2 rows (5 sources fit; last cell empty)
+  const COLS = 3, ROWS = 2;
+  const traces = [];
+  const annotations = [];
+  const axes = {};
+
+  SOURCES.forEach((s, i) => {
+    const xref = i === 0 ? 'x' : 'x' + (i + 1);
+    const yref = i === 0 ? 'y' : 'y' + (i + 1);
+    const total = s.data.reduce((a, b) => a + b, 0);
+
+    traces.push({
+      name: s.name,
+      type: 'scatter', mode: 'lines+markers',
+      x: YEARS, y: s.data,
+      xaxis: xref, yaxis: yref,
+      line:   { color: s.color, width: 2 },
+      marker: { color: s.color, size: 5, line: { color: '#fff', width: 1 } },
+      fill: 'tozeroy',
+      fillcolor: hexA(s.color, 0.18),
+      showlegend: false,
+      hovertemplate: '<b>%{y:,}</b> units &middot; ' + s.name + '<extra>%{x}</extra>',
+    });
+
+    // Panel title with running total — placed inside each subplot
+    annotations.push({
+      xref: xref + ' domain', yref: yref + ' domain',
+      x: 0.02, y: 0.98, xanchor: 'left', yanchor: 'top',
+      text: '<b>' + s.name + '</b>  <span style="color:#8a9bb2;font-size:10px">&middot; ' + total.toLocaleString() + ' total</span>',
+      showarrow: false,
+      font: { color: s.color, size: 12, family: '"Open Sans"' },
+    });
+  });
+
+  // Build per-panel axes manually (Plotly grid with shared axes doesn't
+  // give us per-panel x-axis labels and we want them on every panel for clarity)
+  const totalGap = 0.10;  // horizontal gap fraction between cols
+  const totalRowGap = 0.18;
+  const cellW = (1 - totalGap * (COLS - 1)) / COLS;
+  const cellH = (1 - totalRowGap * (ROWS - 1)) / ROWS;
+
+  for (let i = 0; i < SOURCES.length; i++) {
+    const col = i % COLS;
+    const row = Math.floor(i / COLS);
+    const xKey = 'xaxis' + (i === 0 ? '' : (i + 1));
+    const yKey = 'yaxis' + (i === 0 ? '' : (i + 1));
+    const x0   = col * (cellW + totalGap);
+    const x1   = x0 + cellW;
+    const y1   = 1 - row * (cellH + totalRowGap);
+    const y0   = y1 - cellH;
+    axes[xKey] = {
+      domain: [x0, x1],
+      anchor: 'y' + (i === 0 ? '' : (i + 1)),
+      tickmode: 'linear', dtick: 2,
+      gridcolor: '#eef1f6', linecolor: TRPA.ice,
+      tickfont: { size: 9, color: TRPA.navy },
+      showgrid: true,
+    };
+    axes[yKey] = {
+      domain: [y0, y1],
+      anchor: 'x' + (i === 0 ? '' : (i + 1)),
+      range: [0, yMax],
+      gridcolor: '#eef1f6', linecolor: TRPA.ice,
+      tickfont: { size: 9, color: TRPA.navy },
+      showgrid: true,
+      zeroline: true, zerolinecolor: '#d8dde6',
+    };
+  }
+
+  const layout = Object.assign({
+    font: plotFont,
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor:  'rgba(0,0,0,0)',
+    margin: { t: 16, r: 16, b: 36, l: 40 },
+    showlegend: false,
+    annotations,
+  }, axes);
+
+  Plotly.newPlot('main-chart', traces, layout, { responsive: true, displayModeBar: false });
 }
 
 // Highlight the 2024-25 bonus surge inflection in line mode
