@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Track A (Genealogy) — TRPA Development-Rights ERD</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --panel: #161b22;
+    --fg: #c9d1d9;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --accent2: #3fb950;
+    --border: #30363d;
+    --code-bg: #161b22;
+  }
+  html, body { background: var(--bg); color: var(--fg); font-family: -apple-system, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; margin: 0; padding: 0; line-height: 1.6; }
+  header.docnav { background: var(--panel); padding: 10px 20px; border-bottom: 1px solid var(--border); font-size: 13px; position: sticky; top: 0; z-index: 10; display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; }
+  header.docnav .brand { font-weight: 600; color: var(--fg); }
+  header.docnav a { color: var(--accent); text-decoration: none; white-space: nowrap; }
+  header.docnav a.active { color: var(--fg); font-weight: 600; }
+  header.docnav a.viewer { color: var(--accent2); }
+  header.docnav a:hover { text-decoration: underline; }
+  main.content { max-width: 920px; margin: 0 auto; padding: 32px 24px 96px; }
+  h1, h2, h3, h4 { color: var(--fg); margin-top: 1.6em; margin-bottom: 0.6em; line-height: 1.25; }
+  h1 { border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-top: 0.5em; }
+  h2 { border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+  p { margin: 0.8em 0; }
+  a { color: var(--accent); }
+  a:hover { text-decoration: underline; }
+  code { background: var(--code-bg); padding: 2px 6px; border-radius: 3px; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 88%; color: #c9d1d9; }
+  pre { background: var(--code-bg); padding: 16px; border-radius: 6px; overflow-x: auto; border: 1px solid var(--border); }
+  pre code { background: none; padding: 0; font-size: 90%; line-height: 1.5; }
+  blockquote { border-left: 3px solid var(--accent); color: var(--muted); margin: 16px 0; padding: 4px 16px; background: rgba(88, 166, 255, 0.04); }
+  blockquote p { margin: 0.4em 0; }
+  table { border-collapse: collapse; margin: 16px 0; display: block; overflow-x: auto; }
+  th, td { border: 1px solid var(--border); padding: 6px 13px; text-align: left; vertical-align: top; }
+  th { background: var(--panel); font-weight: 600; }
+  tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+  ul, ol { padding-left: 28px; }
+  li { margin: 4px 0; }
+  hr { border: 0; border-top: 1px solid var(--border); margin: 32px 0; }
+  .mermaid { background: #0b0f14; padding: 20px; border-radius: 6px; border: 1px solid var(--border); margin: 16px 0; overflow-x: auto; text-align: center; }
+  img { max-width: 100%; }
+</style>
+</head>
+<body>
+<header class="docnav">
+  <span class="brand">TRPA ERD</span>
+  <a href="README.html">README</a>
+  <a href="target_schema.html">Target Schema</a>
+  <a href="proposed_dashboards.html">Dashboards</a>
+  <a href="dashboards_to_schema_trace.html">Dashboards → Schema Trace</a>
+  <a href="genealogy_track.html" class="active">Track A (Genealogy)</a>
+  <a href="allocation_track.html">Track B (Allocations)</a>
+  <a href="qa_corrections_track.html">Track C (QA Corrections)</a>
+  <a href="cumulative_accounting_reference.html">Cumulative Accounting Reference</a>
+  <a href="raw_data_vs_corral.html">raw_data vs Corral</a>
+  <a href="validation_findings.html">Validation Findings</a>
+  <a href="xlsx_decomposition.html">XLSX Decomposition</a>
+  <a href="corral_tables.html">Corral Tables</a>
+  <a href="next_steps.html">next_steps</a>
+  <a class="viewer" href="development_rights_erd.html">Interactive ERD →</a>
+</header>
+<main class="content">
+<h1 id="track-a-genealogy-current-parcel">Track A — Genealogy → Current Parcel</h1>
+<blockquote>
+<p><strong>Status: existing infra in place; canonical resolver pending consolidation.</strong>
+<strong>Audience: TRPA dev team, anyone reading or extending the genealogy pipeline.</strong></p>
+</blockquote>
+<p>One of three parallel tracks of work in this repo (the others are Track B — Allocation Tracking, and Track C — QA Corrections). Track A's job is <strong>never lose track of an APN</strong> as parcels split, merge, get renamed, or shift format (the 2018 leading-zero reformat that affected multiple counties). Every other track joins on parcel; Track A is the substrate that makes those joins reliable.</p>
+<h2 id="what-this-track-does">What this track does</h2>
+<p>Three responsibilities:</p>
+<ol>
+<li><strong>APN canonicalization</strong> — turn any raw APN string into a single canonical form. Implemented in <a href="../parcel_development_history_etl/utils.py"><code>parcel_development_history_etl/utils.py</code></a> as <code>canonical_apn(raw)</code> (broad — pads any standard <code>NNN-NNN-NN(N)</code> to 3-digit third segment) plus the existing <code>el_pad</code>/<code>el_depad</code> for El-Dorado-specific cases.</li>
+<li><strong>Genealogy event sourcing</strong> — collect parcel split/merge/rename events from 4 distinct source systems into per-source CSVs, and a master CSV that consolidates them. Today this lives across multiple scripts; goal is a single canonical resolver.</li>
+<li><strong>APN resolution at query time</strong> — given an APN and an as-of date, walk the genealogy chain to return the canonical parcel ID at that date. Schema target: <code>fn_resolve_apn(@apn, @as_of)</code> (proposed in <a href="./target_schema.html">target_schema.md</a>).</li>
+</ol>
+<h2 id="source-systems-4-lineages-currently-independent">Source systems (4 lineages, currently independent)</h2>
+<p>Each genealogy CSV in <a href="../data/qa_data/"><code>data/qa_data/</code></a> carries one source's view of parcel changes:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Source</th>
+<th style="text-align: right;">Rows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../data/qa_data/apn_genealogy_master.csv"><code>apn_genealogy_master.csv</code></a></td>
+<td>Manual master (Ken-curated)</td>
+<td style="text-align: right;">~5K</td>
+</tr>
+<tr>
+<td><a href="../data/qa_data/apn_genealogy_accela.csv"><code>apn_genealogy_accela.csv</code></a></td>
+<td>Accela permit system parent/child links</td>
+<td style="text-align: right;">~30K</td>
+</tr>
+<tr>
+<td><a href="../data/qa_data/apn_genealogy_ltinfo.csv"><code>apn_genealogy_ltinfo.csv</code></a></td>
+<td>LT Info parcel records</td>
+<td style="text-align: right;">~3K</td>
+</tr>
+<tr>
+<td><a href="../data/qa_data/apn_genealogy_spatial.csv"><code>apn_genealogy_spatial.csv</code></a></td>
+<td>Spatial overlap detection (geometric)</td>
+<td style="text-align: right;">~1K</td>
+</tr>
+<tr>
+<td><a href="../data/qa_data/apn_genealogy_tahoe.csv"><code>apn_genealogy_tahoe.csv</code></a></td>
+<td>Consolidated current-best-guess (input to ETL)</td>
+<td style="text-align: right;">~37K</td>
+</tr>
+</tbody>
+</table>
+<p>Each script (<code>build_genealogy_master.py</code>, <code>parse_genealogy_sources.py</code>, <code>build_spatial_genealogy.py</code>, <code>s02b_genealogy.py</code>) maintains its own slice. The consolidation step (<code>s02b_genealogy.py</code>) is the one closest to a canonical resolver but doesn't yet expose <code>fn_resolve_apn</code> cleanly to other tracks.</p>
+<h2 id="data-flow">Data flow</h2>
+<pre><code>                  ┌─────────────────────────────────────────────────┐
+                  │  Source systems (4)                             │
+                  │  Manual master · Accela · LT Info · Spatial     │
+                  └──────────────────────┬──────────────────────────┘
+                                         │
+            [parse_genealogy_sources.py + build_genealogy_master.py +
+                            build_spatial_genealogy.py]
+                                         │
+                                         ▼
+                  ┌─────────────────────────────────────────────────┐
+                  │  data/qa_data/apn_genealogy_*.csv (5 files)     │
+                  └──────────────────────┬──────────────────────────┘
+                                         │
+                       [s02b_genealogy.py (in main ETL)]
+                                         │
+                                         ▼
+                  ┌─────────────────────────────────────────────────┐
+                  │  Canonical APN resolver — used by every track   │
+                  │  (currently per-script; goal: utils-level fn)   │
+                  └─────────────────────────────────────────────────┘
+                                         │
+        ┌────────────────────────────────┼────────────────────────────────┐
+        ▼                                ▼                                ▼
+  Track B (allocations)           Track C (QA corrections)         Track A QA
+  joins parcels via canonical     joins Ken's CA Changes via       internal
+  APN to allocation/permit        canonical APN to s06             validation
+                                  detections
+</code></pre>
+<h2 id="key-utilities-use-these-dont-reinvent">Key utilities (use these, don't reinvent)</h2>
+<pre><code class="language-python">from parcel_development_history_etl.utils import canonical_apn, el_pad, el_depad
+</code></pre>
+<ul>
+<li><strong><code>canonical_apn(raw)</code></strong> — broad. Pads any <code>NNN-NNN-NN(N)</code> to 3-digit third segment. Returns <code>None</code> for empty/NaN. Other formats (Douglas long-form <code>1418-03-301-010</code>) pass through unchanged. <strong>This is what Track C's loader uses.</strong></li>
+<li><strong><code>el_pad(apn)</code></strong> — El-Dorado-specific 2→3 digit pad.</li>
+<li><strong><code>el_depad(apn)</code></strong> — reverse direction.</li>
+</ul>
+<h2 id="cadence">Cadence</h2>
+<ul>
+<li><strong>Continuous</strong> — new genealogy events get detected as the source systems change. No formal "sweep" cadence like Track C; the master CSV gets updated as needed.</li>
+<li><strong>APN canonicalization is read-time</strong> — every track that joins on parcel calls <code>canonical_apn</code> on the input string before lookup. No batch normalization step.</li>
+</ul>
+<h2 id="open-issues">Open issues</h2>
+<h3 id="o1-consolidate-the-4-source-csvs-into-one-canonical-resolver">O1. Consolidate the 4 source CSVs into one canonical resolver</h3>
+<p>Currently each script has its own consolidation logic. Goal: a single <code>fn_resolve_apn(@apn, @as_of)</code> (proposed in <code>target_schema.md</code>'s implementation notes) that walks the merged genealogy graph and returns the canonical APN at the requested date. Termination conditions, tie-breaking, cycle detection all already specified — see <code>target_schema.md</code> §"Multi-hop genealogy resolver."</p>
+<h3 id="o2-schema-land-parcelgenealogyeventenriched">O2. Schema land — <code>ParcelGenealogyEventEnriched</code></h3>
+<p><code>target_schema.md</code> proposes this as a 10+ column extension over Corral's 3-column <code>dbo.ParcelGenealogy</code>. Carries <code>EventType</code>, <code>IsPrimary</code>, <code>OverlapPct</code>, <code>Source</code>, <code>SourcePriority</code>, <code>Confidence</code>, <code>Verified</code>. Once the schema lands, the 4 CSVs feed it instead of staying as flat files.</p>
+<h3 id="o3-genealogy-restatement-change-events">O3. Genealogy-restatement change events</h3>
+<p>When a new <code>old_apn → new_apn</code> mapping affects historical rows in <code>ParcelExistingDevelopment</code>, do we <strong>rewrite</strong> in place or insert <code>ChangeSource='genealogy_restatement'</code> rows in <code>ParcelDevelopmentChangeEvent</code>? Q8 in <code>target_schema.md</code> recommends the latter (preserves audit trail). Need to wire that into <code>s02b_genealogy.py</code>.</p>
+<h3 id="o4-track-a-uses-track-as-own-canonicalization-but-track-c-bypassed-s02b_genealogypy">O4. Track A uses Track A's own canonicalization, but Track C bypassed s02b_genealogy.py</h3>
+<p>The loader notebook <code>04_load_ca_changes.ipynb</code> calls <code>canonical_apn</code> directly from <code>utils.py</code> instead of going through <code>s02b_genealogy.py</code>. That's fine for the leading-zero case but doesn't catch APN renames or splits. Once O1 lands, Track C should switch to the resolver function.</p>
+<h3 id="o5-csv-vs-db-resolver">O5. CSV vs DB resolver</h3>
+<p>For now the resolver runs in Python on CSV inputs. Once the DB schema lands, <code>fn_resolve_apn</code> becomes a SQL function. The Python and SQL versions should produce identical output — a contract test would catch drift.</p>
+<h2 id="where-this-fits-in-the-broader-3-track-plan">Where this fits in the broader 3-track plan</h2>
+<table>
+<thead>
+<tr>
+<th>Track</th>
+<th>Relationship to Track A</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A — Genealogy</strong> <em>(this doc)</em></td>
+<td>substrate: every parcel join goes through canonical APN</td>
+</tr>
+<tr>
+<td><strong>B — Allocations</strong></td>
+<td>uses canonical APN to join allocations to parcels and to dashboards' parcel-grain views</td>
+</tr>
+<tr>
+<td><strong>C — QA Corrections</strong></td>
+<td>uses canonical APN to load Ken's per-APN CA Changes; once O1 lands, switches to full resolver</td>
+</tr>
+</tbody>
+</table>
+<p>Track A is the most stable but also the most under-documented. The ETL scripts work; the schema proposal is in <code>target_schema.md</code>; this doc consolidates the moving parts in one place.</p>
+<h2 id="files-reference">Files reference</h2>
+<ul>
+<li><strong>Schema:</strong> <a href="./target_schema.html"><code>target_schema.md</code></a> §<code>ParcelGenealogyEventEnriched</code> and §"Multi-hop genealogy resolver"</li>
+<li><strong>Utils:</strong> <a href="../parcel_development_history_etl/utils.py"><code>../parcel_development_history_etl/utils.py</code></a> — <code>canonical_apn</code>, <code>el_pad</code>, <code>el_depad</code></li>
+<li><strong>ETL step:</strong> <a href="../parcel_development_history_etl/steps/s02b_genealogy.py"><code>../parcel_development_history_etl/steps/s02b_genealogy.py</code></a></li>
+<li><strong>Source builders:</strong> <a href="../parcel_development_history_etl/scripts/parse_genealogy_sources.py"><code>../parcel_development_history_etl/scripts/parse_genealogy_sources.py</code></a>, <a href="../parcel_development_history_etl/scripts/build_genealogy_master.py"><code>build_genealogy_master.py</code></a>, <a href="../parcel_development_history_etl/scripts/build_spatial_genealogy.py"><code>build_spatial_genealogy.py</code></a></li>
+<li><strong>Source CSVs:</strong> <a href="../data/qa_data/"><code>../data/qa_data/apn_genealogy_*.csv</code></a> (5 files)</li>
+<li><strong>Diagnostic scripts:</strong> <a href="../parcel_development_history_etl/scripts/"><code>../parcel_development_history_etl/scripts/diagnose_*.py</code></a> — investigation tools used during the 2026 sweep to root-cause unknown APNs</li>
+</ul>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  if (typeof mermaid !== 'undefined') {
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: { darkMode: true, background: '#0b0f14' },
+      er: { useMaxWidth: true },
+      maxTextSize: 500000,
+      securityLevel: 'loose'
+    });
+  }
+</script>
+</body>
+</html>

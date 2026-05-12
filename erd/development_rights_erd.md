@@ -11,7 +11,7 @@
 > proposed new schema, see [target_schema.md](./target_schema.md) —
 > anchored on the TRPA Cumulative Accounting framework (5 buckets per
 > commodity per jurisdiction, 7 movement types). Also see
-> [cumulative_accounting_reference.md](./cumulative_accounting_reference.md)
+> the `trpa-cumulative-accounting` skill (or archived [`_archive/cumulative_accounting_reference.md`](./_archive/cumulative_accounting_reference.md))
 > for the full vocabulary. The HTML viewer
 > [development_rights_erd.html](./development_rights_erd.html) shows
 > existing systems **and** the proposed schema side-by-side as tabs.

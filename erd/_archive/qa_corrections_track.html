@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Track C (QA Corrections) — TRPA Development-Rights ERD</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --panel: #161b22;
+    --fg: #c9d1d9;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --accent2: #3fb950;
+    --border: #30363d;
+    --code-bg: #161b22;
+  }
+  html, body { background: var(--bg); color: var(--fg); font-family: -apple-system, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; margin: 0; padding: 0; line-height: 1.6; }
+  header.docnav { background: var(--panel); padding: 10px 20px; border-bottom: 1px solid var(--border); font-size: 13px; position: sticky; top: 0; z-index: 10; display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; }
+  header.docnav .brand { font-weight: 600; color: var(--fg); }
+  header.docnav a { color: var(--accent); text-decoration: none; white-space: nowrap; }
+  header.docnav a.active { color: var(--fg); font-weight: 600; }
+  header.docnav a.viewer { color: var(--accent2); }
+  header.docnav a:hover { text-decoration: underline; }
+  main.content { max-width: 920px; margin: 0 auto; padding: 32px 24px 96px; }
+  h1, h2, h3, h4 { color: var(--fg); margin-top: 1.6em; margin-bottom: 0.6em; line-height: 1.25; }
+  h1 { border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-top: 0.5em; }
+  h2 { border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+  p { margin: 0.8em 0; }
+  a { color: var(--accent); }
+  a:hover { text-decoration: underline; }
+  code { background: var(--code-bg); padding: 2px 6px; border-radius: 3px; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 88%; color: #c9d1d9; }
+  pre { background: var(--code-bg); padding: 16px; border-radius: 6px; overflow-x: auto; border: 1px solid var(--border); }
+  pre code { background: none; padding: 0; font-size: 90%; line-height: 1.5; }
+  blockquote { border-left: 3px solid var(--accent); color: var(--muted); margin: 16px 0; padding: 4px 16px; background: rgba(88, 166, 255, 0.04); }
+  blockquote p { margin: 0.4em 0; }
+  table { border-collapse: collapse; margin: 16px 0; display: block; overflow-x: auto; }
+  th, td { border: 1px solid var(--border); padding: 6px 13px; text-align: left; vertical-align: top; }
+  th { background: var(--panel); font-weight: 600; }
+  tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+  ul, ol { padding-left: 28px; }
+  li { margin: 4px 0; }
+  hr { border: 0; border-top: 1px solid var(--border); margin: 32px 0; }
+  .mermaid { background: #0b0f14; padding: 20px; border-radius: 6px; border: 1px solid var(--border); margin: 16px 0; overflow-x: auto; text-align: center; }
+  img { max-width: 100%; }
+</style>
+</head>
+<body>
+<header class="docnav">
+  <span class="brand">TRPA ERD</span>
+  <a href="README.html">README</a>
+  <a href="target_schema.html">Target Schema</a>
+  <a href="proposed_dashboards.html">Dashboards</a>
+  <a href="dashboards_to_schema_trace.html">Dashboards → Schema Trace</a>
+  <a href="genealogy_track.html">Track A (Genealogy)</a>
+  <a href="allocation_track.html">Track B (Allocations)</a>
+  <a href="qa_corrections_track.html" class="active">Track C (QA Corrections)</a>
+  <a href="cumulative_accounting_reference.html">Cumulative Accounting Reference</a>
+  <a href="raw_data_vs_corral.html">raw_data vs Corral</a>
+  <a href="validation_findings.html">Validation Findings</a>
+  <a href="xlsx_decomposition.html">XLSX Decomposition</a>
+  <a href="corral_tables.html">Corral Tables</a>
+  <a href="next_steps.html">next_steps</a>
+  <a class="viewer" href="development_rights_erd.html">Interactive ERD →</a>
+</header>
+<main class="content">
+<h1 id="track-c-qa-corrections">Track C — QA Corrections</h1>
+<blockquote>
+<p><strong>Status: prototype landed (loader + reconciliation + schema sidecar). Dashboard E1 next.</strong>
+<strong>Audience: Ken, Dan, anyone reading or extending the QA tracking pipeline.</strong></p>
+</blockquote>
+<p>One of three parallel tracks of work in this repo (the others are Track A — Genealogy → Current Parcel, and Track B — Allocation Tracking). Track C captures every QA adjustment to existing-development quantities with rationale, so Ken's Excel-only audit trail becomes a queryable structured store.</p>
+<h2 id="what-this-track-does">What this track does</h2>
+<p>Ken's master record of QA corrections lives at <a href="../data/qa_data/CA Changes breakdown.xlsx"><code>data/qa_data/CA Changes breakdown.xlsx</code></a> (and its committed copy at <a href="../from_ken/CA Changes breakdown.xlsx"><code>from_ken/CA Changes breakdown.xlsx</code></a>). It carries 44,371 row-cycles of per-APN change rationale across the <strong>2023 and 2026 big-sweep campaigns</strong>. Track C does three things with it:</p>
+<ol>
+<li><strong>Schema</strong> — <code>target_schema.md</code> defines <code>QaCorrectionDetail</code> as a sidecar (1:0..1) to <code>ParcelDevelopmentChangeEvent</code> when <code>ChangeSource='qa_correction'</code>, plus a <code>RawAPN</code> audit column.</li>
+<li><strong>Loader</strong> — <code>notebooks/04_load_ca_changes.ipynb</code> reads the XLSX and emits normalized CSVs matching the proposed schema shape.</li>
+<li><strong>Reconciliation bridge</strong> — <code>notebooks/05_qa_reconciliation.ipynb</code> joins the loader's events against the 8 reconciliation reports <code>s06_qa.py</code> already writes, so every automated detection gets labeled <code>addressed_2023</code>, <code>addressed_2026</code>, <code>addressed_both</code>, or <code>pending</code>.</li>
+</ol>
+<h2 id="reporting-cadence">Reporting cadence</h2>
+<ul>
+<li><strong>Annual</strong> cumulative accounting reports — every year, includes corrections trickled in since the last report.</li>
+<li><strong>Periodic big sweeps</strong> — TRPA ran one in 2023, another in 2026, more in the future. These produce the volume of corrections in Ken's XLSX. The schema's <code>SweepCampaign</code> column flags rows from these specifically (<code>'2023_big_sweep'</code>, <code>'2026_big_sweep'</code>, etc.); rolling-correction years populate <code>SweepCampaign=NULL</code>.</li>
+</ul>
+<h2 id="data-flow">Data flow</h2>
+<pre><code>                 ┌─────────────────────────────────────────────┐
+                 │  Ken's XLSX (data/qa_data/CA Changes.xlsx)  │
+                 │  44,371 rows × {APN, 2023 delta + reason,   │
+                 │                  2026 delta + reason}       │
+                 └──────────────────────┬──────────────────────┘
+                                        │
+                       [04_load_ca_changes.ipynb]
+                                        │
+                                        ▼
+       ┌──────────────────────────┐    ┌─────────────────────────────┐
+       │  qa_change_events.csv    │    │  qa_correction_detail.csv   │
+       │  5,925 rows (parent)     │◄───┤  5,925 rows (sidecar)       │
+       └────────────┬─────────────┘    └─────────────────────────────┘
+                    │
+                    │              ┌──────────────────────────────┐
+                    │              │  s06_qa.py outputs (3 CSVs)  │
+                    │              │  QA_Lost_APNs (698)          │
+                    │              │  QA_FC_Units_Not_In_CSV (158K)│
+                    │              │  QA_Unit_Reconciliation (60K) │
+                    │              └──────────────┬───────────────┘
+                    │                             │
+                    └──────────[05_qa_reconciliation.ipynb]──────┐
+                                                                  ▼
+                                         ┌────────────────────────────────────┐
+                                         │  qa_reconciliation_status.csv      │
+                                         │  218,192 rows (one per s06 finding)│
+                                         │  Status ∈ {addressed_*, pending}   │
+                                         └────────────────────────────────────┘
+                                         ┌────────────────────────────────────┐
+                                         │  qa_ken_only_corrections.csv       │
+                                         │  1,035 rows (Ken corrected, s06    │
+                                         │  didn't flag)                      │
+                                         └────────────────────────────────────┘
+                                                                  │
+                                                                  ▼
+                                              [Future: dashboard E1, AG Grid table
+                                               filterable by Status / Year / Source]
+</code></pre>
+<h2 id="outputs-reference">Outputs reference</h2>
+<p>All in <a href="../data/qa_data/"><code>data/qa_data/</code></a>:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th style="text-align: right;">Rows</th>
+<th>What it is</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>qa_change_events.csv</code></td>
+<td style="text-align: right;">5,925</td>
+<td>Parent rows: subset of proposed <code>ParcelDevelopmentChangeEvent</code> columns. One per <code>(APN, ReportingYear)</code> cycle with non-zero delta.</td>
+</tr>
+<tr>
+<td><code>qa_correction_detail.csv</code></td>
+<td style="text-align: right;">5,925</td>
+<td>Sidecar rows mirroring proposed <code>QaCorrectionDetail</code>. Carries <code>ReportingYear</code>, <code>SweepCampaign</code>, <code>CorrectionCategory</code>, <code>SummaryReason</code>, <code>RawAPN</code>, <code>SourceFileSnapshot</code>.</td>
+</tr>
+<tr>
+<td><code>qa_load_orphans.csv</code></td>
+<td style="text-align: right;">4,137</td>
+<td>Validation issues from the loader. Mostly noncanonical category labels (Ken's wording paraphrases Sheet2's controlled vocab) — informational, not blocking.</td>
+</tr>
+<tr>
+<td><code>qa_reconciliation_status.csv</code></td>
+<td style="text-align: right;">218,192</td>
+<td>One row per s06 finding, labeled by Ken's address status. Sourced from 3 s06 CSVs (<code>QA_Lost_APNs</code>, <code>QA_FC_Units_Not_In_CSV</code>, <code>QA_Unit_Reconciliation</code>).</td>
+</tr>
+<tr>
+<td><code>qa_ken_only_corrections.csv</code></td>
+<td style="text-align: right;">1,035</td>
+<td>Ken's events with no matching s06 finding — pre-detection corrections, s06 false negatives, or out-of-scope work.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="headline-numbers-latest-run">Headline numbers (latest run)</h2>
+<p><strong>Loader:</strong> 5,925 events emitted (3,864 from 2023 sweep, 2,061 from 2026 sweep). <strong>30.2% of category labels match Sheet2's canonical vocab</strong> — Ken's Sheet1 wording paraphrases Sheet2.</p>
+<p><strong>Reconciliation:</strong> 218,192 s06 findings labeled.</p>
+<table>
+<thead>
+<tr>
+<th>Status</th>
+<th style="text-align: right;">Count</th>
+<th style="text-align: right;">%</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>addressed_2023</code></td>
+<td style="text-align: right;">5,575</td>
+<td style="text-align: right;">2.6%</td>
+</tr>
+<tr>
+<td><code>addressed_2026</code></td>
+<td style="text-align: right;">11,051</td>
+<td style="text-align: right;">5.1%</td>
+</tr>
+<tr>
+<td><code>addressed_both</code></td>
+<td style="text-align: right;">8,659</td>
+<td style="text-align: right;">4.0%</td>
+</tr>
+<tr>
+<td><code>pending</code></td>
+<td style="text-align: right;">192,907</td>
+<td style="text-align: right;"><strong>88.4%</strong></td>
+</tr>
+</tbody>
+</table>
+<p>By s06 source — % addressed gives QA throughput per detection type:</p>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th style="text-align: right;">Total</th>
+<th style="text-align: right;">Addressed</th>
+<th style="text-align: right;">%</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>QA_Lost_APNs</code></td>
+<td style="text-align: right;">698</td>
+<td style="text-align: right;">480</td>
+<td style="text-align: right;"><strong>69%</strong></td>
+</tr>
+<tr>
+<td><code>QA_Unit_Reconciliation</code></td>
+<td style="text-align: right;">59,674</td>
+<td style="text-align: right;">15,805</td>
+<td style="text-align: right;">26%</td>
+</tr>
+<tr>
+<td><code>QA_FC_Units_Not_In_CSV</code></td>
+<td style="text-align: right;">157,820</td>
+<td style="text-align: right;">9,000</td>
+<td style="text-align: right;"><strong>6%</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Biggest remaining QA pile:</strong> <code>QA_FC_Units_Not_In_CSV</code> at 149K untouched detections. That's where the next sweep campaign will spend most of its time.</p>
+<h2 id="refresh-workflow">Refresh workflow</h2>
+<p>When Ken sends a new XLSX (or after a future sweep):</p>
+<ol>
+<li>Drop the new file at <code>from_ken/CA Changes breakdown.xlsx</code> (canonical, committed) or <code>data/qa_data/CA Changes breakdown.xlsx</code> (working).</li>
+<li>Re-run <code>notebooks/04_load_ca_changes.ipynb</code> end-to-end (target ~30 sec for ~44K rows).</li>
+<li>Re-run <code>notebooks/05_qa_reconciliation.ipynb</code> (~2 min, joins 218K s06 rows).</li>
+<li>Diff the new <code>qa_reconciliation_status.csv</code> against the prior version to see "what got addressed since last run".</li>
+<li>Commit the new outputs.</li>
+</ol>
+<p>The loader is <strong>idempotent on <code>SourceFileSnapshot</code></strong> (a string of the form <code>CA Changes breakdown.xlsx@2026-04-30</code> derived from the file's mtime). The eventual DB load will UPSERT on <code>(RawAPN, ReportingYear, SourceFileSnapshot)</code>.</p>
+<h2 id="open-issues">Open issues</h2>
+<h3 id="o1-30-canonical-vocab-match-rate-needs-kens-input">O1. 30% canonical-vocab match rate — needs Ken's input</h3>
+<p>Only 30.2% of Ken's Sheet1 category labels match Sheet2's controlled vocabulary exactly. The other 70% are paraphrases. Two ways to fix:</p>
+<ul>
+<li><strong>Option A: expand Sheet2 vocab</strong> — add the variant labels Ken actually uses to the Sheet2 list. Loader's <code>VOCAB_2023</code> / <code>VOCAB_2026</code> sets pick them up automatically.</li>
+<li><strong>Option B: build a Sheet1→Sheet2 mapping table</strong> — preserve Sheet2's tight 9+5 vocab; map each Sheet1 variant to its canonical equivalent in a new lookup CSV (<code>qa_data/correction_category_mapping.csv</code>).</li>
+</ul>
+<p>Top noncanonical labels for Ken to triage (each has 500+ rows):</p>
+<pre><code>Corrections - Units Removed Based on County Data                                        890
+Unit(s) not previously counted. Constructed in or before 2012. Verified with County.    733
+Correction Based on County Data                                                         696
+Mobile Home Park Corrections                                                            582
+Over-Correction                                                                         349
+</code></pre>
+<p>Recommend <strong>Option B</strong> — preserves Sheet2 as the authoritative list and avoids vocabulary drift; the mapping table is easy to extend per future sweep.</p>
+<h3 id="o2-year-aware-reconciliation-matching">O2. Year-aware reconciliation matching</h3>
+<p>Current reconciliation matches by APN only. Refinement: a Ken cycle-Y correction can only address an s06 finding for Year X if X ≤ Y (a 2023 correction can't fix a 2024 detection). Update tightens the "addressed" count and reveals more <code>pending</code> rows for follow-up.</p>
+<h3 id="o3-compute-previousnew-quantities">O3. Compute Previous/New quantities</h3>
+<p>Ken's XLSX carries deltas only. To populate <code>PreviousQuantity</code> / <code>NewQuantity</code> on <code>ParcelDevelopmentChangeEvent</code> (per the schema), join to <code>from_ken/FINAL RES SUMMARY 2012 to 2025.xlsx</code> Residential sheet by canonical APN. Deferred from the prototype.</p>
+<h3 id="o4-resolve-commodity-per-row">O4. Resolve commodity per row</h3>
+<p>Loader currently writes <code>CommodityShortName='SFRUU_or_MFRUU_TBD'</code> because Ken's data is residential but doesn't split SFRUU/MFRUU/ADU. Once the schema lands, look up per parcel from <code>dbo.ParcelCommodityInventory</code> or the existing-development snapshot.</p>
+<h3 id="o5-promote-to-production-script">O5. Promote to production script</h3>
+<p>Once stable, fold both notebooks into <code>parcel_development_history_etl/steps/s07_load_and_reconcile_ca_changes.py</code> so they run as part of the standard ETL.</p>
+<h2 id="where-this-fits-in-the-broader-3-track-plan">Where this fits in the broader 3-track plan</h2>
+<table>
+<thead>
+<tr>
+<th>Track</th>
+<th>Owner concept</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A. Genealogy → Current Parcel</strong></td>
+<td>Never let an APN lose track</td>
+<td>Existing infra (<code>apn_genealogy_*.csv</code>, <code>s02b_genealogy.py</code>); not yet swept</td>
+</tr>
+<tr>
+<td><strong>B. Allocation Tracking</strong></td>
+<td>Where allocations sit + pool drawdown</td>
+<td>Mostly done — dashboards live (<code>html/allocation_drawdown.html</code>, <code>html/allocation-tracking.html</code>, <code>html/residential-additions-by-source.html</code>)</td>
+</tr>
+<tr>
+<td><strong>C. QA Corrections</strong> <em>(this doc)</em></td>
+<td>Track every adjustment with rationale</td>
+<td>Schema + loader + reconciliation landed; dashboard E1 next</td>
+</tr>
+</tbody>
+</table>
+<p>Track C imports <code>canonical_apn</code> from <code>parcel_development_history_etl/utils.py</code> (added alongside the existing <code>el_pad</code>/<code>el_depad</code>). Track C feeds Track B's per-parcel history view (<code>vParcelHistory</code> / <code>ParcelHistoryView</code>) once the DB load happens.</p>
+<h2 id="files-reference">Files reference</h2>
+<ul>
+<li><strong>Schema:</strong> <a href="./target_schema.html"><code>target_schema.md</code></a> §"ERD — QA corrections sidecar (Track C)"</li>
+<li><strong>Loader notebook:</strong> <a href="../notebooks/04_load_ca_changes.ipynb"><code>../notebooks/04_load_ca_changes.ipynb</code></a></li>
+<li><strong>Reconciliation notebook:</strong> <a href="../notebooks/05_qa_reconciliation.ipynb"><code>../notebooks/05_qa_reconciliation.ipynb</code></a></li>
+<li><strong>Trace doc:</strong> <a href="./dashboards_to_schema_trace.html"><code>dashboards_to_schema_trace.md</code></a> §Trace 3 (Parcel History Lookup) and §G3.x gap markers</li>
+<li><strong>s06 reference:</strong> <a href="../parcel_development_history_etl/steps/s06_qa.py"><code>../parcel_development_history_etl/steps/s06_qa.py</code></a></li>
+<li><strong>Related skill:</strong> <a href="../README.md"><code>trpa-data-engineering</code></a> for ETL conventions</li>
+</ul>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  if (typeof mermaid !== 'undefined') {
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: { darkMode: true, background: '#0b0f14' },
+      er: { useMaxWidth: true },
+      maxTextSize: 500000,
+      securityLevel: 'loose'
+    });
+  }
+</script>
+</body>
+</html>

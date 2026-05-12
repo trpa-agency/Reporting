@@ -74,6 +74,15 @@ header h1 span { color: var(--trpa-blue); }
 .framing-item strong { color: var(--trpa-navy); display: block; font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; }
 .framing-item .num { color: var(--trpa-blue); font-weight: 700; font-variant-numeric: tabular-nums; }
 
+/* Live 2012-Plan breakdown cards */
+.live-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 6px; }
+.live-card { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; position: relative; }
+.live-card .live-accent { position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 6px 6px 0 0; }
+.live-card .live-label { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-light); margin-bottom: 4px; padding-top: 4px; }
+.live-card .live-value { font-size: 1.55rem; font-weight: 700; color: var(--text-dark); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.live-card .live-pct   { font-size: 0.72rem; color: var(--text-mid); margin-top: 2px; }
+@media (max-width: 900px) { .live-cards { grid-template-columns: 1fr 1fr; } }
+
 .footnote {
   padding: 14px 40px 22px; font-size: 0.72rem; color: var(--text-light);
   line-height: 1.6; background: var(--surface); border-top: 1px solid var(--border); margin-top: 24px;
@@ -146,6 +155,32 @@ header h1 span { color: var(--trpa-blue); }
     <div id="comparison-chart" style="height:260px;"></div>
   </div>
 
+  <!-- LIVE: 2012 Plan additional residential breakdown (from Ken's grid export) -->
+  <div class="card" style="margin-top: 24px;">
+    <h3>2012 Plan additional &mdash; residential allocation state &times; construction</h3>
+    <p>Live counts from <code style="background:var(--bg);padding:1px 4px;border-radius:3px;font-size:0.7rem;">residentialAllocationGridExport.csv</code>. The since-1987 gauges above measure against the 8,687 cumulative max; this section breaks down the 2,600 additional residential units authorized under the 2012 Plan into Dan&rsquo;s three allocation states, with <em>Constructed</em> broken out from the private development pool. Three pool states from <a href="allocation-tracking.html" style="color:var(--trpa-blue)">allocation-tracking.html</a>; Constructed = an allocation in the private development pool whose Construction Status is Completed.</p>
+    <div id="live-cards" class="live-cards"></div>
+    <div id="live-chart" style="height:260px;margin-top:12px;"></div>
+  </div>
+
+  <!-- LIVE: Where every completed residential unit came from (2009-2026) -->
+  <div class="card" style="margin-top: 24px;">
+    <h3>Completed residential units &mdash; by source of right</h3>
+    <p>Where the <strong><span id="tx-total-completed">&mdash;</span></strong> completed residential developments came from since 2009. Pulled from
+      <code style="background:var(--bg);padding:1px 4px;border-radius:3px;font-size:0.7rem;">2025 Transactions and Allocations Details.xlsx</code>
+      and bucketed by <em>Detailed Development Type</em>. Includes everything: allocations drawn, banked rights used, conversions, transfers, and bonus units &mdash; the broader picture beyond the 2012 Plan additional grid.
+      See <a href="residential-additions-by-source.html" style="color:var(--trpa-blue)">residential-additions-by-source.html</a> for the per-year story.</p>
+    <div id="src-cards" class="live-cards"></div>
+    <div id="src-stack" style="height:120px;margin-top:14px;"></div>
+  </div>
+
+  <!-- LIVE: Annual construction stacked area -->
+  <div class="card" style="margin-top: 24px;">
+    <h3>Annual residential construction &mdash; by source of right</h3>
+    <p>Yearly count of completed residential developments, stacked by source. Highlights the post-2019 acceleration and the recent Bonus Unit / Banked surge.</p>
+    <div id="annual-chart" style="height:320px;"></div>
+  </div>
+
   <div class="framing">
     <div class="framing-item">
       <strong>Two cap numbers, both correct:</strong>
@@ -159,8 +194,16 @@ header h1 span { color: var(--trpa-blue); }
 </div>
 
 <div class="footnote">
-  <strong>Data:</strong> inlined from <code>from_ken/Cumulative Accounting 2026 Report.pptx</code> slide 8 (Regional Plan Maximum Additional Development) and <code>from_ken/Additional Development as of April2026.xlsx</code>.
-  Eventually backed by <code>CumulativeAccountingSnapshot</code> aggregated to Regional totals — see
+  <strong>Headline gauges:</strong> inlined from <code>from_ken/Cumulative Accounting 2026 Report.pptx</code> slide 8 (Regional Plan Maximum Additional Development) and <code>from_ken/Additional Development as of April2026.xlsx</code>.<br>
+  <strong>2012 Plan additional breakdown (live):</strong> fetched from
+  <code>../data/raw_data/residentialAllocationGridExport.csv</code> &mdash; converted from
+  Ken&rsquo;s <code>residentialAllocationGridExport_fromKen.xlsx</code> by
+  <code>parcel_development_history_etl/scripts/convert_allocation_grid.py</code>.
+  Buckets follow Dan&rsquo;s 5/11/2026 framing: <strong>Constructed</strong> = Allocated &amp; Construction Status = Completed,
+  <strong>Private dev pool (not built)</strong> = Allocated &amp; Not Completed,
+  <strong>Jurisdiction pool</strong> = Unallocated in a county/CSLT pool,
+  <strong>TRPA pool</strong> = Unallocated in &ldquo;Residential Allocation - TRPA Pool&rdquo; + Unreleased (TBD).<br>
+  Eventually backed by <code>CumulativeAccountingSnapshot</code> aggregated to Regional totals &mdash; see
   <a href="../erd/dashboards_to_schema_trace.md" style="color:var(--trpa-blue)">dashboards_to_schema_trace.md</a> Trace 1.
   Cluster A1 in <a href="../erd/proposed_dashboards.md" style="color:var(--trpa-blue)">proposed_dashboards.md</a>.
 </div>
@@ -258,7 +301,214 @@ function renderComparison() {
 document.addEventListener('DOMContentLoaded', () => {
   COMMODITIES.forEach(renderGauge);
   renderComparison();
+  renderLive2012Plan();
+  renderTransactionsSummary();
 });
+
+// ─────────────────────────────────────────
+// Live 2012 Plan additional breakdown
+// Source: ../data/raw_data/residentialAllocationGridExport.csv (Ken's grid export)
+// ─────────────────────────────────────────
+const ALLOC_CSV = '../data/raw_data/residentialAllocationGridExport.csv';
+
+// Buckets — Dan's 3 allocation states, with Constructed broken out from the
+// private development pool (where Construction Status = Completed).
+const BUCKETS = [
+  { key: 'constructed', label: 'Constructed',                    color: TRPA.forest, hint: 'Private dev pool · construction completed' },
+  { key: 'allocated',   label: 'Private dev pool (not built)',   color: TRPA.blue,   hint: 'Drawn to a parcel; construction in progress' },
+  { key: 'jurispool',   label: 'Jurisdiction pool',              color: TRPA.orange, hint: 'In a county / CSLT pool; not yet drawn' },
+  { key: 'trpapool',    label: 'TRPA pool',                      color: TRPA.ice,    hint: 'Held by TRPA: TBD + Residential Allocation - TRPA Pool' },
+];
+
+async function renderLive2012Plan() {
+  let text;
+  try {
+    const r = await fetch(ALLOC_CSV, { cache: 'no-cache' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    text = await r.text();
+  } catch (e) {
+    document.getElementById('live-cards').innerHTML =
+      '<div style="font-size:0.78rem;color:var(--text-mid);padding:10px;">Live data unavailable (' + e.message + '). Static values above remain valid.</div>';
+    return;
+  }
+
+  const lines = text.trim().split('\n');
+  const header = lines[0].split(',');
+  const colIdx = name => header.findIndex(h => h.trim().toLowerCase() === name.toLowerCase());
+  const iAllocStatus = colIdx('Allocation Status');
+  const iConstStatus = colIdx('Construction Status');
+  const iPool        = colIdx('Pool');
+
+  const counts = { constructed: 0, allocated: 0, jurispool: 0, trpapool: 0 };
+  let total = 0;
+  for (let i = 1; i < lines.length; i++) {
+    const parts = lines[i].split(',');
+    const a = (parts[iAllocStatus] || '').trim();
+    const c = (parts[iConstStatus] || '').trim();
+    const p = (parts[iPool]        || '').trim();
+    const isTrpaPool = p.includes('TRPA Pool');
+    // TRPA pool = TBD (Unreleased) OR Unallocated rows in TRPA Pool
+    if (a === 'Unreleased')                          counts.trpapool++;
+    else if (a === 'Unallocated' && isTrpaPool)       counts.trpapool++;
+    else if (a === 'Unallocated')                     counts.jurispool++;
+    else if (a === 'Allocated' && c === 'Completed') counts.constructed++;
+    else if (a === 'Allocated')                       counts.allocated++;
+    total++;
+  }
+
+  // Render the cards
+  const cards = BUCKETS.map(b => {
+    const v = counts[b.key];
+    const pct = total ? (100 * v / total) : 0;
+    return `
+      <div class="live-card">
+        <div class="live-accent" style="background:${b.color}"></div>
+        <div class="live-label">${b.label}</div>
+        <div class="live-value">${v.toLocaleString()}</div>
+        <div class="live-pct">${pct.toFixed(1)} percent &middot; ${b.hint}</div>
+      </div>
+    `;
+  }).join('');
+  document.getElementById('live-cards').innerHTML = cards;
+
+  // Stacked horizontal bar — same shape as the comparison chart
+  const labels  = ['2012 Plan additional (2,600 authorized)'];
+  const traces  = BUCKETS.map(b => ({
+    name: b.label,
+    type: 'bar', orientation: 'h',
+    x: [counts[b.key]], y: labels,
+    marker: { color: b.color },
+    text: [counts[b.key].toLocaleString()],
+    textposition: 'inside',
+    insidetextfont: { color: b.color === TRPA.ice ? TRPA.navy : '#fff', size: 11, family: '"Open Sans"' },
+    hovertemplate: '<b>%{x:,}</b> ' + b.label.toLowerCase() + '<extra></extra>',
+  }));
+  Plotly.react('live-chart', traces, {
+    barmode: 'stack',
+    font: plotFont,
+    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+    margin: { t: 8, r: 24, b: 32, l: 60 },
+    xaxis: { range: [0, 2600], gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 11 } },
+    yaxis: { autorange: 'reversed', tickfont: { size: 11 }, automargin: true },
+    legend: { orientation: 'h', y: -0.35, font: { size: 11 } },
+    showlegend: true,
+  }, { responsive: true, displayModeBar: false });
+}
+
+// ─────────────────────────────────────────
+// Source-of-rights breakdown + annual construction chart
+// Source: ../data/processed_data/residential_transactions_summary.json
+// (built by parcel_development_history_etl/scripts/convert_transactions_summary.py
+// from "2025 Transactions and Allocations Details.xlsx")
+// ─────────────────────────────────────────
+const TX_SUMMARY = '../data/processed_data/residential_transactions_summary.json';
+
+// Color per Dan's #2 source taxonomy
+const SRC_COLOR = {
+  'Allocation':          TRPA.blue,
+  'Banked':              TRPA.forest,
+  'Transfer':            TRPA.orange,
+  'Conversion':          TRPA.purple,
+  'Allocation/Transfer': TRPA.olive,
+  'Bonus Unit':          TRPA.brick,
+  'Other':               TRPA.ice,
+};
+const SRC_HINT = {
+  'Allocation':          'Drawn from a residential allocation pool',
+  'Banked':              'From a banked development right (e.g. SFRUU/MFRUU bank)',
+  'Transfer':            'Transferred from another parcel (TDR)',
+  'Conversion':          'Converted from a different commodity (e.g. TAU → SFRUU)',
+  'Allocation/Transfer': 'Combined allocation + PRU/TDR transfer',
+  'Bonus Unit':          'From a residential bonus unit (RBU)',
+  'Other':               'Uncategorized or TBD',
+};
+
+async function renderTransactionsSummary() {
+  let data;
+  try {
+    const r = await fetch(TX_SUMMARY, { cache: 'no-cache' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    data = await r.json();
+  } catch (e) {
+    document.getElementById('src-cards').innerHTML =
+      '<div style="font-size:0.78rem;color:var(--text-mid);padding:10px;">Source breakdown unavailable (' + e.message + ')</div>';
+    return;
+  }
+
+  document.getElementById('tx-total-completed').textContent = data.meta.completed.toLocaleString();
+
+  // ── Source cards ─────────────────────────────────────────────────────
+  const totalCompleted = data.meta.completed;
+  const cards = data.by_source
+    .filter(s => s.completed > 0)
+    .map(s => {
+      const color = SRC_COLOR[s.source] || TRPA.ice;
+      const pct   = totalCompleted ? (100 * s.completed / totalCompleted) : 0;
+      const hint  = SRC_HINT[s.source] || '';
+      return `
+        <div class="live-card">
+          <div class="live-accent" style="background:${color}"></div>
+          <div class="live-label">${s.source}</div>
+          <div class="live-value">${s.completed.toLocaleString()}</div>
+          <div class="live-pct">${pct.toFixed(1)} percent &middot; ${hint}</div>
+        </div>`;
+    }).join('');
+  document.getElementById('src-cards').innerHTML = cards;
+
+  // ── Single stacked-horizontal bar showing the composition (1 row) ────
+  const labels = ['Completed residential developments'];
+  const traces = data.by_source
+    .filter(s => s.completed > 0)
+    .map(s => ({
+      name: s.source,
+      type: 'bar', orientation: 'h',
+      x: [s.completed], y: labels,
+      marker: { color: SRC_COLOR[s.source] || TRPA.ice },
+      text: [s.completed.toLocaleString()],
+      textposition: 'inside',
+      insidetextfont: { color: (SRC_COLOR[s.source] === TRPA.ice) ? TRPA.navy : '#fff',
+                        size: 11, family: '"Open Sans"' },
+      hovertemplate: `<b>${s.source}</b>: %{x:,}<extra></extra>`,
+    }));
+  Plotly.react('src-stack', traces, {
+    barmode: 'stack',
+    font: plotFont,
+    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+    margin: { t: 4, r: 16, b: 28, l: 16 },
+    xaxis: { range: [0, totalCompleted], gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 10 } },
+    yaxis: { tickfont: { size: 11 }, automargin: true, visible: false },
+    legend: { orientation: 'h', y: -0.6, font: { size: 10 } },
+    showlegend: true,
+  }, { responsive: true, displayModeBar: false });
+
+  // ── Annual construction stacked area ─────────────────────────────────
+  // Pivot data.by_year_source into year × source matrix
+  const sources = data.by_source.filter(s => s.completed > 0).map(s => s.source);
+  const years   = data.by_year.map(d => d.year);
+  const ySeries = {};
+  sources.forEach(s => ySeries[s] = years.map(() => 0));
+  for (const r of data.by_year_source) {
+    const yi = years.indexOf(r.year);
+    if (yi >= 0 && ySeries[r.source]) ySeries[r.source][yi] = r.completed;
+  }
+  const annualTraces = sources.map(src => ({
+    name: src, x: years, y: ySeries[src],
+    type: 'scatter', mode: 'none', stackgroup: 'one',
+    fillcolor: SRC_COLOR[src] || TRPA.ice,
+    hovertemplate: `<b>${src}</b>: %{y:,}<extra></extra>`,
+  }));
+  Plotly.react('annual-chart', annualTraces, {
+    font: plotFont,
+    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+    margin: { t: 8, r: 16, b: 40, l: 56 },
+    xaxis: { gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 11 },
+             range: [data.meta.year_min - 0.5, data.meta.year_max + 0.5] },
+    yaxis: { gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 11 },
+             title: { text: 'Completed per year', font: { size: 11 } } },
+    legend: { orientation: 'h', y: -0.18, font: { size: 11 } },
+    hovermode: 'x unified',
+  }, { responsive: true, displayModeBar: false });
+}
 </script>
 </body>
 </html>

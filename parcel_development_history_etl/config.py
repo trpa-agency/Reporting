@@ -78,6 +78,24 @@ TRANSACTIONS_2025_XLSX = (
     r"C:\Users\mbindl\Documents\GitHub\Reporting"
     r"\data\raw_data\2025 Transactions and Allocations Details.xlsx"
 )
+# Per-allocation grid export from Ken (one row per residential allocation,
+# 2012 Plan additional = 2,600 allocations). Drives allocation-tracking.html
+# and the live counts in regional-capacity-dial.html.
+ALLOCATION_GRID_XLSX = (
+    r"C:\Users\mbindl\Documents\GitHub\Reporting"
+    r"\data\raw_data\residentialAllocationGridExport_fromKen.xlsx"
+)
+ALLOCATION_GRID_CSV = (
+    r"C:\Users\mbindl\Documents\GitHub\Reporting"
+    r"\data\raw_data\residentialAllocationGridExport.csv"
+)
+# Aggregated summary of the 2025 Transactions and Allocations Details xlsx,
+# filtered to residential commodities and bucketed by source. Consumed by
+# regional-capacity-dial.html (Dan's #4 Total Development Tracking).
+RESIDENTIAL_TRANSACTIONS_SUMMARY_JSON = (
+    r"C:\Users\mbindl\Documents\GitHub\Reporting"
+    r"\data\processed_data\residential_transactions_summary.json"
+)
 # Output of build_buildings_inventory.py — one row per Buildings_2019 footprint.
 BUILDINGS_INVENTORY_CSV = (
     r"C:\Users\mbindl\Documents\GitHub\Reporting"
