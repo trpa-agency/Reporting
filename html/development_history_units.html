@@ -263,16 +263,17 @@ function drawAreaChart(yearIdx) {
   const highlight = rows[yearIdx].year;
   const traces = [
     { x, y: pre, name: 'Pre-1987 Plan', type: 'scatter', mode: 'none', stackgroup: 'one',
-      fillcolor: TRPA.forest, hovertemplate: 'Pre-1987 Plan: %{y:,}<extra></extra>' },
+      fillcolor: TRPA.forest, hovertemplate: '<b>%{y:,}</b> units<extra>Pre-1987 Plan</extra>' },
     { x, y: p87, name: '1987 Plan',     type: 'scatter', mode: 'none', stackgroup: 'one',
-      fillcolor: TRPA.blue,   hovertemplate: '1987 Plan: %{y:,}<extra></extra>' },
+      fillcolor: TRPA.blue,   hovertemplate: '<b>%{y:,}</b> units<extra>1987 Plan</extra>' },
     { x, y: p12, name: '2012 Plan',     type: 'scatter', mode: 'none', stackgroup: 'one',
-      fillcolor: TRPA.orange, hovertemplate: '2012 Plan: %{y:,}<extra></extra>' },
+      fillcolor: TRPA.orange, hovertemplate: '<b>%{y:,}</b> units<extra>2012 Plan</extra>' },
   ];
   const layout = {
     font: { family: 'Open Sans, system-ui, sans-serif', color: TRPA.navy, size: 12 },
     paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
     margin: { t: 10, r: 18, b: 36, l: 56 },
+    hovermode: 'x unified',
     xaxis: { gridcolor: '#eef1f6', linecolor: '#d8dde6', range: [MIN_YEAR, MAX_YEAR] },
     yaxis: { gridcolor: '#eef1f6', linecolor: '#d8dde6', title: { text: 'Cumulative units', font: { size: 11 } }, tickformat: ',' },
     showlegend: false,

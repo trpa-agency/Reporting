@@ -1,0 +1,348 @@
+[
+  {
+    "slug": "01_allocation-tracking",
+    "html_file": "allocation-tracking.html",
+    "eyebrow": "Tahoe Regional Planning Agency",
+    "title": "Allocation Tracking",
+    "subtitle": "2,600 authorized · 2012 Regional Plan additional · of 8,687 since-1987 max",
+    "meta": "Live Data",
+    "kpis": [
+      {
+        "label": "Total authorized",
+        "sub": "2012 Regional Plan additional · of 8,687 since-1987 max"
+      },
+      {
+        "label": "Private development pool",
+        "sub": "loading…"
+      },
+      {
+        "label": "Jurisdiction pool",
+        "sub": "loading…"
+      },
+      {
+        "label": "TRPA pool",
+        "sub": "loading…"
+      }
+    ],
+    "sections": [
+      {
+        "title": "Allocation flow",
+        "description": "Authorized → jurisdiction pools → development · cumulative through 2025"
+      },
+      {
+        "title": "Pool status by jurisdiction",
+        "description": "Private development pool (forest) · Jurisdiction pool (orange) · TRPA pool (ice)"
+      },
+      {
+        "title": "Pool summary by jurisdiction",
+        "description": "Total authorized units per pool, allocation status, and utilization rate"
+      },
+      {
+        "title": "Loading allocation data…",
+        "description": ""
+      }
+    ],
+    "footnote": "",
+    "controls": [
+      "Residential",
+      "Commercial",
+      "Tourist"
+    ],
+    "friendly_title": "Allocation Tracking",
+    "audience": "Staff · daily ops",
+    "track": "Track 1 (Allocation tracking)",
+    "screenshot": "01_allocation-tracking.png",
+    "github_pages_url": "https://trpa-agency.github.io/Reporting/html/allocation-tracking.html"
+  },
+  {
+    "slug": "02_pool-balance-cards",
+    "html_file": "pool-balance-cards.html",
+    "eyebrow": "Tahoe Regional Planning Agency",
+    "title": "Pool Balance Cards",
+    "subtitle": "Daily-use view for allocation staff. One card per residential allocation pool with current remaining, % of original capacity drawn down, and trajectory since 2013. Click any card for per-year detail.",
+    "meta": "B1 / Built",
+    "kpis": [
+      {
+        "label": "Total residential remaining",
+        "sub": ""
+      },
+      {
+        "label": "Allocations drawn down",
+        "sub": ""
+      },
+      {
+        "label": "Pools exhausted",
+        "sub": ""
+      },
+      {
+        "label": "Unreleased to jurisdictions",
+        "sub": ""
+      }
+    ],
+    "sections": [
+      {
+        "title": "Pool detail",
+        "description": ""
+      }
+    ],
+    "footnote": "Data: remaining counts inlined from from_ken/Additional Development as of April2026.xlsx — LT Info Pools Balances sheet (with Ken’s correction note: TRPA Pool is 154, LT Info shows 144 incorrectly). Per-year trajectory inlined from html/allocation_drawdown.html’s embedded series. Eventually backed by PoolDrawdownYearly (see dashboards_to_schema_trace.md Trace 2 / G2.1). Cluster B1 in proposed_dashboards.md.",
+    "controls": [
+      "Remaining (high → low)",
+      "% used (high → low)",
+      "Name (A → Z)"
+    ],
+    "friendly_title": "Pool Balance Cards",
+    "audience": "Staff · per-pool drilldown",
+    "track": "Track 1 (Allocation tracking)",
+    "screenshot": "02_pool-balance-cards.png",
+    "github_pages_url": "https://trpa-agency.github.io/Reporting/html/pool-balance-cards.html"
+  },
+  {
+    "slug": "03_public-allocation-availability",
+    "html_file": "public-allocation-availability.html",
+    "eyebrow": "Tahoe Regional Planning Agency",
+    "title": "Residential Allocation Availability",
+    "subtitle": "How many residential allocations remain in each Lake Tahoe Basin jurisdiction. Find your county or city and see what’s left in its allocation pool.",
+    "meta": "G1 / Public",
+    "kpis": [],
+    "sections": [
+      {
+        "title": "What’s a residential allocation?",
+        "description": ""
+      }
+    ],
+    "footnote": "Data: from from_ken/Additional Development as of April2026.xlsx (LT Info Pools Balances sheet) with the TRPA Pool 144→154 correction applied. Eventually backed by PoolDrawdownYearly; see dashboards_to_schema_trace.md Trace 2. This page is the public-facing slice (G1) of the broader B1 staff dashboard at pool-balance-cards.html. Cluster G1 in proposed_dashboards.md.",
+    "controls": [],
+    "friendly_title": "Residential Allocation Availability",
+    "audience": "Public",
+    "track": "Track 1 (Allocation tracking)",
+    "screenshot": "03_public-allocation-availability.png",
+    "github_pages_url": "https://trpa-agency.github.io/Reporting/html/public-allocation-availability.html"
+  },
+  {
+    "slug": "04_residential-additions-by-source",
+    "html_file": "residential-additions-by-source.html",
+    "eyebrow": "Tahoe Regional Planning Agency",
+    "title": "Residential Additions by Source",
+    "subtitle": "Where the 1,573 added residential units came from each year, 2013–2025. Net growth of 1,469 after 110 removals (banked or converted out).",
+    "meta": "2026 Cycle",
+    "kpis": [
+      {
+        "label": "Total added 2013–2025",
+        "sub": ""
+      },
+      {
+        "label": "Largest source overall",
+        "sub": ""
+      },
+      {
+        "label": "2024–25 bonus surge",
+        "sub": ""
+      },
+      {
+        "label": "Peak year",
+        "sub": ""
+      }
+    ],
+    "sections": [
+      {
+        "title": "Composition of added residential units by source",
+        "description": "One line per source. Hover any year to see all five sources together. Removals (banked or converted) not shown — this view is gross additions."
+      },
+      {
+        "title": "Major completed projects",
+        "description": "The story behind the inflections. Affordable / achievable units highlighted."
+      }
+    ],
+    "footnote": "Data: compiled from from_ken/FINAL RES SUMMARY 2012 to 2025.xlsx — the Summary sheet's Added Residential Units from {Allocations, Bonus Units, Transfers, Conversions, Banked} rows and the per-year Major Completed Projects column. Ultimate source: dbo.TdrTransaction + dbo.ParcelPermitBankedDevelopmentRight + dbo.ResidentialBonusUnit* in Corral, aggregated by year × movement type and filtered to residential commodities (SFRUU + MFRUU). Once vCommodityLedger exists, this dashboard reads it directly — same shape. See dashboards_to_schema_trace.md for the full reverse-engineering trace.",
+    "controls": [
+      "Lines (counts)",
+      "Stacked area",
+      "Stacked %"
+    ],
+    "friendly_title": "Residential Additions by Source",
+    "audience": "Leadership · public",
+    "track": "Track 2 (Source of rights)",
+    "screenshot": "04_residential-additions-by-source.png",
+    "github_pages_url": "https://trpa-agency.github.io/Reporting/html/residential-additions-by-source.html"
+  },
+  {
+    "slug": "05_regional-capacity-dial",
+    "html_file": "regional-capacity-dial.html",
+    "eyebrow": "Tahoe Regional Planning Agency",
+    "title": "Regional Plan Capacity Dial",
+    "subtitle": "Where the Tahoe Region sits against its since-1987 cumulative capacity caps, per Ken’s 2026 Cumulative Accounting Report. One gauge per commodity: constructed vs Regional Plan maximum.",
+    "meta": "A1 / Headline",
+    "kpis": [],
+    "sections": [
+      {
+        "title": "2012 Plan additional — residential allocation state × construction",
+        "description": "Live counts from residentialAllocationGridExport.csv. The since-1987 gauges above measure against the 8,687 cumulative max; this section breaks down the 2,600 additional residential units authorized under the 2012 Plan into Dan’s three allocation states, with Constructed broken out from the private development pool. Three pool states from allocation-tracking.html; Constructed = an allocation in the private development pool whose Construction Status is Completed."
+      },
+      {
+        "title": "Completed residential units — by source of right",
+        "description": "Where the — completed residential developments came from since 2009. Pulled from 2025 Transactions and Allocations Details.xlsx and bucketed by Detailed Development Type. Includes everything: allocations drawn, banked rights used, conversions, transfers, and bonus units — the broader picture beyond the 2012 Plan additional grid. See residential-additions-by-source.html for the per-year story."
+      },
+      {
+        "title": "Annual residential construction — by source of right",
+        "description": "Yearly count of completed residential developments, stacked by source. Highlights the post-2019 acceleration and the recent Bonus Unit / Banked surge."
+      },
+      {
+        "title": "Capacity utilization comparison",
+        "description": ""
+      }
+    ],
+    "footnote": "Headline gauges: inlined from from_ken/Cumulative Accounting 2026 Report.pptx slide 8 (Regional Plan Maximum Additional Development) and from_ken/Additional Development as of April2026.xlsx. 2012 Plan additional breakdown (live): fetched from ../data/raw_data/residentialAllocationGridExport.csv — converted from Ken’s residentialAllocationGridExport_fromKen.xlsx by parcel_development_history_etl/scripts/convert_allocation_grid.py. Buckets follow Dan’s 5/11/2026 framing: Constructed = Allocated & Construction Status = Completed, Private dev pool (not built) = Allocated & Not Completed, Jurisdiction pool = Unallocated in a county/CSLT pool, TRPA pool = Unallocated in “Residential Allocation - TRPA Pool” + Unreleased (TBD). Eventually backed by CumulativeAccountingSnapshot aggregated to Regional totals — see dashboards_to_schema_trace.md Trace 1. Cluster A1 in proposed_dashboards.md.",
+    "controls": [],
+    "friendly_title": "Regional Plan Capacity Dial",
+    "audience": "Executive · board",
+    "track": "Track 4 (Total development tracking)",
+    "screenshot": "05_regional-capacity-dial.png",
+    "github_pages_url": "https://trpa-agency.github.io/Reporting/html/regional-capacity-dial.html"
+  },
+  {
+    "slug": "06_development_history",
+    "html_file": "development_history.html",
+    "eyebrow": "Tahoe Regional Planning Agency",
+    "title": "Development History",
+    "subtitle": "Building footprints in the Lake Tahoe Basin colored by construction era. Drag the year slider to play back development through 2025.",
+    "meta": "2026 Cycle",
+    "kpis": [
+      {
+        "label": "Buildings as of year",
+        "sub": ""
+      },
+      {
+        "label": "Pre-1987 Plan",
+        "sub": ""
+      },
+      {
+        "label": "1987 Plan",
+        "sub": ""
+      },
+      {
+        "label": "2012 Plan",
+        "sub": ""
+      }
+    ],
+    "sections": [
+      {
+        "title": "Building footprints by year built",
+        "description": "Buildings constructed on or before the selected year. Colored by Regional Plan era."
+      },
+      {
+        "title": "Cumulative buildings constructed",
+        "description": "Total building stock by year, segmented by construction era. The vertical line marks the selected year."
+      },
+      {
+        "title": "New construction per year",
+        "description": ""
+      }
+    ],
+    "footnote": "Data: building footprints from the Tahoe Buildings FeatureServer (Esri AGOL, mirrors the local Buildings_2019 GDB). YEAR_BUILT comes from county assessor records. Era classification follows TRPA Regional Plan cycles: Pre-1987 Plan (year ≤ 1987), 1987 Plan (1988–2011), 2012 Plan (year ≥ 2012). Buildings with null or zero YEAR_BUILT are excluded from the timeline.",
+    "controls": [],
+    "friendly_title": "Development History — Buildings",
+    "audience": "Planners · analysts",
+    "track": "Companion view",
+    "screenshot": "06_development_history.png",
+    "github_pages_url": "https://trpa-agency.github.io/Reporting/html/development_history.html"
+  },
+  {
+    "slug": "07_development_history_units",
+    "html_file": "development_history_units.html",
+    "eyebrow": "Tahoe Regional Planning Agency",
+    "title": "Development History · Residential Units",
+    "subtitle": "Where units came online and which buildings host them. Each parcel’s units are split across its building footprints by square footage — see footnote for the approximation method.",
+    "meta": "2026 Cycle",
+    "kpis": [
+      {
+        "label": "Residential units as of year",
+        "sub": ""
+      },
+      {
+        "label": "Residential buildings",
+        "sub": ""
+      },
+      {
+        "label": "Multifamily buildings",
+        "sub": ""
+      },
+      {
+        "label": "Largest building (units)",
+        "sub": ""
+      }
+    ],
+    "sections": [
+      {
+        "title": "Building footprints · colored by Regional Plan era",
+        "description": "Buildings constructed on or before the selected year. Use the filter above to show only those that host residential units."
+      },
+      {
+        "title": "Cumulative residential units",
+        "description": "Units assigned to buildings (sqft-weighted), by Regional Plan era. The vertical line marks the selected year."
+      },
+      {
+        "title": "Units per building (distribution)",
+        "description": ""
+      }
+    ],
+    "footnote": "Method: the residential units inventory holds unit counts at the parcel level, but Buildings_2019 has no per-building unit count. We split each parcel’s units across its footprints in proportion to Square_Feet, rounding via Hamilton’s largest-remainder method so each parcel’s units total stays exact. A 3-unit parcel with two buildings (1,500 sqft + 500 sqft) gets 2–1. A 4-plex parcel with one building gets all 4 on that building. Caveats: assumes unit density scales with footprint area (not always true for ADUs vs main residences); ignores subterranean / multi-story differences. Parcels with units but no Buildings_2019 footprint (post-2019 construction) contribute to the unit inventory but not to this map. Data: joined offline by parcel_development_history_etl/scripts/build_buildings_with_units.py; see inventory_tables_erd.md for the table schemas. Map layer: Tahoe Buildings FeatureServer.",
+    "controls": [
+      "All buildings",
+      "Residential (≥1 unit)",
+      "Multifamily (≥2 units)"
+    ],
+    "friendly_title": "Development History — Residential Units",
+    "audience": "Housing analysts",
+    "track": "Companion view",
+    "screenshot": "07_development_history_units.png",
+    "github_pages_url": "https://trpa-agency.github.io/Reporting/html/development_history_units.html"
+  },
+  {
+    "slug": "08_qa-change-rationale",
+    "html_file": "qa-change-rationale.html",
+    "eyebrow": "Tahoe Regional Planning Agency",
+    "title": "QA Change Rationale Audit Trail",
+    "subtitle": "Per-APN audit log of QA corrections to existing residential development. 2023 and 2026 big-sweep campaigns from Ken’s CA Changes breakdown.xlsx.",
+    "meta": "Cluster E1",
+    "kpis": [
+      {
+        "label": "Total change events",
+        "sub": ""
+      },
+      {
+        "label": "2023 big sweep",
+        "sub": ""
+      },
+      {
+        "label": "2026 big sweep",
+        "sub": ""
+      },
+      {
+        "label": "Canonical-vocab match",
+        "sub": ""
+      }
+    ],
+    "sections": [
+      {
+        "title": "Change events",
+        "description": "One row per (APN, ReportingYear) cycle with a non-zero quantity delta. Quantity_Delta is positive for adds, negative for removals."
+      },
+      {
+        "title": "Top correction categories",
+        "description": "Highlights where Ken's wording paraphrases Sheet2’s controlled vocab — non-canonical bars are mapping candidates."
+      },
+      {
+        "title": "Loading QA change events…",
+        "description": ""
+      }
+    ],
+    "footnote": "Data: qa_change_events.csv + qa_correction_detail.csv — outputs of notebooks/04_load_ca_changes.ipynb. Joined client-side on ChangeEventID. Re-run the notebook when Ken sends a new XLSX; see erd/qa_corrections_track.md for the full Track C plan.",
+    "controls": [],
+    "friendly_title": "QA Change Rationale Audit Trail",
+    "audience": "Ken · Dan · QA leads",
+    "track": "QA / audit",
+    "screenshot": "08_qa-change-rationale.png",
+    "github_pages_url": "https://trpa-agency.github.io/Reporting/html/qa-change-rationale.html"
+  }
+]
