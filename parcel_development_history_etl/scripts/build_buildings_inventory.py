@@ -12,9 +12,15 @@ Schema:
   Surface             — Buildings_2019 'Surface' attr (material)
   Parcel_Acres        — parcel acres (context)
   Residential_Units   — units on the parent parcel in 2025
+  Units_Assigned      — units assigned specifically to THIS building via
+                        sqft-weighted Hamilton-largest-remainder split (read
+                        from buildings_with_units.json; ≤ Residential_Units)
   COUNTY, JURISDICTION
 
 Output: data/processed_data/buildings_inventory_2025.csv
+
+NOTE: re-run `scripts/build_buildings_with_units.py` after the prior build
+to refresh `Units_Assigned`.
 
 Run with ArcGIS Pro Python:
     PYTHONIOENCODING=utf-8 \\
@@ -36,6 +42,7 @@ from config import (
     BUILDINGS_FC,
     PDH_2025_YRBUILT_CSV,
     BUILDINGS_INVENTORY_CSV,
+    BUILDINGS_WITH_UNITS_JSON,
 )
 from utils import get_logger, canonical_apn
 
@@ -150,6 +157,28 @@ def main() -> None:
         for row in pdh.itertuples(index=False)
     }
 
+    # Optional: per-building Units_Assigned (sqft-weighted split). Source is
+    # buildings_with_units.json — built downstream from this CSV, so on a
+    # cold first run this won't exist and Units_Assigned will be left null.
+    # Re-run this script after build_buildings_with_units.py to backfill.
+    units_assigned: dict[int, int] = {}
+    bw_path = Path(BUILDINGS_WITH_UNITS_JSON)
+    if bw_path.exists():
+        import json as _json
+        with open(bw_path, "r", encoding="utf-8") as f:
+            bw = _json.load(f)
+        for b in bw.get("buildings", []):
+            bid = b.get("id")
+            n   = b.get("units_assigned")
+            if bid is not None and n is not None:
+                units_assigned[int(bid)] = int(n)
+        log.info("Loaded units_assigned from %s (%d buildings)",
+                 BUILDINGS_WITH_UNITS_JSON, len(units_assigned))
+    else:
+        log.info("No %s yet — Units_Assigned will be null on first build. "
+                 "Re-run after build_buildings_with_units.py.",
+                 BUILDINGS_WITH_UNITS_JSON)
+
     rows = []
     for bid, (sqft, feat, surf) in areas.items():
         apn_raw = bid_to_apn.get(bid)
@@ -164,12 +193,15 @@ def main() -> None:
             "Surface":             surf,
             "Parcel_Acres":        ctx.get("Parcel_Acres"),
             "Residential_Units":   ctx.get("Residential_Units"),
+            "Units_Assigned":      units_assigned.get(bid),
             "COUNTY":              ctx.get("COUNTY"),
             "JURISDICTION":        ctx.get("JURISDICTION"),
         })
 
     df = pd.DataFrame(rows)
     df["Original_Year_Built"] = pd.to_numeric(df["Original_Year_Built"],
+                                              errors="coerce").astype("Int64")
+    df["Units_Assigned"]      = pd.to_numeric(df["Units_Assigned"],
                                               errors="coerce").astype("Int64")
 
     out_path = Path(BUILDINGS_INVENTORY_CSV)

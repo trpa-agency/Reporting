@@ -21,8 +21,11 @@ on that parcel). Each row carries:
   Permit_Number        — TRPA/MOU and Local Jurisdiction permit IDs from the
                          transactions xlsx; semicolon-separated when both exist,
                          prefixed `TRPA-` and `LOCAL-` for clarity
-  Building_IDs         — semicolon-separated Buildings_2019 IDs overlapping
-                         parcel, each prefixed `BLDG-` (e.g. `BLDG-30876; BLDG-30890`)
+  Building_ID          — single Buildings_2019 OBJECTID this unit is assigned
+                         to (1:N — building hosts many units, each unit has
+                         exactly one building). Sqft-weighted assignment via
+                         Hamilton's largest-remainder split. Null when the
+                         parcel has no overlapping Buildings_2019 footprint.
   Address              — APO_ADDRESS from Parcels FeatureService
   COUNTY, JURISDICTION — from PDH
 
@@ -55,6 +58,7 @@ from config import (
     PDH_2025_YRBUILT_CSV,
     RESIDENTIAL_UNITS_INVENTORY_CSV,
     TRANSACTIONS_2025_XLSX,
+    BUILDINGS_WITH_UNITS_JSON,
 )
 from utils import get_logger, canonical_apn
 
@@ -376,73 +380,50 @@ def build_building_id_map() -> dict:
     that straddles a parcel boundary appears only under its PRIMARY parcel,
     not both neighbors.
     """
-    log.info("Spatial-joining Buildings_2019 -> PDH 2025 (LARGEST_OVERLAP) ...")
-    if not arcpy.Exists(BUILDINGS_FC):
-        log.warning("  Buildings FC not found: %s — skipping Building_IDs.", BUILDINGS_FC)
+    # Read the per-building unit assignment computed by
+    # `build_buildings_with_units.py`. That script does the sqft-weighted
+    # Hamilton's-largest-remainder split between buildings on the same parcel.
+    # Here we materialize that into a per-unit lookup: each unit seq → one
+    # Building_ID.
+    log.info("Loading per-building unit assignment: %s", BUILDINGS_WITH_UNITS_JSON)
+    bw_path = Path(BUILDINGS_WITH_UNITS_JSON)
+    if not bw_path.exists():
+        log.warning("  %s not found — run scripts/build_buildings_with_units.py "
+                    "first. Skipping Building_ID assignment.", BUILDINGS_WITH_UNITS_JSON)
         return {}
+    with open(bw_path, "r", encoding="utf-8") as f:
+        bw = json.load(f)
 
-    pdh_lyr  = "ru_pdh_2025_lyr"
-    bldg_lyr = "ru_buildings_lyr"
-    join_out = "memory/ru_buildings_join"
-    for m in [pdh_lyr, bldg_lyr, join_out]:
-        if arcpy.Exists(m):
-            arcpy.management.Delete(m)
+    # Group buildings by APN; within each APN sort by sqft desc so the
+    # "first" unit goes to the biggest building (matches the visual logic
+    # of largest-first assignment).
+    by_apn: dict[str, list[dict]] = {}
+    for b in bw.get("buildings", []):
+        apn = b.get("apn")
+        if apn:
+            by_apn.setdefault(apn, []).append(b)
+    for apn in by_apn:
+        by_apn[apn].sort(key=lambda b: (-(b.get("sqft") or 0), b.get("id") or 0))
 
-    arcpy.management.MakeFeatureLayer(OUTPUT_FC, pdh_lyr,
-                                      where_clause=f"{FC_YEAR} = {YEAR}")
-    arcpy.management.MakeFeatureLayer(BUILDINGS_FC, bldg_lyr)
+    # Per APN, build the unit→building sequence: e.g. units_assigned=[2,1,0]
+    # for buildings [A,B,C] produces [A, A, B] (4th+ units, if any, fall off
+    # since the parcel has no more building capacity).
+    out: dict[str, list[int]] = {}
+    n_parcels = 0
+    n_units_assigned = 0
+    for apn, bldgs in by_apn.items():
+        seq: list[int] = []
+        for b in bldgs:
+            n = int(b.get("units_assigned") or 0)
+            seq.extend([int(b["id"])] * n)
+        if seq:
+            out[apn] = seq
+            n_parcels += 1
+            n_units_assigned += len(seq)
 
-    # Project buildings to parcel SR if needed
-    parcel_sr = arcpy.Describe(OUTPUT_FC).spatialReference
-    bldg_sr   = arcpy.Describe(BUILDINGS_FC).spatialReference
-    if parcel_sr.factoryCode != bldg_sr.factoryCode:
-        mem_proj = "memory/ru_bldg_proj"
-        if arcpy.Exists(mem_proj):
-            arcpy.management.Delete(mem_proj)
-        log.info("  Projecting buildings (%s -> %s) ...", bldg_sr.name, parcel_sr.name)
-        arcpy.management.Project(BUILDINGS_FC, mem_proj, parcel_sr)
-        arcpy.management.Delete(bldg_lyr)
-        arcpy.management.MakeFeatureLayer(mem_proj, bldg_lyr)
-
-    # target = buildings (one row per building) — LARGEST_OVERLAP picks the
-    # parcel with the most area-overlap for each building.
-    arcpy.analysis.SpatialJoin(
-        target_features=bldg_lyr,
-        join_features=pdh_lyr,
-        out_feature_class=join_out,
-        join_operation="JOIN_ONE_TO_ONE",
-        join_type="KEEP_ALL",
-        match_option="LARGEST_OVERLAP",
-    )
-
-    fields = [f.name for f in arcpy.ListFields(join_out)]
-    if FC_APN not in fields:
-        log.warning("  APN field missing from join output; fields=%s", fields)
-        return {}
-
-    # Invert: each building (TARGET_FID) → its primary APN
-    apn_to_bids: dict[str, list[str]] = {}
-    n_matched = 0
-    with arcpy.da.SearchCursor(join_out, ["TARGET_FID", FC_APN]) as cur:
-        for bid, apn in cur:
-            if apn is None or bid is None:
-                continue
-            canon = canonical_apn(str(apn).strip())
-            if canon is None:
-                continue
-            apn_to_bids.setdefault(canon, []).append(str(int(bid)))
-            n_matched += 1
-
-    for m in [pdh_lyr, bldg_lyr, join_out]:
-        if arcpy.Exists(m):
-            arcpy.management.Delete(m)
-
-    out = {
-        a: "; ".join(f"BLDG-{bid}" for bid in sorted(set(b), key=lambda x: int(x)))
-        for a, b in apn_to_bids.items()
-    }
-    log.info("  %d buildings matched -> %d parcels with at least one primary building",
-             n_matched, len(out))
+    log.info("  %d parcels with at least one assigned building; "
+             "%d unit slots filled (sqft-weighted)",
+             n_parcels, n_units_assigned)
     return out
 
 
@@ -509,14 +490,16 @@ def main() -> None:
     df["Transaction_ID"] = df["APN_canon"].map(
         lambda a: ";".join(transactions.get(a, [])) if transactions.get(a) else "")
     df["Permit_Number"] = df["APN_canon"].map(permits).fillna("")
-    df["Building_IDs"] = df["APN_canon"].map(bldgs).fillna("")
+    # `bldgs` is now {APN_canon: [building_id_for_unit_1, ...]} — looked up
+    # per-unit in the explode loop below.
     df["Address"] = df["APN_canon"].map(addrs).fillna("")
 
     df = df.rename(columns={"COMBINED_YEAR_BUILT": "Original_Year_Built"})
     df["Original_Year_Built"] = pd.to_numeric(df["Original_Year_Built"],
                                               errors="coerce").astype("Int64")
 
-    # Explode: one row per unit
+    # Explode: one row per unit. Each unit gets exactly ONE Building_ID
+    # from the sqft-weighted assignment in buildings_with_units.json.
     rows = []
     for r in df.itertuples(index=False):
         n = int(r.Residential_Units)
@@ -531,7 +514,14 @@ def main() -> None:
         if pool is None:
             pool = "N/A (Pre-Allocation)" if pre_alloc_era else "Unknown"
 
+        bldg_seq = bldgs.get(r.APN_canon, [])
+
         for seq in range(1, n + 1):
+            # 0-indexed pick from the assignment sequence; None when the
+            # parcel has fewer building slots than units (post-2019 build
+            # not in Buildings_2019, or no overlapping footprint at all).
+            building_id = bldg_seq[seq - 1] if seq - 1 < len(bldg_seq) else None
+
             rows.append({
                 "Residential_Unit_ID":  f"RU-{r.APN_canon}-{seq:03d}",
                 "APN":                  r.APN,
@@ -544,7 +534,7 @@ def main() -> None:
                 "Pool":                 pool,
                 "Transaction_ID":       r.Transaction_ID,
                 "Permit_Number":        r.Permit_Number,
-                "Building_IDs":         r.Building_IDs,
+                "Building_ID":          building_id,
                 "Address":              r.Address,
                 "COUNTY":               r.COUNTY,
                 "JURISDICTION":         r.JURISDICTION,
@@ -554,7 +544,7 @@ def main() -> None:
     log.info("Exploded to %d unit rows from %d parcels", len(out), len(df))
 
     # Cast nullable Int64 for clean CSV
-    for col in ("Original_Year_Built", "Year_Redeveloped"):
+    for col in ("Original_Year_Built", "Year_Redeveloped", "Building_ID"):
         out[col] = pd.to_numeric(out[col], errors="coerce").astype("Int64")
 
     out_path = Path(RESIDENTIAL_UNITS_INVENTORY_CSV)
@@ -579,8 +569,8 @@ def main() -> None:
              int((out["Transaction_ID"] != "").sum()))
     log.info("  units with Permit_Number populated:       %d",
              int((out["Permit_Number"] != "").sum()))
-    log.info("  units with Building_IDs populated:        %d",
-             int((out["Building_IDs"] != "").sum()))
+    log.info("  units with Building_ID assigned:          %d",
+             int(out["Building_ID"].notna().sum()))
     log.info("  units with Address populated:             %d",
              int((out["Address"] != "").sum()))
 

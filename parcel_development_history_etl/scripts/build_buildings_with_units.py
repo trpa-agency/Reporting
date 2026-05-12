@@ -71,7 +71,6 @@ import pandas as pd
 
 from config import (
     BUILDINGS_INVENTORY_CSV,
-    RESIDENTIAL_UNITS_INVENTORY_CSV,
     BUILDINGS_WITH_UNITS_JSON,
 )
 from utils import get_logger
@@ -127,6 +126,11 @@ def main() -> None:
     log.info("BUILD BUILDINGS_WITH_UNITS")
     log.info("=" * 70)
 
+    # Single source: the buildings inventory. It already carries the parcel's
+    # Residential_Units total (from PDH) and Original_Year_Built (from
+    # COMBINED_YEAR_BUILT), so we don't need the units inventory here.
+    # Avoids a circular dependency where the units inventory consumes this
+    # script's JSON output for its Building_ID assignment.
     log.info("Loading buildings: %s", BUILDINGS_INVENTORY_CSV)
     bldgs = pd.read_csv(BUILDINGS_INVENTORY_CSV,
                         dtype={"APN": str, "APN_canon": str})
@@ -134,24 +138,25 @@ def main() -> None:
                                          errors="coerce").fillna(0)
     bldgs["Original_Year_Built"] = pd.to_numeric(
         bldgs["Original_Year_Built"], errors="coerce").astype("Int64")
+    bldgs["Residential_Units"] = pd.to_numeric(
+        bldgs["Residential_Units"], errors="coerce").fillna(0).astype(int)
     log.info("  %d buildings loaded", len(bldgs))
 
-    log.info("Loading residential units: %s", RESIDENTIAL_UNITS_INVENTORY_CSV)
-    units = pd.read_csv(RESIDENTIAL_UNITS_INVENTORY_CSV,
-                        dtype={"APN": str, "APN_canon": str})
-    units["Original_Year_Built"] = pd.to_numeric(
-        units["Original_Year_Built"], errors="coerce").astype("Int64")
-    log.info("  %d unit rows loaded", len(units))
-
-    # Per-APN aggregates from the units side: total units + the parcel's
-    # canonical era (all units on a parcel share the same Original_Year_Built
-    # and Era, so we can pick the first).
-    apn_units = (units.groupby("APN_canon")
-                      .agg(n_units=("Residential_Unit_ID", "count"),
-                           year_built=("Original_Year_Built", "first"),
-                           era=("Era", "first"))
-                      .to_dict("index"))
-    log.info("  %d residential parcels with units", len(apn_units))
+    # Derive per-APN aggregates from the buildings inventory: parcel unit
+    # total, parcel-level year built, era.
+    apn_units: dict = {}
+    for apn_canon, g in bldgs.groupby("APN_canon", sort=False):
+        first = g.iloc[0]
+        n_units = int(first["Residential_Units"])
+        if n_units <= 0:
+            continue
+        year = first["Original_Year_Built"]
+        apn_units[apn_canon] = {
+            "n_units":    n_units,
+            "year_built": year if pd.notna(year) else None,
+            "era":        era_from_year(year),
+        }
+    log.info("  %d residential parcels with at least one building footprint", len(apn_units))
 
     # For each parcel with units, split across its buildings by sqft
     # We need buildings grouped by APN_canon
