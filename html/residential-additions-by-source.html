@@ -158,10 +158,8 @@ header h1 span { color: var(--trpa-blue); }
 <!-- Toggle -->
 <div class="toggle-bar">
   <span class="toggle-label">View</span>
-  <button class="toggle-btn active" id="btn-lines"  onclick="setMode('lines')">Lines (counts)</button>
-  <button class="toggle-btn"        id="btn-stack"  onclick="setMode('stack')">Stacked area</button>
-  <button class="toggle-btn"        id="btn-pct"    onclick="setMode('pct')">Stacked &percnt;</button>
-  <button class="toggle-btn"        id="btn-facet"  onclick="setMode('facet')">Facet (one per source)</button>
+  <button class="toggle-btn active" id="btn-facet" onclick="setMode('facet')">Facet (one per source)</button>
+  <button class="toggle-btn"        id="btn-lines" onclick="setMode('lines')">Combined</button>
 </div>
 
 <!-- Main -->
@@ -169,7 +167,7 @@ header h1 span { color: var(--trpa-blue); }
   <div class="split">
     <div class="card">
       <h3>Composition of added residential units by source</h3>
-      <p>One line per source. Hover any year to see all five sources together. Removals (banked or converted) not shown &mdash; this view is gross additions.</p>
+      <p>Default <strong>Facet</strong> shows one small chart per source for easier comparison. Toggle to <strong>Combined</strong> to overlay all sources on one chart. Removals (banked or converted) not shown &mdash; this view is gross additions.</p>
       <div id="main-chart" style="height:480px;"></div>
     </div>
     <div class="card">
@@ -244,61 +242,37 @@ const PROJECTS = [
 // ─────────────────────────────────────────
 const plotFont = { family: '"Open Sans", system-ui, sans-serif', color: TRPA.navy, size: 12 };
 
-let mode = 'lines';
+let mode = 'facet';
 
 function setMode(m) {
   mode = m;
   document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
   const btn = document.querySelector('#btn-' + m);
   if (btn) btn.classList.add('active');
-  // Use newPlot (not react) when switching to/from facet so subplot axes
-  // are re-created cleanly. Also wipes prior chart state so undefined-prop
-  // edge cases in Plotly.react can't bite us.
+  // Use newPlot (not react) when switching between modes so subplot axes are
+  // re-created cleanly. Also wipes prior chart state so undefined-prop edge
+  // cases in Plotly.react can't bite us.
   Plotly.purge('main-chart');
   render();
 }
 
 function render() {
   if (mode === 'facet') return renderFacet();
+  return renderCombined();
+}
 
-  const isLines = mode === 'lines';
-  const isPct   = mode === 'pct';
-
-  // Compute % data if needed
-  let series = SOURCES.map(s => ({ ...s }));
-  if (isPct) {
-    series = SOURCES.map(s => ({
-      ...s,
-      data: s.data.map((v, i) => {
-        const total = SOURCES.reduce((sum, ss) => sum + ss.data[i], 0);
-        return total > 0 ? (v / total * 100) : 0;
-      }),
-    }));
-  }
-
-  // Build trace objects WITHOUT undefined keys (Plotly chokes on `marker: undefined`)
-  const traces = series.map(s => {
-    const t = {
-      name: s.name,
-      type: 'scatter',
-      mode: isLines ? 'lines+markers' : 'lines',
-      x: YEARS,
-      y: s.data,
-      line: { color: s.color, width: isLines ? 2.5 : 0.5 },
-      hovertemplate: isPct
-        ? '<b>%{y:.1f}%</b> &middot; ' + s.name + '<extra>%{x}</extra>'
-        : '<b>%{y:,}</b> units &middot; ' + s.name + '<extra>%{x}</extra>',
-    };
-    if (isLines) {
-      t.marker = { color: s.color, size: 7, line: { color: '#fff', width: 1 } };
-    } else {
-      t.stackgroup = 'one';
-      t.fill       = 'tonexty';
-      t.fillcolor  = hexA(s.color, 0.6);
-      if (isPct) t.groupnorm = 'percent';
-    }
-    return t;
-  });
+// "Combined" — all sources on one chart with markers, year-unified hover
+function renderCombined() {
+  const traces = SOURCES.map(s => ({
+    name: s.name,
+    type: 'scatter',
+    mode: 'lines+markers',
+    x: YEARS,
+    y: s.data,
+    line:   { color: s.color, width: 2.5 },
+    marker: { color: s.color, size: 7, line: { color: '#fff', width: 1 } },
+    hovertemplate: '<b>%{y:,}</b> units<extra>' + s.name + '</extra>',
+  }));
 
   const layout = {
     font: plotFont,
@@ -312,13 +286,12 @@ function render() {
       gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 11 },
     },
     yaxis: {
-      title: { text: isPct ? 'Percent of total added' : 'Residential units added', font: { size: 12 } },
+      title: { text: 'Residential units added', font: { size: 12 } },
       gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 11 },
       rangemode: 'tozero',
-      ticksuffix: isPct ? '%' : '',
     },
     legend: { orientation: 'h', y: -0.18, font: { size: 11 }, traceorder: 'normal' },
-    annotations: isLines ? bonusAnnotation() : [],
+    annotations: bonusAnnotation(),
   };
 
   Plotly.newPlot('main-chart', traces, layout, { responsive: true, displayModeBar: false });
@@ -353,14 +326,14 @@ function renderFacet() {
       fill: 'tozeroy',
       fillcolor: hexA(s.color, 0.18),
       showlegend: false,
-      hovertemplate: '<b>%{y:,}</b> units &middot; ' + s.name + '<extra>%{x}</extra>',
+      hovertemplate: '<b>%{y:,}</b> units · ' + s.name + '<extra>%{x}</extra>',
     });
 
     // Panel title with running total — placed inside each subplot
     annotations.push({
       xref: xref + ' domain', yref: yref + ' domain',
       x: 0.02, y: 0.98, xanchor: 'left', yanchor: 'top',
-      text: '<b>' + s.name + '</b>  <span style="color:#8a9bb2;font-size:10px">&middot; ' + total.toLocaleString() + ' total</span>',
+      text: '<b>' + s.name + '</b>  <span style="color:#8a9bb2;font-size:10px">· ' + total.toLocaleString() + ' total</span>',
       showarrow: false,
       font: { color: s.color, size: 12, family: '"Open Sans"' },
     });
@@ -442,7 +415,7 @@ function renderProjects() {
       '<span class="yr">' + p.yr + '</span> ' +
       '<span class="desc">' + p.items.map(i =>
         i.replace(/(\d+\s+affordable[^)]*)/g, '<span class="aff">$1</span>')
-      ).join(' &middot; ') + '</span>' +
+      ).join(' · ') + '</span>' +
     '</div>'
   ).join('');
 }
