@@ -1,12 +1,12 @@
 """
-convert_allocation_grid.py — Convert Ken's residentialAllocationGridExport
+convert_allocation_grid.py — Convert the analyst's residentialAllocationGridExport
 xlsx into the canonical CSV that allocation-tracking.html and
 regional-capacity-dial.html consume.
 
 Reads the `residentialAllocationGridExport` sheet (NOT the Sheet1 pivot
 summary), writes UTF-8 CSV with the original column names preserved.
 
-Run when Ken sends a refreshed xlsx:
+Run when the analyst sends a refreshed xlsx:
 
     PYTHONIOENCODING=utf-8 \\
     "C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/python.exe" \\
@@ -39,7 +39,7 @@ def main() -> None:
     log.info("  shape: %s", df.shape)
     log.info("  columns: %s", list(df.columns))
 
-    # Strip whitespace from string cells (Ken sometimes has trailing spaces)
+    # Strip whitespace from string cells (the analyst sometimes has trailing spaces)
     for c in df.columns:
         if df[c].dtype == object:
             df[c] = df[c].astype(str).str.strip()

@@ -1,7 +1,7 @@
-# erd/ — Proposed schema for TRPA development-rights tracking
+# erd/ - Proposed schema for TRPA development-rights tracking
 
 > **Status: draft proposal, ready for team review.**
-> **Audience: TRPA dev team, Ken, Dan, partner jurisdictions, anyone reviewing the schema design.**
+> **Audience: TRPA dev team, TRPA leadership, partner jurisdictions, anyone reviewing the schema design.**
 
 This folder holds the proposal for a new set of tables that fold into the
 existing SDE SQL backend (alongside Corral and the enterprise GIS
@@ -13,18 +13,18 @@ geodatabase) to drive three v1 dashboards:
 
 All of this is anchored on the TRPA Cumulative Accounting framework
 (TRPA Code §16.8.2). The vocabulary is documented in the
-[`_archive/cumulative_accounting_reference.md`](./_archive/cumulative_accounting_reference.md) (archived — the `trpa-cumulative-accounting` Claude skill is the source of truth)
+[`_archive/cumulative_accounting_reference.md`](./_archive/cumulative_accounting_reference.md) (archived - the `trpa-cumulative-accounting` Claude skill is the source of truth)
 (plain-markdown copy of the Claude skill) so future sessions (and reviewers) share the same terms.
 
 ---
 
 ## Start here
 
-**[next_steps.md](./next_steps.md)** — 5-minute read for a working
+**[next_steps.md](./next_steps.md)** - 5-minute read for a working
 session. What we're building, where the data comes from, and the
 questions we need to close before DDL.
 
-**[target_schema.md](./target_schema.md)** — full proposal. Read after
+**[target_schema.md](./target_schema.md)** - full proposal. Read after
 `next_steps.md` if you want the detail. It has:
 
 - Design principles (never duplicate Corral; five-bucket model; ETL-only writes)
@@ -33,7 +33,7 @@ questions we need to close before DDL.
 - Open questions for the team
 - Final table list
 
-**[development_rights_erd.html](./development_rights_erd.html)** — browser-friendly
+**[development_rights_erd.html](./development_rights_erd.html)** - browser-friendly
 viewer. 6 tabs total: 2 showing existing systems (Corral, LTinfo), 4 showing
 the proposed new schema. Pan/zoom with scroll/drag. Dark theme.
 
@@ -41,20 +41,20 @@ the proposed new schema. Pan/zoom with scroll/drag. Dark theme.
 
 ## Reading order by role
 
-**If you're reviewing the schema design (Dan, DB admins, architecture):**
-1. [target_schema.md](./target_schema.md) — the proposal
+**If you're reviewing the schema design (leadership, DB admins, architecture):**
+1. [target_schema.md](./target_schema.md) - the proposal
 2. The `trpa-cumulative-accounting` skill for vocabulary
 3. Go straight to the "Questions for the team" section at the end
 
 **If you want to know why these tables and not others (technical reviewers):**
-1. [raw_data_vs_corral.md](./raw_data_vs_corral.md) — what's in the spreadsheets that Corral doesn't hold
-2. [validation_findings.md](./validation_findings.md) — empirical gap analysis between Corral and the XLSX
-3. [xlsx_decomposition.md](./xlsx_decomposition.md) — column-by-column map from the XLSX into the proposed schema
+1. [raw_data_vs_corral.md](./raw_data_vs_corral.md) - what's in the spreadsheets that Corral doesn't hold
+2. [validation_findings.md](./validation_findings.md) - empirical gap analysis between Corral and the XLSX
+3. [xlsx_decomposition.md](./xlsx_decomposition.md) - column-by-column map from the XLSX into the proposed schema
 
 **If you're responsible for Corral, LTinfo, or the GIS systems:**
-1. [development_rights_erd.md](./development_rights_erd.md) — existing-systems inventory
+1. [development_rights_erd.md](./development_rights_erd.md) - existing-systems inventory
 2. [target_schema.md](./target_schema.md) *Loading strategy* section
-3. [target_schema.md](./target_schema.md) *Reference entities — reused from Corral* table
+3. [target_schema.md](./target_schema.md) *Reference entities - reused from Corral* table
 
 **If you just want the diagrams:**
 - Open [development_rights_erd.html](./development_rights_erd.html) in a browser.
@@ -65,13 +65,13 @@ the proposed new schema. Pan/zoom with scroll/drag. Dark theme.
 
 Full list in [target_schema.md](./target_schema.md). The three highest-priority:
 
-1. **ADU modeling** — is ADU a third value in `ResidentialAllocationUseType`, a
+1. **ADU modeling** - is ADU a third value in `ResidentialAllocationUseType`, a
    flag on the allocation, or a separate concept linked to a parent unit?
-2. **`PermitAllocation` linkage strategy** — Corral has no direct FK between
+2. **`PermitAllocation` linkage strategy** - Corral has no direct FK between
    `ParcelPermit` and `ResidentialAllocation`; the AccelaID bridge is only
    32% populated. Prioritize back-filling in Corral, or accept the crosswalk
    limitations?
-3. **Dashboard refresh cadence** — can we commit to nightly recomputation for
+3. **Dashboard refresh cadence** - can we commit to nightly recomputation for
    `PoolDrawdownYearly` and `CumulativeAccountingSnapshot`?
 
 ---
@@ -81,8 +81,8 @@ Full list in [target_schema.md](./target_schema.md). The three highest-priority:
 ### The proposal
 | File | Status | Purpose |
 |---|---|---|
-| [target_schema.md](./target_schema.md) | **Draft — for team review** | The proposal itself. ERD + loading strategy + open questions. |
-| [tracks_status.md](./tracks_status.md) | Active | **Tracks A / B / C combined.** Track A — APN canonicalization + genealogy. Track B — Allocation accounting + dashboards. Track C — Ken's CA Changes loader + reconciliation. |
+| [target_schema.md](./target_schema.md) | **Draft - for team review** | The proposal itself. ERD + loading strategy + open questions. |
+| [tracks_status.md](./tracks_status.md) | Active | **Tracks A / B / C combined.** Track A - APN canonicalization + genealogy. Track B - Allocation accounting + dashboards. Track C - the analyst's CA Changes loader + reconciliation. |
 | [dashboards_to_schema_trace.md](./dashboards_to_schema_trace.md) | Active | Backward design from built dashboards through view contracts to schema columns. 14 open gaps roll-up against `target_schema.md`. |
 | [inventory_tables_erd.md](./inventory_tables_erd.md) | Active | Analyst-facing inventory tables (Residential Units / Buildings / PDH 2025 join) with field dictionaries. Built in the 2026 cycle. |
 | [development_rights_erd.html](./development_rights_erd.html) | Draft | Browser viewer for all ERDs (existing + proposed). |
@@ -91,7 +91,7 @@ Full list in [target_schema.md](./target_schema.md). The three highest-priority:
 | File | Status | Purpose |
 |---|---|---|
 | [development_rights_erd.md](./development_rights_erd.md) | Done | Inventory of the existing upstream systems (Corral + LTinfo + spreadsheets). |
-| [raw_data_vs_corral.md](./raw_data_vs_corral.md) | Done | Gap analysis — what's in the transactions spreadsheet that Corral doesn't hold. |
+| [raw_data_vs_corral.md](./raw_data_vs_corral.md) | Done | Gap analysis - what's in the transactions spreadsheet that Corral doesn't hold. |
 | [validation_findings.md](./validation_findings.md) | Done | Empirical tests against the Feb-2024 Corral snapshot; quantifies what the spreadsheet covers beyond Corral views. |
 | [xlsx_decomposition.md](./xlsx_decomposition.md) | Done | Column-by-column map from `2025 Transactions and Allocations Details.xlsx` into the proposed schema. |
 | [next_steps.md](./next_steps.md) | Draft | 5-minute working-session brief: architecture summary + questions to close before DDL. |
@@ -124,17 +124,17 @@ Full list in [target_schema.md](./target_schema.md). The three highest-priority:
 
 Corral (`sql24/Corral`) is the LTinfo web-application backend, hosted on an
 SDE-registered SQL Server instance. Our read connection is a Feb-2024 backup
-snapshot — live reads for any production use case go through the LTinfo JSON
+snapshot - live reads for any production use case go through the LTinfo JSON
 web services at `https://www.laketahoeinfo.org/WebServices/*`. The future
 Parcel Development History REST service (patterned on
 [`Existing_Development/MapServer/2`](https://maps.trpa.org/server/rest/services/Existing_Development/MapServer/2))
 will live on the same SDE instance and become the authoritative spatial
 source of truth for existing development per parcel per year. **The new
-tables in this proposal fold into that same SDE instance** — no parallel
-database, no cross-DB bridging. Ken's `data/raw_data/` spreadsheets fill the
+tables in this proposal fold into that same SDE instance** - no parallel
+database, no cross-DB bridging. the analyst's `data/raw_data/` spreadsheets fill the
 gaps those systems don't hold (pre-2012 baseline, Year Built, TRPA/MOU
 project IDs, completion status) and get loaded via ETL into the new tables.
-Shorezone (Mooring, Pier) is out of scope — handled by a separate system.
+Shorezone (Mooring, Pier) is out of scope - handled by a separate system.
 
 ---
 

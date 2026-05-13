@@ -11,7 +11,7 @@ Canonical env: ArcGIS Pro's `arcgispro-py3`.
 
 - Interpreter: `C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/python.exe`
 - Jupyter kernel: `arcgispro-py3`
-- Plain `python` / `python3` / `py` do **not** work from bash — use the full path above.
+- Plain `python` / `python3` / `py` do **not** work from bash - use the full path above.
 - `arcpy` ships with ArcGIS Pro; `requirements.txt` covers everything else.
 
 To install additions, clone the env and pip-install into the clone:
@@ -53,16 +53,16 @@ public-facing artifacts.
 
 ## Data Sources
 
-- `F:\Research and Analysis\Reporting\Annual Reports\...` — internal snapshots
-- Corral at `sql24/Corral` — live read via `erd/db_corral.py` (Windows Auth, read-only)
-- Accela permit workflow — via Corral's `AccelaCAPRecord` bridge
+- `F:\Research and Analysis\Reporting\Annual Reports\...` - internal snapshots
+- Corral at `sql24/Corral` - live read via `erd/db_corral.py` (Windows Auth, read-only)
+- Accela permit workflow - via Corral's `AccelaCAPRecord` bridge
 
 ## Tasks (active)
 
 ### Cumulative Accounting of Residential Units, TAU, and CFA
 
 See `erd/target_schema.md` for the v1+ design. `notebooks/` holds the v1
-staging work (transition table from Ken's XLSX).
+staging work (transition table from the analyst's XLSX).
 
 ### Count of Permits by Category
 
@@ -86,5 +86,5 @@ IPES score: 0 = SEZ, 1–725 = Low Capability, ≥726 = High Capability.
 
 ### Inactive Parcels to Current APN
 
-Genealogy-based APN resolution — see
+Genealogy-based APN resolution - see
 `parcel_development_history_etl/GENEALOGY.md`.

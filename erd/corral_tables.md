@@ -1,12 +1,12 @@
-# Corral — Table Inventory
+# Corral - Table Inventory
 
 573 tables/views. Source: sql24/Corral (read-only).
 
 | Schema | Table | Type | Rows | Cols | PK |
 |---|---|---|---:|---:|---|
-| accela | Parcel | BASE TABLE | 102005 | 23 | — |
-| accela | RecordDetail | BASE TABLE | 222381 | 11 | — |
-| accela | RecordDocument | BASE TABLE | 184187 | 18 | — |
+| accela | Parcel | BASE TABLE | 102005 | 23 | - |
+| accela | RecordDetail | BASE TABLE | 222381 | 11 | - |
+| accela | RecordDocument | BASE TABLE | 184187 | 18 | - |
 | dbo | AccelaCAPRecord | BASE TABLE | 124297 | 11 | AccelaCAPRecordID |
 | dbo | AccelaCAPRecordDocument | BASE TABLE | 180270 | 18 | AccelaCAPRecordDocumentID |
 | dbo | AccelaCAPRecordDocumentCategory | BASE TABLE | 9 | 3 | AccelaCAPRecordDocumentCategoryID |
@@ -540,29 +540,29 @@
 | dbo | TreatmentBMPVersionObservationDetailObsolete | BASE TABLE | 4958 | 5 | TreatmentBMPVersionObservationDetailObsoleteID |
 | dbo | TreatmentBMPVersionObservationDetailTypeObsolete | BASE TABLE | 17 | 5 | TreatmentBMPVersionObservationDetailTypeObsoleteID |
 | dbo | TreatmentBMPVersionObservationObsolete | BASE TABLE | 1986 | 4 | TreatmentBMPVersionObservationObsoleteID |
-| dbo | vAccelaCapRecord | VIEW | — | 13 | — |
-| dbo | vAccelaCapRecordDetailed | VIEW | — | 14 | — |
-| dbo | vAccelaParcel | VIEW | — | 26 | — |
-| dbo | vActionPriority | VIEW | — | 12 | — |
-| dbo | vEIPProjectLocationDetail | VIEW | — | 19 | — |
-| dbo | vGeoServerAllParcels | VIEW | — | 24 | — |
-| dbo | vGeoServerModeledCatchments | VIEW | — | 10 | — |
-| dbo | vGeoserverMooring | VIEW | — | 5 | — |
-| dbo | vGeoServerMooringInventoryAndRegistrationStatus | VIEW | — | 8 | — |
-| dbo | vGeoServerParcelDevelopmentRightTransfers | VIEW | — | 26 | — |
-| dbo | vGeoServerTrackedParcels | VIEW | — | 24 | — |
-| dbo | vManageParcel | VIEW | — | 26 | — |
-| dbo | vParcel | VIEW | — | 33 | — |
-| dbo | vParcelCurrentInventoryByCommodity | VIEW | — | 10 | — |
-| dbo | vParcelCurrentInventoryByCommodityDetailed | VIEW | — | 22 | — |
-| dbo | vParcelCurrentInventoryByLandCapabilityType | VIEW | — | 17 | — |
-| dbo | vParcelDetailed | VIEW | — | 33 | — |
-| dbo | vParcelLandCapability | VIEW | — | 6 | — |
-| dbo | vParcelLandCapabilityCombinedDescription | VIEW | — | 3 | — |
-| dbo | vParcelTransactionFillColor | VIEW | — | 4 | — |
-| dbo | vProject | VIEW | — | 12 | — |
-| dbo | vTdrTransactionCanBeCountedInInventory | VIEW | — | 9 | — |
-| dbo | vTransactedAndBankedCommodities | VIEW | — | 8 | — |
+| dbo | vAccelaCapRecord | VIEW | - | 13 | - |
+| dbo | vAccelaCapRecordDetailed | VIEW | - | 14 | - |
+| dbo | vAccelaParcel | VIEW | - | 26 | - |
+| dbo | vActionPriority | VIEW | - | 12 | - |
+| dbo | vEIPProjectLocationDetail | VIEW | - | 19 | - |
+| dbo | vGeoServerAllParcels | VIEW | - | 24 | - |
+| dbo | vGeoServerModeledCatchments | VIEW | - | 10 | - |
+| dbo | vGeoserverMooring | VIEW | - | 5 | - |
+| dbo | vGeoServerMooringInventoryAndRegistrationStatus | VIEW | - | 8 | - |
+| dbo | vGeoServerParcelDevelopmentRightTransfers | VIEW | - | 26 | - |
+| dbo | vGeoServerTrackedParcels | VIEW | - | 24 | - |
+| dbo | vManageParcel | VIEW | - | 26 | - |
+| dbo | vParcel | VIEW | - | 33 | - |
+| dbo | vParcelCurrentInventoryByCommodity | VIEW | - | 10 | - |
+| dbo | vParcelCurrentInventoryByCommodityDetailed | VIEW | - | 22 | - |
+| dbo | vParcelCurrentInventoryByLandCapabilityType | VIEW | - | 17 | - |
+| dbo | vParcelDetailed | VIEW | - | 33 | - |
+| dbo | vParcelLandCapability | VIEW | - | 6 | - |
+| dbo | vParcelLandCapabilityCombinedDescription | VIEW | - | 3 | - |
+| dbo | vParcelTransactionFillColor | VIEW | - | 4 | - |
+| dbo | vProject | VIEW | - | 12 | - |
+| dbo | vTdrTransactionCanBeCountedInInventory | VIEW | - | 9 | - |
+| dbo | vTransactedAndBankedCommodities | VIEW | - | 8 | - |
 | dbo | WaterQualityImportanceType | BASE TABLE | 3 | 4 | WaterQualityImportanceTypeID |
 | dbo | Watershed | BASE TABLE | 67 | 4 | WatershedID |
 | dbo | WithdrawnOrExpiredTdrTransaction | BASE TABLE | 23 | 3 | WithdrawnOrExpiredTdrTransactionID |

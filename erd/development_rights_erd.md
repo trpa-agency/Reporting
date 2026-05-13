@@ -2,13 +2,13 @@
 
 > **Purpose**: inventory of the *existing* upstream systems (Corral SQL
 > Server, LTinfo JSON web services, repo spreadsheets) that the new schema
-> integrates. Not the proposal itself — that's [target_schema.md](./target_schema.md).
+> integrates. Not the proposal itself - that's [target_schema.md](./target_schema.md).
 > **Audience**: anyone who needs context on what Corral and LTinfo already
 > hold before reviewing the new-table proposal.
 
 
 > **This document describes the *existing* upstream systems.** For the
-> proposed new schema, see [target_schema.md](./target_schema.md) —
+> proposed new schema, see [target_schema.md](./target_schema.md) -
 > anchored on the TRPA Cumulative Accounting framework (5 buckets per
 > commodity per jurisdiction, 7 movement types). Also see
 > the `trpa-cumulative-accounting` skill (or archived [`_archive/cumulative_accounting_reference.md`](./_archive/cumulative_accounting_reference.md))
@@ -23,9 +23,9 @@
 
 Generated from three disparate sources to inform the design of a unified schema.
 
-- **SQL Server `Corral`** on `sql24` — 573 tables / 1,041 FKs, read-only mirror of the system of record. Full table list: [corral_tables.md](corral_tables.md). Machine-readable schema dump: [corral_schema.json](corral_schema.json).
-- **LTinfo web services** — public JSON endpoints at `https://www.laketahoeinfo.org/WebServices/*`, token-gated. Full probe results: [ltinfo_services.json](ltinfo_services.json).
-- **Repo spreadsheets** — CSV/XLSX inputs under `data/` that feed the parcel-history and cumulative-accounting ETLs.
+- **SQL Server `Corral`** on `sql24` - 573 tables / 1,041 FKs, read-only mirror of the system of record. Full table list: [corral_tables.md](corral_tables.md). Machine-readable schema dump: [corral_schema.json](corral_schema.json).
+- **LTinfo web services** - public JSON endpoints at `https://www.laketahoeinfo.org/WebServices/*`, token-gated. Full probe results: [ltinfo_services.json](ltinfo_services.json).
+- **Repo spreadsheets** - CSV/XLSX inputs under `data/` that feed the parcel-history and cumulative-accounting ETLs.
 
 Scope of the diagrams below: development, allocations, TDR transactions, deed restrictions, IPES / land capability, commodity pools, parcel genealogy. The Corral ERD is a curated ~50-table subset; the remainder is catalogued in `corral_tables.md`.
 
@@ -36,7 +36,7 @@ python erd/inventory_ltinfo_services.py
 python erd/build_erd.py
 ```
 
-## 1. Corral SQL Server — curated ERD
+## 1. Corral SQL Server - curated ERD
 
 ```mermaid
 erDiagram
@@ -929,7 +929,7 @@ erDiagram
 | `GetParcelDevelopmentRightsForAccela` | 12,540 | Parcel-level dev rights as exposed to the Accela permit system. | dbo.ParcelCommodityInventory, dbo.vParcelCurrentInventoryByCommodity | Yes |
 | `GetDeedRestrictedParcels` | 4,253 | Parcels with recorded deed restrictions (affordable/achievable housing, etc.). | dbo.DeedRestriction, dbo.DeedRestrictionType, dbo.DeedRestrictionStatus | Yes |
 | `GetParcelIPESScores` | 14,978 | IPES scores per parcel (land capability sensitivity index). | dbo.IpesScore, dbo.IpesScoreParcelInformation | Yes |
-| `GetAccelaRecordDetailsExcel` | — | Per-record Accela permit details as Excel file. URL pattern: https://laketahoeinfo.org/Api/GetAccelaRecordDetailsExcel/{GUID} (per-record, not a bulk feed). | dbo.AccelaCAPRecord, dbo.AccelaCAPRecordDocument (per-record export) | Yes |
+| `GetAccelaRecordDetailsExcel` | - | Per-record Accela permit details as Excel file. URL pattern: https://laketahoeinfo.org/Api/GetAccelaRecordDetailsExcel/{GUID} (per-record, not a bulk feed). | dbo.AccelaCAPRecord, dbo.AccelaCAPRecordDocument (per-record export) | Yes |
 
 ## 3. Repo spreadsheet inventory
 
@@ -959,7 +959,7 @@ erDiagram
 
 | Key | Corral | LTinfo web service | Spreadsheets |
 |---|---|---|---|
-| **APN** (Parcel ID) | `dbo.Parcel.ParcelNumber` — referenced by ~60+ tables | Every JSON endpoint returns `APN` | Every `*.csv` / `*.xlsx` row is keyed on APN |
+| **APN** (Parcel ID) | `dbo.Parcel.ParcelNumber` - referenced by ~60+ tables | Every JSON endpoint returns `APN` | Every `*.csv` / `*.xlsx` row is keyed on APN |
 | **Accela Record ID / CAP ID** | `dbo.AccelaCAPRecord.AccelaCAPRecordID`, link table `dbo.ParcelAccelaCAPRecord` | `GetTransactedAndBankedDevelopmentRights.AccelaID`, `GetAccelaRecordDetailsExcel/{GUID}` | `HousingDeedRestrictions_All.csv.AccelaDoc` |
 | **TRPA Allocation ID** | `dbo.ResidentialAllocation.ResidentialAllocationID` (+ `dbo.TdrTransactionAllocation`) | Implicit in `GetTransactedAndBankedDevelopmentRights` via `TransactionNumber` | `HousingDeedRestrictions_All.csv.TRPA_AllocationID`, `Transactions_Allocations_Details.xlsx` |
 | **TDR Transaction #** | `dbo.TdrTransaction.TransactionNumber` | `GetTransactedAndBankedDevelopmentRights.TransactionNumber` | `Transactions_InactiveParcels.csv.TransactionNumber` |

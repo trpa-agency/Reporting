@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Residential Allocation Availability &mdash; Lake Tahoe Basin</title>
+<title>Residential Allocation Availability - Lake Tahoe Basin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
@@ -120,8 +120,7 @@ header h1 span { color: var(--trpa-blue); }
       <div class="header-eyebrow">Tahoe Regional Planning Agency</div>
       <h1>Residential Allocation <span>Availability</span></h1>
       <div class="header-sub">
-        How many residential allocations remain in each Lake Tahoe Basin jurisdiction.
-        Find your county or city and see what&rsquo;s left in its allocation pool.
+        Residential allocations remaining in each Tahoe Basin jurisdiction.
       </div>
     </div>
     <div class="header-meta">
@@ -135,7 +134,7 @@ header h1 span { color: var(--trpa-blue); }
 <div class="section">
   <div class="total-strip">
     <div>
-      <div class="total-num" id="total-rem">&mdash;</div>
+      <div class="total-num" id="total-rem">-</div>
       <div class="total-label">total residential allocations remaining across the Tahoe Basin</div>
     </div>
     <div class="total-extra" id="total-extra">
@@ -149,31 +148,19 @@ header h1 span { color: var(--trpa-blue); }
   <div class="explainer">
     <h3>What&rsquo;s a residential allocation?</h3>
     <p>
-      A <strong>residential allocation</strong> is a permission slip from TRPA that lets a property owner build one new
-      residential unit in the Lake Tahoe Basin. The Regional Plan caps how many can ever be built &mdash; <strong>8,687
-      cumulative since 1987</strong> &mdash; to keep development paced with the basin&rsquo;s environmental capacity.
+      A <strong>residential allocation</strong> is permission from TRPA to build one new residential unit in the Tahoe Basin. The Regional Plan caps the cumulative total at <strong>8,687 since 1987</strong> to pace development with environmental capacity.
     </p>
     <p>
-      Each county and the City of South Lake Tahoe gets a <strong>pool</strong> of allocations to distribute as new
-      home permits get approved. When a pool runs out, the jurisdiction has to wait for the next round, transfer
-      development rights from elsewhere, or use bonus units (a separate program for affordable housing). This page
-      shows what each pool has left as of the most recent TRPA report.
+      Each county and the City of South Lake Tahoe gets a <strong>pool</strong> of allocations to distribute as permits are approved. When a pool runs out, the jurisdiction waits for the next round, transfers development rights, or uses bonus units.
     </p>
     <p>
-      Looking for a specific parcel&rsquo;s allocation history?
-      <a href="https://parcels.laketahoeinfo.org/">parcels.laketahoeinfo.org</a> has the per-APN detail.
+      Per-parcel allocation history: <a href="https://parcels.laketahoeinfo.org/">parcels.laketahoeinfo.org</a>.
     </p>
   </div>
 </div>
 
 <div class="footnote">
-  <strong>Data:</strong> from <code>from_ken/Additional Development as of April2026.xlsx</code>
-  (LT Info Pools Balances sheet) with the TRPA Pool 144&rarr;154 correction applied.
-  Eventually backed by <code>PoolDrawdownYearly</code>; see
-  <a href="../erd/dashboards_to_schema_trace.md">dashboards_to_schema_trace.md</a> Trace 2.
-  This page is the public-facing slice (G1) of the broader B1 staff dashboard at
-  <a href="./pool-balance-cards.html">pool-balance-cards.html</a>. Cluster G1 in
-  <a href="../erd/proposed_dashboards.md">proposed_dashboards.md</a>.
+  <strong>Data:</strong> <code>from_analyst/Additional Development as of April2026.xlsx</code> (LT Info Pools Balances sheet, with the TRPA Pool 144&rarr;154 correction applied). Staff drilldown: <a href="./pool-balance-cards.html">pool-balance-cards.html</a>.
 </div>
 
 <script>
@@ -184,8 +171,8 @@ const TRPA = {
 };
 
 // Six Lake Tahoe Basin jurisdictions with residential allocation pools.
-// Source: from_ken/Additional Development as of April2026.xlsx + PPTX slide 5.
-// Carson is included even though it has just 4 residential units total — listed for completeness.
+// Source: from_analyst/Additional Development as of April2026.xlsx + PPTX slide 5.
+// Carson is included even though it has just 4 residential units total - listed for completeness.
 // CSLT row aggregates the 3 CSLT sub-pools (Single-Family + Multi-Family + Town Center).
 const JURISDICTIONS = [
   {
@@ -237,7 +224,7 @@ function renderJurisdictions() {
       <div class="juris-context">
         ${isOut
           ? '<span class="juris-out">Pool exhausted</span>'
-          : `<strong>${used.toLocaleString()}</strong> of ${j.initial.toLocaleString()} initial used &middot; ${pctRem.toFixed(0)}% remaining`}
+          : `<strong>${used.toLocaleString()}</strong> of ${j.initial.toLocaleString()} initial used · ${pctRem.toFixed(0)}% remaining`}
       </div>
       ${j.note ? `<div class="juris-context" style="font-style:italic;margin-top:4px">${j.note}</div>` : ''}
     `;

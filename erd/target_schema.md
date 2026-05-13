@@ -1,7 +1,7 @@
-# Target schema — TRPA Cumulative Accounting tracking store
+# Target schema - TRPA Cumulative Accounting tracking store
 
-> **Status: DRAFT PROPOSAL — ready for team review.**
-> **Audience: TRPA dev team, Ken, Dan, DB/GIS admins, partner jurisdictions.**
+> **Status: DRAFT PROPOSAL - ready for team review.**
+> **Audience: TRPA dev team, TRPA leadership, DB/GIS admins, partner jurisdictions.**
 
 Proposed ERD for new tables in the **existing SDE SQL backend** that hosts
 Corral + the enterprise GIS geodatabase. Anchored on the TRPA Cumulative
@@ -34,39 +34,39 @@ Addressing issues found by an architectural review before circulation:
 - **Moved the 39% PCI coverage finding into the key-numbers TL;DR.**
 - **Noted `vCommodityLedger` can't be an indexed view**; documented materialization fallback if performance becomes an issue.
 
-## For reviewers — how to read this
+## For reviewers - how to read this
 
 1. **Skim the Design principles and Scope notes above** to orient on the
    constraints that shaped the design.
-2. **Read the five ERDs in order** — they flow from reference data into the
+2. **Read the five ERDs in order** - they flow from reference data into the
    five buckets, the movement ledger, permits, and dashboard outputs. All
    diagrams render together in [development_rights_erd.html](./development_rights_erd.html).
 3. **Jump to [Questions for the team](#questions-for-the-team)** at the end.
    That's the review checklist. Every question has a proposed answer;
    confirm or override.
 4. **Check the supporting docs if you want to know *why*:**
-   - [raw_data_vs_corral.md](./raw_data_vs_corral.md) — what Corral doesn't hold.
-   - [validation_findings.md](./validation_findings.md) — empirical tests.
-   - [xlsx_decomposition.md](./xlsx_decomposition.md) — how each XLSX column lands in the proposed schema.
+   - [raw_data_vs_corral.md](./raw_data_vs_corral.md) - what Corral doesn't hold.
+   - [validation_findings.md](./validation_findings.md) - empirical tests.
+   - [xlsx_decomposition.md](./xlsx_decomposition.md) - how each XLSX column lands in the proposed schema.
 
 ### Key numbers at a glance
 
 - **Corral's `ParcelCommodityInventory` tracks SFRUU/MFRUU for only 39% of
   residential parcels.** This 61% coverage gap is the core reason the
-  proposal exists — the transactions spreadsheet fills a structural hole
+  proposal exists - the transactions spreadsheet fills a structural hole
   that a Corral-only schema can't. See
   [validation_findings.md](./validation_findings.md) for the empirical test.
-- **Regional Plan caps (since-1987 cumulative max, per Ken's 2026 PPTX slide 8):**
+- **Regional Plan caps (since-1987 cumulative max, per the analyst's 2026 PPTX slide 8):**
   - **8,687** residential allocations (6,731 constructed as of 2025, 78%)
   - **2,000** residential bonus units (736 constructed, 37%)
   - **400** tourist bonus units (58 constructed, 15%)
   - **1,000,000 sq ft** commercial floor area (464K constructed, 46%)
-  - The **2012 Regional Plan's additional Board authorization** (adopted 2013) on top of unused 1987 allocations was **2,600 residential units** — a subset of the 8,687 cumulative since-1987 max.
-- **8 new physical tables + 2 views + 3 materialized snapshots** in this proposal (was 7 — added `QaCorrectionDetail` sidecar).
+  - The **2012 Regional Plan's additional Board authorization** (adopted 2013) on top of unused 1987 allocations was **2,600 residential units** - a subset of the 8,687 cumulative since-1987 max.
+- **8 new physical tables + 2 views + 3 materialized snapshots** in this proposal (was 7 - added `QaCorrectionDetail` sidecar).
 - **16 Corral reference / transaction tables** reused as-is (no duplication).
-- **5 buckets per (Commodity, Jurisdiction)**: Existing, Banked, Allocated, Bonus Units, Unused Capacity. Equivalently, the 3-bucket condensation: `Existing + Banked + Remaining`, where `Remaining = Allocated + Not Allocated + Not Released` (Ken's framing in `next_steps.md`).
+- **5 buckets per (Commodity, Jurisdiction)**: Existing, Banked, Allocated, Bonus Units, Unused Capacity. Equivalently, the 3-bucket condensation: `Existing + Banked + Remaining`, where `Remaining = Allocated + Not Allocated + Not Released` (the analyst's framing in `next_steps.md`).
 - **10 ledger movement types** (9 from Corral's `TransactionType` + Banking + QACorrection, minus Shorezone).
-- **3 v1 dashboards**: partial cumulative accounting (residential + TAU + CFA only), allocation drawdown, parcel history lookup. **A4 (Residential Additions by Source)** built as well — see [`_archive/proposed_dashboards.md`](./_archive/proposed_dashboards.md) and [`../html/index.md`](../html/index.md).
+- **3 v1 dashboards**: partial cumulative accounting (residential + TAU + CFA only), allocation drawdown, parcel history lookup. **A4 (Residential Additions by Source)** built as well - see [`_archive/proposed_dashboards.md`](./_archive/proposed_dashboards.md) and [`../html/index.md`](../html/index.md).
 - **Corral freshness**: our backup is Feb 2024; live reads use LTinfo web services until deployment.
 - **GIS freshness**: FC covers 2006–2023 with a 2016–2017 gap (see Questions).
 
@@ -76,27 +76,27 @@ Terms that appear throughout this doc, defined once:
 
 | Term | Meaning |
 |---|---|
-| **SFRUU** | Single-Family Residential Unit of Use — one detached dwelling |
-| **MFRUU** | Multi-Family Residential Unit of Use — one apartment/condo/townhome unit |
-| **PRUU** | Potential Residential Unit of Use — a subdivided lot that could host a dwelling but hasn't been built |
-| **ADU** | Accessory Dwelling Unit — a secondary unit on a single-family lot |
-| **TAU** | Tourist Accommodation Unit — one hotel/motel/time-share room |
-| **CFA** | Commercial Floor Area — non-residential building area, in square feet |
-| **RBU** | Residential Bonus Unit — an extra residential entitlement awarded for environmental benefit |
-| **PAOT** | People At One Time — recreation capacity (out of scope for v1) |
+| **SFRUU** | Single-Family Residential Unit of Use - one detached dwelling |
+| **MFRUU** | Multi-Family Residential Unit of Use - one apartment/condo/townhome unit |
+| **PRUU** | Potential Residential Unit of Use - a subdivided lot that could host a dwelling but hasn't been built |
+| **ADU** | Accessory Dwelling Unit - a secondary unit on a single-family lot |
+| **TAU** | Tourist Accommodation Unit - one hotel/motel/time-share room |
+| **CFA** | Commercial Floor Area - non-residential building area, in square feet |
+| **RBU** | Residential Bonus Unit - an extra residential entitlement awarded for environmental benefit |
+| **PAOT** | People At One Time - recreation capacity (out of scope for v1) |
 | **Commodity** | One of the above types (SFRUU, MFRUU, TAU, CFA, etc.); there are 17 in `dbo.Commodity` |
 | **Pool** | A container of commodity capacity, scoped to a jurisdiction or subzone; 129 total in `dbo.CommodityPool` |
 | **Allocation** | A specific drawdown from a pool that entitles a unit of development on a parcel |
 | **Bucket** | One of 5 states a unit of commodity can be in: Existing, Banked, Allocated, Bonus Units, Unused Capacity |
-| **LCT / LandCapabilityType** | `Commodity × BaileyRating` — e.g., "CFA at Bailey 1a" is one LCT; 114 total |
-| **SEZ** | Stream Environment Zone — land protected by the Bailey classification system (rating 1a) |
+| **LCT / LandCapabilityType** | `Commodity × BaileyRating` - e.g., "CFA at Bailey 1a" is one LCT; 114 total |
+| **SEZ** | Stream Environment Zone - land protected by the Bailey classification system (rating 1a) |
 | **Corral** | The SQL Server DB that backs the LTinfo web app; our read connection is a Feb-2024 snapshot |
-| **LTinfo** | `laketahoeinfo.org` — public web app sitting on top of Corral |
+| **LTinfo** | `laketahoeinfo.org` - public web app sitting on top of Corral |
 
 See [`trpa-cumulative-accounting` skill](../../.claude/skills/trpa-cumulative-accounting) (or archived [`_archive/cumulative_accounting_reference.md`](./_archive/cumulative_accounting_reference.md))
 for the full vocabulary with examples.
 
-### Worked example — how one TDR transaction lands in the accounting
+### Worked example - how one TDR transaction lands in the accounting
 
 Concrete trace showing how the proposed schema processes a single event.
 
@@ -112,7 +112,7 @@ permit `0339627` was finaled 2022-10-12.
 
 **What the new schema does with it**:
 
-1. `vCommodityLedger` exposes two rows (derived — no storage added):
+1. `vCommodityLedger` exposes two rows (derived - no storage added):
    - From T1: `MovementType=ALLOC, EntryDate=2021-09-16, FromBucket=UnusedPool, ToBucket=Allocated, Quantity=+1`
    - From T2: `MovementType=ALLOCASSGN, EntryDate=2022-10-12, FromBucket=Allocated, ToBucket=Existing, Quantity=+1`
 2. `PoolDrawdownYearly` nightly job credits `EL county pool`: `Released` for 2021 +=1, `Used` for 2022 +=1.
@@ -134,7 +134,7 @@ permit `0339627` was finaled 2022-10-12.
 carry only: the GIS-derived existing-development row (#3), the change-rationale
 row (#4), and the materialized snapshot (#5).
 
-## Design principle — never duplicate Corral
+## Design principle - never duplicate Corral
 
 Corral is the system of record for TDR transactions, residential allocations,
 banked rights, commodity pools, parcels, permits, deed restrictions, IPES, and
@@ -142,7 +142,7 @@ all reference lookups. **The new DB only creates tables for data Corral
 genuinely lacks.** Everything else is FK'd, UNION'd in a view, or sidecar'd
 with net-new columns only. When in doubt: don't duplicate.
 
-## Where this lives — architecture
+## Where this lives - architecture
 
 The new tables fold into the **same SDE-registered SQL Server instance** as
 Corral and the enterprise GIS geodatabase. That means:
@@ -156,7 +156,7 @@ Corral and the enterprise GIS geodatabase. That means:
   all stay in Corral as-is. We FK into them.
 - **Publishing via ESRI is native.** SDE-registered tables can be exposed as
   MapServer / FeatureServer layers (like
-  [Existing_Development/MapServer/2](https://maps.trpa.org/server/rest/services/Existing_Development/MapServer/2) — the future **Parcel Development History** service).
+  [Existing_Development/MapServer/2](https://maps.trpa.org/server/rest/services/Existing_Development/MapServer/2) - the future **Parcel Development History** service).
 - **LTinfo JSON web services** remain the live read path for external
   systems but are not needed for in-DB queries once we're deployed.
 
@@ -169,7 +169,7 @@ Max Regional Capacity  =  Existing + Banked + Allocated (not built)
                        +  Bonus Units + Unused Capacity
 ```
 
-Equivalently, the 3-bucket condensation Ken uses in
+Equivalently, the 3-bucket condensation the analyst uses in
 [next_steps.md](./next_steps.md):
 
 ```
@@ -177,14 +177,14 @@ Max Regional Capacity  =  Existing + Banked + Remaining
 where  Remaining  =  Allocated + Not Allocated + Not Released
 ```
 
-Both framings describe the same data — the 5-bucket version is what the
+Both framings describe the same data - the 5-bucket version is what the
 schema stores in `CumulativeAccountingSnapshot`; the 3-bucket version is
 what dashboards typically display because it matches how staff and the
 public think about it.
 
 Every event moves commodity between these buckets.
 
-## Reference entities — reused from Corral
+## Reference entities - reused from Corral
 
 These tables **already exist in `dbo.*`** and don't get recreated. Listed so
 you can see what the new tables FK into.
@@ -193,23 +193,23 @@ you can see what the new tables FK into.
 |---|---:|---|
 | `dbo.Commodity` | 17 | Canonical commodity taxonomy (SFRUU, MFRUU, CFA, TAU, RBU, etc.) |
 | `dbo.Jurisdiction` | 10 | Jurisdictions + abbreviations |
-| `dbo.BaileyRating` | — | Bailey land-capability ratings (1a, 1b, 2, 3, ...) |
+| `dbo.BaileyRating` | - | Bailey land-capability ratings (1a, 1b, 2, 3, ...) |
 | `dbo.LandCapabilityType` | 114 | `Commodity × BaileyRating` |
 | `dbo.CommodityPool` | 129 | All pools (Community Plan, Area Plan, Incentive, Bonus, CEP, generic) |
-| `dbo.TransactionType` | 9 | The 9 canonical transaction types — see below |
+| `dbo.TransactionType` | 9 | The 9 canonical transaction types - see below |
 | `dbo.ResidentialAllocationType` | 4 | **Allocation source**: Original, Reissued, LitigationSettlement, AllocationPool |
 | `dbo.ResidentialAllocationUseType` | 2 | **Allocation use**: SingleFamily, MultiFamily |
 | `dbo.Parcel` | 72K | Canonical parcel identity + geometry |
-| `dbo.ParcelGenealogy` | 2.4K | Parent/Child parcel links (skeleton — enriched by new table below) |
+| `dbo.ParcelGenealogy` | 2.4K | Parent/Child parcel links (skeleton - enriched by new table below) |
 | `dbo.ResidentialAllocation` | 1.9K | Allocation records (FK target; not redefined) |
-| `dbo.TdrTransaction` + family | 2K | Transaction records — become inputs to the ledger |
+| `dbo.TdrTransaction` + family | 2K | Transaction records - become inputs to the ledger |
 | `dbo.AccelaCAPRecord` + `dbo.ParcelAccelaCAPRecord` | 124K / 179K | Accela bridge |
-| `dbo.ParcelPermit` | 1.3K | Permit records — we extend, not replace |
+| `dbo.ParcelPermit` | 1.3K | Permit records - we extend, not replace |
 | `dbo.ParcelCommodityInventory` | 10.5K | Current verified inventory (61% gap for residential; supplemented by `ParcelExistingDevelopment` below) |
 
 ### Found domain values
 
-**`dbo.ResidentialAllocationType`** — what I earlier called "AllocationType":
+**`dbo.ResidentialAllocationType`** - what I earlier called "AllocationType":
 
 | ID | Name | Code | Description |
 |---:|---|---|---|
@@ -218,7 +218,7 @@ you can see what the new tables FK into.
 | 3 | LitigationSettlement | LS | Litigation Settlement |
 | 4 | AllocationPool | AP | Allocation Pool |
 
-My earlier sketch of `Allocation | BonusUnit | ADU` was wrong — those aren't
+My earlier sketch of `Allocation | BonusUnit | ADU` was wrong - those aren't
 types, they're either sub-entities (`ResidentialBonusUnit`) or modeled
 elsewhere (ADU probably as a flag on the permit or as a
 `ResidentialAllocationUseType` value to be added).
@@ -230,7 +230,7 @@ elsewhere (ADU probably as a flag on the permit or as a
 | 1 | SingleFamily | Single-Family |
 | 2 | MultiFamily | Multi-Family |
 
-**`dbo.TransactionType`** — the 9 authoritative movement types:
+**`dbo.TransactionType`** - the 9 authoritative movement types:
 
 | ID | Name | Abbr | Sending? | Receiving? | Conversion? | LandBank? |
 |---:|---|---|:---:|:---:|:---:|:---:|
@@ -243,10 +243,10 @@ elsewhere (ADU probably as a flag on the permit or as a
 | 8 | Conversion With Transfer | CONVTRF | ✓ | ✓ | | |
 | 9 | Land Bank Transfer | LBT | | ✓ | | ✓ |
 
-(ID 10 — Shorezone Allocation — is handled by the separate shorezone system
+(ID 10 - Shorezone Allocation - is handled by the separate shorezone system
 and **out of scope** for this schema.)
 
-**`dbo.CommodityPool` — no formal PoolType column.** Pool type is encoded in
+**`dbo.CommodityPool` - no formal PoolType column.** Pool type is encoded in
 the pool name. Empirical classification by commodity:
 
 | Commodity | Bonus | Incentive | Community Plan | Area Plan | CEP | Total |
@@ -258,11 +258,11 @@ the pool name. Empirical classification by commodity:
 | Res. Alloc. | 0 | 0 | 0 | 0 | 0 | 9 |
 
 Recommendation: **don't add a `PoolType` enum column to `CommodityPool`**.
-Instead add a derived classification in the ETL layer or a view — parses
+Instead add a derived classification in the ETL layer or a view - parses
 the name into `{CommunityPlan, AreaPlan, Bonus, Incentive, CEP, Generic}`.
 Keeps the source table unchanged; accounting queries use the derived view.
 
-## GIS source — the future Parcel Development History service
+## GIS source - the future Parcel Development History service
 
 The existing prototype at
 [Existing_Development/MapServer/2](https://maps.trpa.org/server/rest/services/Existing_Development/MapServer/2)
@@ -293,7 +293,7 @@ History** service will have. Key fields:
 No coded-value domains on the layer today. The new tables mirror these
 field names 1:1 to simplify the loader.
 
-## ERD — new core tables (parcel-keyed buckets)
+## ERD - new core tables (parcel-keyed buckets)
 
 ```mermaid
 erDiagram
@@ -390,17 +390,17 @@ erDiagram
 ```
 
 The two pool-keyed buckets (`Bonus Units`, `Unused Capacity`) don't need
-new tables — they're derivable from the existing `dbo.CommodityPool`
+new tables - they're derivable from the existing `dbo.CommodityPool`
 records plus the movement ledger, materialized nightly into
 `PoolDrawdownYearly` (below).
 
-## ERD — QA corrections sidecar (Track C)
+## ERD - QA corrections sidecar (Track C)
 
 When a `ParcelDevelopmentChangeEvent` row has `ChangeSource='qa_correction'`,
 a sidecar `QaCorrectionDetail` row carries the QA-specific metadata:
 which annual reporting year the correction applies to, whether it was
 part of a periodic big-sweep campaign (2023, 2026, future), and the
-controlled-vocabulary correction category Ken assigns. The sidecar keeps
+controlled-vocabulary correction category the analyst assigns. The sidecar keeps
 non-QA change events clean.
 
 ```mermaid
@@ -415,7 +415,7 @@ erDiagram
         int ReportingYear "annual; any year (corrections happen continuously)"
         varchar SweepCampaign "nullable: '2023_big_sweep', '2026_big_sweep', or NULL for trickle corrections"
         varchar CorrectionCategory "one of Sheet2's 9 controlled-vocab values"
-        varchar SummaryReason "Ken's free-text categorical from CA Changes Sheet1"
+        varchar SummaryReason "the analyst's free-text categorical from CA Changes Sheet1"
         varchar SourceFileSnapshot "e.g. 'CA Changes breakdown.xlsx@2026-05-03' for traceability"
         datetime LoadedAt
     }
@@ -425,7 +425,7 @@ erDiagram
 
 ### CorrectionCategory controlled vocabulary
 
-The 9 values from Ken's `data/qa_data/CA Changes breakdown.xlsx` Sheet2.
+The 9 values from the analyst's `data/qa_data/CA Changes breakdown.xlsx` Sheet2.
 Loaders MUST fail closed on unknown values (don't silently coerce):
 
 1. `No Update Required`
@@ -438,15 +438,15 @@ Loaders MUST fail closed on unknown values (don't silently coerce):
 8. `Additional Unit(s) Removed in 2026`
 9. `Correction to Prior Analysis - Additional Unit(s) Removed in 2026`
 
-The list is **extensible** — future big sweeps may surface new categories.
+The list is **extensible** - future big sweeps may surface new categories.
 Loader should warn on first occurrence of a new value, then operators
 decide whether to add it to the canonical list.
 
 ### Cadence model
 
-- **Annual reporting cycle** — TRPA reports cumulative accounting every
+- **Annual reporting cycle** - TRPA reports cumulative accounting every
   year, so `ReportingYear` is unrestricted (any annual value).
-- **Big QA sweep campaigns** happen periodically — TRPA ran one in 2023
+- **Big QA sweep campaigns** happen periodically - TRPA ran one in 2023
   and another in 2026; future big sweeps will too. `SweepCampaign`
   flags those years specifically (`'2023_big_sweep'`, `'2026_big_sweep'`,
   etc.). Most years will have null `SweepCampaign` (just the trickle of
@@ -455,16 +455,16 @@ decide whether to add it to the canonical list.
   trickle + sweep spikes), or "corrections by sweep campaign" (the big
   cleanup pushes specifically).
 
-## ERD — movement ledger
+## ERD - movement ledger
 
 **No physical ledger table.** Corral is the system of record for every TDR
 transaction (`dbo.TdrTransaction` + children) and every banked right
 (`dbo.ParcelPermitBankedDevelopmentRight`). Don't duplicate. Instead:
 
-- **`vCommodityLedger` (view)** — UNIONs Corral's transaction and banking
+- **`vCommodityLedger` (view)** - UNIONs Corral's transaction and banking
   tables into a unified `(EntryDate, CommodityID, Quantity, MovementType,
   From*, To*)` shape. Read-only.
-- **`LedgerManualAdjustment` (small new table)** — the only net-new ledger
+- **`LedgerManualAdjustment` (small new table)** - the only net-new ledger
   data we hold: manual QA corrections that don't correspond to any Corral
   event. UNIONed into `vCommodityLedger`.
 
@@ -515,7 +515,7 @@ erDiagram
     LedgerManualAdjustment                   ||--o| LedgerManualAdjustment : "paired (self-ref)"
 ```
 
-### `vCommodityLedger` — the view
+### `vCommodityLedger` - the view
 
 Shape of the view: `(source, source_id, PairingKey, EntryDate, CommodityID,
 Quantity, MovementType, FromBucketType, ToBucketType, FromPoolID, ToPoolID,
@@ -523,7 +523,7 @@ SendingParcelID, ReceivingParcelID, Rationale)`. Three branches UNION ALL'd.
 
 `source` is an enum (`corral_tdr` | `corral_banking` | `manual_qa`). `source_id`
 is the PK in that source's table. Together `(source, source_id)` uniquely
-identifies a ledger row — this is the composite key `ParcelDevelopmentChangeEvent`
+identifies a ledger row - this is the composite key `ParcelDevelopmentChangeEvent`
 and dashboards should reference.
 
 `PairingKey` links the two sides of a Conversion: for `corral_tdr` rows, the
@@ -591,7 +591,7 @@ SELECT
 FROM LedgerManualAdjustment lma;
 ```
 
-### Performance ceiling — plan B if the view is too slow
+### Performance ceiling - plan B if the view is too slow
 
 Today's row counts: 2,088 TDR transactions + 707 banked rights + 0 manual
 adjustments = ~2,800 ledger rows. Dashboards query filtered subsets; the view
@@ -621,10 +621,10 @@ rules. If dashboards hit performance limits as data grows:
 | ECM | ECM | Existing → OutOfSystem | corral_tdr |
 | LBA | LBA | Existing → LandBank | corral_tdr |
 | LBT | LBT | LandBank → Existing | corral_tdr |
-| (none — Corral event) | Banking | Existing → Banked | corral_banking |
-| (none — manual) | QACorrection | any → any | manual_qa |
+| (none - Corral event) | Banking | Existing → Banked | corral_banking |
+| (none - manual) | QACorrection | any → any | manual_qa |
 
-## ERD — permit completion + cross-system IDs
+## ERD - permit completion + cross-system IDs
 
 ```mermaid
 erDiagram
@@ -636,13 +636,13 @@ erDiagram
         date CertificateOfOccupancyDate "the actual CO date - Corral has only HasCertificateOfOccupancyBeenIssued bit; FinalInspectionDate is earlier in the workflow"
         varchar CompletionStatusEnriched "enum: Applied|Issued|UnderConstruction|Finaled|Expired|Withdrawn; supersedes Corral's 2-value ParcelPermitStatusID for reporting"
         varchar DetailedDevelopmentType "free-text project descriptor (not in Corral)"
-        varchar SupplementalNotes "Ken's operational/QA notes (distinct from dbo.ParcelPermit.Notes which holds permit description)"
+        varchar SupplementalNotes "the analyst's operational/QA notes (distinct from dbo.ParcelPermit.Notes which holds permit description)"
         datetime LoadedAt
     }
     vPermitAllocation {
         int ParcelPermitID FK "dbo.ParcelPermit"
         int ResidentialAllocationID FK "dbo.ResidentialAllocation"
-        varchar LinkageSource "corral_fk (via TdrTransaction.AccelaCAPRecordID) or xlsx_seeded (from Ken via CrossSystemID)"
+        varchar LinkageSource "corral_fk (via TdrTransaction.AccelaCAPRecordID) or xlsx_seeded (from the analyst via CrossSystemID)"
         int Quantity
     }
     CrossSystemID {
@@ -672,10 +672,10 @@ erDiagram
 ```
 
 `PermitCompletion` extends `dbo.ParcelPermit` with the fields that live in
-Ken's XLSX today. Eventually this becomes a direct sync from Accela once a
+the analyst's XLSX today. Eventually this becomes a direct sync from Accela once a
 live feed is wired.
 
-## ERD — materialized dashboard outputs
+## ERD - materialized dashboard outputs
 
 ```mermaid
 erDiagram
@@ -752,7 +752,7 @@ erDiagram
 | **Allocation drawdown** (stacked area by pool × year; `html/allocation_drawdown.html`) | `PoolDrawdownYearly` |
 | **Parcel history lookup** (per-APN + change log) | `ParcelHistoryView` + `ParcelDevelopmentChangeEvent` |
 
-## Implementation notes — constraints, invariants, and algorithms
+## Implementation notes - constraints, invariants, and algorithms
 
 The ERD shapes are necessary but not sufficient. These notes capture the
 operational contracts that make the schema actually work.
@@ -779,7 +779,7 @@ Three-nullable-FK validity on `ParcelDevelopmentChangeEvent`: add a
 ### Accounting-identity validation
 
 The `Max Capacity = Existing + Banked + Allocated + Bonus + Unused` identity
-is not enforced by the schema — no CHECK constraint can span the five
+is not enforced by the schema - no CHECK constraint can span the five
 different tables. Enforce it via a nightly validation job:
 
 ```sql
@@ -801,7 +801,7 @@ ORDER BY ABS(Imbalance) DESC;
 ```
 
 Run this after every `CumulativeAccountingSnapshot` rebuild. Any non-empty
-result is a data-quality failure — page someone. For v1 we'll fire email
+result is a data-quality failure - page someone. For v1 we'll fire email
 alerts; v2+ can plug into a proper observability stack.
 
 ### Multi-hop genealogy resolver
@@ -835,7 +835,7 @@ ETL jobs are the only writers. Contract:
 
 - **Each job owns a specific `Source` value** on the tables it writes
   (`ParcelExistingDevelopment.Source='gis_fc'` for the GIS loader,
-  `'legacy_csv'` for Ken's pre-2012 baseline, etc.). Jobs do not write rows
+  `'legacy_csv'` for the analyst's pre-2012 baseline, etc.). Jobs do not write rows
   with another job's `Source`.
 - **Writes are UPSERT keyed by the natural key** (above), wrapped in a single
   transaction per APN-year batch.
@@ -858,7 +858,7 @@ Risks if the LTinfo team changes those tables:
 
 - **Column added**: no impact (we don't `SELECT *`).
 - **Column renamed**: breaks the loader; our integration tests should catch.
-- **Column dropped**: breaks FK if we reference it — but we only reference PKs.
+- **Column dropped**: breaks FK if we reference it - but we only reference PKs.
 - **New row added to `dbo.TransactionType` or `dbo.ResidentialAllocationType`**:
   silently unhandled in our `MovementType` mapping or bucket derivation. *This
   is the most likely way we get bitten.* Mitigation: a monthly
@@ -870,16 +870,16 @@ Risks if the LTinfo team changes those tables:
 | Source | Target tables | Cadence | Notes |
 |---|---|---|---|
 | **Parcel Development History REST service** (future; `C:\GIS\Scratch.gdb\Parcel_History_Attributed` today) | `ParcelExistingDevelopment`, `ParcelSpatialAttribute`; `ParcelDevelopmentChangeEvent` on year-over-year diffs | Weekly | Field-for-field map. APN resolved through `ParcelGenealogyEventEnriched` at load. |
-| **`dbo.TdrTransaction*` + `dbo.ParcelPermitBankedDevelopmentRight`** | *(none — exposed through `vCommodityLedger` view)* | — | Corral is the system of record; no table-level duplication. |
+| **`dbo.TdrTransaction*` + `dbo.ParcelPermitBankedDevelopmentRight`** | *(none - exposed through `vCommodityLedger` view)* | - | Corral is the system of record; no table-level duplication. |
 | **Manual QA workflow** | `LedgerManualAdjustment` | As-needed | Only for events that don't correspond to any Corral transaction or banking record. |
-| **`Transactions_Allocations_Details.xlsx`** (Ken) | `PermitCompletion`, `PermitAllocation`, `CrossSystemID` | Seed + manual refresh | Only load the 8 Ken-unique columns per [xlsx_decomposition.md](./xlsx_decomposition.md). |
-| **`ExistingResidential_2012_2025_unstacked.csv`** (Ken) | `ParcelExistingDevelopment` 2012–2015 baseline | Seed once | Retire after GIS FC fills pre-2016. |
+| **`Transactions_Allocations_Details.xlsx`** (TRPA) | `PermitCompletion`, `PermitAllocation`, `CrossSystemID` | Seed + manual refresh | Only load the 8 the analyst-unique columns per [xlsx_decomposition.md](./xlsx_decomposition.md). |
+| **`ExistingResidential_2012_2025_unstacked.csv`** (TRPA) | `ParcelExistingDevelopment` 2012–2015 baseline | Seed once | Retire after GIS FC fills pre-2016. |
 | **`apn_genealogy_tahoe.csv`** + ongoing derivation jobs | `ParcelGenealogyEventEnriched` | Seed + scheduled | Resolver reads this on every APN-keyed write. |
 
 ## What v2+ adds (deferred)
 
-- `IPESScore` + `ParcelLandCapabilityVerification` (already exist in `dbo.*` — wrap as view for the new DB)
-- `DeedRestriction` + `ParcelDeedRestriction` (already in `dbo.*` — wrap as view)
+- `IPESScore` + `ParcelLandCapabilityVerification` (already exist in `dbo.*` - wrap as view for the new DB)
+- `DeedRestriction` + `ParcelDeedRestriction` (already in `dbo.*` - wrap as view)
 - `QaChecklist` + `QaChecklistItem` + `QaChecklistResponse` (manual workflow)
 - PAOT recreation pools (overnight / summer day / winter day)
 - `MitigationFundAccount` + `MitigationFundLedger` (threshold-attainment category)
@@ -893,7 +893,7 @@ you go.
 
 ### Data model
 
-**Q1. ADU modeling.** ✅ **RESOLVED — option (b).** ADU is a yes/no flag
+**Q1. ADU modeling.** ✅ **RESOLVED - option (b).** ADU is a yes/no flag
 on the allocation or bonus unit, not a third use type and not a separate
 concept tied to a parent unit. Add `IsADU bit NOT NULL DEFAULT 0` to:
 
@@ -919,13 +919,13 @@ encounter (e.g., `CommunityEnhancement`, `TransferOfDevelopmentRights`)?
 
 **Q3. Conversion representation in the ledger.** A Conversion event (e.g.,
 `1 TAU → 1 SFRUU`) is modeled as **two paired ledger entries** linked via
-`PairedEntryID` — one row debits `TAU`, one row credits `SFRUU`, both for
+`PairedEntryID` - one row debits `TAU`, one row credits `SFRUU`, both for
 the same parcel on the same date.
 
 - Alternative: a single row with `FromCommodityID` / `ToCommodityID` columns.
 - **Proposed**: two-entry. Keeps bucket-balance arithmetic clean (`SUM(Quantity)` by commodity is always correct).
 
-**Q4. Conversion ratios — lookup table or hardcoded?** The 2013 Regional
+**Q4. Conversion ratios - lookup table or hardcoded?** The 2013 Regional
 Plan sets `600 CFA = 2 TAU = 2 SFRUU = 3 MFRUU`. Store as rows in a new
 `ConversionRatio` lookup, or hardcode in ETL logic?
 
@@ -933,7 +933,7 @@ Plan sets `600 CFA = 2 TAU = 2 SFRUU = 3 MFRUU`. Store as rows in a new
   gives the dashboard something to display.
 
 **Q5. `Banking` and `Unbanking` as ledger MovementTypes.** Corral has no
-"Banking" transaction in `dbo.TdrTransaction` — banking events live in
+"Banking" transaction in `dbo.TdrTransaction` - banking events live in
 `dbo.ParcelPermitBankedDevelopmentRight` (707 rows). We synthesize `Banking`
 ledger rows at read time by joining `ParcelPermitBankedDevelopmentRight` to
 the permit's `FinalInspectionDate`.
@@ -951,7 +951,7 @@ detailed development type, supplemental notes) don't exist in Corral.
 
 - Option A: **Sidecar `PermitCompletion` table** FK'd to `dbo.ParcelPermit`.
   Avoids touching a live Corral table. Adds one join to read.
-- Option B: `ALTER TABLE dbo.ParcelPermit ADD ...` — columns live next to
+- Option B: `ALTER TABLE dbo.ParcelPermit ADD ...` - columns live next to
   existing permit fields. Cleaner long-term, but modifies a table the LTinfo
   app writes to.
 - **Proposed**: (A) sidecar for v1. Migrate fields into `dbo.ParcelPermit`
@@ -964,15 +964,15 @@ detailed development type, supplemental notes) don't exist in Corral.
 32% of `TdrTransaction` rows have `AccelaCAPRecordID` populated.**
 
 **Resolved direction** (revised from earlier draft): `vPermitAllocation` is a
-**view**, not a table — don't build a second source of truth while the first
+**view**, not a table - don't build a second source of truth while the first
 one has known gaps. Upgrade path:
 
-1. **Phase 1** — `vPermitAllocation` joins via `TdrTransaction.AccelaCAPRecordID`
+1. **Phase 1** - `vPermitAllocation` joins via `TdrTransaction.AccelaCAPRecordID`
    for the 32% with direct FK, UNIONs additional matches from `CrossSystemID`
-   rows seeded from Ken's XLSX, and flags `LinkageSource` so dashboards can
+   rows seeded from the analyst's XLSX, and flags `LinkageSource` so dashboards can
    show confidence.
 2. **Phase 2** (separate project, out of v1 scope): **back-fill
-   `dbo.TdrTransaction.AccelaCAPRecordID`** from Ken's XLSX into Corral so the
+   `dbo.TdrTransaction.AccelaCAPRecordID`** from the analyst's XLSX into Corral so the
    view's coverage rises above 32%. This fixes both Corral and our view.
 
 *Phase 2 is the highest-leverage Corral cleanup we've identified.* Worth
@@ -984,7 +984,7 @@ rewrite the `ParcelExistingDevelopment` rows in place, or leave them and
 insert `ChangeSource='genealogy_restatement'` rows in
 `ParcelDevelopmentChangeEvent`?
 
-- **Proposed**: the latter. Preserves an audit trail; matches Dan's
+- **Proposed**: the latter. Preserves an audit trail; matches leadership's
   change-rationale framing.
 
 ### GIS integration
@@ -1007,7 +1007,7 @@ GIS service for spatial queries inside this DB, or reference only by
   data for PCI)?
 - **Needs input from**: whoever owns the FC population pipeline.
 
-**Q11. Pre-2012 data horizon.** Dan's email framed scope as "2012 and on."
+**Q11. Pre-2012 data horizon.** the email framed scope as "2012 and on."
 The FC actually has 2006–2011 records.
 
 - Do we load 2006–2011 as `Source='pre_2012_baseline'` (future-proofed), or
@@ -1016,12 +1016,12 @@ The FC actually has 2006–2011 records.
 
 ### Operations
 
-**Q12. Ken's XLSX transition.** Keep `Transactions_Allocations_Details.xlsx`
-as Ken's authoring surface with a scheduled ETL that upserts the 8 Ken-unique
+**Q12. the analyst's XLSX transition.** Keep `Transactions_Allocations_Details.xlsx`
+as the analyst's authoring surface with a scheduled ETL that upserts the 8 the analyst-unique
 columns into the new tables (see [xlsx_decomposition.md](./xlsx_decomposition.md))
-— or build a form-entry app to replace the XLSX?
+- or build a form-entry app to replace the XLSX?
 
-- **Proposed**: v1 keeps the XLSX (zero disruption to Ken's workflow). v2+
+- **Proposed**: v1 keeps the XLSX (zero disruption to the analyst's workflow). v2+
   can replace with a form once the new DB is stable.
 
 **Q13. Dashboard refresh cadence.** Can we commit to **nightly** recomputation
@@ -1032,12 +1032,12 @@ for `PoolDrawdownYearly` and `CumulativeAccountingSnapshot`? Affects ETL SLA.
 
 ### Scope
 
-**Q14. PAOT and mitigation funds — v2 timing.** The TRPA Cumulative
+**Q14. PAOT and mitigation funds - v2 timing.** The TRPA Cumulative
 Accounting framework also tracks PAOT (recreation) and mitigation fund
 accounts. Currently deferred to v2+. Is that OK, or are there stakeholders
 who need them in v1?
 
-**Q15. Shorezone** — confirmed out of scope (handled by a separate system).
+**Q15. Shorezone** - confirmed out of scope (handled by a separate system).
 No action; noting for completeness.
 
 ---
@@ -1058,7 +1058,7 @@ Q8  Retroactive genealogy:           rewrite-in-place / correction-entries / com
 Q9  Geometry on PED:                 carry-polygon / ID-only / comment:
 Q10 2016-2017 GIS gap:               leaving-null / reconstruct / comment:
 Q11 Pre-2012 data:                   load-all-flag / 2012-only / comment:
-Q12 Ken XLSX transition:             keep-XLSX / form-entry-v1 / comment:
+Q12 the analyst XLSX transition:             keep-XLSX / form-entry-v1 / comment:
 Q13 Dashboard refresh:               nightly-OK / other:___________
 Q14 PAOT/mitigation v2 timing:       OK / need-in-v1
 ```
@@ -1066,23 +1066,23 @@ Q14 PAOT/mitigation v2 timing:       OK / need-in-v1
 ## Ready-to-build v1 new-table list
 
 Folded into existing SDE backend. **7 new physical tables + 2 views + 3 materializations**.
-Every item holds data Corral doesn't — no duplication.
+Every item holds data Corral doesn't - no duplication.
 
 New physical tables:
 
-1. `ParcelExistingDevelopment` — per-parcel × year × commodity quantity (GIS-sourced; Corral has no year-indexed inventory for non-permit-verified parcels)
-2. `ParcelSpatialAttribute` — per-parcel × year spatial context (GIS-sourced year snapshot; distinct from `dbo.Parcel` current state)
-3. `ParcelGenealogyEventEnriched` — 10+ metadata columns on top of `dbo.ParcelGenealogy` (3 columns)
-4. `ParcelDevelopmentChangeEvent` — Dan's change rationale; no Corral analog. Now includes `RawAPN` (audit) and `LinkedQaCorrectionDetailID` FK.
-5. `PermitCompletion` — sidecar on `dbo.ParcelPermit` with YearBuilt, CertificateOfOccupancyDate, CompletionStatusEnriched, DetailedDevelopmentType (all net-new)
-6. `LedgerManualAdjustment` — manual QA-correction ledger entries only (TDR + Banking live in Corral)
-7. `CrossSystemID` — polymorphic ID map (Accela, LTinfo, TRPA_MOU, Local Jurisdiction, Assessor)
-8. **`QaCorrectionDetail` (NEW, Track C)** — sidecar to `ParcelDevelopmentChangeEvent` (1:0..1) when `ChangeSource='qa_correction'`. Holds `ReportingYear`, `SweepCampaign`, `CorrectionCategory` (9-value enum from Ken's CA Changes Sheet2), `SummaryReason`, `SourceFileSnapshot`. Loaded from `data/qa_data/CA Changes breakdown.xlsx` by `notebooks/04_load_ca_changes.ipynb`.
+1. `ParcelExistingDevelopment` - per-parcel × year × commodity quantity (GIS-sourced; Corral has no year-indexed inventory for non-permit-verified parcels)
+2. `ParcelSpatialAttribute` - per-parcel × year spatial context (GIS-sourced year snapshot; distinct from `dbo.Parcel` current state)
+3. `ParcelGenealogyEventEnriched` - 10+ metadata columns on top of `dbo.ParcelGenealogy` (3 columns)
+4. `ParcelDevelopmentChangeEvent` - leadership's change rationale; no Corral analog. Now includes `RawAPN` (audit) and `LinkedQaCorrectionDetailID` FK.
+5. `PermitCompletion` - sidecar on `dbo.ParcelPermit` with YearBuilt, CertificateOfOccupancyDate, CompletionStatusEnriched, DetailedDevelopmentType (all net-new)
+6. `LedgerManualAdjustment` - manual QA-correction ledger entries only (TDR + Banking live in Corral)
+7. `CrossSystemID` - polymorphic ID map (Accela, LTinfo, TRPA_MOU, Local Jurisdiction, Assessor)
+8. **`QaCorrectionDetail` (NEW, Track C)** - sidecar to `ParcelDevelopmentChangeEvent` (1:0..1) when `ChangeSource='qa_correction'`. Holds `ReportingYear`, `SweepCampaign`, `CorrectionCategory` (9-value enum from the analyst's CA Changes Sheet2), `SummaryReason`, `SourceFileSnapshot`. Loaded from `data/qa_data/CA Changes breakdown.xlsx` by `notebooks/04_load_ca_changes.ipynb`.
 
-Views (no physical storage — Corral remains the source of truth):
+Views (no physical storage - Corral remains the source of truth):
 
-- `vCommodityLedger` — UNIONs `dbo.TdrTransaction*` + `dbo.ParcelPermitBankedDevelopmentRight` + `LedgerManualAdjustment` into a unified movement log. Exposes `PairingKey` for conversion pairing.
-- `vPermitAllocation` — crosswalk of `dbo.ParcelPermit` ↔ `dbo.ResidentialAllocation` via `TdrTransaction.AccelaCAPRecordID` + `CrossSystemID`. Phase 1 has ~32% coverage; Phase 2 back-fills Corral to raise it.
+- `vCommodityLedger` - UNIONs `dbo.TdrTransaction*` + `dbo.ParcelPermitBankedDevelopmentRight` + `LedgerManualAdjustment` into a unified movement log. Exposes `PairingKey` for conversion pairing.
+- `vPermitAllocation` - crosswalk of `dbo.ParcelPermit` ↔ `dbo.ResidentialAllocation` via `TdrTransaction.AccelaCAPRecordID` + `CrossSystemID`. Phase 1 has ~32% coverage; Phase 2 back-fills Corral to raise it.
 
 Materialized (computed nightly; derived denormalizations are allowed):
 - `CumulativeAccountingSnapshot`

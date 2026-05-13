@@ -1,7 +1,7 @@
 -- =============================================================================
--- Corral transition table — staging surface for Ken's XLSX-unique columns
+-- Corral transition table — staging surface for the analyst's XLSX-unique columns
 -- =============================================================================
--- Status: DRAFT. Not executed. Reviewers: TRPA dev team + Ken + Dan.
+-- Status: DRAFT. Not executed. Reviewers: TRPA dev team + analyst + leadership.
 --
 -- Purpose
 --   Hold the 8 columns from `2025 Transactions and Allocations Details.xlsx`
@@ -43,7 +43,7 @@ CREATE TABLE dbo.CorralTransitionTable (
     -- The XLSX-side synthetic key, e.g. 'EDCCA-ALLOC-1825'. Kept for traceability.
     SyntheticTransactionID      varchar(50)   NULL,
 
-    -- Ken's unique contribution (8 columns):
+    -- analyst's unique contribution (8 columns):
     AllocationNumber            varchar(30)   NULL,    -- e.g. 'EL-21-O-08'
     TransactionCreatedDate      date          NULL,
     TransactionAcknowledgedDate date          NULL,
@@ -51,7 +51,7 @@ CREATE TABLE dbo.CorralTransitionTable (
     DetailedDevelopmentType     varchar(500)  NULL,    -- free text
     TrpaMouProjectNumber        varchar(200)  NULL,    -- multi-value possible; parse later
     YearBuilt                   int           NULL,    -- county assessor
-    PmYearBuilt                 int           NULL,    -- Ken's internal tracker
+    PmYearBuilt                 int           NULL,    -- analyst's internal tracker
     SupplementalNotes           nvarchar(max) NULL,    -- XLSX 'Notes' column
 
     -- Bookkeeping (all NOT NULL; dropped when schema folds into target ERD):

@@ -1,4 +1,4 @@
-# Parcel Genealogy — Methods and Maintenance
+# Parcel Genealogy - Methods and Maintenance
 
 **Project:** Tahoe Development History by Parcel (2012–2025)
 **Last updated:** April 15, 2026
@@ -9,7 +9,7 @@
 
 Parcel boundaries change over time. When a parcel is subdivided, merged, or renumbered by the county assessor, the APN changes. The development attribute CSVs reference APNs that may no longer exist in the current parcel database. Without correction, units under retired APNs are silently lost from the output.
 
-The **genealogy system** tracks APN transitions — old APN → new APN, and the year the change occurred — and remaps historical CSV entries to their current parcel identifiers before any spatial join. The goal is a **comprehensive genealogy covering all parcel events in the Tahoe Basin from 2012 to 2025**.
+The **genealogy system** tracks APN transitions - old APN → new APN, and the year the change occurred - and remaps historical CSV entries to their current parcel identifiers before any spatial join. The goal is a **comprehensive genealogy covering all parcel events in the Tahoe Basin from 2012 to 2025**.
 
 ---
 
@@ -54,7 +54,7 @@ Hand-curated entries, each verified against the FC or in ArcGIS Pro. This is the
 | `fc_last_year` | Last year old APN appears in FC |
 | `fc_new_first` | First year new APN appears in FC |
 
-**When to add here:** After verifying a pair in ArcGIS Pro — old APN disappears, new APN appears at the same location.
+**When to add here:** After verifying a pair in ArcGIS Pro - old APN disappears, new APN appears at the same location.
 
 **How to add:** Edit `apn_genealogy_master.csv` directly (UTF-8 encoding), then rebuild:
 ```
@@ -74,7 +74,7 @@ Parent→child pairs from the LTinfo parcel system. Most lack `change_year` and 
 ### 4. Spatial (`apn_genealogy_spatial.csv`)
 **~700 rows | Priority 4**
 
-Auto-detected from spatial overlap between consecutive year layers. Lower confidence — supplement, not primary source.
+Auto-detected from spatial overlap between consecutive year layers. Lower confidence - supplement, not primary source.
 
 ---
 
@@ -103,7 +103,7 @@ Rebuild whenever any source file changes:
 
 ## Finding and Adding New Genealogy Pairs
 
-### Step 1 — Identify Lost APNs
+### Step 1 - Identify Lost APNs
 
 After each ETL run, `QA_Lost_APNs` lists APNs from the CSV with units that couldn't be placed in the FC. Cross-reference against known genealogy sources:
 
@@ -116,11 +116,11 @@ Output: `data/raw_data/qa_lost_vs_new_genealogy.csv`
 | Action | Meaning |
 |--------|---------|
 | `NEEDS_CHANGE_YEAR` | Candidate new APN found in Accela or KK data; needs a verified change_year |
-| `already_in_tahoe` | Pair exists in genealogy but still lost — `in_fc_new=0` or `change_year` missing |
+| `already_in_tahoe` | Pair exists in genealogy but still lost - `in_fc_new=0` or `change_year` missing |
 | `no_candidate` | No match found; needs manual spatial investigation in ArcGIS Pro |
 | `ALREADY_HANDLED` | Coworker already applied correct units in CSV; add as `is_primary=0` for record completeness |
 
-### Step 2 — Auto-Detect `change_year`
+### Step 2 - Auto-Detect `change_year`
 
 For `NEEDS_CHANGE_YEAR` pairs, run:
 
@@ -142,14 +142,14 @@ This queries OUTPUT_FC and SOURCE_FC to find:
 
 The output is pre-formatted with columns matching `apn_genealogy_master.csv` schema. **Promote_Ready = YES** pairs can be copied directly into the master.
 
-### Step 3 — Verify in ArcGIS Pro
+### Step 3 - Verify in ArcGIS Pro
 
 For MEDIUM_GAP or uncertain pairs, verify manually:
 1. Select the old APN in its last known year → confirm geometry
 2. Select the new APN in its first known year → confirm same location
 3. Confirm the transition makes geographic sense (split → multiple successors; rename → same polygon, new APN)
 
-### Step 4 — Add to Master and Rebuild
+### Step 4 - Add to Master and Rebuild
 
 Add verified rows to `apn_genealogy_master.csv` (save as UTF-8), rebuild `apn_genealogy_tahoe.csv`, re-run ETL with `--skip-s01 --skip-s05`.
 
@@ -159,7 +159,7 @@ Add verified rows to `apn_genealogy_master.csv` (save as UTF-8), rebuild `apn_ge
 
 ### El Dorado APN Format Change (2018)
 
-El Dorado County switched suffixes from 2-digit to 3-digit in 2018 (e.g. `080-155-11` → `080-155-011`). This is handled by the ETL's El Dorado fix in S02 — **not** by the genealogy system.
+El Dorado County switched suffixes from 2-digit to 3-digit in 2018 (e.g. `080-155-11` → `080-155-011`). This is handled by the ETL's El Dorado fix in S02 - **not** by the genealogy system.
 
 **Do not add El Dorado format-only pairs to genealogy.** The `detect_change_years.py` script filters these automatically via `_is_el_format_pair()`.
 
@@ -171,7 +171,7 @@ The residential CSV should have **one row per APN**. The ETL normalizes El Dorad
 
 ### `is_primary = 0` Records
 
-Genealogy records that exist for documentation only — the ETL will not apply the substitution. Use when:
+Genealogy records that exist for documentation only - the ETL will not apply the substitution. Use when:
 - The coworker has already correctly attributed units to the new APN in the CSV
 - Both old and new APN have units in overlapping years (ALREADY_HANDLED)
 
@@ -216,4 +216,4 @@ When genealogy substitution is skipped (target APN has non-zero units for that y
 | Apr 15, 2026 (Run 1) | −3/yr all years | −42 | 3 MANUAL_APN_FIXES formalized; post-genealogy dedup added to S02 |
 | **Apr 15, 2026 (Run 2)** | **0/yr all years** | **0** | **El Dorado Case 2 fix: 3-digit-only parcels now padded + found in FC via S03 Case B expansion** |
 
-**Zero deficit achieved.** The three APNs previously thought to have no geometry (`015-370-30`, `016-300-64`, `018-320-18`) were confirmed as El Dorado parcels born at or after 2018 — their padded 3-digit forms exist in the FC but were invisible to `build_el_dorado_fix()` (which only queried for 2-digit FC APNs). Extended to collect 3-digit-only parcels and add them to `pad_map`. S03 geometry lookup extended symmetrically. Both pre- and post-2018 year-rows were resolved. See REPORT_20260415b.md for full details.
+**Zero deficit achieved.** The three APNs previously thought to have no geometry (`015-370-30`, `016-300-64`, `018-320-18`) were confirmed as El Dorado parcels born at or after 2018 - their padded 3-digit forms exist in the FC but were invisible to `build_el_dorado_fix()` (which only queried for 2-digit FC APNs). Extended to collect 3-digit-only parcels and add them to `pad_map`. S03 geometry lookup extended symmetrically. Both pre- and post-2018 year-rows were resolved. See REPORT_20260415b.md for full details.

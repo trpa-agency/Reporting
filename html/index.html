@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>TRPA Dashboards &mdash; Cumulative Accounting</title>
+<title>TRPA Dashboards - Cumulative Accounting</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
@@ -96,7 +96,7 @@ footer { padding: 16px 40px 28px; font-size: 0.72rem; color: var(--text-light); 
     <div class="eyebrow">Tahoe Regional Planning Agency</div>
     <h1>Cumulative Accounting <span>Dashboards</span></h1>
     <div class="subtitle">
-      Single-file HTML pages for the TRPA annual cumulative-accounting cycle. Organized by Dan&rsquo;s four conceptual tracks (5/11/2026).
+      Single-file HTML pages for the TRPA annual cumulative-accounting cycle. Organized by the four conceptual tracks.
     </div>
   </div>
 </header>
@@ -118,21 +118,21 @@ footer { padding: 16px 40px 28px; font-size: 0.72rem; color: var(--text-light); 
         <span class="star">&starf;</span>
       </div>
       <div class="meta"><span><strong>Audience</strong> Staff &middot; daily ops</span></div>
-      <div class="desc">Sankey + bar + map + AG Grid table; type switcher RES / CFA / TAU; year slider; jurisdiction pills. The most feature-complete page.</div>
+      <div class="desc">Sankey + bar + map + AG Grid table; type switcher RES / CFA / TAU; year slider; jurisdiction pills.</div>
       <div class="src">Data: <code>data/raw_data/residentialAllocationGridExport.csv</code> (one row per allocation, 2,600 total)</div>
     </div>
 
     <div class="card">
       <div class="name"><a href="https://trpa-agency.github.io/Reporting/html/pool-balance-cards.html">pool-balance-cards.html</a></div>
       <div class="meta"><span><strong>Audience</strong> Staff &middot; per-pool drilldown</span></div>
-      <div class="desc">Daily-use staff view. One card per residential allocation pool with current remaining, % drawn, and trajectory since 2013.</div>
-      <div class="src">Data: Ken&rsquo;s <code>Additional Development as of April2026.xlsx</code> LT Info Pools Balances sheet</div>
+      <div class="desc">One card per pool: remaining, % drawn, trajectory since 2013.</div>
+      <div class="src">Data: the analyst&rsquo;s <code>Additional Development as of April2026.xlsx</code> LT Info Pools Balances sheet</div>
     </div>
 
     <div class="card">
       <div class="name"><a href="https://trpa-agency.github.io/Reporting/html/public-allocation-availability.html">public-allocation-availability.html</a></div>
       <div class="meta"><span><strong>Audience</strong> Public</span></div>
-      <div class="desc">Public-facing slice of the pool-balance dashboard. How many residential allocations remain in each Lake Tahoe Basin jurisdiction.</div>
+      <div class="desc">Residential allocations remaining in each Tahoe Basin jurisdiction.</div>
       <div class="src">Data: same as pool-balance-cards</div>
     </div>
 
@@ -148,15 +148,15 @@ footer { padding: 16px 40px 28px; font-size: 0.72rem; color: var(--text-light); 
         <span class="star">&starf;</span>
       </div>
       <div class="meta"><span><strong>Audience</strong> Leadership &middot; public</span></div>
-      <div class="desc">Yearly added residential units by source, four toggle modes: <em>Lines &middot; Stacked area &middot; Stacked % &middot; Facet</em> (one chart per source).</div>
-      <div class="src">Data: Ken&rsquo;s <code>FINAL RES SUMMARY 2012 to 2025.xlsx</code> Summary sheet</div>
+      <div class="desc">Yearly added residential units by source: <em>Facet</em> (one chart per source) or <em>Combined</em>.</div>
+      <div class="src">Data: the analyst&rsquo;s <code>FINAL RES SUMMARY 2012 to 2025.xlsx</code> Summary sheet</div>
     </div>
 
   </div>
 
   <h2>3 &middot; Total potential development</h2>
   <p class="tagline">Constructed + Banked + Converted + still in pools. The full pipeline.</p>
-  <div class="intro" style="font-style:italic">No standalone dashboard yet &mdash; coverage split across #1 and #4. Building out post-ESA collab in June.</div>
+  <div class="intro" style="font-style:italic">No standalone dashboard yet - coverage split across #1 and #4.</div>
 
   <h2>4 &middot; Total development tracking</h2>
   <p class="tagline">How much of everything is actually built. Combines headline caps with live state breakdown.</p>
@@ -169,36 +169,34 @@ footer { padding: 16px 40px 28px; font-size: 0.72rem; color: var(--text-light); 
       </div>
       <div class="meta"><span><strong>Audience</strong> Executive &middot; board</span></div>
       <div class="desc">
-        4 since-1987 gauges (Residential / RBU / TBU / CFA), capacity utilization bar,
-        2012 Plan additional 4-card grid (Constructed 681 / Private dev pool 151 / Jurisdiction pool 844 / TRPA pool 924 = 2,600),
-        completed-by-source 7-card breakdown (1,431 total), annual residential construction stacked area (2009&ndash;2026).
+        Since-1987 gauges (Residential / RBU / TBU / CFA); capacity utilization bar; 2012 Plan additional 4-card grid; completed-by-source breakdown; annual residential construction.
       </div>
-      <div class="src">Data: Ken&rsquo;s 2026 PPTX slide 8 + <code>residentialAllocationGridExport.csv</code> + <code>residential_transactions_summary.json</code></div>
+      <div class="src">Data: the analyst&rsquo;s 2026 PPTX slide 8 + <code>residentialAllocationGridExport.csv</code> + <code>residential_transactions_summary.json</code></div>
     </div>
 
   </div>
 
   <h2>Companion views</h2>
-  <p class="tagline">Broader development context &mdash; not strictly cumulative accounting, but reads against it.</p>
+  <p class="tagline">Broader development context - not strictly cumulative accounting, but reads against it.</p>
   <div class="cards">
 
     <div class="card">
       <div class="name"><a href="https://trpa-agency.github.io/Reporting/html/development_history.html">development_history.html</a></div>
       <div class="meta"><span><strong>Audience</strong> Planners &middot; analysts</span></div>
-      <div class="desc">Live map of every building footprint in the Basin, colored by Regional Plan era. Year slider 1900&ndash;2025 with play/pause animation; cumulative buildings stacked area; per-year construction histogram.</div>
+      <div class="desc">Live map of every building footprint by Regional Plan era; year slider 1900&ndash;2025; cumulative + per-year charts.</div>
       <div class="src">Data: live <a href="https://services5.arcgis.com/fXXSUzHD5JjcOt1v/arcgis/rest/services/Tahoe_Buildings/FeatureServer/0">Tahoe Buildings FeatureServer</a></div>
     </div>
 
     <div class="card">
       <div class="name"><a href="https://trpa-agency.github.io/Reporting/html/development_history_units.html">development_history_units.html</a></div>
       <div class="meta"><span><strong>Audience</strong> Housing analysts</span></div>
-      <div class="desc">Companion to buildings dashboard, pivoted to <strong>residential units</strong>. Each parcel&rsquo;s units split across its building footprints by sqft (Hamilton&rsquo;s largest-remainder method). Map filter: All / Residential / Multifamily.</div>
+      <div class="desc">Buildings dashboard pivoted to <strong>residential units</strong>; units split across footprints by sqft. Map filter: All / Residential / Multifamily.</div>
       <div class="src">Data: Tahoe Buildings + <code>data/processed_data/buildings_with_units.json</code></div>
     </div>
 
     <div class="card">
       <div class="name"><a href="https://trpa-agency.github.io/Reporting/html/qa-change-rationale.html">qa-change-rationale.html</a></div>
-      <div class="meta"><span><strong>Audience</strong> Ken &middot; Dan &middot; QA leads</span></div>
+      <div class="meta"><span><strong>Audience</strong> the analyst &middot; leadership &middot; QA leads</span></div>
       <div class="desc">Per-APN audit log of 2023 / 2026 QA correction campaigns. Searchable by APN, change type, year.</div>
       <div class="src">Data: <code>qa_change_events.csv</code> from <code>notebooks/04_load_ca_changes.ipynb</code></div>
     </div>
@@ -225,7 +223,7 @@ footer { padding: 16px 40px 28px; font-size: 0.72rem; color: var(--text-light); 
   <table>
     <thead><tr><th style="width: 38%">Source</th><th>Used by</th></tr></thead>
     <tbody>
-      <tr><td><code>residentialAllocationGridExport_fromKen.xlsx</code> &rarr; CSV (one row per allocation, 2,600 rows, 11 cols incl. Construction Status)</td><td>allocation-tracking &middot; regional-capacity-dial (live cards)</td></tr>
+      <tr><td><code>residentialAllocationGridExport_fromAnalyst.xlsx</code> &rarr; CSV (one row per allocation, 2,600 rows, 11 cols incl. Construction Status)</td><td>allocation-tracking &middot; regional-capacity-dial (live cards)</td></tr>
       <tr><td><code>Additional Development as of April2026.xlsx</code></td><td>pool-balance-cards &middot; public-allocation-availability &middot; regional-capacity-dial (gauges)</td></tr>
       <tr><td><code>FINAL RES SUMMARY 2012 to 2025.xlsx</code></td><td>residential-additions-by-source</td></tr>
       <tr><td><code>CA Changes breakdown.xlsx</code> (via <code>04_load_ca_changes.ipynb</code>)</td><td>qa-change-rationale</td></tr>
@@ -236,7 +234,7 @@ footer { padding: 16px 40px 28px; font-size: 0.72rem; color: var(--text-light); 
   </table>
 
   <h3>Refresh commands</h3>
-  <p>When Ken sends a refreshed xlsx, drop it in <code>data/raw_data/</code> and run the matching converter. All dashboards <code>fetch(..., {cache: 'no-cache'})</code> so reloads pick up new data immediately.</p>
+  <p>When the analyst sends a refreshed xlsx, drop it in <code>data/raw_data/</code> and run the matching converter. All dashboards <code>fetch(..., {cache: 'no-cache'})</code> so reloads pick up new data immediately.</p>
   <pre><code># Set up alias once
 PY="C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/python.exe"
 
@@ -251,7 +249,7 @@ PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/build_buildi
 
   <h2>Tech stack</h2>
   <ul style="font-size: 0.88rem; line-height: 1.7; padding-left: 22px; margin-bottom: 12px;">
-    <li><strong>Plotly.js</strong> (charts) &mdash; load <strong>before</strong> ArcGIS; Dojo&rsquo;s AMD loader captures Plotly&rsquo;s UMD wrapper otherwise</li>
+    <li><strong>Plotly.js</strong> (charts) - load <strong>before</strong> ArcGIS; Dojo&rsquo;s AMD loader captures Plotly&rsquo;s UMD wrapper otherwise</li>
     <li><strong>ArcGIS Maps SDK 4.31</strong> (maps, where needed)</li>
     <li><strong>AG Grid Community</strong> (sortable / filterable tables)</li>
     <li><strong>Open Sans</strong> + TRPA brand tokens (<code>--trpa-blue #0072CE</code>, <code>--trpa-navy #003B71</code>, <code>--trpa-orange #E87722</code>, <code>--trpa-forest #4A6118</code>)</li>

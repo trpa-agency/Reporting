@@ -57,7 +57,7 @@ and semicolon-concatenated `EVIDENCE`.
 
 ---
 
-### A. PHANTOM — "Developed on the ground but shows 0 units"
+### A. PHANTOM - "Developed on the ground but shows 0 units"
 
 **Condition:**
 ```
@@ -78,7 +78,7 @@ county data lag.
 
 ---
 
-### B. DROPOUT — "Yo-yo unit gap"
+### B. DROPOUT - "Yo-yo unit gap"
 
 **Condition:**
 ```
@@ -96,7 +96,7 @@ count "blinks off" for one year between two non-zero years.
 
 ---
 
-### C. GENEALOGY — "Units lost at subdivision"
+### C. GENEALOGY - "Units lost at subdivision"
 
 **Condition:**
 ```
@@ -117,7 +117,7 @@ Could indicate a missed CSV update after a parcel split/rename.
 
 ---
 
-### D. UNVERIFIED — "Active admin record but shows 0 units"
+### D. UNVERIFIED - "Active admin record but shows 0 units"
 
 **Condition:**
 ```
@@ -159,8 +159,8 @@ Could be a data mismatch between the CSV maintainer and the permit/cert system.
    on `APN + YEAR`.
 3. Filter `QA_STATUS = 'Pending'` to see unreviewed flags.
 4. For each flag, inspect the parcel on the map using the EVIDENCE field as a guide.
-5. Set `QA_STATUS` to `"Confirmed"` (real issue — fix the CSV or service data)
-   or `"Ignore"` (false positive — add a note in EVIDENCE if useful).
+5. Set `QA_STATUS` to `"Confirmed"` (real issue - fix the CSV or service data)
+   or `"Ignore"` (false positive - add a note in EVIDENCE if useful).
 
 **SQL quick-filter example:**
 ```sql
@@ -179,7 +179,7 @@ ORDER BY YEAR DESC;
    - Skip condition
    - Interpretation note
 2. If a new service is needed, add its URL constant to `config.py`.
-3. Ask Claude: _"Update validation.py to match validation.md"_ —
+3. Ask Claude: _"Update validation.py to match validation.md"_ -
    Claude will read this file and implement the new check.
 
 ---

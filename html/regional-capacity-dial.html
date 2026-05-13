@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Regional Plan Capacity Dial &mdash; TRPA</title>
+<title>Regional Plan Capacity Dial - TRPA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
@@ -108,9 +108,7 @@ header h1 span { color: var(--trpa-blue); }
       <div class="header-eyebrow">Tahoe Regional Planning Agency</div>
       <h1>Regional Plan <span>Capacity Dial</span></h1>
       <div class="header-sub">
-        Where the Tahoe Region sits against its since-1987 cumulative capacity caps,
-        per Ken&rsquo;s 2026 Cumulative Accounting Report. One gauge per commodity:
-        constructed vs Regional Plan maximum.
+        Where the Tahoe Region sits against its since-1987 cumulative capacity caps. One gauge per commodity: constructed vs Regional Plan max.
       </div>
     </div>
     <div class="header-meta">
@@ -155,57 +153,45 @@ header h1 span { color: var(--trpa-blue); }
     <div id="comparison-chart" style="height:260px;"></div>
   </div>
 
-  <!-- LIVE: 2012 Plan additional residential breakdown (from Ken's grid export) -->
+  <!-- LIVE: 2012 Plan additional residential breakdown (from the analyst's grid export) -->
   <div class="card" style="margin-top: 24px;">
-    <h3>2012 Plan additional &mdash; residential allocation state &times; construction</h3>
-    <p>Live counts from <code style="background:var(--bg);padding:1px 4px;border-radius:3px;font-size:0.7rem;">residentialAllocationGridExport.csv</code>. The since-1987 gauges above measure against the 8,687 cumulative max; this section breaks down the 2,600 additional residential units authorized under the 2012 Plan into Dan&rsquo;s three allocation states, with <em>Constructed</em> broken out from the private development pool. Three pool states from <a href="allocation-tracking.html" style="color:var(--trpa-blue)">allocation-tracking.html</a>; Constructed = an allocation in the private development pool whose Construction Status is Completed.</p>
+    <h3>2012 Plan additional - residential allocation state &times; construction</h3>
+    <p>The 2,600 additional residential units authorized under the 2012 Plan broken into three pool states, with <em>Constructed</em> split out from the private development pool. Live from <code style="background:var(--bg);padding:1px 4px;border-radius:3px;font-size:0.7rem;">residentialAllocationGridExport.csv</code>; see <a href="allocation-tracking.html" style="color:var(--trpa-blue)">allocation-tracking.html</a>.</p>
     <div id="live-cards" class="live-cards"></div>
     <div id="live-chart" style="height:260px;margin-top:12px;"></div>
   </div>
 
   <!-- LIVE: Where every completed residential unit came from (2009-2026) -->
   <div class="card" style="margin-top: 24px;">
-    <h3>Completed residential units &mdash; by source of right</h3>
-    <p>Where the <strong><span id="tx-total-completed">&mdash;</span></strong> completed residential developments came from since 2009. Pulled from
-      <code style="background:var(--bg);padding:1px 4px;border-radius:3px;font-size:0.7rem;">2025 Transactions and Allocations Details.xlsx</code>
-      and bucketed by <em>Detailed Development Type</em>. Includes everything: allocations drawn, banked rights used, conversions, transfers, and bonus units &mdash; the broader picture beyond the 2012 Plan additional grid.
-      See <a href="residential-additions-by-source.html" style="color:var(--trpa-blue)">residential-additions-by-source.html</a> for the per-year story.</p>
+    <h3>Completed residential units - by source of right</h3>
+    <p>Where the <strong><span id="tx-total-completed">-</span></strong> completed residential developments came from since 2009, bucketed by <em>Detailed Development Type</em>. Source: <code style="background:var(--bg);padding:1px 4px;border-radius:3px;font-size:0.7rem;">2025 Transactions and Allocations Details.xlsx</code>. Per-year story: <a href="residential-additions-by-source.html" style="color:var(--trpa-blue)">residential-additions-by-source.html</a>.</p>
     <div id="src-cards" class="live-cards"></div>
     <div id="src-stack" style="height:120px;margin-top:14px;"></div>
   </div>
 
   <!-- LIVE: Annual construction stacked area -->
   <div class="card" style="margin-top: 24px;">
-    <h3>Annual residential construction &mdash; by source of right</h3>
-    <p>Yearly count of completed residential developments, stacked by source. Highlights the post-2019 acceleration and the recent Bonus Unit / Banked surge.</p>
+    <h3>Annual residential construction - by source of right</h3>
+    <p>Yearly completed developments, stacked by source.</p>
     <div id="annual-chart" style="height:320px;"></div>
   </div>
 
   <div class="framing">
     <div class="framing-item">
       <strong>Two cap numbers, both correct:</strong>
-      <span class="num">8,687</span> = since-1987 cumulative residential allocations max (the long-running total across both 1987 + 2012 plans). What the gauges above measure against.
+      <span class="num">8,687</span> = since-1987 cumulative residential allocations max across both the 1987 and 2012 plans. What the gauges measure against.
     </div>
     <div class="framing-item">
       <strong>2012 Plan additional:</strong>
-      <span class="num">2,600</span> residential units &mdash; the TRPA Board&rsquo;s 2013 authorization for *additional new* units on top of any 1987 allocations remaining unused at adoption. A subset of the 8,687 cumulative since-1987 max.
+      <span class="num">2,600</span> residential units - the 2013 Board authorization for additional new units on top of remaining 1987 allocations. A subset of the 8,687.
     </div>
   </div>
 </div>
 
 <div class="footnote">
-  <strong>Headline gauges:</strong> inlined from <code>from_ken/Cumulative Accounting 2026 Report.pptx</code> slide 8 (Regional Plan Maximum Additional Development) and <code>from_ken/Additional Development as of April2026.xlsx</code>.<br>
-  <strong>2012 Plan additional breakdown (live):</strong> fetched from
-  <code>../data/raw_data/residentialAllocationGridExport.csv</code> &mdash; converted from
-  Ken&rsquo;s <code>residentialAllocationGridExport_fromKen.xlsx</code> by
-  <code>parcel_development_history_etl/scripts/convert_allocation_grid.py</code>.
-  Buckets follow Dan&rsquo;s 5/11/2026 framing: <strong>Constructed</strong> = Allocated &amp; Construction Status = Completed,
-  <strong>Private dev pool (not built)</strong> = Allocated &amp; Not Completed,
-  <strong>Jurisdiction pool</strong> = Unallocated in a county/CSLT pool,
-  <strong>TRPA pool</strong> = Unallocated in &ldquo;Residential Allocation - TRPA Pool&rdquo; + Unreleased (TBD).<br>
-  Eventually backed by <code>CumulativeAccountingSnapshot</code> aggregated to Regional totals &mdash; see
-  <a href="../erd/dashboards_to_schema_trace.md" style="color:var(--trpa-blue)">dashboards_to_schema_trace.md</a> Trace 1.
-  Cluster A1 in <a href="../erd/proposed_dashboards.md" style="color:var(--trpa-blue)">proposed_dashboards.md</a>.
+  <strong>Gauges:</strong> <code>from_analyst/Cumulative Accounting 2026 Report.pptx</code> slide 8 + <code>Additional Development as of April2026.xlsx</code>.<br>
+  <strong>2012 Plan additional (live):</strong> <code>residentialAllocationGridExport.csv</code> via <code>convert_allocation_grid.py</code>. Buckets: <strong>Constructed</strong> = Allocated &amp; Completed; <strong>Private dev pool</strong> = Allocated &amp; Not Completed; <strong>Jurisdiction pool</strong> = Unallocated in a county/CSLT pool; <strong>TRPA pool</strong> = Unallocated in TRPA Pool + Unreleased.<br>
+  Eventually backed by <code>CumulativeAccountingSnapshot</code>; see <a href="../erd/dashboards_to_schema_trace.md" style="color:var(--trpa-blue)">dashboards_to_schema_trace.md</a> Trace 1.
 </div>
 
 <script>
@@ -215,7 +201,7 @@ const TRPA = {
   ice:'#B4CBE8',
 };
 
-// 2026 Cumulative Accounting Report, slide 8 — since-1987 cumulative max
+// 2026 Cumulative Accounting Report, slide 8 - since-1987 cumulative max
 const COMMODITIES = [
   { id: 'gauge-res', label: 'Residential Allocations', built: 6731,   max: 8687,    color: TRPA.blue   },
   { id: 'gauge-rbu', label: 'Residential Bonus Units', built: 736,    max: 2000,    color: TRPA.forest },
@@ -307,11 +293,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ─────────────────────────────────────────
 // Live 2012 Plan additional breakdown
-// Source: ../data/raw_data/residentialAllocationGridExport.csv (Ken's grid export)
+// Source: ../data/raw_data/residentialAllocationGridExport.csv (the analyst's grid export)
 // ─────────────────────────────────────────
 const ALLOC_CSV = '../data/raw_data/residentialAllocationGridExport.csv';
 
-// Buckets — Dan's 3 allocation states, with Constructed broken out from the
+// Buckets - leadership's 3 allocation states, with Constructed broken out from the
 // private development pool (where Construction Status = Completed).
 const BUCKETS = [
   { key: 'constructed', label: 'Constructed',                    color: TRPA.forest, hint: 'Private dev pool · construction completed' },
@@ -371,7 +357,7 @@ async function renderLive2012Plan() {
   }).join('');
   document.getElementById('live-cards').innerHTML = cards;
 
-  // Stacked horizontal bar — same shape as the comparison chart
+  // Stacked horizontal bar - same shape as the comparison chart
   const labels  = ['2012 Plan additional (2,600 authorized)'];
   const traces  = BUCKETS.map(b => ({
     name: b.label,
@@ -403,7 +389,7 @@ async function renderLive2012Plan() {
 // ─────────────────────────────────────────
 const TX_SUMMARY = '../data/processed_data/residential_transactions_summary.json';
 
-// Color per Dan's #2 source taxonomy
+// Color per track #2 source taxonomy
 const SRC_COLOR = {
   'Allocation':          TRPA.blue,
   'Banked':              TRPA.forest,

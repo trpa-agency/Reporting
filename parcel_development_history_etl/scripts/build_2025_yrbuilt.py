@@ -1,5 +1,5 @@
 """
-build_2025_yrbuilt.py — Join PDH 2025 rows to Ken's original-year-built CSV.
+build_2025_yrbuilt.py — Join PDH 2025 rows to the analyst's original-year-built CSV.
 
 Pulls all rows from Parcel_Development_History where YEAR=2025, joins them to
 the per-APN OriginalYrBuilt lookup (data/raw_data/original_year_built.csv),
@@ -10,7 +10,7 @@ predecessor APN.
 
 Also fetches county-source YEAR_BUILT from the Parcels FeatureService and
 computes COMBINED_YEAR_BUILT = OriginalYrBuilt (primary) | CountyYearBuilt
-(filler) so residual gaps from Ken's file are filled where the county has
+(filler) so residual gaps from the analyst's file are filled where the county has
 the value.
 
 Output: data/processed_data/PDH_2025_OriginalYrBuilt.csv
@@ -222,7 +222,7 @@ def resolve_via_genealogy(
         return yr, src, "genealogy_old_from_new"
 
     # Direction 2 (rarer): PDH APN appears as apn_old somewhere in the chain
-    # (e.g. it was once the predecessor and Ken's file uses the post-rename APN).
+    # (e.g. it was once the predecessor and the analyst's file uses the post-rename APN).
     for new in old_to_new.get(pdh_apn, []):
         if new in yb_lookup:
             yr, src = yb_lookup[new]

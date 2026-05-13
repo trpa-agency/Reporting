@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Development History &mdash; TRPA</title>
+<title>Development History - TRPA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
 
-<!-- Plotly MUST load before ArcGIS — ArcGIS injects Dojo's AMD loader, which
+<!-- Plotly MUST load before ArcGIS - ArcGIS injects Dojo's AMD loader, which
      captures Plotly's UMD wrapper and prevents window.Plotly from being set. -->
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 
@@ -147,8 +147,7 @@ header h1 span { color: var(--trpa-blue); }
       <div class="header-eyebrow">Tahoe Regional Planning Agency</div>
       <h1>Development <span>History</span></h1>
       <div class="header-sub">
-        Building footprints in the Lake Tahoe Basin colored by construction era.
-        Drag the year slider to play back development through 2025.
+        Tahoe Basin building footprints by construction era. Drag the year slider to play back development.
       </div>
     </div>
     <div class="header-meta">
@@ -164,25 +163,25 @@ header h1 span { color: var(--trpa-blue); }
   <div class="kpi-card">
     <div class="kpi-accent" style="background:var(--trpa-navy)"></div>
     <div class="kpi-label">Buildings as of year</div>
-    <div class="kpi-value" id="kpi-total">&mdash;</div>
+    <div class="kpi-value" id="kpi-total">-</div>
     <div class="kpi-sub" id="kpi-total-sub">Footprints constructed on or before selected year</div>
   </div>
   <div class="kpi-card">
     <div class="kpi-accent" style="background:var(--trpa-forest)"></div>
     <div class="kpi-label">Pre-1987 Plan</div>
-    <div class="kpi-value" id="kpi-pre87">&mdash;</div>
+    <div class="kpi-value" id="kpi-pre87">-</div>
     <div class="kpi-sub" id="kpi-pre87-sub">Built before the 1987 Regional Plan</div>
   </div>
   <div class="kpi-card">
     <div class="kpi-accent" style="background:var(--trpa-blue)"></div>
     <div class="kpi-label">1987 Plan</div>
-    <div class="kpi-value" id="kpi-87plan">&mdash;</div>
+    <div class="kpi-value" id="kpi-87plan">-</div>
     <div class="kpi-sub" id="kpi-87plan-sub">Built 1988&ndash;2011</div>
   </div>
   <div class="kpi-card">
     <div class="kpi-accent" style="background:var(--trpa-orange)"></div>
     <div class="kpi-label">2012 Plan</div>
-    <div class="kpi-value" id="kpi-12plan">&mdash;</div>
+    <div class="kpi-value" id="kpi-12plan">-</div>
     <div class="kpi-sub" id="kpi-12plan-sub">Built 2012 or later</div>
   </div>
 </div>
@@ -226,12 +225,12 @@ header h1 span { color: var(--trpa-blue); }
 
 <!-- Footnote -->
 <div class="footnote">
-  <strong>Data:</strong> building footprints from the
+  <strong>Data:</strong>
   <a href="https://services5.arcgis.com/fXXSUzHD5JjcOt1v/arcgis/rest/services/Tahoe_Buildings/FeatureServer/0"
      style="color:var(--trpa-blue);">Tahoe Buildings FeatureServer</a>
-  (Esri AGOL, mirrors the local <code>Buildings_2019</code> GDB). YEAR_BUILT comes from county assessor records.
-  Era classification follows TRPA Regional Plan cycles: Pre-1987 Plan (year &le; 1987), 1987 Plan (1988&ndash;2011), 2012 Plan (year &ge; 2012).
-  Buildings with null or zero YEAR_BUILT are excluded from the timeline.
+  (mirrors <code>Buildings_2019</code> GDB); YEAR_BUILT from county assessor.
+  Era cycles: Pre-1987 Plan (&le;1987), 1987 Plan (1988&ndash;2011), 2012 Plan (&ge;2012).
+  Null / zero YEAR_BUILT excluded.
 </div>
 
 <script>
@@ -478,7 +477,7 @@ function initMap() {
 }
 
 // ─────────────────────────────────────────
-// Year change handler — updates everything
+// Year change handler - updates everything
 // ─────────────────────────────────────────
 function setYear(y) {
   currentYear = y;
