@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Residential Additions by Source &mdash; TRPA</title>
+<title>Residential Additions by Source - TRPA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
@@ -116,13 +116,13 @@ header h1 span { color: var(--trpa-blue); }
       <div class="header-eyebrow">Tahoe Regional Planning Agency</div>
       <h1>Residential Additions <span>by Source</span></h1>
       <div class="header-sub">
-        Where the 1,573 added residential units came from each year, 2013&ndash;2025. Net growth of 1,469 after 110 removals (banked or converted out).
+        Where added residential units came from each year, 2013&ndash;2025.
       </div>
     </div>
     <div class="header-meta">
       <div class="live-badge">2026 Cycle</div><br>
       Source: 2026 Cumulative Accounting Report<br>
-      Compiled by Ken &middot; latest snapshot Apr 30, 2026
+      Compiled by the analyst &middot; latest snapshot Apr 30, 2026
     </div>
   </div>
 </header>
@@ -167,7 +167,7 @@ header h1 span { color: var(--trpa-blue); }
   <div class="split">
     <div class="card">
       <h3>Composition of added residential units by source</h3>
-      <p>Default <strong>Facet</strong> shows one small chart per source for easier comparison. Toggle to <strong>Combined</strong> to overlay all sources on one chart. Removals (banked or converted) not shown &mdash; this view is gross additions.</p>
+      <p>Gross additions only; removals (banked or converted) excluded.</p>
       <div id="main-chart" style="height:480px;"></div>
     </div>
     <div class="card">
@@ -180,12 +180,7 @@ header h1 span { color: var(--trpa-blue); }
 
 <!-- Footnote -->
 <div class="footnote">
-  <strong>Data:</strong> compiled from <code>from_ken/FINAL RES SUMMARY 2012 to 2025.xlsx</code> &mdash; the Summary sheet's
-  <em>Added Residential Units from {Allocations, Bonus Units, Transfers, Conversions, Banked}</em> rows and the per-year
-  <em>Major Completed Projects</em> column. Ultimate source: <code>dbo.TdrTransaction</code> + <code>dbo.ParcelPermitBankedDevelopmentRight</code>
-  + <code>dbo.ResidentialBonusUnit*</code> in Corral, aggregated by year &times; movement type and filtered to residential commodities (SFRUU + MFRUU).
-  Once <code>vCommodityLedger</code> exists, this dashboard reads it directly &mdash; same shape.
-  See <a href="../erd/dashboards_to_schema_trace.md" style="color:var(--trpa-blue);">dashboards_to_schema_trace.md</a> for the full reverse-engineering trace.
+  <strong>Data:</strong> <code>from_analyst/FINAL RES SUMMARY 2012 to 2025.xlsx</code> - Summary sheet <em>Added Residential Units</em> rows + <em>Major Completed Projects</em> column. Ultimate source: <code>dbo.TdrTransaction</code>, <code>dbo.ParcelPermitBankedDevelopmentRight</code>, <code>dbo.ResidentialBonusUnit*</code> in Corral, aggregated by year &times; movement type, filtered to SFRUU + MFRUU. See <a href="../erd/dashboards_to_schema_trace.md" style="color:var(--trpa-blue);">dashboards_to_schema_trace.md</a> for the trace.
 </div>
 
 <script>
@@ -205,7 +200,7 @@ const TRPA = {
 };
 
 // ─────────────────────────────────────────
-// DATA — from Ken's FINAL RES SUMMARY 2012 to 2025.xlsx, Summary sheet
+// DATA - from the analyst's FINAL RES SUMMARY 2012 to 2025.xlsx, Summary sheet
 // "Added Residential Units from {Source}" rows
 // ─────────────────────────────────────────
 const YEARS = [2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025];
@@ -223,7 +218,7 @@ const SOURCES = [
     data:  [ 5,  8,  3,  3,  3,  5, 14,  32, 29,  7, 28, 13, 21] },
 ];
 
-// Major completed projects (PPTX slide 4 + Ken's Summary "Major Completed Projects" row)
+// Major completed projects (PPTX slide 4 + the analyst's Summary "Major Completed Projects" row)
 const PROJECTS = [
   { yr: 2014, items: ['Aspens: 48 units (47 affordable, 1 moderate)'] },
   { yr: 2016, items: ['Peak 10: 10 units'] },
@@ -261,7 +256,7 @@ function render() {
   return renderCombined();
 }
 
-// "Combined" — all sources on one chart with markers, year-unified hover
+// "Combined" - all sources on one chart with markers, year-unified hover
 function renderCombined() {
   const traces = SOURCES.map(s => ({
     name: s.name,
@@ -298,7 +293,7 @@ function renderCombined() {
 }
 
 // ─────────────────────────────────────────
-// FACET MODE — one small chart per source, 3x2 grid
+// FACET MODE - one small chart per source, 3x2 grid
 // ─────────────────────────────────────────
 function renderFacet() {
   // Common Y range for visual comparability across panels
@@ -329,7 +324,7 @@ function renderFacet() {
       hovertemplate: '<b>%{y:,}</b> units · ' + s.name + '<extra>%{x}</extra>',
     });
 
-    // Panel title with running total — placed inside each subplot
+    // Panel title with running total - placed inside each subplot
     annotations.push({
       xref: xref + ' domain', yref: yref + ' domain',
       x: 0.02, y: 0.98, xanchor: 'left', yanchor: 'top',

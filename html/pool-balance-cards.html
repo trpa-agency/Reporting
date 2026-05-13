@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Residential Allocation Pool Balances &mdash; TRPA</title>
+<title>Residential Allocation Pool Balances - TRPA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
@@ -120,14 +120,12 @@ header h1 span { color: var(--trpa-blue); }
       <div class="header-eyebrow">Tahoe Regional Planning Agency</div>
       <h1>Pool Balance <span>Cards</span></h1>
       <div class="header-sub">
-        Daily-use view for allocation staff. One card per residential allocation pool with current
-        remaining, % of original capacity drawn down, and trajectory since 2013. Click any card for
-        per-year detail.
+        One card per residential allocation pool: remaining, % drawn, trajectory since 2013. Click a card for per-year detail.
       </div>
     </div>
     <div class="header-meta">
       <div class="live-badge">B1 / Built</div><br>
-      Source: Ken&rsquo;s 2026 Pool Balances<br>
+      Source: the analyst&rsquo;s 2026 Pool Balances<br>
       + allocation_drawdown trajectory (2013&ndash;26)
     </div>
   </div>
@@ -138,19 +136,19 @@ header h1 span { color: var(--trpa-blue); }
   <div class="kpi-card">
     <div class="kpi-accent" style="background:var(--trpa-navy)"></div>
     <div class="kpi-label">Total residential remaining</div>
-    <div class="kpi-value" id="kpi-total">&mdash;</div>
+    <div class="kpi-value" id="kpi-total">-</div>
     <div class="kpi-sub" id="kpi-total-sub">across <span id="kpi-pool-count">0</span> active pools</div>
   </div>
   <div class="kpi-card">
     <div class="kpi-accent" style="background:var(--trpa-blue)"></div>
     <div class="kpi-label">Allocations drawn down</div>
-    <div class="kpi-value" id="kpi-used">&mdash;</div>
+    <div class="kpi-value" id="kpi-used">-</div>
     <div class="kpi-sub" id="kpi-used-sub">since 2013 across the same pools</div>
   </div>
   <div class="kpi-card">
     <div class="kpi-accent" style="background:var(--trpa-orange)"></div>
     <div class="kpi-label">Pools exhausted</div>
-    <div class="kpi-value" id="kpi-exhausted">&mdash;</div>
+    <div class="kpi-value" id="kpi-exhausted">-</div>
     <div class="kpi-sub" id="kpi-exhausted-sub">remaining = 0</div>
   </div>
   <div class="kpi-card">
@@ -167,7 +165,7 @@ header h1 span { color: var(--trpa-blue); }
   <button class="sort-btn active" data-sort="remaining" onclick="setSort('remaining')">Remaining (high &rarr; low)</button>
   <button class="sort-btn"        data-sort="pct"       onclick="setSort('pct')">% used (high &rarr; low)</button>
   <button class="sort-btn"        data-sort="name"      onclick="setSort('name')">Name (A &rarr; Z)</button>
-  <span class="sort-count" id="sort-count">&mdash; pools</span>
+  <span class="sort-count" id="sort-count">- pools</span>
 </div>
 
 <!-- Cards + detail -->
@@ -183,9 +181,7 @@ header h1 span { color: var(--trpa-blue); }
 </div>
 
 <div class="footnote">
-  <strong>Data:</strong> remaining counts inlined from <code>from_ken/Additional Development as of April2026.xlsx</code> &mdash; LT Info Pools Balances sheet (with Ken&rsquo;s correction note: TRPA Pool is <strong>154</strong>, LT Info shows 144 incorrectly). Per-year trajectory inlined from <code>html/allocation_drawdown.html</code>&rsquo;s embedded series. Eventually backed by <code>PoolDrawdownYearly</code> (see
-  <a href="../erd/dashboards_to_schema_trace.md" style="color:var(--trpa-blue)">dashboards_to_schema_trace.md</a> Trace 2 / G2.1).
-  Cluster B1 in <a href="../erd/proposed_dashboards.md" style="color:var(--trpa-blue)">proposed_dashboards.md</a>.
+  <strong>Data:</strong> <code>from_analyst/Additional Development as of April2026.xlsx</code> (LT Info Pools Balances sheet, with the TRPA Pool 144&rarr;154 correction applied). Per-year trajectory inlined from the prior <code>allocation_drawdown.html</code> series. Eventually backed by <code>PoolDrawdownYearly</code>; see <a href="../erd/dashboards_to_schema_trace.md" style="color:var(--trpa-blue)">dashboards_to_schema_trace.md</a> Trace 2.
 </div>
 
 <script>
@@ -196,9 +192,9 @@ const TRPA = {
 };
 
 // ─────────────────────────────────────────
-// DATA — residential allocation pools as of 2026, with 2013-26 trajectory
+// DATA - residential allocation pools as of 2026, with 2013-26 trajectory
 // Initial capacity = 2013 starting value (when 2012 Plan kicked in)
-// Remaining = 2026 value (Ken's correction layer applied for TRPA Pool)
+// Remaining = 2026 value (the analyst's correction layer applied for TRPA Pool)
 // Trajectory = year-by-year remaining, 2013-2026
 // ─────────────────────────────────────────
 const YEARS = [2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026];
@@ -208,14 +204,14 @@ const POOLS = [
     name: 'TRPA Pool',
     juris: 'TRPA (central)',
     initial: 162, remaining: 154, color: TRPA.navy,
-    note: 'Ken correction: LT Info shows 144, correct value is 154.',
+    note: 'manual correction: LT Info shows 144, correct value is 154.',
     trajectory: [162, 159, 156, 155, 152, 152, 151, 149, 147, 145, 145, 145, 144, 154],
   },
   {
     name: 'Placer County',
     juris: 'Placer',
     initial: 462, remaining: 342, color: TRPA.blue,
-    // 2025-26 drawdown of 7 units per Ken's April 2026 update
+    // 2025-26 drawdown of 7 units per the analyst's April 2026 update
     trajectory: [462, 431, 394, 357, 349, 349, 349, 349, 349, 349, 349, 349, 342, 342],
   },
   {
@@ -341,7 +337,7 @@ function setSort(s) {
 }
 
 // ─────────────────────────────────────────
-// Detail panel — trajectory line for the selected pool
+// Detail panel - trajectory line for the selected pool
 // ─────────────────────────────────────────
 function selectPool(p) {
   selectedPool = p;
@@ -350,7 +346,7 @@ function selectPool(p) {
   document.querySelector('#detail-title').textContent = p.name;
   const used = p.initial - p.remaining;
   const pctRem = (p.remaining / p.initial * 100);
-  let sub = `${p.juris} &middot; <strong>${p.remaining.toLocaleString()}</strong> remaining of ${p.initial.toLocaleString()} initial &middot; ${pctRem.toFixed(1)}% of capacity remaining &middot; ${used} drawn down since 2013`;
+  let sub = `${p.juris} · <strong>${p.remaining.toLocaleString()}</strong> remaining of ${p.initial.toLocaleString()} initial · ${pctRem.toFixed(1)}% of capacity remaining · ${used} drawn down since 2013`;
   if (p.note) sub += `<br><em>${p.note}</em>`;
   document.querySelector('#detail-sub').innerHTML = sub;
   document.querySelector('#detail-empty').style.display = 'none';

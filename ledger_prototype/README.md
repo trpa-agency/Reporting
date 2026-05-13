@@ -12,7 +12,7 @@ commit to any SDE DDL.
 | `build_ledger.ipynb` | The one notebook. Pulls from Corral + the notebooks/ transition table, writes every CSV below, runs validators. |
 | `data/account.csv` | Chart of accounts. `(AccountScope, JurisdictionID or CommodityPoolID, CommodityID, BucketType) → AccountID`. Static reference. |
 | `data/ledger_entry.csv` | The facts. Every bucket-to-bucket movement from Corral `TdrTransaction*` + banking + (future) GIS FC + manual. |
-| `data/ledger_entry_annotation.csv` | Ken's XLSX-unique permit metadata, joined to the matching ledger entry via `TdrTransactionID`. |
+| `data/ledger_entry_annotation.csv` | the analyst's XLSX-unique permit metadata, joined to the matching ledger entry via `TdrTransactionID`. |
 | `data/conversion_ratio.csv` | `600 CFA = 2 TAU = 2 SFRUU = 3 MFRUU` lookup (12 rows, hardcoded). |
 | `views/v_cumulative_accounting.csv` | `(Year, Jurisdiction, Commodity, BucketType) → Balance`. Pivoted to columns per bucket. |
 | `views/v_pool_drawdown.csv` | `(Year, CommodityPoolID)` pivoted by MovementType. |

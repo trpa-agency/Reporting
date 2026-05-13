@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Allocation Tracking — TRPA</title>
+<title>Allocation Tracking - TRPA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
@@ -229,7 +229,7 @@ header h1 span { color: var(--trpa-blue); }
     <div class="header-meta">
       <div class="live-badge">Live Data</div><br>
       Source: TRPA Permit System<br>
-      Latest pool balances per Ken&rsquo;s 2026 report
+      Latest pool balances per the analyst&rsquo;s 2026 report
     </div>
   </div>
 </header>
@@ -254,21 +254,21 @@ header h1 span { color: var(--trpa-blue); }
   <div class="kpi-card">
     <div class="kpi-accent" style="background:var(--trpa-forest)"></div>
     <div class="kpi-label" id="kpi1-label">Allocated to Private Development</div>
-    <div class="kpi-value" id="kpi1-value">&mdash;</div>
+    <div class="kpi-value" id="kpi1-value">-</div>
     <div class="kpi-sub"   id="kpi1-sub">loading&hellip;</div>
     <div class="kpi-progress"><div class="kpi-progress-fill" id="kpi1-bar" style="width:0%;background:var(--trpa-forest)"></div></div>
   </div>
   <div class="kpi-card">
     <div class="kpi-accent" id="kpi2-accent" style="background:var(--trpa-orange)"></div>
     <div class="kpi-label" id="kpi2-label">Jurisdiction pool</div>
-    <div class="kpi-value" id="kpi2-value">&mdash;</div>
+    <div class="kpi-value" id="kpi2-value">-</div>
     <div class="kpi-sub"   id="kpi2-sub">loading&hellip;</div>
     <div class="kpi-progress"><div class="kpi-progress-fill" id="kpi2-bar" style="width:0%;background:var(--trpa-orange)"></div></div>
   </div>
   <div class="kpi-card">
     <div class="kpi-accent" style="background:var(--trpa-ice)"></div>
     <div class="kpi-label" id="kpi3-label">TRPA pool</div>
-    <div class="kpi-value" id="kpi3-value">&mdash;</div>
+    <div class="kpi-value" id="kpi3-value">-</div>
     <div class="kpi-sub"   id="kpi3-sub">loading&hellip;</div>
     <div class="kpi-progress"><div class="kpi-progress-fill" id="kpi3-bar" style="width:0%;background:var(--trpa-ice)"></div></div>
   </div>
@@ -298,7 +298,7 @@ header h1 span { color: var(--trpa-blue); }
     <div class="chart-grid">
       <div class="card">
         <h3>Allocation flow &middot; authorized &rarr; pool &rarr; current state</h3>
-        <p>Total authorized (left) distributes across 6 pools (middle: TRPA central + 5 jurisdictions), which in turn flow to the 3 current states (right): still in TRPA Pool, still in jurisdiction pool, or drawn to a parcel for private development. Cumulative through <span id="sankey-year-label">2025</span>.</p>
+        <p>Authorized &rarr; 6 pools &rarr; current state. Cumulative through <span id="sankey-year-label">2025</span>.</p>
         <div id="sankey-chart" style="height:400px;"></div>
       </div>
       <div class="card">
@@ -323,7 +323,7 @@ header h1 span { color: var(--trpa-blue); }
     <div class="ctrl-divider"></div>
     <span class="ctrl-label">Jurisdiction</span>
     <select id="filter-juris-map" class="ctrl-select" onchange="applyMapFilters()"><option value="all">All</option></select>
-    <span class="ctrl-count" id="map-count">&mdash; parcels</span>
+    <span class="ctrl-count" id="map-count">- parcels</span>
   </div>
   <div class="section" style="padding-top:16px;">
     <div id="map-view" style="height:520px;border-radius:8px;overflow:hidden;border:1px solid var(--border);"></div>
@@ -362,7 +362,7 @@ header h1 span { color: var(--trpa-blue); }
         <option value="In Pool">Jurisdiction pool</option>
         <option value="TRPA Pool">TRPA pool</option>
       </select>
-      <span class="ctrl-count" id="tbl-count">&mdash; records</span>
+      <span class="ctrl-count" id="tbl-count">- records</span>
       <button class="dl-btn" onclick="downloadCSV()">&#8595; CSV</button>
     </div>
     <div class="ag-theme-alpine" style="border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;overflow:hidden;box-shadow:var(--shadow);">
@@ -403,7 +403,7 @@ let activePills   = new Set();
 let sliderYear    = 2025;
 
 // ─────────────────────────────────────────
-// CONSTANTS — Regional Plan caps per Ken's 2026 PPTX slide 8
+// CONSTANTS - Regional Plan caps per the analyst's 2026 PPTX slide 8
 // ─────────────────────────────────────────
 // Residential: 2,600 = 2012 Plan additional Board authorization (of 8,687 since-1987 cumulative max)
 // Commercial:  1,000,000 sq ft = since-1987 cumulative CFA max
@@ -427,12 +427,12 @@ const TYPE_ACCENT = {
 
 // Residential allocations: served from this repo (../data/raw_data/) so
 // the dashboard tracks the canonical CSV without depending on a branch URL.
-// Source xlsx (Ken's refresh): data/raw_data/residentialAllocationGridExport_fromKen.xlsx
+// Source xlsx (the analyst's refresh): data/raw_data/residentialAllocationGridExport_fromAnalyst.xlsx
 // Converted by:               parcel_development_history_etl/scripts/convert_allocation_grid.py
 const RES_URL     = '../data/raw_data/residentialAllocationGridExport.csv';
 const CFA_TAU_URL = 'https://raw.githubusercontent.com/trpa-agency/Reporting/MTB-Edits/data/raw_data/CFA_TAU_allocations.csv';
 
-// Per Dan's framing (2026-05-11): TRPA pool is its own pre-jurisdiction state,
+// Per the framing (2026-05-11): TRPA pool is its own pre-jurisdiction state,
 // not a 6th jurisdiction. Five real jurisdiction pools below; TRPA-held
 // allocations (770 Unreleased + 154 Unallocated rows from "Residential
 // Allocation - TRPA Pool") are tracked under the "TRPA pool" status.
@@ -494,11 +494,11 @@ function fmtVal(n) {
 // PARSERS
 // ─────────────────────────────────────────
 // Cols: 0=ID 1=PoolCode 2=Year 3=Type 4=Seq 5=AllocStatus 6=Transaction 7=Pool 8=PrevTrx 9=APN 10=ConstructionStatus
-// Maps the 4 raw allocation/pool combinations into Dan's 3-state framing:
+// Maps the 4 raw allocation/pool combinations into leadership's 3-state framing:
 //   Allocated to Private Development = Allocation Status 'Allocated' (drawn to a parcel)
 //   Jurisdiction pool        = 'Unallocated' AND Pool is a county/CSLT pool
 //   TRPA pool                = 'Unallocated' in "Residential Allocation - TRPA Pool"  OR  'Unreleased' (TBD)
-// Construction Status (col 10) is intentionally not surfaced here — that
+// Construction Status (col 10) is intentionally not surfaced here - that
 // belongs to the "Total Development Tracking" view, not allocation tracking.
 function parseResCSV(text) {
   return text.trim().split('\n').slice(1).map(line => {
@@ -575,7 +575,7 @@ function parseCfaTauCSV(text) {
 function updateKPIs() {
   const total = TOTAL_AUTH[currentType];
 
-  // kpi0 — always the plan constant for the active type
+  // kpi0 - always the plan constant for the active type
   document.querySelector('#kpi0-value').textContent = total.toLocaleString();
   document.querySelector('#kpi0-sub').textContent   = TYPE_DESC[currentType];
 
@@ -733,7 +733,7 @@ function getJurisRows(yr) {
 }
 
 // ─────────────────────────────────────────
-// CHARTS — Plotly with TRPA brand
+// CHARTS - Plotly with TRPA brand
 // ─────────────────────────────────────────
 const plotFont  = { family: '"Open Sans", system-ui, sans-serif', color: TRPA.navy, size: 12 };
 const plotPaper = 'rgba(0,0,0,0)';
@@ -744,9 +744,9 @@ function renderCharts() {
 }
 
 function renderSankey() {
-  // 3-column lifecycle Sankey per Dan's framing (2026-05-11):
+  // 3-column lifecycle Sankey per the framing (2026-05-11):
   //   LEFT   ─►  Total Authorized (2,600)
-  //   MIDDLE ─►  6 pools (TRPA Pool + 5 jurisdiction pools — where allocations went)
+  //   MIDDLE ─►  6 pools (TRPA Pool + 5 jurisdiction pools - where allocations went)
   //   RIGHT  ─►  3 current states (Still in TRPA / Still in Juris / Private Dev)
   // Each row counts exactly once: total flow = 2,600.
   const total    = TOTAL_AUTH[currentType];
@@ -762,20 +762,20 @@ function renderSankey() {
   const trpaTotal = trpaHeld + trpaDrawn;
 
   // Node indices
-  const iAuth      = 0;                                        // LEFT — Total Authorized
-  const iTrpaPool  = 1;                                        // MIDDLE — TRPA Pool
-  const iJ         = j => juris.indexOf(j) + 2;                // MIDDLE — 5 jurisdiction pools
-  const iTrpaDest  = juris.length + 2;                         // RIGHT — Still in TRPA Pool
-  const iJurisDest = juris.length + 3;                         // RIGHT — Still in Jurisdiction Pool
-  const iPrivate   = juris.length + 4;                         // RIGHT — Allocated to Private Development
+  const iAuth      = 0;                                        // LEFT - Total Authorized
+  const iTrpaPool  = 1;                                        // MIDDLE - TRPA Pool
+  const iJ         = j => juris.indexOf(j) + 2;                // MIDDLE - 5 jurisdiction pools
+  const iTrpaDest  = juris.length + 2;                         // RIGHT - Still in TRPA Pool
+  const iJurisDest = juris.length + 3;                         // RIGHT - Still in Jurisdiction Pool
+  const iPrivate   = juris.length + 4;                         // RIGHT - Allocated to Private Development
 
   const nodeLabels = [
-    'Total Authorized',                            // 0 — left
-    'TRPA Pool',                                   // 1 — middle
-    ...juris.map(j => JURIS_SHORT[j] || j),        // 2..N+1 — middle (5 jurisdictions)
-    'Still in TRPA Pool',                          // N+2 — right state
-    'Still in Jurisdiction Pool',                  // N+3 — right state
-    'Allocated to Private Development',                    // N+4 — right state
+    'Total Authorized',                            // 0 - left
+    'TRPA Pool',                                   // 1 - middle
+    ...juris.map(j => JURIS_SHORT[j] || j),        // 2..N+1 - middle (5 jurisdictions)
+    'Still in TRPA Pool',                          // N+2 - right state
+    'Still in Jurisdiction Pool',                  // N+3 - right state
+    'Allocated to Private Development',                    // N+4 - right state
   ];
   const nodeColors = [
     TRPA.navy,                                     // Total Authorized
@@ -844,7 +844,7 @@ function renderBar() {
   const jRows    = getJurisRows(yr);
 
   // Per-jurisdiction stacks first, then "TRPA Pool" reserve at the end.
-  // (The "Authorized" summary bar was removed — the 2,600 total is already
+  // (The "Authorized" summary bar was removed - the 2,600 total is already
   // shown in the KPI cards above, and stacking it next to the smaller pools
   // squashed their visual proportions.)
   const xLabels  = [...juris.map(j => JURIS_SHORT[j] || j), 'TRPA Pool'];
@@ -907,9 +907,9 @@ function renderDrawdownTable() {
   const jurisRows = rawData.filter(r => !r.isTrpaReserve && r.jurisdiction);
 
   document.querySelector('#dd-sub').textContent =
-    currentType === 'residential' ? 'Allocations per jurisdiction pool, how many have moved to private development, and drawdown rate. TRPA pool shown separately.' :
-    currentType === 'commercial'  ? 'Commercial floor area (sq ft) per jurisdiction pool, status, and utilization' :
-                                    'Tourist bonus units per pool, status, and utilization rate';
+    currentType === 'residential' ? 'Allocations per jurisdiction pool, status, and drawdown rate.' :
+    currentType === 'commercial'  ? 'Commercial floor area (sq ft) per jurisdiction pool, status, and utilization.' :
+                                    'Tourist bonus units per pool, status, and utilization rate.';
 
   let gInPool = 0, gAlloc = 0;
   order.forEach(j => {
@@ -937,7 +937,7 @@ function renderDrawdownTable() {
   ntr.innerHTML =
     '<td style="font-style:italic">TRPA pool</td>' +
     '<td class="r">' + notYet.toLocaleString() + '</td>' +
-    '<td class="r">&mdash;</td><td class="r">&mdash;</td>' +
+    '<td class="r">-</td><td class="r">-</td>' +
     '<td class="bar-cell"><div class="bar-pct">' + (notYet / total * 100).toFixed(1) + '% of total</div></td>';
   tbody.appendChild(ntr);
 
@@ -1035,7 +1035,7 @@ function populateJurisFilters() {
 }
 
 // ─────────────────────────────────────────
-// MAP — TRPA brand markers
+// MAP - TRPA brand markers
 // ─────────────────────────────────────────
 let mapView = null, parcelsLayer = null, mapInit = false;
 // Per type: cluster + parcel-fill RGBA (matching the type accent)

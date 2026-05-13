@@ -32,7 +32,7 @@ that each column should decompose into.
 | Allocation authorized | Corral `ResidentialAllocation`, `TdrTransaction`, `CommodityPool` | Allocation number, pool, commodity, issue date, assignee parcel | Completion status, Year Built |
 | Permit issued | Accela (via Corral's `AccelaCAPRecord` bridge) | Accela record ID, local permit number, issue/final dates | TRPA-side status before permit, MOU link |
 | Built on the ground | GIS Parcel_History_Attributed FC (2006–2023, gap 2016–2017) + `*_2012to2025.csv` | Residential/CFA/TAU present each year | Year Built, allocation provenance |
-| Completion across systems | Ken's XLSX, column `Status Jan 2026` | Which of the ~2K rows Ken considers done | Stale the day after it's typed |
+| Completion across systems | the analyst's XLSX, column `Status Jan 2026` | Which of the ~2K rows the analyst considers done | Stale the day after it's typed |
 
 No single system owns the *join* of all four. That's why the XLSX exists.
 
@@ -54,7 +54,7 @@ The `TransactionID` column is mechanically composed:
   1,613 / 1,625 non-null rows.
 
 Someone ran a Corral query joining `TdrTransaction` × `TransactionType` ×
-lead-agency lookup, dumped the result to Excel, and Ken appended manual
+lead-agency lookup, dumped the result to Excel, and the analyst appended manual
 columns from then on. The 65 TransactionIDs with 5 dash-separated parts
 are paired entries (`CSLT-ALLOC-1889/TRPA-TRF-1471`) representing two
 Corral transactions merged into one XLSX row — a paired ALLOC/TRF for
@@ -63,7 +63,7 @@ the same unit.
 **405 rows have no TransactionID at all.** They're "off-books" in
 Corral — 122 are `Banking of Existing Development`, 173 are SFRUU, 107
 are MFRUU. Of those 405, `Status Jan 2026 = Completed` on 388. These
-are things Ken tracks that Corral doesn't have a TDR record for
+are things the analyst tracks that Corral doesn't have a TDR record for
 (pre-2012 baseline, informal bankings, etc.).
 
 ---
@@ -407,7 +407,7 @@ ETL to their correct movement type based on `Detailed Development Type`).
 | `CanonicalStatus` | FK | `Completed` |
 
 ~76 rows (41 TRPA + 35 Local, minus shared strings). Built once,
-maintained by Ken + Planning. Every raw status the XLSX has ever
+maintained by the analyst + Planning. Every raw status the XLSX has ever
 carried gets mapped here. New unmapped strings trigger a data-quality
 alert; they don't silently fall through.
 
@@ -432,7 +432,7 @@ from `PermitCompletion`.
 
 #### `Transaction`
 
-One row per Corral TDR transaction (or per off-books movement Ken tracks).
+One row per Corral TDR transaction (or per off-books movement the analyst tracks).
 
 | Column | Type | Source |
 |---|---|---|
@@ -500,7 +500,7 @@ application breaking.
 
 #### `PermitCompletion`
 
-Ken's manually-tracked facts — the truly unique contribution.
+the analyst's manually-tracked facts — the truly unique contribution.
 
 | Column | Type | Source |
 |---|---|---|
@@ -649,8 +649,8 @@ every parcel every year.
 ## Open decisions
 
 - **StatusCrosswalk authorship.** 76 raw status strings need human
-  mapping to 8 canonical values. Ken owns the domain knowledge; who
-  owns the data entry? Proposed: Ken + Planning review once, then
+  mapping to 8 canonical values. the analyst owns the domain knowledge; who
+  owns the data entry? Proposed: the analyst + Planning review once, then
   append-only as new strings appear.
 - **Off-books rows (no TransactionID).** 405 of them. Two options:
   (a) insert synthetic `Transaction` rows with `IsOffBooks=1` and a
@@ -658,14 +658,14 @@ every parcel every year.
   on `TransactionMovement` and use `Permit` alone as the anchor.
   Leaning (a) for uniform query shape.
 - **ADU detection.** Substring match on `"ADU"` in
-  `Detailed Development Type` — reliable enough, or should Ken add an
+  `Detailed Development Type` — reliable enough, or should the analyst add an
   explicit `IsADU` column upstream in the XLSX? (Probably explicit;
   substring matches will fail on rare wording like
   `"Accessory Dwelling Unit"`.)
 - **Project name normalization.** Six names recur with high frequency
   (`Beach Club`, `Sierra Colina`, `Edgewood Lodge`, `Edgewood Casitas`,
   `Angora Fire Rebuild`, `Homewood`). Do we hard-code those, or
-  auto-extract from parentheticals and let Ken merge duplicates later?
+  auto-extract from parentheticals and let the analyst merge duplicates later?
   Leaning auto-extract + merge UI.
 - **Signed quantity → direction.** Converting the 68 negative-quantity
   rows to positive + bucket direction requires reinterpreting each by
@@ -690,7 +690,7 @@ every parcel every year.
    - `detailed_development_type_parser.py` (regex → 6 extracted fields,
      backstopped by a manual crosswalk for the ~30 idiosyncratic strings)
    - `pool_crosswalk.csv` (19 Development Right strings → PoolID)
-   Ken + Planning validate each.
+   the analyst + Planning validate each.
 2. **Write the loader** (`etl/load_transactions_xlsx.py`):
    - Parse TransactionID (regular + 5-part paired).
    - Split `Development Right` → `Pool`.
@@ -708,7 +708,7 @@ every parcel every year.
    - Move the 3 date-valued `TRPA Status` cells to
      `TRPA Status Date` and set `TRPA Status` to NULL.
 4. **Freeze the XLSX schema** — no more `Status {Month} {Year}`
-   columns. Ken updates the single `CompletionStatus` cell in-place.
+   columns. the analyst updates the single `CompletionStatus` cell in-place.
 5. **Publish a data-quality dashboard** showing:
    - Crosswalk coverage (raw values not yet mapped)
    - Unparseable `Detailed Development Type` strings

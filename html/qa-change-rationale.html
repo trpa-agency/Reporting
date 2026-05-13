@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>QA Change Rationale Audit &mdash; TRPA</title>
+<title>QA Change Rationale Audit - TRPA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
@@ -118,7 +118,7 @@ header h1 span { color: var(--trpa-blue); }
       <h1>QA Change Rationale <span>Audit Trail</span></h1>
       <div class="header-sub">
         Per-APN audit log of QA corrections to existing residential development.
-        2023 and 2026 big-sweep campaigns from Ken&rsquo;s <code>CA Changes breakdown.xlsx</code>.
+        2023 and 2026 big-sweep campaigns from the analyst&rsquo;s <code>CA Changes breakdown.xlsx</code>.
       </div>
     </div>
     <div class="header-meta">
@@ -134,25 +134,25 @@ header h1 span { color: var(--trpa-blue); }
   <div class="kpi-card">
     <div class="kpi-accent" style="background:var(--trpa-navy)"></div>
     <div class="kpi-label">Total change events</div>
-    <div class="kpi-value" id="kpi-total">&mdash;</div>
+    <div class="kpi-value" id="kpi-total">-</div>
     <div class="kpi-sub" id="kpi-total-sub">loading&hellip;</div>
   </div>
   <div class="kpi-card">
     <div class="kpi-accent" style="background:var(--trpa-blue)"></div>
     <div class="kpi-label">2023 big sweep</div>
-    <div class="kpi-value" id="kpi-2023">&mdash;</div>
+    <div class="kpi-value" id="kpi-2023">-</div>
     <div class="kpi-sub" id="kpi-2023-sub">loading&hellip;</div>
   </div>
   <div class="kpi-card">
     <div class="kpi-accent" style="background:var(--trpa-forest)"></div>
     <div class="kpi-label">2026 big sweep</div>
-    <div class="kpi-value" id="kpi-2026">&mdash;</div>
+    <div class="kpi-value" id="kpi-2026">-</div>
     <div class="kpi-sub" id="kpi-2026-sub">loading&hellip;</div>
   </div>
   <div class="kpi-card">
     <div class="kpi-accent" style="background:var(--trpa-orange)"></div>
     <div class="kpi-label">Canonical-vocab match</div>
-    <div class="kpi-value" id="kpi-vocab">&mdash;</div>
+    <div class="kpi-value" id="kpi-vocab">-</div>
     <div class="kpi-sub" id="kpi-vocab-sub">loading&hellip;</div>
   </div>
 </div>
@@ -174,7 +174,7 @@ header h1 span { color: var(--trpa-blue); }
   <div class="filter-divider"></div>
   <span class="filter-label">Search</span>
   <input id="filter-search" class="filter-search" placeholder="APN, rationale, category&hellip;"/>
-  <span class="filter-count" id="filter-count">&mdash; rows</span>
+  <span class="filter-count" id="filter-count">- rows</span>
   <button class="dl-btn" onclick="downloadCSV()">&#8595; CSV</button>
 </div>
 
@@ -190,7 +190,7 @@ header h1 span { color: var(--trpa-blue); }
     </div>
     <div class="card">
       <h3>Top correction categories</h3>
-      <p>Highlights where Ken's wording paraphrases Sheet2&rsquo;s controlled vocab &mdash; non-canonical bars are mapping candidates.</p>
+      <p>Highlights where the analyst's wording paraphrases Sheet2&rsquo;s controlled vocab - non-canonical bars are mapping candidates.</p>
       <div id="cat-chart" style="height:480px;"></div>
     </div>
   </div>
@@ -199,7 +199,7 @@ header h1 span { color: var(--trpa-blue); }
 <div class="footnote">
   <strong>Data:</strong> <a href="https://raw.githubusercontent.com/trpa-agency/Reporting/MTB-Edits/data/qa_data/qa_change_events.csv" style="color:var(--trpa-blue)">qa_change_events.csv</a>
   + <a href="https://raw.githubusercontent.com/trpa-agency/Reporting/MTB-Edits/data/qa_data/qa_correction_detail.csv" style="color:var(--trpa-blue)">qa_correction_detail.csv</a>
-  &mdash; outputs of <code>notebooks/04_load_ca_changes.ipynb</code>. Joined client-side on <code>ChangeEventID</code>. Re-run the notebook when Ken sends a new XLSX; see
+  - outputs of <code>notebooks/04_load_ca_changes.ipynb</code>. Joined client-side on <code>ChangeEventID</code>. Re-run the notebook when the analyst sends a new XLSX; see
   <a href="../erd/qa_corrections_track.md" style="color:var(--trpa-blue)">erd/qa_corrections_track.md</a> for the full Track C plan.
 </div>
 

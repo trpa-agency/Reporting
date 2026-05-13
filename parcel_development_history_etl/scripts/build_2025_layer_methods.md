@@ -10,7 +10,7 @@ The 2025 Parcel Development feature class (`Parcel_Development_2025`) was built 
 
 | Source | Description |
 |--------|-------------|
-| `Parcel_History_Attributed` (YEAR=2025) | Parcel polygon geometry — 61,240 parcels |
+| `Parcel_History_Attributed` (YEAR=2025) | Parcel polygon geometry - 61,240 parcels |
 | Residential CSV (`2025 Final` column) | 42,418 parcels with residential unit counts |
 | Tourist Units CSV (`CY2025` column) | 374 parcels with TAU counts |
 | Commercial Sqft CSV (`CY2025` column) | 1,499 parcels with commercial floor area |
@@ -36,11 +36,11 @@ For El Dorado County parcels, APNs were normalized to 3-digit last-segment forma
 
 Each CSV was processed through a correction pipeline:
 
-1. **El Dorado 2-digit to 3-digit padding** — The CSVs use 2-digit last-segment format for El Dorado APNs (e.g., `027-323-10`), while the 2025 FC uses 3-digit (e.g., `027-323-010`). Padded 19,343 residential, 126 tourist, and 452 commercial APNs.
+1. **El Dorado 2-digit to 3-digit padding** - The CSVs use 2-digit last-segment format for El Dorado APNs (e.g., `027-323-10`), while the 2025 FC uses 3-digit (e.g., `027-323-010`). Padded 19,343 residential, 126 tourist, and 452 commercial APNs.
 
-2. **Genealogy application** — Applied APN succession mappings from the consolidated genealogy master table to remap retired/split/merged APNs to their current successors. Applied 306 residential, 15 tourist, and 28 commercial substitutions.
+2. **Genealogy application** - Applied APN succession mappings from the consolidated genealogy master table to remap retired/split/merged APNs to their current successors. Applied 306 residential, 15 tourist, and 28 commercial substitutions.
 
-3. **Manual APN fixes** — Six APNs were manually identified as retired El Dorado parcels whose successors were not in the genealogy table. These were verified visually in ArcGIS Pro:
+3. **Manual APN fixes** - Six APNs were manually identified as retired El Dorado parcels whose successors were not in the genealogy table. These were verified visually in ArcGIS Pro:
    - `027-323-010` → `027-323-019` (48 residential units)
    - `028-301-006` → `028-301-068`
    - `027-313-002` → `027-313-016`
@@ -54,7 +54,7 @@ Each CSV was processed through a correction pipeline:
 
 456 CSV APNs had no direct match in the 2025 FC after all corrections. These were resolved spatially:
 
-1. Built centroid points for missing APNs using geometry from SOURCE_FC (any historical year). For El Dorado APNs, also searched using the depadded 2-digit format — this recovered 209 additional centroids from older years where APNs were stored in 2-digit format.
+1. Built centroid points for missing APNs using geometry from SOURCE_FC (any historical year). For El Dorado APNs, also searched using the depadded 2-digit format - this recovered 209 additional centroids from older years where APNs were stored in 2-digit format.
 
 2. Spatial join of centroids to the 2025 FC polygons:
    - **INTERSECT** pass first (centroid falls inside a 2025 parcel)
@@ -72,16 +72,16 @@ Wrote residential units, tourist accommodation units, and commercial floor area 
 
 ### Step 6: TAZ Spatial Join
 
-Spatial join of parcel polygons to the TAZ (Traffic Analysis Zone) service layer using INTERSECT. Populated 61,227 of 61,240 parcels (13 null — likely on the basin boundary).
+Spatial join of parcel polygons to the TAZ (Traffic Analysis Zone) service layer using INTERSECT. Populated 61,227 of 61,240 parcels (13 null - likely on the basin boundary).
 
 ### Step 7: QA Summary
 
 Generated QA tables in the output GDB:
-- `QA_2025_Summary` — High-level metrics
-- `QA_2025_Lost_APNs` — CSV APNs with values that could not be placed (0 after all fixes)
-- `QA_2025_Crosswalk` — Spatial match details for 455 crosswalked APNs
-- `QA_2025_Genealogy` — 349 APN succession substitutions applied
-- `APN_Mapping` — Consolidated map of all APN remappings (804 resolved, 0 unresolved)
+- `QA_2025_Summary` - High-level metrics
+- `QA_2025_Lost_APNs` - CSV APNs with values that could not be placed (0 after all fixes)
+- `QA_2025_Crosswalk` - Spatial match details for 455 crosswalked APNs
+- `QA_2025_Genealogy` - 349 APN succession substitutions applied
+- `APN_Mapping` - Consolidated map of all APN remappings (804 resolved, 0 unresolved)
 
 ## Final Totals
 
@@ -92,7 +92,7 @@ Generated QA tables in the output GDB:
 | Commercial Floor Area (sqft) | 6,533,405 | 6,533,405 | 0 |
 
 - **All three types match exactly between CSV and FC output.**
-- **0 lost APNs** — all CSV units are accounted for in the output FC.
+- **0 lost APNs** - all CSV units are accounted for in the output FC.
 - **0 unresolved APN mappings.**
 
 ## Key APN Correction Pipeline
@@ -129,7 +129,7 @@ CSV APN
 | TouristAccommodation_Units | Long | Tourist accommodation units (from CSV) |
 | CommercialFloorArea_SqFt | Double | Commercial floor area in sqft (from CSV) |
 | FC_Native_Units | Long | Residential units from 2024 SOURCE_FC (reference only) |
-| Unit_Source | Text | BOTH or CSV — indicates data provenance |
+| Unit_Source | Text | BOTH or CSV - indicates data provenance |
 | TAZ | Text | Traffic Analysis Zone ID |
 
 ## Reproducibility

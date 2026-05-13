@@ -1,9 +1,9 @@
-# Development History ETL — Methods
+# Development History ETL - Methods
 
 **Project:** Tahoe Development History by Parcel (2012–2025)
 **Package:** `parcel_development_history_etl/`
 **Output:** `C:\GIS\ParcelHistory.gdb\Parcel_Development_History`
-**Python:** ArcGIS Pro — `C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/python.exe`
+**Python:** ArcGIS Pro - `C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/python.exe`
 
 ---
 
@@ -11,10 +11,10 @@
 
 This ETL builds a parcel-level development history feature class covering the Lake Tahoe Basin from 2012 to 2025. For each parcel × year combination it records:
 
-- **Residential_Units** — existing residential dwelling units
-- **TouristAccommodation_Units** — tourist accommodation units (TAUs)
-- **CommercialFloorArea_SqFt** — commercial floor area in square feet
-- **Building_SqFt** — total footprint area of buildings on the parcel (from 2019 buildings layer)
+- **Residential_Units** - existing residential dwelling units
+- **TouristAccommodation_Units** - tourist accommodation units (TAUs)
+- **CommercialFloorArea_SqFt** - commercial floor area in square feet
+- **Building_SqFt** - total footprint area of buildings on the parcel (from 2019 buildings layer)
 - Spatial attributes: jurisdiction, county, zoning, regional land use, TAZ, town center proximity, TRPA boundary membership
 
 ---
@@ -25,7 +25,7 @@ The ETL treats two upstream systems as authoritative and generates QA output tha
 
 | Source | Authority | Maintained by |
 |--------|-----------|---------------|
-| **All Parcels MapServer** | Parcel geometry and APNs for each year | TRPA GIS — individual year feature classes managed directly |
+| **All Parcels MapServer** | Parcel geometry and APNs for each year | TRPA GIS - individual year feature classes managed directly |
 | **Development attribute CSVs** | Residential units, TAUs, commercial sq ft | TRPA analyst (coworker) |
 
 **All Parcels MapServer layers:**
@@ -44,17 +44,17 @@ The ETL treats two upstream systems as authoritative and generates QA output tha
 | `data/raw_data/TouristUnits_2012to2025.csv` | APN × CY2012..CY2025 = TAUs (wide format) |
 | `data/raw_data/CommercialFloorArea_2012to2025.csv` | APN × CY2012..CY2025 = sq ft (wide format) |
 
-> **CSV omission error is an open QA area.** The CSV was carefully constructed from permit, allocation, and county assessor data and its unit values are generally trusted. The primary concern is *omission* — parcels with units that were never captured in the CSV — rather than incorrect values for parcels that are present. Comparison against `Parcel_History_Attributed` (SOURCE_FC) reveals this directly: as of April 2026, 5,888 APN×Year pairs where SOURCE_FC has a non-zero unit value have no corresponding CSV entry (`FC_NATIVE` rows). Identifying and filling these gaps is the key validation task.
+> **CSV omission error is an open QA area.** The CSV was carefully constructed from permit, allocation, and county assessor data and its unit values are generally trusted. The primary concern is *omission* - parcels with units that were never captured in the CSV - rather than incorrect values for parcels that are present. Comparison against `Parcel_History_Attributed` (SOURCE_FC) reveals this directly: as of April 2026, 5,888 APN×Year pairs where SOURCE_FC has a non-zero unit value have no corresponding CSV entry (`FC_NATIVE` rows). Identifying and filling these gaps is the key validation task.
 
 **Supporting sources:**
 
 | File | Description |
 |------|-------------|
-| `C:\GIS\ParcelHistory.gdb\Parcel_History_Attributed` | SOURCE_FC — 2012 geometry + 2025 fallback; also provides native unit values for comparison |
+| `C:\GIS\ParcelHistory.gdb\Parcel_History_Attributed` | SOURCE_FC - 2012 geometry + 2025 fallback; also provides native unit values for comparison |
 | `C:\GIS\Buildings.gdb\Buildings_2019` | Building footprints (2019 vintage); used to compute `Building_SqFt` via spatial intersection |
-| `data/raw_data/apn_genealogy_tahoe.csv` | Consolidated parcel genealogy — APN renames, splits, merges (see Genealogy section) |
+| `data/raw_data/apn_genealogy_tahoe.csv` | Consolidated parcel genealogy - APN renames, splits, merges (see Genealogy section) |
 
-**New genealogy reference files (not yet integrated — for QA use):**
+**New genealogy reference files (not yet integrated - for QA use):**
 
 | File | Description |
 |------|-------------|
@@ -93,47 +93,47 @@ main.py
 | `deduplicate_source_fc.py` | Deduplicate SOURCE_FC (run if duplicate APN×Year rows are found) |
 | `check_parcel_topology.py` | Topology QA: overlapping/duplicate geometry |
 | `scripts/qa_lost_apns_vs_new_genealogy.py` | Post-ETL QA: cross-reference lost APNs against Accela and KK genealogy files to find candidate mappings |
-| `scripts/detect_change_years.py` | **New (Apr 2026)** — For NEEDS_CHANGE_YEAR pairs from `qa_lost_vs_new_genealogy.csv`, queries OUTPUT_FC and SOURCE_FC to determine when the old APN last appears and the new APN first appears. Recommends `change_year` with confidence ratings. Outputs `data/raw_data/change_year_candidates.csv` pre-formatted for direct copy into `apn_genealogy_master.csv`. |
+| `scripts/detect_change_years.py` | **New (Apr 2026)** - For NEEDS_CHANGE_YEAR pairs from `qa_lost_vs_new_genealogy.csv`, queries OUTPUT_FC and SOURCE_FC to determine when the old APN last appears and the new APN first appears. Recommends `change_year` with confidence ratings. Outputs `data/raw_data/change_year_candidates.csv` pre-formatted for direct copy into `apn_genealogy_master.csv`. |
 
 ---
 
 ## ETL Steps in Detail
 
-### S01 — Build Output Feature Class
-Creates a fresh output FC by querying the All Parcels MapServer service for each year. Each service layer is the canonical, gap-free source of parcel geometry and APNs for that year. Only Shape, APN, and Year are written here — all other attributes are filled by subsequent steps.
+### S01 - Build Output Feature Class
+Creates a fresh output FC by querying the All Parcels MapServer service for each year. Each service layer is the canonical, gap-free source of parcel geometry and APNs for that year. Only Shape, APN, and Year are written here - all other attributes are filled by subsequent steps.
 
 - **2013–2024**: queries the corresponding All Parcels service layer (indices in `YEAR_LAYER` in `config.py`)
 - **2012**: copied from `SOURCE_FC` (`Parcel_History_Attributed`), not the service; the service geometry for 2012 was found to be less reliable than the GDB record
-- **2025**: no service layer yet — rows are copied from `SOURCE_FC` as a fallback
+- **2025**: no service layer yet - rows are copied from `SOURCE_FC` as a fallback
 
 Uses `SOURCE_FC` as schema template so all downstream fields exist at creation. Drops and recreates OUTPUT_FC on every run.
 
-### S01c — Populate COUNTY and JURISDICTION
+### S01c - Populate COUNTY and JURISDICTION
 Performs a centroid spatial join of all unique parcels in OUTPUT_FC against the TRPA Jurisdictions service (`Boundaries/FeatureServer/10`). Two passes: WITHIN first, then CLOSEST ≤ 100m for any unmatched. Converts full county names to 2-character codes (e.g. `El Dorado` → `EL`).
 
 This step runs before S02 so that COUNTY is populated when the El Dorado APN fix runs.
 
-### S02 — Load Residential CSV
+### S02 - Load Residential CSV
 1. Reads wide-format CSV (APN × 2012–2025), melts to long format (~593K rows)
 2. **El Dorado APN fix**: El Dorado County changed APN suffix formatting in 2018 (2-digit → 3-digit, e.g. `080-155-11` → `080-155-011`). `build_el_dorado_fix()` queries the FC for COUNTY=EL APNs and builds a `pad_map` (2-digit → 3-digit) and `depad_map` (3-digit → 2-digit). Two cases are handled:
-   - **Case 1 — Parcel spans 2018:** Both 2-digit (pre-2018 FC rows) and 3-digit (2018+ FC rows) exist in the FC. The 2-digit form is found by the FC query and enters `pad_map` directly.
-   - **Case 2 — Parcel born at or after 2018:** Only the 3-digit form ever exists in the FC. The 2-digit form is never in the FC, so a straight query misses it. `build_el_dorado_fix()` also collects 3-digit APNs and adds their de-padded 2-digit form → 3-digit form to `pad_map`. This allows CSV entries using the 2-digit form (entered before the parcel existed in the county system) to be padded correctly. Example: `015-370-30 → 015-370-030` (FC has 3-digit form only, starting 2021).
+   - **Case 1 - Parcel spans 2018:** Both 2-digit (pre-2018 FC rows) and 3-digit (2018+ FC rows) exist in the FC. The 2-digit form is found by the FC query and enters `pad_map` directly.
+   - **Case 2 - Parcel born at or after 2018:** Only the 3-digit form ever exists in the FC. The 2-digit form is never in the FC, so a straight query misses it. `build_el_dorado_fix()` also collects 3-digit APNs and adds their de-padded 2-digit form → 3-digit form to `pad_map`. This allows CSV entries using the 2-digit form (entered before the parcel existed in the county system) to be padded correctly. Example: `015-370-30 → 015-370-030` (FC has 3-digit form only, starting 2021).
 3. **El Dorado split-format dedup**: Some APNs appear in the CSV in both 2-digit and 3-digit forms (one row per format). After the El Dorado fix normalizes both to the same key, duplicates are resolved by keeping the max unit count for each `(APN, Year)` pair.
-4. **S02b — Apply Genealogy** (see below)
+4. **S02b - Apply Genealogy** (see below)
 5. **Post-genealogy dedup**: Genealogy substitution can create duplicate `(APN, Year)` rows when the target APN has a zero-unit placeholder row for that year (zeros don't trigger conflict-skip). Since `csv_lookup` is built as a dict (last-write-wins), a zero-unit duplicate row can silently overwrite a valid non-zero substitution. A second groupby-max dedup after genealogy prevents this.
 6. Builds `csv_lookup`: `{(APN, Year): units}` passed to S04.
 
-**S02b — Apply Genealogy** (called from within S02)
+**S02b - Apply Genealogy** (called from within S02)
 Applies parcel event corrections to the long-format CSV before the lookup is built. For each record where `is_primary=1`, `in_fc_new=1`, and `change_year` is set: rows where `APN == apn_old AND Year >= change_year` have their APN replaced with `apn_new`.
 
-**Conflict-skip logic:** A substitution is blocked only if the target APN already has a *non-zero* unit value for that year. Zero-value rows are treated as placeholders and do not block remapping — this prevents historical units from being silently dropped for split-parcel successors that have a zero placeholder row in early years. Applied in source-priority × change_year order (MANUAL → ACCELA → SPATIAL). Results written to `QA_Genealogy_Applied`.
+**Conflict-skip logic:** A substitution is blocked only if the target APN already has a *non-zero* unit value for that year. Zero-value rows are treated as placeholders and do not block remapping - this prevents historical units from being silently dropped for split-parcel successors that have a zero placeholder row in early years. Applied in source-priority × change_year order (MANUAL → ACCELA → SPATIAL). Results written to `QA_Genealogy_Applied`.
 
-### S03 — APN Crosswalk
+### S03 - APN Crosswalk
 For CSV APNs that still have no match in OUTPUT_FC after S02b, resolves them via spatial join to find the correct current APN.
 
 **Resolution order:**
-1. **SOURCE_FC fallback** — queries `Parcel_History_Attributed` directly using the APN (with El Dorado 2-digit/3-digit variant awareness). Used when the All Parcels service is unavailable or has gaps.
-2. **All Parcels service** — centroid spatial join against the current service layer.
+1. **SOURCE_FC fallback** - queries `Parcel_History_Attributed` directly using the APN (with El Dorado 2-digit/3-digit variant awareness). Used when the All Parcels service is unavailable or has gaps.
+2. **All Parcels service** - centroid spatial join against the current service layer.
 
 **El Dorado format expansion in geometry lookup:** S03's `_get_apn_geometry()` handles two cases:
 - **Case A (3-digit in crosswalk list):** Also searches for the 2-digit form so pre-2018 FC rows contribute geometry. Results mapped back to the canonical 3-digit key.
@@ -141,7 +141,7 @@ For CSV APNs that still have no match in OUTPUT_FC after S02b, resolves them via
 
 **Sum-on-collision:** If a CSV APN resolves to an FC APN that already has a value in `csv_lookup`, the values are summed rather than skipped. This handles cases where multiple historical APNs map to the same current parcel (e.g. after a merge event). Results written to `QA_APN_Crosswalk`.
 
-### S04 — Write Residential Units
+### S04 - Write Residential Units
 Writes `Residential_Units` from `csv_lookup` to OUTPUT_FC.
 
 **Merge strategy:**
@@ -158,10 +158,10 @@ Writes `Residential_Units` from `csv_lookup` to OUTPUT_FC.
 
 SOURCE_FC native values are loaded via `_load_source_fc_natives()` for `FC_NATIVE_YEARS` (2012 and 2018–2025). Adds `FC_Native_Units` (LONG) and `Unit_Source` (TEXT) fields to OUTPUT_FC.
 
-### S04b — Write Tourist & Commercial Attributes
+### S04b - Write Tourist & Commercial Attributes
 Loads `TouristUnits_2012to2025.csv` and `CommercialFloorArea_2012to2025.csv`. For each: melts to long format, applies El Dorado APN fix, applies genealogy, writes non-zero values to `TouristAccommodation_Units` and `CommercialFloorArea_SqFt`.
 
-### S05 — Spatial Attribute Updates *(slow — ~15 min; skippable)*
+### S05 - Spatial Attribute Updates *(slow - ~15 min; skippable)*
 Spatial joins against reference layers to populate:
 
 - `PARCEL_ACRES`, `PARCEL_SQFT`
@@ -170,11 +170,11 @@ Spatial joins against reference layers to populate:
 - `TAZ`, `PLAN_ID`/`PLAN_NAME`
 - `ZONING_ID`/`ZONING_DESCRIPTION`
 - `REGIONAL_LANDUSE`
-- **`Building_SqFt`** — intersects year=2019 parcels against `Buildings_2019` (`C:\GIS\Buildings.gdb\Buildings_2019`), sums building footprint area per APN in US square feet, and propagates the value to all year-rows for that APN. This provides a coarse indicator for parcels that have units in the CSV but no physical buildings present.
+- **`Building_SqFt`** - intersects year=2019 parcels against `Buildings_2019` (`C:\GIS\Buildings.gdb\Buildings_2019`), sums building footprint area per APN in US square feet, and propagates the value to all year-rows for that APN. This provides a coarse indicator for parcels that have units in the CSV but no physical buildings present.
 
 Skip with `--skip-s05` during iterative unit QA runs.
 
-### S06 — QA Tables
+### S06 - QA Tables
 Writes QA tables to `ParcelHistory.gdb` for review in ArcGIS Pro. Tables are grouped by the upstream system they recommend fixes to. See [QA section](#qa-outputs-and-fix-recommendations) below.
 
 ---
@@ -194,10 +194,10 @@ Parcel events (splits, merges, renames) cause APN mismatches between the CSVs (w
 
 ### Consolidated Master (`apn_genealogy_tahoe.csv`)
 Built by `build_genealogy_tahoe.py`. Merges all sources, canonicalizes APN formats, deduplicates, and flags each pair:
-- `is_primary` — 1 = apply this remap, 0 = secondary/skip
-- `in_fc_new` — new APN exists in the FC (application filter)
-- `source_priority` — 1=MANUAL, 2=ACCELA, 3=LTINFO, 4=SPATIAL
-- `change_year` — year the event occurred
+- `is_primary` - 1 = apply this remap, 0 = secondary/skip
+- `in_fc_new` - new APN exists in the FC (application filter)
+- `source_priority` - 1=MANUAL, 2=ACCELA, 3=LTINFO, 4=SPATIAL
+- `change_year` - year the event occurred
 
 **Application filter:** `is_primary=1 AND in_fc_new=1 AND change_year set` → ~32,500 records per run.
 
@@ -232,26 +232,26 @@ QA is framed around two questions: **what should be fixed in the CSVs** and **wh
 | `QA_Genealogy_Applied` | Every APN substitution applied in S02b: old APN, new APN, source, change year, years updated, units moved. | Where genealogy is doing the remapping, the coworker may want to update the CSV to use the current APN directly so the remap is no longer needed |
 | `QA_Units_By_Year` | Total units in CSV vs FC per year, difference, and status flag. Large discrepancies indicate missing or incorrect rows in the CSV. | Review years with large gaps |
 
-> **Open QA area — CSV omission error:** The tables above flag structural issues (APN mismatches, unresolved parcels) but the more important gap is *omission* — parcels with units that are present in SOURCE_FC but absent from the CSV entirely. The `QA_Unit_Reconciliation` table (filtered to `FC_NATIVE`) is the starting point: it lists every APN×Year where SOURCE_FC has a non-zero unit count that the CSV does not have. These are candidate omissions to review with the CSV maintainer.
+> **Open QA area - CSV omission error:** The tables above flag structural issues (APN mismatches, unresolved parcels) but the more important gap is *omission* - parcels with units that are present in SOURCE_FC but absent from the CSV entirely. The `QA_Unit_Reconciliation` table (filtered to `FC_NATIVE`) is the starting point: it lists every APN×Year where SOURCE_FC has a non-zero unit count that the CSV does not have. These are candidate omissions to review with the CSV maintainer.
 
 ### Fix recommendations → All Parcels service team
 
 | Table | Contents | Action |
 |-------|---------|--------|
-| `QA_Service_APN_Fixes` | APNs in the output FC with null COUNTY or JURISDICTION after S01c — centroid fell outside all jurisdiction polygons. Likely a geometry issue in the service layer (sliver, misaligned boundary parcel). | Fix geometry in the source year feature class |
-| `QA_Duplicate_APN_Year` | Duplicate APN × Year rows in OUTPUT_FC — indicates duplicate features in the All Parcels service layer for that year. | Remove duplicate from source year feature class |
+| `QA_Service_APN_Fixes` | APNs in the output FC with null COUNTY or JURISDICTION after S01c - centroid fell outside all jurisdiction polygons. Likely a geometry issue in the service layer (sliver, misaligned boundary parcel). | Fix geometry in the source year feature class |
+| `QA_Duplicate_APN_Year` | Duplicate APN × Year rows in OUTPUT_FC - indicates duplicate features in the All Parcels service layer for that year. | Remove duplicate from source year feature class |
 
 ### Audit and reference tables
 
 | Table | Contents |
 |-------|---------|
-| `QA_APN_Crosswalk` | APNs resolved via spatial join in S03 (CSV APN had no direct FC match — resolved by geometry) |
+| `QA_APN_Crosswalk` | APNs resolved via spatial join in S03 (CSV APN had no direct FC match - resolved by geometry) |
 | `QA_Unit_Reconciliation` | Full parcel × year reconciliation: CSV value, FC native value, merged value, source label |
 | `QA_Spatial_Completeness` | Null spatial attribute counts per year for parcels within TRPA boundary (post-S05) |
-| `QA_Source_vs_Service` | Output of `compare_source_to_service.py` — FC_ONLY and SERVICE_ONLY APNs per year |
+| `QA_Source_vs_Service` | Output of `compare_source_to_service.py` - FC_ONLY and SERVICE_ONLY APNs per year |
 | `QA_Lost_APNs` | APNs from the CSV that could not be placed after genealogy + crosswalk; categorized (PARCEL_SPLIT, PARCEL_NEW, UNKNOWN) with unit counts |
 
-### Post-ETL QA script — Lost APNs vs new genealogy files
+### Post-ETL QA script - Lost APNs vs new genealogy files
 
 ```powershell
 cd parcel_development_history_etl
@@ -267,7 +267,7 @@ Reads `QA_Lost_APNs` from the GDB, cross-references each lost APN against the Ac
 |--------|---------|
 | `NEEDS_CHANGE_YEAR` | Lost APN has a candidate mapping in Accela or KK that is an actual rename. Verify in ArcGIS Pro and add `change_year` to promote to master genealogy. |
 | `review_format_only` | Mapping appears to be a pure APN format normalization (same parcel, different padding) or a segment-count change of uncertain cause. May be resolved as a county-wide lookup rather than a genealogy entry. |
-| `already_in_tahoe` | Pair is already in `apn_genealogy_tahoe.csv` — lost APN was not resolved because the target APN is not in the FC or `change_year` is missing. |
+| `already_in_tahoe` | Pair is already in `apn_genealogy_tahoe.csv` - lost APN was not resolved because the target APN is not in the FC or `change_year` is missing. |
 | `no_candidate` | No match found in either new file. Requires manual spatial investigation in ArcGIS Pro. |
 
 ---
@@ -276,9 +276,9 @@ Reads `QA_Lost_APNs` from the GDB, cross-references each lost APN against the Ac
 
 Every ETL run writes log output to two places simultaneously:
 
-**Console** — INFO level and above, visible while the script runs.
+**Console** - INFO level and above, visible while the script runs.
 
-**Log file** — DEBUG level (more verbose), written to `logs/etl_YYYYMMDD.log`. One file per calendar day; multiple runs on the same day append to the same file. Log files are retained indefinitely and provide a full audit trail of every substitution, match, and warning.
+**Log file** - DEBUG level (more verbose), written to `logs/etl_YYYYMMDD.log`. One file per calendar day; multiple runs on the same day append to the same file. Log files are retained indefinitely and provide a full audit trail of every substitution, match, and warning.
 
 Log format:
 ```
@@ -298,7 +298,7 @@ Get-Content parcel_development_history_etl\logs\etl_20260325.log | Select-String
 
 After each significant run, a Markdown report is written to `results/` documenting what changed, key QA numbers, and any issues to follow up on. Reports are named `REPORT_YYYYMMDD.md` (or `REPORT_YYYYMMDDb.md` for multiple runs on the same day).
 
-Reports are not auto-generated — they are written manually after reviewing the QA tables and log output. They serve as a human-readable record of the state of the data at each run and the decisions made.
+Reports are not auto-generated - they are written manually after reviewing the QA tables and log output. They serve as a human-readable record of the state of the data at each run and the decisions made.
 
 ---
 
@@ -306,13 +306,13 @@ Reports are not auto-generated — they are written manually after reviewing the
 
 **Before any run:** close ArcGIS Pro (or disconnect from the GDB) to release locks on `ParcelHistory.gdb`.
 
-### First run — build FC from service (~10–15 min without S05)
+### First run - build FC from service (~10–15 min without S05)
 ```powershell
 & "C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/python.exe" `
   parcel_development_history_etl/main.py --skip-s05
 ```
 
-### Iterative runs — skip service rebuild, skip spatial joins (~5 min)
+### Iterative runs - skip service rebuild, skip spatial joins (~5 min)
 ```powershell
 & "C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/python.exe" `
   parcel_development_history_etl/main.py --skip-s01 --skip-s05
@@ -337,7 +337,7 @@ Reports are not auto-generated — they are written manually after reviewing the
 - [ ] `ExistingResidential_2012_2025_unstacked.csv` is current
 - [ ] `TouristUnits_2012to2025.csv` is current
 - [ ] `CommercialFloorArea_2012to2025.csv` is current
-- [ ] `apn_genealogy_tahoe.csv` is current — rebuild with `build_genealogy_tahoe.py` if any genealogy source was updated
+- [ ] `apn_genealogy_tahoe.csv` is current - rebuild with `build_genealogy_tahoe.py` if any genealogy source was updated
 - [ ] ArcGIS Pro is closed / GDB is not locked
 - [ ] Running on ArcGIS Pro Python (`arcgispro-py3`)
 
@@ -351,11 +351,11 @@ Reports are not auto-generated — they are written manually after reviewing the
 
 **New genealogy files (Accela + KK):** ~23,600 and ~47,600 new pairs respectively lack `change_year` and cannot be applied until dates are researched. Use `qa_lost_apns_vs_new_genealogy.py` to prioritize which pairs to investigate first.
 
-**Lost APNs:** As of the April 15, 2026 final run, 709 APNs from the residential CSV cannot be directly placed in the output FC (515 PARCEL_SPLIT / 6,281 units; 131 UNKNOWN / 826 units; 63 PARCEL_NEW / 661 units). All are recovered by the S03 spatial crosswalk (5,434 entries). Zero APNs remain unresolved — deficit is 0 across all years. (The El Dorado Case 2 fix — see above — resolved the final three APNs that previously had no geometry.)
+**Lost APNs:** As of the April 15, 2026 final run, 709 APNs from the residential CSV cannot be directly placed in the output FC (515 PARCEL_SPLIT / 6,281 units; 131 UNKNOWN / 826 units; 63 PARCEL_NEW / 661 units). All are recovered by the S03 spatial crosswalk (5,434 entries). Zero APNs remain unresolved - deficit is 0 across all years. (The El Dorado Case 2 fix - see above - resolved the final three APNs that previously had no geometry.)
 
 **Building_SqFt:** Based on 2019 building footprints only. Does not reflect demolitions or new construction after 2019. Intended as a QA indicator (zero buildings + non-zero units flags a parcel for review), not a precise current measurement.
 
-**CSV omission error:** The CSV was carefully built from permit, allocation, and county assessor data and its values are generally trusted. The primary risk is omission — parcels with real units that were never captured in the CSV. As of April 2026, SOURCE_FC has non-zero unit values for 5,888 APN×Year pairs that have no corresponding CSV entry (`FC_NATIVE` rows). These are the primary candidates for omission review. See `QA_Unit_Reconciliation` filtered to `FC_NATIVE`.
+**CSV omission error:** The CSV was carefully built from permit, allocation, and county assessor data and its values are generally trusted. The primary risk is omission - parcels with real units that were never captured in the CSV. As of April 2026, SOURCE_FC has non-zero unit values for 5,888 APN×Year pairs that have no corresponding CSV entry (`FC_NATIVE` rows). These are the primary candidates for omission review. See `QA_Unit_Reconciliation` filtered to `FC_NATIVE`.
 
 **Service layer quality:** The output FC is only as good as the All Parcels service layers. Use `compare_source_to_service.py` periodically and work with the GIS team to correct gaps or duplicate features in the source year feature classes.
 
@@ -369,19 +369,19 @@ Current data state from the April 15, 2026 final run (Run 2):
 |---|---|
 | Annual deficit | **0/yr, all 14 years (2012–2025)** |
 | Total deficit | 0 units |
-| Lost APNs (QA category) | 709 — all recovered by S03 spatial crosswalk |
+| Lost APNs (QA category) | 709 - all recovered by S03 spatial crosswalk |
 | Truly unresolvable | 0 |
 | Genealogy substitutions | 523 APN subs / 8,803 unit-years remapped per run |
 | Genealogy rows skipped (no change_year) | 2,397 |
-| Duplicate APN×Year in FC | 0 — clean |
+| Duplicate APN×Year in FC | 0 - clean |
 | Genealogy master | 1,958 rows |
 | BOTH_AGREE rows | 324,099 |
 | DISAGREE rows | 9,625 (CSV used in all cases) |
-| FC_NATIVE rows | 5,867 (SOURCE_FC has units CSV lacks — not written to output) |
+| FC_NATIVE rows | 5,867 (SOURCE_FC has units CSV lacks - not written to output) |
 
-### 1. ~~Resolve the 3 previously "permanently lost" APNs~~ — RESOLVED
+### 1. ~~Resolve the 3 previously "permanently lost" APNs~~ - RESOLVED
 
-**Fixed April 15, 2026 (Run 2):** `015-370-30`, `016-300-64`, `018-320-18` were El Dorado parcels born at/after 2018 that only exist in the FC in 3-digit form. Extended `build_el_dorado_fix()` (Case 2) and S03's geometry lookup (Case B) to handle this. Zero deficit achieved — see REPORT_20260415b.md.
+**Fixed April 15, 2026 (Run 2):** `015-370-30`, `016-300-64`, `018-320-18` were El Dorado parcels born at/after 2018 that only exist in the FC in 3-digit form. Extended `build_el_dorado_fix()` (Case 2) and S03's geometry lookup (Case B) to handle this. Zero deficit achieved - see REPORT_20260415b.md.
 
 ### 2. Continue NEEDS_CHANGE_YEAR genealogy work
 
@@ -409,14 +409,14 @@ These are APN×Year pairs where SOURCE_FC has a non-zero unit value the CSV lack
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `APN` | Text | Assessor Parcel Number — primary join key |
+| `APN` | Text | Assessor Parcel Number - primary join key |
 | `YEAR` | Long | Calendar year of the parcel record |
 | `Residential_Units` | Long | Existing residential dwelling units (CSV sole authority) |
 | `TouristAccommodation_Units` | Long | Tourist accommodation units |
 | `CommercialFloorArea_SqFt` | Double | Commercial floor area in square feet |
 | `Building_SqFt` | Double | Building footprint area in US sq ft (from Buildings_2019; populated by S05) |
 | `FC_Native_Units` | Long | Unit value from SOURCE_FC before ETL (stored for reference; not written to Residential_Units) |
-| `Unit_Source` | Text | CSV / FC_NATIVE / BOTH_AGREE / DISAGREE — merge outcome for this row |
+| `Unit_Source` | Text | CSV / FC_NATIVE / BOTH_AGREE / DISAGREE - merge outcome for this row |
 | `COUNTY` | Text | 2-char county code: EL, PL, WA, DG, CC, CSLT |
 | `JURISDICTION` | Text | Jurisdiction name or code |
 | `WITHIN_TRPA_BNDY` | SmallInt | 1 = within TRPA boundary |

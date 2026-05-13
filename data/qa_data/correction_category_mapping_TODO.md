@@ -1,10 +1,10 @@
-# Ken — Correction Category Mapping TODO
+# the analyst - Correction Category Mapping TODO
 
 **Status: needs your triage. ~17 noncanonical labels to map.**
 
 ## What we found
 
-When we loaded `CA Changes breakdown.xlsx` into the new schema, **70% of the category labels in your Sheet1 didn't match the controlled vocabulary in your Sheet2 exactly**. They paraphrase rather than match — same intent, different wording. The loader still captures every row, but the canonicality flag is `False` for those, so dashboards show them in orange ("needs mapping") rather than navy ("matched canonical vocab").
+When we loaded `CA Changes breakdown.xlsx` into the new schema, **70% of the category labels in your Sheet1 didn't match the controlled vocabulary in your Sheet2 exactly**. They paraphrase rather than match - same intent, different wording. The loader still captures every row, but the canonicality flag is `False` for those, so dashboards show them in orange ("needs mapping") rather than navy ("matched canonical vocab").
 
 The good news: there are only **17 unique noncanonical labels** to map (16 from the 2023 cycle's `2023 Summary Reason` column, 1 from the 2026 cycle's `2026 Changes Reason` column). All 17 are listed in [`correction_category_mapping.csv`](./correction_category_mapping.csv) with their occurrence counts and sample APNs for context.
 
@@ -12,11 +12,11 @@ The good news: there are only **17 unique noncanonical labels** to map (16 from 
 
 Open [`correction_category_mapping.csv`](./correction_category_mapping.csv) and fill in the **`canonical_label`** column for each row. Two options:
 
-**Option A — map to existing Sheet2 vocab.** If "Corrections - Units Removed Based on County Data" really means the same thing as Sheet2's "Units Removed Based on County/TRPA Records or GIS", write the Sheet2 label in `canonical_label`. The loader will use that mapping and the canonicality rate jumps from 30% to ~100%.
+**Option A - map to existing Sheet2 vocab.** If "Corrections - Units Removed Based on County Data" really means the same thing as Sheet2's "Units Removed Based on County/TRPA Records or GIS", write the Sheet2 label in `canonical_label`. The loader will use that mapping and the canonicality rate jumps from 30% to ~100%.
 
-**Option B — add a new canonical label.** If a Sheet1 label is genuinely different from anything in Sheet2 (a category Sheet2 missed), invent a new canonical label and put it in `canonical_label`. We'll add it to Sheet2 / the loader's vocab on the next refresh.
+**Option B - add a new canonical label.** If a Sheet1 label is genuinely different from anything in Sheet2 (a category Sheet2 missed), invent a new canonical label and put it in `canonical_label`. We'll add it to Sheet2 / the loader's vocab on the next refresh.
 
-Use the `notes` column for any context (e.g., "deprecated in 2026 — drop this label going forward").
+Use the `notes` column for any context (e.g., "deprecated in 2026 - drop this label going forward").
 
 ## The 5 highest-volume labels (do these first)
 

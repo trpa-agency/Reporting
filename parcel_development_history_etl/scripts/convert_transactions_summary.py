@@ -1,13 +1,13 @@
 """
 convert_transactions_summary.py — Aggregate the 2025 Transactions and
-Allocations Details xlsx (Ken's full transaction registry, 2,030 rows) into
+Allocations Details xlsx (the analyst's full transaction registry, 2,030 rows) into
 a small JSON suitable for the Regional Plan Capacity Dial dashboard.
 
 Filtering / bucketing:
   - Filter to residential commodities (Development Right contains
     Residential / SFRUU / MFRUU / PRUU / RBU).
   - Bucket each transaction's `Detailed Development Type` into one of
-    Dan's source categories: Allocation / Banked / Transfer / Conversion /
+    leadership's source categories: Allocation / Banked / Transfer / Conversion /
     Bonus Unit / Allocation/Transfer / Other.
   - Use `Status Jan 2026` as the completion signal: Completed vs Not Completed
     vs No Project vs TBD.
@@ -34,7 +34,7 @@ Output (compact JSON):
     ]
   }
 
-Run when Ken sends a refreshed xlsx:
+Run when the analyst sends a refreshed xlsx:
     PYTHONIOENCODING=utf-8 \\
     "C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/python.exe" \\
     parcel_development_history_etl/scripts/convert_transactions_summary.py

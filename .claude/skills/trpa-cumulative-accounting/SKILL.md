@@ -281,7 +281,7 @@ When you're asked to build anything adjacent to cumulative accounting:
   — APN × Year × Shape 2006–2023 (gap 2016–2017). Authoritative for
   **Existing Development** per parcel per year (`RES`, `TAU`, `CFA`,
   `Assessor_Units`, `YEAR_BUILT` columns).
-- **Ken's spreadsheets** (`data/raw_data/`) — bridge data that stitches
+- **the analyst's spreadsheets** (`data/raw_data/`) — bridge data that stitches
   allocations to permit completion and existing-development changes. Loaded
   into the new integration DB as ETL input.
 - **Accela** — permit workflow system of record; accessed via Corral's

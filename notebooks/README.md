@@ -4,7 +4,7 @@ Reproducible, incremental entry point to the full ERD proposal in
 [`erd/target_schema.md`](../erd/target_schema.md). Keeps v1 simple:
 
 - **Find the gap** between Corral (live SQL Server backend at `sql24/Corral`)
-  and Ken's `2025 Transactions and Allocations Details.xlsx`.
+  and the analyst's `2025 Transactions and Allocations Details.xlsx`.
 - **Stage that gap** in one flat transition table designed to fold back into
   Corral later (either as new columns on `dbo.TdrTransaction` / `dbo.ParcelPermit`
   or as the full-ERD tables like `PermitCompletion` / `CrossSystemID`).

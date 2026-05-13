@@ -8,7 +8,7 @@ Single-file HTML pages for the TRPA Cumulative Accounting cycle. Open from a bro
 
 ---
 
-Organized by Dan's four conceptual tracks (5/11/2026):
+Organized by the four conceptual tracks (5/11/2026):
 
 ## 1 · Allocation tracking
 
@@ -17,7 +17,7 @@ Organized by Dan's four conceptual tracks (5/11/2026):
 | Dashboard | Audience | Data |
 |---|---|---|
 | [**allocation-tracking.html**](allocation-tracking.html) ★ | Staff · daily ops | `data/raw_data/residentialAllocationGridExport.csv` (one row per allocation, 2,600 total) |
-| [pool-balance-cards.html](pool-balance-cards.html) | Staff · per-pool drilldown | Ken's `Additional Development as of April2026.xlsx` + inlined trajectory |
+| [pool-balance-cards.html](pool-balance-cards.html) | Staff · per-pool drilldown | the analyst's `Additional Development as of April2026.xlsx` + inlined trajectory |
 | [public-allocation-availability.html](public-allocation-availability.html) | Public | Same as pool-balance-cards |
 
 ## 2 · Source of rights
@@ -26,13 +26,13 @@ Organized by Dan's four conceptual tracks (5/11/2026):
 
 | Dashboard | Audience | Data |
 |---|---|---|
-| [**residential-additions-by-source.html**](residential-additions-by-source.html) ★ | Leadership · public | Ken's `FINAL RES SUMMARY 2012 to 2025.xlsx` Summary sheet |
+| [**residential-additions-by-source.html**](residential-additions-by-source.html) ★ | Leadership · public | the analyst's `FINAL RES SUMMARY 2012 to 2025.xlsx` Summary sheet |
 
 ## 3 · Total potential development
 
 > *Constructed + Banked + Converted + still in pools.* The full pipeline.
 
-*No standalone dashboard yet — coverage split across #1 and #4. Building out post-ESA collab in June.*
+*No standalone dashboard yet - coverage split across #1 and #4. Building out post-ESA collab in June.*
 
 ## 4 · Total development tracking
 
@@ -40,14 +40,14 @@ Organized by Dan's four conceptual tracks (5/11/2026):
 
 | Dashboard | Audience | Data |
 |---|---|---|
-| [**regional-capacity-dial.html**](regional-capacity-dial.html) ★ | Executive · board | Ken's 2026 PPTX slide 8 (gauges) + `residentialAllocationGridExport.csv` (2012 Plan cards) + `residential_transactions_summary.json` (source-of-rights cards + annual chart) |
+| [**regional-capacity-dial.html**](regional-capacity-dial.html) ★ | Executive · board | the analyst's 2026 PPTX slide 8 (gauges) + `residentialAllocationGridExport.csv` (2012 Plan cards) + `residential_transactions_summary.json` (source-of-rights cards + annual chart) |
 
 Four sections, stacked top to bottom on the page:
 - **4 since-1987 cumulative gauges** (Residential / RBU / TBU / CFA)
 - **Capacity utilization horizontal stacked bar**
-- **2012 Plan additional grid** — 4 cards (Constructed · Private dev pool · Jurisdiction pool · TRPA pool = 2,600)
-- **Completed residential by source** — 7 cards (Allocation 894 / Banked 232 / Transfer 135 / Conversion 80 / Allocation-Transfer 54 / Bonus Unit 35 / Other 1 = 1,431)
-- **Annual residential construction** — stacked area 2009–2026 by source
+- **2012 Plan additional grid** - 4 cards (Constructed · Private dev pool · Jurisdiction pool · TRPA pool = 2,600)
+- **Completed residential by source** - 7 cards (Allocation 894 / Banked 232 / Transfer 135 / Conversion 80 / Allocation-Transfer 54 / Bonus Unit 35 / Other 1 = 1,431)
+- **Annual residential construction** - stacked area 2009–2026 by source
 
 ## Companion views (broader development)
 
@@ -59,7 +59,7 @@ Four sections, stacked top to bottom on the page:
 
 ## Archived
 
-Moved to [`_archive/`](_archive/) on 2026-05-11 — superseded by newer dashboards. Kept for reference / link-stability; not linked from the active set above.
+Moved to [`_archive/`](_archive/) on 2026-05-11 - superseded by newer dashboards. Kept for reference / link-stability; not linked from the active set above.
 
 | Dashboard | Superseded by |
 |---|---|
@@ -72,7 +72,7 @@ Moved to [`_archive/`](_archive/) on 2026-05-11 — superseded by newer dashboar
 
 | Source | Used by |
 |---|---|
-| `residentialAllocationGridExport_fromKen.xlsx` → CSV (one row per allocation, 2,600 rows, 11 cols incl. Construction Status) | allocation-tracking · regional-capacity-dial (live cards) |
+| `residentialAllocationGridExport_fromAnalyst.xlsx` → CSV (one row per allocation, 2,600 rows, 11 cols incl. Construction Status) | allocation-tracking · regional-capacity-dial (live cards) |
 | `Additional Development as of April2026.xlsx` | pool-balance-cards · public-allocation-availability · regional-capacity-dial (gauges) |
 | `FINAL RES SUMMARY 2012 to 2025.xlsx` | residential-additions-by-source |
 | `CA Changes breakdown.xlsx` (via `04_load_ca_changes.ipynb`) | qa-change-rationale |
@@ -82,7 +82,7 @@ Moved to [`_archive/`](_archive/) on 2026-05-11 — superseded by newer dashboar
 
 ### Refresh commands
 
-When Ken sends a refreshed xlsx, drop it in `data/raw_data/` and run the matching converter. All dashboards `fetch(..., {cache: 'no-cache'})` so reloads pick up new data immediately.
+When the analyst sends a refreshed xlsx, drop it in `data/raw_data/` and run the matching converter. All dashboards `fetch(..., {cache: 'no-cache'})` so reloads pick up new data immediately.
 
 ```bash
 # Set up alias once
@@ -98,13 +98,13 @@ PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/convert_tran
 PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/build_buildings_with_units.py
 ```
 
-The PDH ETL pipeline (`main.py`) is upstream of all of the above — re-run when SDE parcels or Ken's residential CSVs change.
+The PDH ETL pipeline (`main.py`) is upstream of all of the above - re-run when SDE parcels or the analyst's residential CSVs change.
 
 ---
 
 ## Tech stack
 
-- **Plotly.js** (charts) — load **before** ArcGIS; Dojo's AMD loader captures Plotly's UMD wrapper otherwise
+- **Plotly.js** (charts) - load **before** ArcGIS; Dojo's AMD loader captures Plotly's UMD wrapper otherwise
 - **ArcGIS Maps SDK 4.31** (maps, where needed)
 - **AG Grid Community** (sortable/filterable tables)
 - **Open Sans** + TRPA brand tokens (`--trpa-blue #0072CE`, `--trpa-navy #003B71`, `--trpa-orange #E87722`, `--trpa-forest #4A6118`)

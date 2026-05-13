@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Development History &mdash; Residential Units &mdash; TRPA</title>
+<title>Development History - Residential Units - TRPA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
 
-<!-- Plotly MUST load before ArcGIS — ArcGIS injects Dojo's AMD loader, which
+<!-- Plotly MUST load before ArcGIS - ArcGIS injects Dojo's AMD loader, which
      captures Plotly's UMD wrapper and prevents window.Plotly from being set. -->
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 
@@ -116,9 +116,7 @@ header h1 span { color: var(--trpa-blue); }
       <div class="header-eyebrow">Tahoe Regional Planning Agency</div>
       <h1>Development History <span>&middot; Residential Units</span></h1>
       <div class="header-sub">
-        Where units came online and which buildings host them.
-        Each parcel&rsquo;s units are split across its building footprints by square footage &mdash; see footnote for the
-        approximation method.
+        Where units came online and which buildings host them. Units split across footprints by sqft (see footnote).
       </div>
     </div>
     <div class="header-meta">
@@ -134,25 +132,25 @@ header h1 span { color: var(--trpa-blue); }
   <div class="kpi-card">
     <div class="kpi-accent" style="background:var(--trpa-navy)"></div>
     <div class="kpi-label">Residential units as of year</div>
-    <div class="kpi-value" id="kpi-units">&mdash;</div>
+    <div class="kpi-value" id="kpi-units">-</div>
     <div class="kpi-sub" id="kpi-units-sub">Sum of units assigned to buildings built &le; selected year</div>
   </div>
   <div class="kpi-card">
     <div class="kpi-accent" style="background:var(--trpa-blue)"></div>
     <div class="kpi-label">Residential buildings</div>
-    <div class="kpi-value" id="kpi-bldgs">&mdash;</div>
+    <div class="kpi-value" id="kpi-bldgs">-</div>
     <div class="kpi-sub" id="kpi-bldgs-sub">Buildings hosting at least one unit</div>
   </div>
   <div class="kpi-card">
     <div class="kpi-accent" style="background:var(--trpa-orange)"></div>
     <div class="kpi-label">Multifamily buildings</div>
-    <div class="kpi-value" id="kpi-multi">&mdash;</div>
+    <div class="kpi-value" id="kpi-multi">-</div>
     <div class="kpi-sub" id="kpi-multi-sub">Buildings hosting 2 or more units</div>
   </div>
   <div class="kpi-card">
     <div class="kpi-accent" style="background:var(--trpa-forest)"></div>
     <div class="kpi-label">Largest building (units)</div>
-    <div class="kpi-value" id="kpi-max">&mdash;</div>
+    <div class="kpi-value" id="kpi-max">-</div>
     <div class="kpi-sub" id="kpi-max-sub">Most units on one footprint</div>
   </div>
 </div>
@@ -204,16 +202,11 @@ header h1 span { color: var(--trpa-blue); }
 
 <!-- Footnote -->
 <div class="footnote">
-  <strong>Method:</strong> the residential units inventory holds unit counts at the <em>parcel</em> level, but Buildings_2019 has no per-building unit count.
-  We split each parcel&rsquo;s units across its footprints in proportion to <code>Square_Feet</code>, rounding via Hamilton&rsquo;s largest-remainder method so each parcel&rsquo;s
-  units total stays exact. A 3-unit parcel with two buildings (1,500 sqft + 500 sqft) gets <strong>2&ndash;1</strong>. A 4-plex parcel with one building gets all 4 on
-  that building. <strong>Caveats:</strong> assumes unit density scales with footprint area (not always true for ADUs vs main residences); ignores subterranean / multi-story differences.
-  Parcels with units but no Buildings_2019 footprint (post-2019 construction) contribute to the unit inventory but not to this map.
+  <strong>Method:</strong> parcel-level unit counts split across building footprints by <code>Square_Feet</code>, rounded via Hamilton&rsquo;s largest-remainder so each parcel&rsquo;s total stays exact.
+  <strong>Caveats:</strong> assumes unit density tracks footprint area (imperfect for ADUs); ignores multi-story differences; post-2019 parcels with no footprint don&rsquo;t appear on the map.
   <br><br>
-  <strong>Data:</strong> joined offline by
-  <code>parcel_development_history_etl/scripts/build_buildings_with_units.py</code>;
-  see <a href="../erd/inventory_tables_erd.md" style="color:var(--trpa-blue);">inventory_tables_erd.md</a> for the table schemas.
-  Map layer: <a href="https://services5.arcgis.com/fXXSUzHD5JjcOt1v/arcgis/rest/services/Tahoe_Buildings/FeatureServer/0"
+  <strong>Data:</strong> joined by <code>parcel_development_history_etl/scripts/build_buildings_with_units.py</code>; schema in <a href="../erd/inventory_tables_erd.md" style="color:var(--trpa-blue);">inventory_tables_erd.md</a>.
+  Map: <a href="https://services5.arcgis.com/fXXSUzHD5JjcOt1v/arcgis/rest/services/Tahoe_Buildings/FeatureServer/0"
      style="color:var(--trpa-blue);">Tahoe Buildings FeatureServer</a>.
 </div>
 
@@ -346,7 +339,7 @@ function updateKpis(year) {
   document.getElementById('kpi-multi').textContent = fmt(multi);
   document.getElementById('kpi-max').textContent   = fmt(max_units);
 
-  const avg = res_bldgs > 0 ? (cum_units / res_bldgs).toFixed(2) : '—';
+  const avg = res_bldgs > 0 ? (cum_units / res_bldgs).toFixed(2) : '-';
   document.getElementById('kpi-units-sub').textContent =
     `Avg ${avg} units per residential building`;
   document.getElementById('kpi-bldgs-sub').textContent =
@@ -383,7 +376,7 @@ function makeRenderer(year) {
 }
 
 // ─────────────────────────────────────────
-// Map filter — Residential / Multifamily based on building IDs from dataset
+// Map filter - Residential / Multifamily based on building IDs from dataset
 // ─────────────────────────────────────────
 function buildFilterExpression(mode) {
   if (mode === 'all') return 'YEAR_BUILT > 0';

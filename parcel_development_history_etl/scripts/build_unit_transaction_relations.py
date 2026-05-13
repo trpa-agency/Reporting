@@ -1,6 +1,6 @@
 """
 build_unit_transaction_relations.py — Many-to-many junction between the
-Residential Units inventory and Ken's 2025 Transactions and Allocations
+Residential Units inventory and the analyst's 2025 Transactions and Allocations
 Details xlsx.
 
 One row per (Residential_Unit_ID, Transaction_ID) pair. Sorted chronologically

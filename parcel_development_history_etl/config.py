@@ -52,7 +52,7 @@ SERVICE_ONLY_CSV = (
     r"C:\Users\mbindl\Documents\GitHub\Reporting"
     r"\data\raw_data\apn_service_only.csv"
 )
-# Original year-built lookup (CSV form of from_ken/OriginalYrBuilt.xlsx).
+# Original year-built lookup (CSV form of from_analyst/OriginalYrBuilt.xlsx).
 # One row per APN, single integer year. Mixed pre/post-2018 APN formats —
 # canonicalize before joining.
 ORIGINAL_YR_BUILT_CSV = (
@@ -71,19 +71,19 @@ RESIDENTIAL_UNITS_INVENTORY_CSV = (
     r"C:\Users\mbindl\Documents\GitHub\Reporting"
     r"\data\processed_data\residential_units_inventory_2025.csv"
 )
-# 2025 Transactions and Allocations Details (from Ken / TRPA permit system).
+# 2025 Transactions and Allocations Details (from the analyst / TRPA permit system).
 # Per-APN TransactionID + allocation metadata. Sourced from the 2025
 # cumulative-accounting cycle.
 TRANSACTIONS_2025_XLSX = (
     r"C:\Users\mbindl\Documents\GitHub\Reporting"
     r"\data\raw_data\2025 Transactions and Allocations Details.xlsx"
 )
-# Per-allocation grid export from Ken (one row per residential allocation,
+# Per-allocation grid export from the analyst (one row per residential allocation,
 # 2012 Plan additional = 2,600 allocations). Drives allocation-tracking.html
 # and the live counts in regional-capacity-dial.html.
 ALLOCATION_GRID_XLSX = (
     r"C:\Users\mbindl\Documents\GitHub\Reporting"
-    r"\data\raw_data\residentialAllocationGridExport_fromKen.xlsx"
+    r"\data\raw_data\residentialAllocationGridExport_fromAnalyst.xlsx"
 )
 ALLOCATION_GRID_CSV = (
     r"C:\Users\mbindl\Documents\GitHub\Reporting"
@@ -91,7 +91,7 @@ ALLOCATION_GRID_CSV = (
 )
 # Aggregated summary of the 2025 Transactions and Allocations Details xlsx,
 # filtered to residential commodities and bucketed by source. Consumed by
-# regional-capacity-dial.html (Dan's #4 Total Development Tracking).
+# regional-capacity-dial.html (track #4 Total Development Tracking).
 RESIDENTIAL_TRANSACTIONS_SUMMARY_JSON = (
     r"C:\Users\mbindl\Documents\GitHub\Reporting"
     r"\data\processed_data\residential_transactions_summary.json"
