@@ -20,7 +20,7 @@ Output: data/processed_data/regional_plan_1987_baseline.csv
 Output schema (long / tidy format)
 ----------------------------------
   commodity  RES / RBU / CFA / TAU
-  area       jurisdiction or pool name
+  jurisdiction  jurisdiction or pool name
   plan_era   always "1987" (forward-compatible: 2012-era rows would append
              here with the same shape once the live source is wired)
   metric     regional_plan_maximum / not_assigned / assigned_to_projects
@@ -65,7 +65,7 @@ def main() -> None:
         )
 
     data = json.loads(src.read_text(encoding="utf-8"))
-    rows = []  # (commodity, area, plan_era, metric, value)
+    rows = []  # (commodity, jurisdiction, plan_era, metric, value)
 
     # Residential: the analyst's file carries the full status triple per
     # jurisdiction, split by plan era - take the plan_1987 slice.
@@ -87,7 +87,7 @@ def main() -> None:
     dst.parent.mkdir(parents=True, exist_ok=True)
     with dst.open("w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
-        w.writerow(["commodity", "area", "plan_era", "metric", "value"])
+        w.writerow(["commodity", "jurisdiction", "plan_era", "metric", "value"])
         w.writerows(rows)
 
     log.info("Wrote %s (%d rows)", dst, len(rows))

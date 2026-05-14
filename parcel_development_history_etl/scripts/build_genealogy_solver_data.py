@@ -3,10 +3,10 @@ build_genealogy_solver_data.py - Pre-join the genealogy graph with 2025
 per-APN cross-reference data into one compact JSON for the
 html/genealogy_solver/ client-side dashboard.
 
-Inputs:
-  - data/qa_data/apn_genealogy_tahoe.csv        (42K edges, consolidated)
-  - data/processed_data/PDH_2025_OriginalYrBuilt.csv
-  - data/processed_data/residential_units_inventory_2025.csv
+Inputs - the official Cumulative_Accounting REST service on maps.trpa.org:
+  - Layer 1  Tahoe APN Genealogy        (genealogy edges)
+  - Layer 0  Parcel Development History (YEAR=2025 per-parcel cross-reference)
+  - Layer 2  Residential Unit Inventory (per-APN address)
 
 Output: html/genealogy_solver/data/genealogy_solver.json
 
@@ -36,6 +36,8 @@ Run:
 import json
 import sys
 import datetime as _dt
+import urllib.parse
+import urllib.request
 from collections import defaultdict
 from pathlib import Path
 
@@ -45,14 +47,46 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import pandas as pd
 
 from config import (
-    GENEALOGY_TAHOE,
-    PDH_2025_YRBUILT_CSV,
-    RESIDENTIAL_UNITS_INVENTORY_CSV,
+    CUMACCT_GENEALOGY_TABLE,
+    CUMACCT_PDH_LAYER,
+    CUMACCT_UNITS_TABLE,
     GENEALOGY_SOLVER_JSON,
 )
 from utils import canonical_apn, get_logger
 
 log = get_logger("build_genealogy_solver_data")
+
+
+def fetch_service_layer(layer_url: str, where: str, out_fields: str) -> pd.DataFrame:
+    """Page through an ArcGIS REST layer/table and return its attributes as a
+    DataFrame. Mirrors the pagination pattern in build_2025_yrbuilt.py."""
+    base = f"{layer_url}/query"
+    common = {
+        "where": where,
+        "outFields": out_fields,
+        "returnGeometry": "false",
+        "orderByFields": "OBJECTID ASC",
+        "f": "json",
+    }
+    rows: list[dict] = []
+    offset, page = 0, 2000
+    while True:
+        params = {**common, "resultOffset": offset, "resultRecordCount": page}
+        url = f"{base}?{urllib.parse.urlencode(params)}"
+        with urllib.request.urlopen(url, timeout=120) as resp:
+            data = json.loads(resp.read())
+        if "error" in data:
+            raise SystemExit(f"REST error from {layer_url}: {data['error']}")
+        feats = data.get("features", [])
+        if not feats:
+            break
+        rows.extend(f["attributes"] for f in feats)
+        log.info("  %s offset=%d: +%d (total %d)",
+                 layer_url.rsplit("/", 1)[-1], offset, len(feats), len(rows))
+        if not data.get("exceededTransferLimit") and len(feats) < page:
+            break
+        offset += page
+    return pd.DataFrame(rows)
 
 
 def _to_int_or_none(v):
@@ -73,21 +107,20 @@ def _str_or_none(v):
 
 def main() -> None:
     log.info("=" * 70)
-    log.info("BUILD GENEALOGY_SOLVER_DATA")
+    log.info("BUILD GENEALOGY_SOLVER_DATA  (source: Cumulative_Accounting service)")
     log.info("=" * 70)
 
-    # 1. Load genealogy edges (ALL rows; we mark applied_by_etl rather than filter)
-    log.info("Loading genealogy: %s", GENEALOGY_TAHOE)
-    gen = pd.read_csv(GENEALOGY_TAHOE,
-                      dtype={"apn_old": str, "apn_new": str},
-                      low_memory=False)
+    # 1. Genealogy edges - Cumulative_Accounting Layer 1 (Tahoe APN Genealogy)
+    log.info("Fetching genealogy edges: %s", CUMACCT_GENEALOGY_TABLE)
+    gen = fetch_service_layer(
+        CUMACCT_GENEALOGY_TABLE, "1=1",
+        "apn_old,apn_new,change_year,event_type,source,source_priority,"
+        "is_primary,in_fc_old,in_fc_new")
     log.info("  %d edge rows", len(gen))
 
-    # Re-canonicalize defensively (genealogy_tahoe.csv already does this,
-    # but a stray legacy row could slip through)
+    # Canonicalize APN endpoints; drop rows missing either endpoint.
     gen["apn_old"] = gen["apn_old"].apply(canonical_apn)
     gen["apn_new"] = gen["apn_new"].apply(canonical_apn)
-    # Drop rows where either side is null (can't traverse without both endpoints)
     before = len(gen)
     gen = gen[gen["apn_old"].notna() & gen["apn_new"].notna()].copy()
     log.info("  %d rows after dropping null-endpoint edges (-%d)",
@@ -122,25 +155,27 @@ def main() -> None:
     log.info("  %d rows after dedup on (apn_old, apn_new) (-%d duplicates)",
              len(gen), before - len(gen))
 
-    # 2. Load PDH 2025 cross-reference (one row per current parcel)
-    log.info("Loading PDH 2025 cross-ref: %s", PDH_2025_YRBUILT_CSV)
-    pdh = pd.read_csv(PDH_2025_YRBUILT_CSV,
-                      dtype={"APN": str, "APN_canon": str},
-                      low_memory=False)
+    # 2. PDH 2025 cross-reference - Cumulative_Accounting Layer 0, YEAR=2025
+    log.info("Fetching PDH 2025 cross-ref: %s", CUMACCT_PDH_LAYER)
+    pdh = fetch_service_layer(
+        CUMACCT_PDH_LAYER, "YEAR = 2025",
+        "APN,Residential_Units,TouristAccommodation_Units,"
+        "CommercialFloorArea_SqFt,COUNTY,JURISDICTION,YEAR_BUILT")
     log.info("  %d PDH 2025 rows", len(pdh))
-
+    # The PDH layer's YEAR_BUILT field stands in for the old derived
+    # COMBINED_YEAR_BUILT. VERIFY this is the original/combined year built and
+    # not county-source - if wrong, swap to Layer 2 Original_Year_Built.
+    pdh = pdh.rename(columns={"YEAR_BUILT": "COMBINED_YEAR_BUILT"})
+    pdh["APN_canon"] = pdh["APN"].apply(canonical_apn)
+    pdh = pdh[pdh["APN_canon"].notna()].drop_duplicates(subset=["APN_canon"])
     pdh = pdh[["APN_canon", "Residential_Units", "TouristAccommodation_Units",
                "CommercialFloorArea_SqFt", "COUNTY", "JURISDICTION",
                "COMBINED_YEAR_BUILT"]].copy()
-    pdh["APN_canon"] = pdh["APN_canon"].apply(canonical_apn)
-    pdh = pdh[pdh["APN_canon"].notna()].drop_duplicates(subset=["APN_canon"])
 
-    # 3. Load units inventory; we only need an Address per APN (modal)
-    log.info("Loading units inventory: %s", RESIDENTIAL_UNITS_INVENTORY_CSV)
-    units = pd.read_csv(RESIDENTIAL_UNITS_INVENTORY_CSV,
-                        dtype={"APN": str, "APN_canon": str},
-                        usecols=["APN_canon", "Address"],
-                        low_memory=False)
+    # 3. Address per APN - Cumulative_Accounting Layer 2 (Residential Unit Inventory)
+    log.info("Fetching unit addresses: %s", CUMACCT_UNITS_TABLE)
+    units = fetch_service_layer(
+        CUMACCT_UNITS_TABLE, "Address IS NOT NULL", "APN_canon,Address")
     log.info("  %d unit rows", len(units))
     units["APN_canon"] = units["APN_canon"].apply(canonical_apn)
     addr_by_apn = (units.dropna(subset=["APN_canon", "Address"])
@@ -216,7 +251,7 @@ def main() -> None:
     payload = {
         "meta": {
             "generated":       _dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "source_file":     "data/qa_data/apn_genealogy_tahoe.csv",
+            "source_file":     "maps.trpa.org Cumulative_Accounting/MapServer (layers 0,1,2)",
             "n_edges":         len(edges),
             "n_nodes":         len(apns_out),
             "n_graph_nodes":   len(apns_in_graph),
