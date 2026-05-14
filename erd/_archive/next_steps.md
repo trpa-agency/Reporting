@@ -1,5 +1,7 @@
 # Cumulative Accounting - next steps
 
+> **SUPERSEDED.** This proposed an earlier architecture. Current source of truth: system_of_record_roadmap.md plus the live Cumulative_Accounting service.
+
 A 5-minute read ahead of a working session. Everything here is
 proposal / direction; nothing is built in Corral or anywhere else yet.
 

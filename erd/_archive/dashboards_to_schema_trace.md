@@ -1,5 +1,7 @@
 # Dashboards → Views → Schema trace
 
+> **SUPERSEDED.** This proposed an earlier architecture. Current source of truth: system_of_record_roadmap.md plus the live Cumulative_Accounting service.
+
 > **Status: DRAFT - first pass.** Working *backwards* from end-stage
 > visualizations to confirm the view contracts and schema. Sibling to
 > [_archive/proposed_dashboards.md](./_archive/proposed_dashboards.md) (the broad catalog) and

@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>next_steps — TRPA Development-Rights ERD</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --panel: #161b22;
+    --fg: #c9d1d9;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --accent2: #3fb950;
+    --border: #30363d;
+    --code-bg: #161b22;
+  }
+  html, body { background: var(--bg); color: var(--fg); font-family: -apple-system, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; margin: 0; padding: 0; line-height: 1.6; }
+  header.docnav { background: var(--panel); padding: 10px 20px; border-bottom: 1px solid var(--border); font-size: 13px; position: sticky; top: 0; z-index: 10; display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; }
+  header.docnav .brand { font-weight: 600; color: var(--fg); }
+  header.docnav a { color: var(--accent); text-decoration: none; white-space: nowrap; }
+  header.docnav a.active { color: var(--fg); font-weight: 600; }
+  header.docnav a.viewer { color: var(--accent2); }
+  header.docnav a:hover { text-decoration: underline; }
+  main.content { max-width: 920px; margin: 0 auto; padding: 32px 24px 96px; }
+  h1, h2, h3, h4 { color: var(--fg); margin-top: 1.6em; margin-bottom: 0.6em; line-height: 1.25; }
+  h1 { border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-top: 0.5em; }
+  h2 { border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+  p { margin: 0.8em 0; }
+  a { color: var(--accent); }
+  a:hover { text-decoration: underline; }
+  code { background: var(--code-bg); padding: 2px 6px; border-radius: 3px; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 88%; color: #c9d1d9; }
+  pre { background: var(--code-bg); padding: 16px; border-radius: 6px; overflow-x: auto; border: 1px solid var(--border); }
+  pre code { background: none; padding: 0; font-size: 90%; line-height: 1.5; }
+  blockquote { border-left: 3px solid var(--accent); color: var(--muted); margin: 16px 0; padding: 4px 16px; background: rgba(88, 166, 255, 0.04); }
+  blockquote p { margin: 0.4em 0; }
+  table { border-collapse: collapse; margin: 16px 0; display: block; overflow-x: auto; }
+  th, td { border: 1px solid var(--border); padding: 6px 13px; text-align: left; vertical-align: top; }
+  th { background: var(--panel); font-weight: 600; }
+  tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+  ul, ol { padding-left: 28px; }
+  li { margin: 4px 0; }
+  hr { border: 0; border-top: 1px solid var(--border); margin: 32px 0; }
+  .mermaid { background: #0b0f14; padding: 20px; border-radius: 6px; border: 1px solid var(--border); margin: 16px 0; overflow-x: auto; text-align: center; }
+  img { max-width: 100%; }
+</style>
+</head>
+<body>
+<header class="docnav">
+  <span class="brand">TRPA ERD</span>
+  <a href="README.html">README</a>
+  <a href="target_schema.html">Target Schema</a>
+  <a href="proposed_dashboards.html">Dashboards</a>
+  <a href="dashboards_to_schema_trace.html">Dashboards → Schema Trace</a>
+  <a href="genealogy_track.html">Track A (Genealogy)</a>
+  <a href="allocation_track.html">Track B (Allocations)</a>
+  <a href="qa_corrections_track.html">Track C (QA Corrections)</a>
+  <a href="cumulative_accounting_reference.html">Cumulative Accounting Reference</a>
+  <a href="raw_data_vs_corral.html">raw_data vs Corral</a>
+  <a href="validation_findings.html">Validation Findings</a>
+  <a href="xlsx_decomposition.html">XLSX Decomposition</a>
+  <a href="corral_tables.html">Corral Tables</a>
+  <a href="next_steps.html" class="active">next_steps</a>
+  <a class="viewer" href="development_rights_erd.html">Interactive ERD →</a>
+</header>
+<main class="content">
+<h1 id="cumulative-accounting-next-steps">Cumulative Accounting — next steps</h1>
+<p>A 5-minute read ahead of a working session. Everything here is
+proposal / direction; nothing is built in Corral or anywhere else yet.</p>
+<h2 id="what-were-building">What we're building</h2>
+<p>A single SQL-backed <strong>development-rights ledger</strong> that produces the
+annual cumulative accounting report, the allocation drawdown chart,
+and a per-APN history view from one source. It anchors on the five
+buckets from TRPA Code §16.8.2:</p>
+<pre><code>Max Regional Capacity  =  Existing + Banked + Remaining
+where  Remaining  =  Allocated + Not Allocated + Not Released
+</code></pre>
+<p>Every event (allocation, assignment, transfer, conversion, banking,
+retirement) moves commodity between those buckets. The ledger records
+each movement as a signed-quantity row; reports are <code>SUM(Quantity)</code>
+queries over the ledger filtered by year / jurisdiction / commodity.</p>
+<h2 id="where-the-data-comes-from">Where the data comes from</h2>
+<p>Three inputs, one destination:</p>
+<ol>
+<li><strong>Corral (<code>sql24/Corral</code>)</strong> — system of record for transactions,
+   allocations, banked rights, pools, and parcels. We read it; we don't
+   change its schema.</li>
+<li><strong>GIS <code>Parcel_History_Attributed</code> feature class</strong> — authoritative for
+   existing development per parcel per year (residential units, TAU,
+   CFA). Fills Corral's coverage gap for buildings that never triggered
+   a permit-driven inventory update.</li>
+<li><strong><code>2025 Transactions and Allocations Details.xlsx</code></strong> — authoritative
+   for the 10 columns Corral doesn't hold: year built, PM year built,
+   TRPA/MOU project #, development type / detailed development type,
+   local jurisdiction status + date, allocation number, supplemental
+   notes. Keeps working as the authoring surface; a scheduled ETL pulls
+   those columns into the ledger.</li>
+</ol>
+<p>Destination: one flat ledger table (<code>LedgerEntry</code>) plus a small sidecar
+for permit metadata (<code>LedgerEntryAnnotation</code>). Dashboards and reports
+read from derived views, not from any of the three source systems
+directly.</p>
+<h2 id="whats-already-in-flight">What's already in flight</h2>
+<ul>
+<li><strong><code>notebooks/</code></strong> — reproducible diff between Corral and the 2025 XLSX.
+  Confirms the 78% join rate, surfaces the columns Corral doesn't source,
+  and produces the transition-table CSV that becomes the annotation
+  loader.</li>
+<li><strong><code>ledger_prototype/</code></strong> — CSV-only prototype of the full ledger. Pulls
+  from live Corral, fans <code>dbo.TdrTransaction</code> + banking + annotations
+  into signed-quantity ledger rows, runs the accounting-identity
+  validator, and compares 2023 residential totals against the public
+  cumulative accounting report. Proves the model works before we commit
+  to SDE DDL.</li>
+<li><strong><code>erd/target_schema.md</code></strong> — full ERD proposal for the SDE DB version:
+  6 physical tables + 4 views. Stays in draft until the questions below
+  are resolved.</li>
+</ul>
+<h2 id="questions-we-need-to-close-before-cutting-ddl">Questions we need to close before cutting DDL</h2>
+<p>Proposals in brackets — confirm, override, or flag if unclear.</p>
+<ol>
+<li>
+<p><strong>ECM Retirement</strong> — what does "ECM" expand to? Best read from the
+   docs is <em>Excess Coverage Mitigation</em>, consistent with the Threshold
+   Attainment fund named the same thing.
+   <em>[proposed: Excess Coverage Mitigation]</em></p>
+</li>
+<li>
+<p><strong>Pool sub-structure.</strong> CSLT's three sub-pools (Single-Family,
+   Multi-Family, Town Center) are well-documented. Are there other
+   jurisdictions with similar sub-pools, or CFA area-plan sub-pools, not
+   obvious from <code>dbo.CommodityPool</code> names?
+   <em>[proposed: CSLT's three only; one pool per commodity elsewhere]</em></p>
+</li>
+<li>
+<p><strong>Max Regional Capacity source.</strong> 2,600 residential units from the
+   2013 Regional Plan is clear. What's the authoritative source for
+   each other commodity's cap (TAU, CFA sq ft, RBU, PAOT pools)?
+   <em>[proposed: pull each from the 2023 published cumulative accounting report]</em></p>
+</li>
+<li>
+<p><strong>ADU modeling.</strong> Corral's <code>ResidentialAllocationUseType</code> has only
+   Single-Family and Multi-Family. How do ADUs fit?
+   <em>[options: (a) third use type; (b) flag on an allocation; (c) a new
+   <code>Commodity</code> value]</em> — <em>[proposed: (c), since the annual report
+   already breaks ADU counts out]</em></p>
+</li>
+<li>
+<p><strong>2012–2015 existing-development baseline.</strong> Pre-2016 is outside
+   Corral's AuditLog. The <code>ExistingResidential_2012_2025_unstacked.csv</code>
+   is the candidate seed. Is it the right source to stand behind?
+   <em>[proposed: yes — loaded with <code>SourceSystem='legacy_seed'</code> provenance]</em></p>
+</li>
+</ol>
+<h2 id="rough-timeline">Rough timeline</h2>
+<table>
+<thead>
+<tr>
+<th>When</th>
+<th>What</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Now</td>
+<td>Ledger prototype runs end-to-end against live Corral; validator passes; 2023 delta captured as findings.</td>
+</tr>
+<tr>
+<td>After questions close</td>
+<td>Draft DDL for the 6 tables + 4 views. Review with DB admins before running.</td>
+</tr>
+<tr>
+<td>Weeks 2–3</td>
+<td>Stand up the ledger in the SDE DB; wire the GIS feature-class reader.</td>
+</tr>
+<tr>
+<td>Week 4</td>
+<td>Publish ESRI MapServer / FeatureServer layers over the views; point dashboards at them.</td>
+</tr>
+<tr>
+<td>Later</td>
+<td>Back-fill <code>TdrTransaction.AccelaCAPRecordID</code> into Corral from the ledger's permit joins.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="what-doesnt-change-for-the-xlsx-workflow">What doesn't change for the XLSX workflow</h2>
+<p>The 2025 XLSX stays as the authoring surface. The scheduled ETL reads
+it into the ledger. When the source system (county assessor, Accela
+MOU tracker) is ready to feed the data directly, that reader swaps in
+and the ETL retires — the schema doesn't change.</p>
+<h2 id="working-session-agenda-suggested">Working session agenda (suggested)</h2>
+<ol>
+<li>Walk through the five questions above. 10 minutes each.</li>
+<li>Review the prototype output (<code>ledger_prototype/views/v_cumulative_accounting.csv</code>)
+   side-by-side with the 2023 public report. Pick the biggest delta and
+   trace where it comes from.</li>
+<li>Agree on a go / pause / refine decision before DDL.</li>
+</ol>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  if (typeof mermaid !== 'undefined') {
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: { darkMode: true, background: '#0b0f14' },
+      er: { useMaxWidth: true },
+      maxTextSize: 500000,
+      securityLevel: 'loose'
+    });
+  }
+</script>
+</body>
+</html>

@@ -236,6 +236,15 @@ FC_NATIVE_YEARS  = [2012] + list(range(2018, 2026))
 # Used by build_2025_yrbuilt.py as a filler for OriginalYrBuilt gaps.
 PARCELS_FS = "https://maps.trpa.org/server/rest/services/Parcels/FeatureServer/0"
 
+# ── Cumulative Accounting REST service (maps.trpa.org) ───────────────────────
+# The official TRPA Enterprise GDB layers, published. The system-of-record
+# source that converters read from instead of local hand-built files.
+CUMULATIVE_ACCOUNTING_SERVICE = "https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer"
+CUMACCT_PDH_LAYER        = CUMULATIVE_ACCOUNTING_SERVICE + "/0"   # Parcel Development History
+CUMACCT_GENEALOGY_TABLE  = CUMULATIVE_ACCOUNTING_SERVICE + "/1"   # Tahoe APN Genealogy
+CUMACCT_UNITS_TABLE      = CUMULATIVE_ACCOUNTING_SERVICE + "/2"   # Residential Unit Inventory
+CUMACCT_ALLOC_1987_TABLE = CUMULATIVE_ACCOUNTING_SERVICE + "/3"   # Allocations 1987 Regional Plan
+
 # ── AllParcels MapServer (geometry fetch for missing parcels) ─────────────────
 ALLPARCELS_URL = "https://maps.trpa.org/server/rest/services/AllParcels/MapServer"
 # Layer 3 = current (all-years combined) parcel layer — used as geometry fallback in s03

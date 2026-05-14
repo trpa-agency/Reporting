@@ -1,5 +1,7 @@
 # Target schema - TRPA Cumulative Accounting tracking store
 
+> **SUPERSEDED.** This proposed an earlier architecture. Current source of truth: system_of_record_roadmap.md plus the live Cumulative_Accounting service.
+
 > **Status: DRAFT PROPOSAL - ready for team review.**
 > **Audience: TRPA dev team, TRPA leadership, DB/GIS admins, partner jurisdictions.**
 

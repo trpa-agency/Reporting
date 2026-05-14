@@ -1,5 +1,7 @@
 # Tracks status
 
+> **SUPERSEDED.** This proposed an earlier architecture. Current source of truth: system_of_record_roadmap.md plus the live Cumulative_Accounting service.
+
 > **Three parallel work streams for the cumulative-accounting platform.**
 > **Audience: TRPA dev team, leadership, the analyst, anyone reading or extending the pipeline.**
 

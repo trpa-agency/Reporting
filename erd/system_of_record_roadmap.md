@@ -1,9 +1,11 @@
 # Roadmap: retire the hand-crafted xlsx
 
-> **Status: ROADMAP.** Companion to [`target_schema.md`](./target_schema.md) (the
-> SQL tables) and [`regional_plan_allocations_service.md`](./regional_plan_allocations_service.md)
-> (the pool-balance service spec). This doc is the portfolio-level plan; those
-> two are the detailed specs for specific pieces.
+> **Status: the architecture - decided, and partly built.** The
+> `Cumulative_Accounting` REST service is live on maps.trpa.org with four
+> populated layers. Companions: [`questions_for_analyst.md`](./questions_for_analyst.md)
+> (open questions) and [`regional_plan_allocations_service.md`](./regional_plan_allocations_service.md)
+> (the 1987-baseline / pool-balance service spec). The earlier `target_schema.md`
+> proposal - new tables resident inside Corral - is superseded; see [`_archive/`](./_archive/).
 
 ## The goal
 
@@ -83,11 +85,11 @@ flowchart TD
 
     etl["Nightly ETL<br/>materialize views, reconcile,<br/>fail loudly on drift"]
 
-    subgraph sql["TRPA-owned SQL layer - SDE instance, target_schema.md"]
-        ledger["vCommodityLedger"]
-        drawdown["PoolDrawdownYearly"]
-        snapshot["CumulativeAccountingSnapshot"]
-        changeevent["ParcelDevelopmentChangeEvent<br/>+ QaCorrectionDetail"]
+    subgraph sql["TRPA Enterprise GDB - published as the Cumulative_Accounting service"]
+        ledger["Parcel Development History"]
+        drawdown["Tahoe APN Genealogy"]
+        snapshot["Residential Unit Inventory"]
+        changeevent["Allocations 1987 Regional Plan<br/>+ LTInfo_ staged tables (ahead)"]
     end
 
     rest["ESRI REST services<br/>single dashboard-facing source"]
@@ -117,84 +119,79 @@ touching the SQL layer; Phase 2 builds the ETL, the SQL layer, and the REST serv
 
 ## The migration, phased
 
-**Phase 0 - now (done).** The converter pattern: hand xlsx -> tidy JSON/CSV ->
-dashboard fetch. This is the *interim* state, not the goal - it makes the
-xlsx-onward half reproducible but leaves the hand-assembly step in place.
+**Phase 0 - done.** The converter pattern: hand xlsx -> tidy JSON/CSV ->
+dashboard fetch. An interim state - reproducible from the xlsx onward, but the
+hand-assembly step stayed.
 
-**Phase 1 - near-term, no Corral write access required.**
-- **Type A:** repoint each converter's *input* from "the analyst's hand file"
-  to the live LT Info source. The allocation grid is already a LT Info export -
-  the only thing to remove is the manual export-and-drop. Pool balances have a
-  ready web service (`GetDevelopmentRightPoolBalanceReport`).
-- **Type C:** stand up the `RegionalPlanCapacity` reference table, seeded once
-  from the 2012 RP Update Analysis (the 1987 baseline is effectively frozen).
-  The `regional_plan_1987_baseline.csv` already produced is the seed content.
-- Stand up the **thin combiner** for pool balances (live LT Info 2012-era +
-  the seed) per `regional_plan_allocations_service.md`. This alone retires
-  `All Regional Plan Allocations Summary.xlsx` and `Additional Development...xlsx`.
+**Phase 1 - done.** The architecture is decided and the TRPA-owned layer is
+built. Two valid sources: the **TRPA Enterprise Geodatabase** (published as REST
+on maps.trpa.org) and **LT Info web services** (the only path for Corral-origin
+data). The `Cumulative_Accounting` REST service is **live** with four populated
+layers - Parcel Development History, Tahoe APN Genealogy, Residential Unit
+Inventory, and Allocations 1987 Regional Plan (the old
+`regional_plan_1987_baseline.csv` is now a real table). The tables live in the
+TRPA Enterprise GDB - **no Corral write access needed**; the ETL reads Corral
+via LT Info and writes to the TRPA SDE.
 
-**Phase 2 - mid-term, needs Corral write access + a named DB owner.**
-- Build the `target_schema.md` tables/views in the SDE SQL backend:
-  `vCommodityLedger`, `PoolDrawdownYearly`, `CumulativeAccountingSnapshot`,
-  `ParcelDevelopmentChangeEvent` + `QaCorrectionDetail`.
-- Publish each as an ESRI REST service (same pattern as the planned
-  `Parcel_Development_History` service).
-- Repoint dashboards from static JSON to those REST endpoints. This retires
-  `FINAL RES SUMMARY`, the `Final * Tracking` files, and the transaction xlsx.
-- Give the analyst a data-entry form over `QaCorrectionDetail` - retires
-  `CA Changes breakdown.xlsx` as a free-form file while keeping the analyst as
-  the system of record for QA judgment.
+**Phase 2 - underway.** Repoint consumers off local files onto the service, and
+build the LT Info side. Done: the genealogy converter
+(`build_genealogy_solver_data.py`) reads the live service. Ahead: the nightly
+LT Info staging ETL (`stage_ltinfo_allocations.py`), the `LTInfo_*` staged
+tables, repointing the remaining converters and dashboards, and a structured
+QA-correction intake surface.
 
-**Phase 3 - ongoing.** Automation: scheduled refresh, freshness monitoring,
-reconciliation checks, schema-contract tests (below).
+**Phase 3 - ahead.** Automation and hardening: scheduled refresh, freshness
+monitoring, reconciliation that fails loudly, schema-contract tests (below).
 
 ## What is still missing for robustness
 
 Beyond "wire up a source," a robust portfolio needs:
 
-1. **A live connection at all.** Today everything the dashboards fetch is a
-   snapshot. Nothing is live.
-2. **The SQL tables.** `target_schema.md` is a draft proposal - the Type B
-   destination does not exist yet.
-3. **The reference tables.** `RegionalPlanCapacity` and the QA-correction
-   intake are CSVs / spreadsheets today, not real validated tables.
+1. ~~A live connection at all.~~ **Addressed.** The `Cumulative_Accounting`
+   service is live - dashboards can fetch the TRPA-owned data directly.
+2. ~~The SQL tables.~~ **Addressed.** Four layers exist in the TRPA Enterprise
+   GDB and are published.
+3. **Validated reference tables.** The 1987 baseline is now a real table; the
+   QA-correction intake is still a free-form file with no real home.
 4. **Confirmed field semantics.** The LT Info pool balance service's fields
    (`BalanceRemaining`, `ApprovedTransactionsQuantity`, `TotalDisbursements`)
-   do not cleanly map to assigned / not-assigned / maximum - open question #1
-   in `regional_plan_allocations_service.md`. Cannot safely build on the
-   service until the LT Info owner confirms.
-5. **Refresh automation + freshness monitoring.** The converters run by hand.
-   Robust = scheduled refresh + a "this source is N days stale" check.
-6. **Reconciliation that fails loudly.** The converter already surfaced a real
-   discrepancy (TAU pool rows summing to 395 vs a stated 400). That class of
-   thing should block a refresh / page someone, not pass silently.
+   do not cleanly map to assigned / not-assigned / maximum. Cannot safely build
+   on the service until the LT Info owner confirms - see `questions_for_analyst.md`.
+5. **Refresh automation + freshness monitoring.** The converters and the staging
+   ETL run by hand. Robust = scheduled refresh + a "this source is N days stale" check.
+6. **Reconciliation that fails loudly.** A real discrepancy already surfaced
+   (TAU pool rows summing to 395 vs a stated 400). That class of thing should
+   block a refresh / page someone, not pass silently.
 7. **Schema-contract tests.** If LT Info or Corral renames or drops a column,
    the pipeline should fail an integration test, not silently emit wrong data.
-8. **Auth / CORS for a public page.** The LT Info `WebServices/*` endpoints take
-   a token in the URL - fine internally, not for a public GitHub Pages dashboard
-   calling them directly. Dashboards calling a TRPA-owned ESRI REST service
-   instead makes this a non-issue (one more reason the SQL layer, not LT Info,
-   should be the dashboard-facing source).
+   The `area`-field publish quirk on the 1987-baseline table is a live example.
+8. ~~Auth / CORS for a public page.~~ **Addressed for the TRPA-owned data.** The
+   `Cumulative_Accounting` REST service is the TRPA-owned endpoint; the residual
+   concern is the LT Info-direct feed, which the staging ETL removes.
 
 ## Dependencies - the asks
 
-Retiring the hand xlsx is not purely an internal repo task. It needs:
+Retiring the hand xlsx is not purely an internal repo task. Still needed:
 
-- **Corral write access + a named DB owner** for the `target_schema.md` tables
-  and the nightly ETL that materializes them.
 - **The LT Info team** to confirm the `GetDevelopmentRightPoolBalanceReport`
-  field semantics (robustness gap #4).
+  field semantics and to expose a residential allocation grid endpoint - the
+  reverse-engineered SQL spec is ready to hand them.
 - **A decision on the QA-correction intake surface** - a form over a table vs
   a maintained reference table - so `CA Changes breakdown.xlsx` has a real home.
 - **A recurring county-assessor extract** for original-year-built data.
-- **A scheduled-job host** for the ETL, freshness monitoring, and reconciliation
-  alerting.
+- **A scheduled-job host** for the nightly staging ETL, freshness monitoring,
+  and reconciliation alerting.
+- **SDE field fixes** on the live service - the `area`-field rename on the
+  1987-baseline table and the minor type quirks; see `questions_for_analyst.md`.
+
+"Corral write access" is no longer on this list: the new tables live in the TRPA
+Enterprise GDB, which TRPA controls end to end.
 
 ## Bottom line
 
-The end state is **layered**: a TRPA-owned SQL layer published as ESRI REST is
-the single dashboard-facing source; LT Info web services and the seeded
-reference tables are *inputs* to the ETL that populates it. The analyst's role
-shrinks from "assemble the spreadsheets" to "maintain the genuinely-human inputs
-(QA judgment) through a structured form" - which is the realistic, correct
-reading of "stop doing things by hand."
+The end state is **layered**, and it is now partly real: a TRPA-owned layer (the
+`Cumulative_Accounting` service, live) is the dashboard-facing source; LT Info
+web services are *inputs* to the nightly ETL that will populate the staged side.
+The analyst's role shrinks from "assemble the spreadsheets" to "maintain the
+genuinely-human inputs (QA judgment) through a structured form" - the realistic,
+correct reading of "stop doing things by hand."

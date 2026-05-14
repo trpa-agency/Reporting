@@ -1,174 +1,168 @@
-# erd/ - Proposed schema for TRPA development-rights tracking
+# erd/ - data model for TRPA development-rights tracking
 
-> **Status: draft proposal, ready for team review.**
-> **Audience: TRPA dev team, TRPA leadership, partner jurisdictions, anyone reviewing the schema design.**
+> **Status: architecture decided; the `Cumulative_Accounting` service is live on maps.trpa.org.**
+> **Audience: TRPA dev team, TRPA leadership, partner jurisdictions, anyone working on the cumulative-accounting data layer.**
 
-This folder holds the proposal for a new set of tables that fold into the
-existing SDE SQL backend (alongside Corral and the enterprise GIS
-geodatabase) to drive three v1 dashboards:
+This folder holds the data-model work behind the annual TRPA cumulative
+accounting cycle (TRPA Code §16.8.2). The architecture is no longer a
+proposal under review - it has been decided and partly built:
 
-1. **Cumulative accounting report** (annual; replaces the XLSX)
-2. **Allocation drawdown dashboard** (stacked area by pool × year)
-3. **Parcel history lookup** (per-APN, with change log)
+- **Two valid data sources.** The TRPA Enterprise Geodatabase (published
+  as REST services on `maps.trpa.org`) and the LT Info web services (for
+  Corral-origin data).
+- **The `Cumulative_Accounting` REST service is live** on `maps.trpa.org`
+  with four populated layers/tables: Parcel Development History, Tahoe APN
+  Genealogy, Residential Unit Inventory, and Allocations 1987 Regional Plan.
 
-All of this is anchored on the TRPA Cumulative Accounting framework
-(TRPA Code §16.8.2). The vocabulary is documented in the
-[`_archive/cumulative_accounting_reference.md`](./_archive/cumulative_accounting_reference.md) (archived - the `trpa-cumulative-accounting` Claude skill is the source of truth)
-(plain-markdown copy of the Claude skill) so future sessions (and reviewers) share the same terms.
+The vocabulary for the accounting framework is documented in the
+`trpa-cumulative-accounting` Claude skill (a plain-markdown copy is kept at
+[`_archive/cumulative_accounting_reference.md`](./_archive/cumulative_accounting_reference.md)
+for team members who don't use Claude).
+
+An earlier round of design work proposed a different shape - a set of new
+tables resident inside Corral with foreign keys into it. That approach was
+**superseded**: the real tables live in the TRPA Enterprise GDB and the
+service is already live with a different design. Those proposal docs have
+been moved to [`_archive/`](./_archive/) so the folder reflects current
+reality. See "Archived / superseded" below.
 
 ---
 
 ## Start here
 
-**[next_steps.md](./next_steps.md)** - 5-minute read for a working
-session. What we're building, where the data comes from, and the
-questions we need to close before DDL.
-
 **[system_of_record_roadmap.md](./system_of_record_roadmap.md)** - the
-portfolio-level plan. Why the hand-assembled spreadsheets are the fragile
-root, the three kinds of hand-crafted artifact, the target architecture, and
-the phased path to a system of record for every data element. Read after
-`next_steps.md` for the big picture; read `target_schema.md` for the SQL detail.
+architecture. Why the hand-assembled spreadsheets are the fragile root, the
+three kinds of hand-crafted artifact (a system already has it / Corral has
+the raw events / a human genuinely is the system of record), the target
+layered architecture, and the phased path to a system of record for every
+data element.
 
-**[target_schema.md](./target_schema.md)** - full proposal. Read after
-`next_steps.md` if you want the detail. It has:
-
-- Design principles (never duplicate Corral; five-bucket model; ETL-only writes)
-- 5 Mermaid ERDs (reference entities · new core tables · movement ledger · permit completion · dashboard outputs)
-- Loading strategy (where each table's data comes from)
-- Open questions for the team
-- Final table list
-
-**[development_rights_erd.html](./development_rights_erd.html)** - browser-friendly
-viewer. 6 tabs total: 2 showing existing systems (Corral, LTinfo), 4 showing
-the proposed new schema. Pan/zoom with scroll/drag. Dark theme.
+**[questions_for_analyst.md](./questions_for_analyst.md)** - the open
+questions only the analyst can answer: data provenance, domain judgment,
+which numbers are tracked in a system versus carried by hand. Collected as
+they surface during the system-of-record work.
 
 ---
 
 ## Reading order by role
 
-**If you're reviewing the schema design (leadership, DB admins, architecture):**
-1. [target_schema.md](./target_schema.md) - the proposal
+**If you want the architecture and the plan:**
+1. [system_of_record_roadmap.md](./system_of_record_roadmap.md) - the portfolio-level plan
 2. The `trpa-cumulative-accounting` skill for vocabulary
-3. Go straight to the "Questions for the team" section at the end
+3. [questions_for_analyst.md](./questions_for_analyst.md) - what's still open
 
-**If you want to know why these tables and not others (technical reviewers):**
+**If you want to know why the data layer is shaped this way (technical reviewers):**
 1. [raw_data_vs_corral.md](./raw_data_vs_corral.md) - what's in the spreadsheets that Corral doesn't hold
 2. [validation_findings.md](./validation_findings.md) - empirical gap analysis between Corral and the XLSX
-3. [xlsx_decomposition.md](./xlsx_decomposition.md) - column-by-column map from the XLSX into the proposed schema
+3. [xlsx_decomposition.md](./xlsx_decomposition.md) - column-by-column map of the analyst's transactions XLSX
 
-**If you're responsible for Corral, LTinfo, or the GIS systems:**
-1. [development_rights_erd.md](./development_rights_erd.md) - existing-systems inventory
-2. [target_schema.md](./target_schema.md) *Loading strategy* section
-3. [target_schema.md](./target_schema.md) *Reference entities - reused from Corral* table
-
-**If you just want the diagrams:**
-- Open [development_rights_erd.html](./development_rights_erd.html) in a browser.
-
----
-
-## Top questions we need the team to answer
-
-Full list in [target_schema.md](./target_schema.md). The three highest-priority:
-
-1. **ADU modeling** - is ADU a third value in `ResidentialAllocationUseType`, a
-   flag on the allocation, or a separate concept linked to a parent unit?
-2. **`PermitAllocation` linkage strategy** - Corral has no direct FK between
-   `ParcelPermit` and `ResidentialAllocation`; the AccelaID bridge is only
-   32% populated. Prioritize back-filling in Corral, or accept the crosswalk
-   limitations?
-3. **Dashboard refresh cadence** - can we commit to nightly recomputation for
-   `PoolDrawdownYearly` and `CumulativeAccountingSnapshot`?
+**If you're responsible for Corral, LT Info, or the GIS systems:**
+1. [development_rights_erd.md](./development_rights_erd.md) - existing-systems inventory (Corral + LT Info + spreadsheets)
+2. [inventory_tables_erd.md](./inventory_tables_erd.md) - the analyst-facing inventory tables built in the 2026 cycle
 
 ---
 
 ## What each file in this folder is
 
-### The proposal
-| File | Status | Purpose |
-|---|---|---|
-| [target_schema.md](./target_schema.md) | **Draft - for team review** | The proposal itself. ERD + loading strategy + open questions. |
-| [system_of_record_roadmap.md](./system_of_record_roadmap.md) | Active | **Portfolio-level plan** for retiring every hand-assembled xlsx so each data element traces to a system of record. Sorts the analyst-delivered inputs into three types (a system already has it / Corral has the raw events / a human genuinely is the system of record) and lays out a phased migration. The companion overview to `target_schema.md` + `regional_plan_allocations_service.md`. |
-| [regional_plan_allocations_service.md](./regional_plan_allocations_service.md) | Active | Recommendation for a web service to replace the hand-assembled `All Regional Plan Allocations Summary.xlsx` - the 1987/2012-era split with assigned/not-assigned status. Recommended SQL against the proposed `PoolDrawdownYearly` + a hard-coded `RegionalPlanCapacity` seed. |
-| [tracks_status.md](./tracks_status.md) | Active | **Tracks A / B / C combined.** Track A - APN canonicalization + genealogy. Track B - Allocation accounting + dashboards. Track C - the analyst's CA Changes loader + reconciliation. |
-| [dashboards_to_schema_trace.md](./dashboards_to_schema_trace.md) | Active | Backward design from built dashboards through view contracts to schema columns. 14 open gaps roll-up against `target_schema.md`. |
-| [inventory_tables_erd.md](./inventory_tables_erd.md) | Active | Analyst-facing inventory tables (Residential Units / Buildings / PDH 2025 join) with field dictionaries. Built in the 2026 cycle. |
-| [development_rights_erd.html](./development_rights_erd.html) | Draft | Browser viewer for all ERDs (existing + proposed). |
+### Current
 
-### Supporting analysis (context for the proposal)
 | File | Status | Purpose |
 |---|---|---|
-| [development_rights_erd.md](./development_rights_erd.md) | Done | Inventory of the existing upstream systems (Corral + LTinfo + spreadsheets). |
+| [system_of_record_roadmap.md](./system_of_record_roadmap.md) | Current | **The architecture.** Portfolio-level plan for retiring every hand-assembled xlsx so each data element traces to a system of record. Sorts the analyst-delivered inputs into three types and lays out a phased migration. |
+| [questions_for_analyst.md](./questions_for_analyst.md) | Current | **Open questions only the analyst can answer** - data provenance, domain judgment, which numbers are tracked in a system versus carried by hand. Collected as they surface during the system-of-record work. |
+| [regional_plan_allocations_service.md](./regional_plan_allocations_service.md) | Reference | Recommendation for a web service to replace the hand-assembled `All Regional Plan Allocations Summary.xlsx` - the 1987/2012-era split with assigned/not-assigned status. Note: parts of its SQL reference the superseded table proposal; the `RegionalPlanCapacity` seed-table idea and the live-LT-Info-service reasoning still hold. |
+| [inventory_tables_erd.md](./inventory_tables_erd.md) | Current | Analyst-facing inventory tables (Residential Units / Buildings / PDH 2025 join) with field dictionaries. Built in the 2026 cycle; feeds the live Residential Unit Inventory layer. |
+
+### Supporting analysis (the evidence base)
+
+Still-valid analysis and inventory. This is the evidence the architecture
+rests on, not superseded thinking - leave it in place.
+
+| File | Status | Purpose |
+|---|---|---|
+| [development_rights_erd.md](./development_rights_erd.md) | Done | Inventory of the existing upstream systems (Corral + LT Info + spreadsheets). |
+| [development_rights_erd.html](./development_rights_erd.html) | Done | Browser viewer for the existing-systems ERDs. |
 | [raw_data_vs_corral.md](./raw_data_vs_corral.md) | Done | Gap analysis - what's in the transactions spreadsheet that Corral doesn't hold. |
 | [validation_findings.md](./validation_findings.md) | Done | Empirical tests against the Feb-2024 Corral snapshot; quantifies what the spreadsheet covers beyond Corral views. |
-| [xlsx_decomposition.md](./xlsx_decomposition.md) | Done | Column-by-column map from `2025 Transactions and Allocations Details.xlsx` into the proposed schema. |
-| [next_steps.md](./next_steps.md) | Draft | 5-minute working-session brief: architecture summary + questions to close before DDL. |
+| [xlsx_decomposition.md](./xlsx_decomposition.md) | Done | Column-by-column map from `2025 Transactions and Allocations Details.xlsx`. |
 
 ### Machine-readable data (regenerable)
+
 | File | Purpose |
 |---|---|
 | [corral_schema.json](./corral_schema.json) | Full Corral schema dump (573 tables, 1,041 FKs) |
 | [corral_tables.md](./corral_tables.md) | Human-readable Corral table list with row counts |
-| [ltinfo_services.json](./ltinfo_services.json) | Probed LTinfo JSON endpoint responses |
+| [ltinfo_services.json](./ltinfo_services.json) | Probed LT Info JSON endpoint responses |
 | [raw_data_inventory.json](./raw_data_inventory.json) | `data/raw_data/` file catalog |
 | [validate_auditlog_replay.json](./validate_auditlog_replay.json) | AuditLog-replay validation results |
 | [validate_transactions_view.json](./validate_transactions_view.json) | Transactions-view validation results |
 
-### Regeneration scripts (read-only, SELECT only)
+### Scripts (read-only, SELECT only)
+
 | File | Purpose |
 |---|---|
+| [probe_corral_2026.py](./probe_corral_2026.py) | Read-only investigation against the current `Corral_2026` copy - explains the allocation-grid row-count gap |
 | [db_corral.py](./db_corral.py) | SQLAlchemy read-only engine (Windows Auth + `ApplicationIntent=ReadOnly`) |
 | [dump_corral_schema.py](./dump_corral_schema.py) | Refresh Corral schema dump |
-| [inventory_ltinfo_services.py](./inventory_ltinfo_services.py) | Probe LTinfo endpoints |
+| [inventory_ltinfo_services.py](./inventory_ltinfo_services.py) | Probe LT Info endpoints |
 | [compare_raw_data_to_corral.py](./compare_raw_data_to_corral.py) | Catalog `data/raw_data/` |
 | [validate_auditlog_replay.py](./validate_auditlog_replay.py) | Test AuditLog-replay claim |
 | [validate_transactions_view.py](./validate_transactions_view.py) | Test transactions-view claim |
 | [build_erd.py](./build_erd.py) | Assemble `development_rights_erd.md` |
-| [build_erd_html.py](./build_erd_html.py) | Render `development_rights_erd.html` with tabs for existing + proposed schema |
+| [build_erd_html.py](./build_erd_html.py) | Render `development_rights_erd.html` |
+| [build_md_pages.py](./build_md_pages.py) | Render the `.md` docs in this folder to standalone `.html` |
+
+### Archived / superseded
+
+These proposed an earlier architecture - a set of new tables resident
+inside Corral with foreign keys into it. That approach was superseded; the
+real tables live in the TRPA Enterprise GDB and the `Cumulative_Accounting`
+service is already live with a different design. Kept in
+[`_archive/`](./_archive/) for history. Each carries a `SUPERSEDED` banner
+at the top pointing back to the current source of truth.
+
+| File | Why archived |
+|---|---|
+| [_archive/target_schema.md](./_archive/target_schema.md) | The superseded proposal itself - new Corral-resident tables, ERDs, loading strategy, open questions. |
+| [_archive/dashboards_to_schema_trace.md](./_archive/dashboards_to_schema_trace.md) | Traced built dashboards back through view contracts to `target_schema.md` columns; entirely anchored on the superseded schema. |
+| [_archive/next_steps.md](./_archive/next_steps.md) | 5-minute working-session brief built around the superseded "cut DDL into Corral" plan. |
+| [_archive/tracks_status.md](./_archive/tracks_status.md) | Combined Track A / B / C status, framed against the superseded schema as the destination. |
+| [_archive/proposed_dashboards.md](./_archive/proposed_dashboards.md) | Earlier dashboard catalog (archived in a prior pass). |
+| [_archive/allocation_track.md](./_archive/allocation_track.md), [_archive/genealogy_track.md](./_archive/genealogy_track.md), [_archive/qa_corrections_track.md](./_archive/qa_corrections_track.md) | Per-track docs later consolidated; archived in a prior pass. |
+| [_archive/cumulative_accounting_reference.md](./_archive/cumulative_accounting_reference.md) | Plain-markdown copy of the `trpa-cumulative-accounting` skill; the skill is the source of truth. |
+
+The `_archive/` folder also keeps `.html` renders of the archived docs.
 
 ---
 
 ## Architecture context (one paragraph)
 
-Corral (`sql24/Corral`) is the LTinfo web-application backend, hosted on an
-SDE-registered SQL Server instance. Our read connection is a Feb-2024 backup
-snapshot - live reads for any production use case go through the LTinfo JSON
-web services at `https://www.laketahoeinfo.org/WebServices/*`. The future
-Parcel Development History REST service (patterned on
-[`Existing_Development/MapServer/2`](https://maps.trpa.org/server/rest/services/Existing_Development/MapServer/2))
-will live on the same SDE instance and become the authoritative spatial
-source of truth for existing development per parcel per year. **The new
-tables in this proposal fold into that same SDE instance** - no parallel
-database, no cross-DB bridging. the analyst's `data/raw_data/` spreadsheets fill the
-gaps those systems don't hold (pre-2012 baseline, Year Built, TRPA/MOU
-project IDs, completion status) and get loaded via ETL into the new tables.
-Shorezone (Mooring, Pier) is out of scope - handled by a separate system.
+The two valid data sources are the TRPA Enterprise Geodatabase (published
+as REST services on `maps.trpa.org`) and the LT Info web services (for
+Corral-origin data). Corral (`sql24/Corral`) is the LT Info web-application
+backend; the repo's read connection is a backup snapshot, so live reads go
+through the LT Info JSON web services at
+`https://www.laketahoeinfo.org/WebServices/*`. The `Cumulative_Accounting`
+REST service is live on `maps.trpa.org` with four populated layers/tables:
+Parcel Development History, Tahoe APN Genealogy, Residential Unit
+Inventory, and Allocations 1987 Regional Plan. The analyst's
+`data/raw_data/` spreadsheets fill the gaps those systems don't hold
+(pre-2012 baseline, year built, TRPA/MOU project IDs, completion status)
+and get loaded via ETL. Shorezone (Mooring, Pier) is out of scope - handled
+by a separate system.
 
 ---
 
 ## Regenerate
 
-Uses the ArcGIS Pro Python env (`arcgispro-py3`) and a `.env` at the repo root
-with `CORRAL_SERVER`, `CORRAL_DATABASE`, and `LTINFO_API_KEY`.
+Uses the ArcGIS Pro Python env (`arcgispro-py3`) and a `.env` at the repo
+root with `CORRAL_SERVER`, `CORRAL_DATABASE`, and `LTINFO_API_KEY`.
 
 ```
 python erd/dump_corral_schema.py         # refresh Corral schema dump
-python erd/inventory_ltinfo_services.py  # refresh LTinfo service catalog
+python erd/inventory_ltinfo_services.py  # refresh LT Info service catalog
 python erd/compare_raw_data_to_corral.py # refresh raw_data inventory
 python erd/build_erd.py                  # rebuild development_rights_erd.md
 python erd/build_erd_html.py             # rebuild development_rights_erd.html
+python erd/build_md_pages.py             # rebuild the .html renders of the docs
 ```
-
-Edit `target_schema.md` directly to iterate on the proposal; re-run
-`build_erd_html.py` to pick up new Mermaid blocks as tabs in the viewer.
-
----
-
-## How to give feedback
-
-- **On specific entities or fields**: comment on the relevant section of
-  [target_schema.md](./target_schema.md).
-- **On the open questions**: reply with your preferred option (or a new one).
-- **On the overall shape**: look at the HTML viewer; comment on what's
-  missing, duplicated, or in the wrong place.
-- **On how XLSX columns land in the schema**: see [xlsx_decomposition.md](./xlsx_decomposition.md).
