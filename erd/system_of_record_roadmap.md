@@ -63,6 +63,58 @@ what makes the roadmap tractable:
 | `CA Changes breakdown.xlsx` | qa-change-rationale (via `notebooks/04_load_ca_changes.ipynb`) | the analyst's master log of QA correction decisions + rationale | **the analyst** - no system generates QA judgment | C | structured `QaCorrectionDetail` / `ParcelDevelopmentChangeEvent` tables + a data-entry form (`target_schema.md`) |
 | `Cumulative Accounting 2026 Report.pptx` | the report deliverable itself | output, not input | n/a | (output) | eventually generate report figures from the dashboards; out of immediate scope |
 
+## The target architecture
+
+The end state is **layered**, and every arrow points one way. Upstream systems of
+record feed a nightly ETL; the ETL materializes the `target_schema.md` tables on the
+SDE SQL instance; those publish as ESRI REST services; the dashboards read only from
+there. No dashboard calls LT Info directly, and no dashboard ever reads a
+hand-assembled file.
+
+```mermaid
+flowchart TD
+    subgraph inputs["Inputs - upstream systems of record"]
+        ltinfo["LT Info web services<br/>Type A - allocation grid,<br/>pool balance report"]
+        corral["Corral<br/>Type B - TdrTransaction family,<br/>the raw events"]
+        assessor["County assessor extract<br/>Type A - original year built"]
+        refseed["RegionalPlanCapacity<br/>Type C seed - 1987 baseline, frozen"]
+        qaform["QA-correction intake form<br/>Type C - the analyst's QA judgment"]
+    end
+
+    etl["Nightly ETL<br/>materialize views, reconcile,<br/>fail loudly on drift"]
+
+    subgraph sql["TRPA-owned SQL layer - SDE instance, target_schema.md"]
+        ledger["vCommodityLedger"]
+        drawdown["PoolDrawdownYearly"]
+        snapshot["CumulativeAccountingSnapshot"]
+        changeevent["ParcelDevelopmentChangeEvent<br/>+ QaCorrectionDetail"]
+    end
+
+    rest["ESRI REST services<br/>single dashboard-facing source"]
+    dashboards["Cumulative-accounting dashboards"]
+
+    ltinfo --> etl
+    corral --> etl
+    assessor --> etl
+    refseed --> etl
+    qaform --> etl
+    etl --> ledger
+    etl --> drawdown
+    etl --> snapshot
+    etl --> changeevent
+    ledger --> rest
+    drawdown --> rest
+    snapshot --> rest
+    changeevent --> rest
+    rest --> dashboards
+```
+
+Read against the fragility chain above, the hand-assembled xlsx is simply *gone* -
+nothing in this picture is a person copying numbers into a spreadsheet. The analyst
+still appears, but only as the QA-correction intake form: a structured surface, the
+Type C case. Phase 1 stands up the left edge (the live inputs and the seed) without
+touching the SQL layer; Phase 2 builds the ETL, the SQL layer, and the REST services.
+
 ## The migration, phased
 
 **Phase 0 - now (done).** The converter pattern: hand xlsx -> tidy JSON/CSV ->

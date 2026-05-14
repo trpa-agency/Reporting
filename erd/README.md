@@ -24,6 +24,12 @@ All of this is anchored on the TRPA Cumulative Accounting framework
 session. What we're building, where the data comes from, and the
 questions we need to close before DDL.
 
+**[system_of_record_roadmap.md](./system_of_record_roadmap.md)** - the
+portfolio-level plan. Why the hand-assembled spreadsheets are the fragile
+root, the three kinds of hand-crafted artifact, the target architecture, and
+the phased path to a system of record for every data element. Read after
+`next_steps.md` for the big picture; read `target_schema.md` for the SQL detail.
+
 **[target_schema.md](./target_schema.md)** - full proposal. Read after
 `next_steps.md` if you want the detail. It has:
 
