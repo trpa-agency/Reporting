@@ -49,6 +49,7 @@ header h1 span { color: var(--trpa-blue); }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px 24px; box-shadow: var(--shadow); }
 .card h3 { font-size: 0.95rem; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
 .card p { font-size: 0.73rem; color: var(--text-light); margin-bottom: 14px; }
+.card p strong { color: var(--text-mid); }
 
 /* Gauge grid */
 .gauge-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
@@ -64,24 +65,24 @@ header h1 span { color: var(--trpa-blue); }
 /* Comparison */
 .comparison { margin-top: 24px; }
 
-/* Framing strip (the 2,600 vs 8,687 distinction) */
-.framing {
-  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
-  padding: 18px 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
-  margin-top: 24px; box-shadow: var(--shadow);
+/* Toggle bar */
+.toggle-bar { display: flex; gap: 6px; margin: 2px 0 14px; flex-wrap: wrap; }
+.toggle-btn {
+  padding: 5px 12px; border: 1.5px solid var(--border); border-radius: 4px;
+  background: #fff; font-family: inherit; font-size: 0.76rem; color: var(--text-mid);
+  cursor: pointer;
 }
-.framing-item { font-size: 0.83rem; color: var(--text-mid); line-height: 1.55; }
-.framing-item strong { color: var(--trpa-navy); display: block; font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; }
-.framing-item .num { color: var(--trpa-blue); font-weight: 700; font-variant-numeric: tabular-nums; }
+.toggle-btn:hover { border-color: var(--trpa-blue); color: var(--trpa-blue); }
+.toggle-btn.active { background: var(--trpa-navy); border-color: var(--trpa-navy); color: #fff; }
 
-/* Live 2012-Plan breakdown cards */
-.live-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 6px; }
+/* Summary mini-cards */
+.summary-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 6px; }
 .live-card { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; position: relative; }
 .live-card .live-accent { position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 6px 6px 0 0; }
 .live-card .live-label { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-light); margin-bottom: 4px; padding-top: 4px; }
 .live-card .live-value { font-size: 1.55rem; font-weight: 700; color: var(--text-dark); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
 .live-card .live-pct   { font-size: 0.72rem; color: var(--text-mid); margin-top: 2px; }
-@media (max-width: 900px) { .live-cards { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 900px) { .summary-row { grid-template-columns: 1fr; } }
 
 .footnote {
   padding: 14px 40px 22px; font-size: 0.72rem; color: var(--text-light);
@@ -91,7 +92,6 @@ header h1 span { color: var(--trpa-blue); }
 
 @media (max-width: 1100px) {
   .gauge-grid { grid-template-columns: 1fr 1fr; }
-  .framing { grid-template-columns: 1fr; }
 }
 @media (max-width: 700px) {
   .gauge-grid { grid-template-columns: 1fr; }
@@ -108,13 +108,13 @@ header h1 span { color: var(--trpa-blue); }
       <div class="header-eyebrow">Tahoe Regional Planning Agency</div>
       <h1>Regional Plan <span>Capacity Dial</span></h1>
       <div class="header-sub">
-        Where the Tahoe Region sits against its since-1987 cumulative capacity caps. One gauge per commodity: constructed vs Regional Plan max.
+        Where the Tahoe Region sits against the Regional Plan cumulative capacity.
       </div>
     </div>
     <div class="header-meta">
       <div class="live-badge">A1 / Headline</div><br>
-      Source: 2026 Cumulative Accounting Report (slide 8)<br>
-      Snapshot: Apr 30, 2026
+      Source: Tahoe Regional Planning Agency, May 2026<br>
+      Lake Tahoe Regional Plan, Policy DP-2.2 + Code 50.4.1
     </div>
   </div>
 </header>
@@ -125,73 +125,64 @@ header h1 span { color: var(--trpa-blue); }
       <div class="gauge-accent" style="background:var(--trpa-blue)"></div>
       <div class="gauge-label">Residential Allocations</div>
       <div id="gauge-res" style="height:200px;"></div>
-      <div class="gauge-sub"><strong>6,731</strong> built &middot; max <strong>8,687</strong> units</div>
+      <div class="gauge-sub" id="sub-res">&hellip;</div>
     </div>
     <div class="gauge-card">
       <div class="gauge-accent" style="background:var(--trpa-forest)"></div>
       <div class="gauge-label">Residential Bonus Units</div>
       <div id="gauge-rbu" style="height:200px;"></div>
-      <div class="gauge-sub"><strong>736</strong> built &middot; max <strong>2,000</strong> units</div>
+      <div class="gauge-sub" id="sub-rbu">&hellip;</div>
     </div>
     <div class="gauge-card">
       <div class="gauge-accent" style="background:var(--trpa-purple)"></div>
       <div class="gauge-label">Tourist Bonus Units</div>
       <div id="gauge-tbu" style="height:200px;"></div>
-      <div class="gauge-sub"><strong>58</strong> built &middot; max <strong>400</strong> units</div>
+      <div class="gauge-sub" id="sub-tbu">&hellip;</div>
     </div>
     <div class="gauge-card">
       <div class="gauge-accent" style="background:var(--trpa-earth)"></div>
       <div class="gauge-label">Commercial Floor Area</div>
       <div id="gauge-cfa" style="height:200px;"></div>
-      <div class="gauge-sub"><strong>464K</strong> built &middot; max <strong>1.0M</strong> sq ft</div>
+      <div class="gauge-sub" id="sub-cfa">&hellip;</div>
     </div>
   </div>
 
   <div class="comparison card">
     <h3>Capacity utilization comparison</h3>
-    <p>Constructed (TRPA brand colors) vs remaining (ice). All bars normalized to 100% of each commodity's Regional Plan max.</p>
+    <p>Allocated vs remaining compared to the Regional Plan maximum. If allocated projects are not fully constructed, rights may be returned to the pools if determined not to have been used.</p>
     <div id="comparison-chart" style="height:260px;"></div>
   </div>
 
-  <!-- LIVE: 2012 Plan additional residential breakdown (from the analyst's grid export) -->
+  <!-- Residential allocations by jurisdiction - all 8,687, era toggle -->
   <div class="card" style="margin-top: 24px;">
-    <h3>2012 Plan additional - residential allocation state &times; construction</h3>
-    <p>The 2,600 additional residential units authorized under the 2012 Plan broken into three pool states, with <em>Constructed</em> split out from the private development pool. Live from <code style="background:var(--bg);padding:1px 4px;border-radius:3px;font-size:0.7rem;">residentialAllocationGridExport.csv</code>; see <a href="allocation-tracking.html" style="color:var(--trpa-blue)">allocation-tracking.html</a>.</p>
-    <div id="live-cards" class="live-cards"></div>
-    <div id="live-chart" style="height:260px;margin-top:12px;"></div>
-  </div>
-
-  <!-- LIVE: Where every completed residential unit came from (2009-2026) -->
-  <div class="card" style="margin-top: 24px;">
-    <h3>Completed residential units - by source of right</h3>
-    <p>Where the <strong><span id="tx-total-completed">-</span></strong> completed residential developments came from since 2009, bucketed by <em>Detailed Development Type</em>. Source: <code style="background:var(--bg);padding:1px 4px;border-radius:3px;font-size:0.7rem;">2025 Transactions and Allocations Details.xlsx</code>. Per-year story: <a href="residential-additions-by-source.html" style="color:var(--trpa-blue)">residential-additions-by-source.html</a>.</p>
-    <div id="src-cards" class="live-cards"></div>
-    <div id="src-stack" style="height:120px;margin-top:14px;"></div>
-  </div>
-
-  <!-- LIVE: Annual construction stacked area -->
-  <div class="card" style="margin-top: 24px;">
-    <h3>Annual residential construction - by source of right</h3>
-    <p>Yearly completed developments, stacked by source.</p>
-    <div id="annual-chart" style="height:320px;"></div>
-  </div>
-
-  <div class="framing">
-    <div class="framing-item">
-      <strong>Two cap numbers, both correct:</strong>
-      <span class="num">8,687</span> = since-1987 cumulative residential allocations max across both the 1987 and 2012 plans. What the gauges measure against.
+    <h3>Residential allocations by jurisdiction</h3>
+    <p>All <strong>8,687</strong> residential allocations since the 1987 Regional Plan, by jurisdiction, split into assigned to projects vs not assigned. Toggle the plan era to isolate the 1987 Plan (6,087) or the 2012 Plan additional (2,600).</p>
+    <div class="toggle-bar" id="res-era-toggle">
+      <button class="toggle-btn active" data-era="combined">Combined (8,687)</button>
+      <button class="toggle-btn" data-era="plan_1987">1987 Plan (6,087)</button>
+      <button class="toggle-btn" data-era="plan_2012">2012 Plan (2,600)</button>
     </div>
-    <div class="framing-item">
-      <strong>2012 Plan additional:</strong>
-      <span class="num">2,600</span> residential units - the 2013 Board authorization for additional new units on top of remaining 1987 allocations. A subset of the 8,687.
+    <div class="summary-row" id="res-summary"></div>
+    <div id="res-chart" style="height:320px;margin-top:14px;"></div>
+  </div>
+
+  <!-- RBU / CFA / TAU allocations by pool - commodity toggle -->
+  <div class="card" style="margin-top: 24px;">
+    <h3>Bonus units, commercial floor area &amp; tourist accommodation</h3>
+    <p>Allocations by pool for the other three commodities, split into assigned to projects vs not assigned. Toggle the commodity.</p>
+    <div class="toggle-bar" id="comm-toggle">
+      <button class="toggle-btn active" data-comm="residential_bonus_units">Residential Bonus Units</button>
+      <button class="toggle-btn" data-comm="commercial_floor_area">Commercial Floor Area</button>
+      <button class="toggle-btn" data-comm="tourist_accommodation_units">Tourist Accommodation</button>
     </div>
+    <div class="summary-row" id="comm-summary"></div>
+    <div id="comm-chart" style="height:300px;margin-top:14px;"></div>
   </div>
 </div>
 
 <div class="footnote">
-  <strong>Gauges:</strong> <code>from_analyst/Cumulative Accounting 2026 Report.pptx</code> slide 8 + <code>Additional Development as of April2026.xlsx</code>.<br>
-  <strong>2012 Plan additional (live):</strong> <code>residentialAllocationGridExport.csv</code> via <code>convert_allocation_grid.py</code>. Buckets: <strong>Constructed</strong> = Allocated &amp; Completed; <strong>Private dev pool</strong> = Allocated &amp; Not Completed; <strong>Jurisdiction pool</strong> = Unallocated in a county/CSLT pool; <strong>TRPA pool</strong> = Unallocated in TRPA Pool + Unreleased.<br>
-  Eventually backed by <code>CumulativeAccountingSnapshot</code>; see <a href="../erd/dashboards_to_schema_trace.md" style="color:var(--trpa-blue)">dashboards_to_schema_trace.md</a> Trace 1.
+  <strong>Sources:</strong> Tahoe Regional Planning Agency, May 2026; Lake Tahoe Regional Plan, Policy DP-2.2 and Code Section 50.4.1; <a href="https://parcels.laketahoeinfo.org/DevelopmentRightPool/DevelopmentRightPoolBalanceReport" style="color:var(--trpa-blue)">Development Right Pool Balance Report</a>.<br>
+  <strong>Data:</strong> <code>regional_plan_allocations.json</code>, converted from <code>All Regional Plan Allocations Summary.xlsx</code> by <code>convert_regional_plan_allocations.py</code>. "Assigned to projects" = allocations drawn to a parcel (built or in progress); "not assigned" = still available in the pool. 1987 Plan figures are hard-coded from the 2012 Regional Plan Update Analysis (not in LT Info); 2012-era figures trace to the LT Info pool balance report.
 </div>
 
 <script>
@@ -200,301 +191,188 @@ const TRPA = {
   brick:'#9C3E27', olive:'#B5A64C', orange:'#E87722', purple:'#7B6A8A',
   ice:'#B4CBE8',
 };
+const DATA_URL  = '../data/processed_data/regional_plan_allocations.json';
+const plotFont  = { family: '"Open Sans", system-ui, sans-serif', color: TRPA.navy };
+const PLOT_CFG  = { responsive: true, displayModeBar: false };
 
-// 2026 Cumulative Accounting Report, slide 8 - since-1987 cumulative max
-const COMMODITIES = [
-  { id: 'gauge-res', label: 'Residential Allocations', built: 6731,   max: 8687,    color: TRPA.blue   },
-  { id: 'gauge-rbu', label: 'Residential Bonus Units', built: 736,    max: 2000,    color: TRPA.forest },
-  { id: 'gauge-tbu', label: 'Tourist Bonus Units',     built: 58,     max: 400,     color: TRPA.purple },
-  { id: 'gauge-cfa', label: 'Commercial Floor Area',   built: 464144, max: 1000000, color: TRPA.earth  },
-];
+let RPA = null;   // the loaded regional_plan_allocations.json
 
-const plotFont = { family: '"Open Sans", system-ui, sans-serif', color: TRPA.navy };
-
-function fmt(n) { return n >= 1000 ? n.toLocaleString() : String(n); }
-
-function renderGauge(c) {
-  const pct = (c.built / c.max) * 100;
-  Plotly.react(c.id, [{
-    type: 'indicator',
-    mode: 'gauge+number',
-    value: pct,
-    number: { suffix: '%', font: { size: 36, color: TRPA.navy, family: '"Open Sans"' }, valueformat: '.1f' },
-    gauge: {
-      axis: { range: [0, 100], tickwidth: 1, tickcolor: TRPA.ice,
-              tickfont: { size: 9, color: TRPA.textLight }, ticksuffix: '%' },
-      bar: { color: c.color, thickness: 0.32 },
-      bgcolor: '#f5f7fa',
-      borderwidth: 1,
-      bordercolor: TRPA.ice,
-      steps: [
-        { range: [0, 100], color: 'rgba(180, 203, 232, 0.2)' },
-      ],
-      threshold: {
-        line: { color: TRPA.navy, width: 2 },
-        thickness: 0.85,
-        value: pct,
-      },
-    },
-  }], {
-    font: plotFont,
-    paper_bgcolor: 'rgba(0,0,0,0)',
-    margin: { t: 10, r: 16, b: 8, l: 16 },
-  }, { responsive: true, displayModeBar: false });
+function fmt(n) {
+  if (n == null) return '0';
+  return n >= 1000 ? Math.round(n).toLocaleString() : String(n);
 }
 
-function renderComparison() {
-  const labels = COMMODITIES.map(c => c.label);
-  const builtPct = COMMODITIES.map(c => (c.built / c.max) * 100);
-  const remPct   = COMMODITIES.map(c => 100 - (c.built / c.max) * 100);
-  const colors   = COMMODITIES.map(c => c.color);
-  const builtAbs = COMMODITIES.map(c => c.built);
-  const maxAbs   = COMMODITIES.map(c => c.max);
+// ── Gauges: one per commodity, now showing ASSIGNED (built + allocated) ─────
+const GAUGES = [
+  { id:'gauge-res', sub:'sub-res', color:TRPA.blue,   unit:'units', pick: d => d.residential.summary.combined },
+  { id:'gauge-rbu', sub:'sub-rbu', color:TRPA.forest, unit:'units', pick: d => d.residential_bonus_units.status.summary },
+  { id:'gauge-tbu', sub:'sub-tbu', color:TRPA.purple, unit:'units', pick: d => d.tourist_accommodation_units.status.summary },
+  { id:'gauge-cfa', sub:'sub-cfa', color:TRPA.earth,  unit:'sq ft', pick: d => d.commercial_floor_area.status.summary },
+];
 
+function renderGauge(g) {
+  const s = g.pick(RPA);
+  const assigned = s.assigned_to_projects || 0;
+  const max      = s.regional_plan_maximum || 0;
+  const pct      = max ? (assigned / max) * 100 : 0;
+  Plotly.react(g.id, [{
+    type: 'indicator', mode: 'gauge+number', value: pct,
+    number: { suffix: '%', font: { size: 36, color: TRPA.navy, family: '"Open Sans"' }, valueformat: '.1f' },
+    gauge: {
+      axis: { range: [0, 100], tickwidth: 1, tickcolor: TRPA.ice, tickfont: { size: 9 }, ticksuffix: '%' },
+      bar: { color: g.color, thickness: 0.32 },
+      bgcolor: '#f5f7fa', borderwidth: 1, bordercolor: TRPA.ice,
+      steps: [{ range: [0, 100], color: 'rgba(180, 203, 232, 0.2)' }],
+      threshold: { line: { color: TRPA.navy, width: 2 }, thickness: 0.85, value: pct },
+    },
+  }], {
+    font: plotFont, paper_bgcolor: 'rgba(0,0,0,0)', margin: { t: 10, r: 16, b: 8, l: 16 },
+  }, PLOT_CFG);
+  document.getElementById(g.sub).innerHTML =
+    `<strong>${fmt(assigned)}</strong> assigned &middot; max <strong>${fmt(max)}</strong> ${g.unit}`;
+}
+
+// ── Capacity utilization comparison: assigned vs not-assigned, % of max ─────
+function renderComparison() {
+  const labels = ['Residential Allocations', 'Residential Bonus Units',
+                  'Tourist Bonus Units', 'Commercial Floor Area'];
+  const s = GAUGES.map(g => g.pick(RPA));
+  const assignedPct = s.map(x => x.regional_plan_maximum ? (x.assigned_to_projects || 0) / x.regional_plan_maximum * 100 : 0);
+  const remPct      = assignedPct.map(p => 100 - p);
+  const colors      = GAUGES.map(g => g.color);
   Plotly.react('comparison-chart', [
     {
-      name: 'Constructed',
-      type: 'bar', orientation: 'h',
-      x: builtPct, y: labels,
-      marker: { color: colors },
-      text: COMMODITIES.map((c, i) => `${fmt(c.built)} / ${fmt(c.max)}`),
-      textposition: 'inside',
-      insidetextfont: { color: '#fff', size: 11, family: '"Open Sans"' },
-      hovertemplate: '%{y}: <b>%{x:.1f}%</b> built<extra></extra>',
+      name: 'Assigned to projects', type: 'bar', orientation: 'h',
+      x: assignedPct, y: labels, marker: { color: colors },
+      text: s.map(x => `${fmt(x.assigned_to_projects)} / ${fmt(x.regional_plan_maximum)}`),
+      textposition: 'inside', insidetextfont: { color: '#fff', size: 11, family: '"Open Sans"' },
+      hovertemplate: '<b>%{x:.1f}%</b> assigned<extra>%{y}</extra>',
     },
     {
-      name: 'Remaining capacity',
-      type: 'bar', orientation: 'h',
-      x: remPct, y: labels,
-      marker: { color: TRPA.ice },
-      text: COMMODITIES.map((c, i) => `${fmt(c.max - c.built)} remaining`),
-      textposition: 'inside',
-      insidetextfont: { color: TRPA.navy, size: 11, family: '"Open Sans"' },
-      hovertemplate: '%{y}: <b>%{x:.1f}%</b> remaining<extra></extra>',
+      name: 'Not assigned (remaining)', type: 'bar', orientation: 'h',
+      x: remPct, y: labels, marker: { color: TRPA.ice },
+      text: s.map(x => `${fmt(x.not_assigned)} remaining`),
+      textposition: 'inside', insidetextfont: { color: TRPA.navy, size: 11, family: '"Open Sans"' },
+      hovertemplate: '<b>%{x:.1f}%</b> not assigned<extra>%{y}</extra>',
     },
   ], {
-    barmode: 'stack',
-    font: plotFont,
+    barmode: 'stack', font: plotFont,
     paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
     margin: { t: 8, r: 24, b: 32, l: 200 },
     xaxis: { range: [0, 100], ticksuffix: '%', gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 11 } },
-    yaxis: { autorange: 'reversed', tickfont: { size: 12, color: TRPA.textDark }, automargin: true },
-    legend: { orientation: 'h', y: -0.18, font: { size: 11 } },
-    showlegend: true,
-  }, { responsive: true, displayModeBar: false });
+    yaxis: { autorange: 'reversed', tickfont: { size: 12 }, automargin: true },
+    legend: { orientation: 'h', y: -0.18, font: { size: 11 } }, showlegend: true,
+  }, PLOT_CFG);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  COMMODITIES.forEach(renderGauge);
-  renderComparison();
-  renderLive2012Plan();
-  renderTransactionsSummary();
-});
+// ── Shared: 3 summary mini-cards + a by-area stacked bar ───────────────────
+function renderSummaryCards(containerId, summary, unit) {
+  const cards = [
+    { label: 'Regional Plan maximum', value: summary.regional_plan_maximum, color: TRPA.navy },
+    { label: 'Assigned to projects',  value: summary.assigned_to_projects,  color: TRPA.forest },
+    { label: 'Not assigned',          value: summary.not_assigned,          color: TRPA.blue },
+  ];
+  document.getElementById(containerId).innerHTML = cards.map(c => `
+    <div class="live-card">
+      <div class="live-accent" style="background:${c.color}"></div>
+      <div class="live-label">${c.label}</div>
+      <div class="live-value">${fmt(c.value)}</div>
+      <div class="live-pct">${unit}</div>
+    </div>`).join('');
+}
 
-// ─────────────────────────────────────────
-// Live 2012 Plan additional breakdown
-// Source: ../data/raw_data/residentialAllocationGridExport.csv (the analyst's grid export)
-// ─────────────────────────────────────────
-const ALLOC_CSV = '../data/raw_data/residentialAllocationGridExport.csv';
-
-// Buckets - leadership's 3 allocation states, with Constructed broken out from the
-// private development pool (where Construction Status = Completed).
-const BUCKETS = [
-  { key: 'constructed', label: 'Constructed',                    color: TRPA.forest, hint: 'Private dev pool · construction completed' },
-  { key: 'allocated',   label: 'Private dev pool (not built)',   color: TRPA.blue,   hint: 'Drawn to a parcel; construction in progress' },
-  { key: 'jurispool',   label: 'Jurisdiction pool',              color: TRPA.orange, hint: 'In a county / CSLT pool; not yet drawn' },
-  { key: 'trpapool',    label: 'TRPA pool',                      color: TRPA.ice,    hint: 'Held by TRPA: TBD + Residential Allocation - TRPA Pool' },
-];
-
-async function renderLive2012Plan() {
-  let text;
-  try {
-    const r = await fetch(ALLOC_CSV, { cache: 'no-cache' });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    text = await r.text();
-  } catch (e) {
-    document.getElementById('live-cards').innerHTML =
-      '<div style="font-size:0.78rem;color:var(--text-mid);padding:10px;">Live data unavailable (' + e.message + '). Static values above remain valid.</div>';
-    return;
-  }
-
-  const lines = text.trim().split('\n');
-  const header = lines[0].split(',');
-  const colIdx = name => header.findIndex(h => h.trim().toLowerCase() === name.toLowerCase());
-  const iAllocStatus = colIdx('Allocation Status');
-  const iConstStatus = colIdx('Construction Status');
-  const iPool        = colIdx('Pool');
-
-  const counts = { constructed: 0, allocated: 0, jurispool: 0, trpapool: 0 };
-  let total = 0;
-  for (let i = 1; i < lines.length; i++) {
-    const parts = lines[i].split(',');
-    const a = (parts[iAllocStatus] || '').trim();
-    const c = (parts[iConstStatus] || '').trim();
-    const p = (parts[iPool]        || '').trim();
-    const isTrpaPool = p.includes('TRPA Pool');
-    // TRPA pool = TBD (Unreleased) OR Unallocated rows in TRPA Pool
-    if (a === 'Unreleased')                          counts.trpapool++;
-    else if (a === 'Unallocated' && isTrpaPool)       counts.trpapool++;
-    else if (a === 'Unallocated')                     counts.jurispool++;
-    else if (a === 'Allocated' && c === 'Completed') counts.constructed++;
-    else if (a === 'Allocated')                       counts.allocated++;
-    total++;
-  }
-
-  // Render the cards
-  const cards = BUCKETS.map(b => {
-    const v = counts[b.key];
-    const pct = total ? (100 * v / total) : 0;
-    return `
-      <div class="live-card">
-        <div class="live-accent" style="background:${b.color}"></div>
-        <div class="live-label">${b.label}</div>
-        <div class="live-value">${v.toLocaleString()}</div>
-        <div class="live-pct">${pct.toFixed(1)} percent &middot; ${b.hint}</div>
-      </div>
-    `;
-  }).join('');
-  document.getElementById('live-cards').innerHTML = cards;
-
-  // Stacked horizontal bar - same shape as the comparison chart
-  const labels  = ['2012 Plan additional (2,600 authorized)'];
-  const traces  = BUCKETS.map(b => ({
-    name: b.label,
-    type: 'bar', orientation: 'h',
-    x: [counts[b.key]], y: labels,
-    marker: { color: b.color },
-    text: [counts[b.key].toLocaleString()],
-    textposition: 'inside',
-    insidetextfont: { color: b.color === TRPA.ice ? TRPA.navy : '#fff', size: 11, family: '"Open Sans"' },
-    hovertemplate: '<b>%{x:,}</b> ' + b.label.toLowerCase() + '<extra></extra>',
-  }));
-  Plotly.react('live-chart', traces, {
-    barmode: 'stack',
-    font: plotFont,
+function renderStackedBar(chartId, rows, unit) {
+  const names    = rows.map(r => r.name);
+  const assigned = rows.map(r => r.assigned || 0);
+  const notAssig = rows.map(r => r.not_assigned || 0);
+  Plotly.react(chartId, [
+    {
+      name: 'Assigned to projects', type: 'bar', orientation: 'h',
+      x: assigned, y: names, marker: { color: TRPA.forest },
+      hovertemplate: `<b>%{x:,}</b> ${unit} assigned<extra>%{y}</extra>`,
+    },
+    {
+      name: 'Not assigned', type: 'bar', orientation: 'h',
+      x: notAssig, y: names, marker: { color: TRPA.ice },
+      hovertemplate: `<b>%{x:,}</b> ${unit} not assigned<extra>%{y}</extra>`,
+    },
+  ], {
+    barmode: 'stack', font: plotFont,
     paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
-    margin: { t: 8, r: 24, b: 32, l: 60 },
-    xaxis: { range: [0, 2600], gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 11 } },
+    margin: { t: 8, r: 24, b: 32, l: 175 },
+    xaxis: { gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 11 }, rangemode: 'tozero' },
     yaxis: { autorange: 'reversed', tickfont: { size: 11 }, automargin: true },
-    legend: { orientation: 'h', y: -0.35, font: { size: 11 } },
-    showlegend: true,
-  }, { responsive: true, displayModeBar: false });
+    legend: { orientation: 'h', y: -0.2, font: { size: 11 } }, showlegend: true,
+  }, PLOT_CFG);
 }
 
-// ─────────────────────────────────────────
-// Source-of-rights breakdown + annual construction chart
-// Source: ../data/processed_data/residential_transactions_summary.json
-// (built by parcel_development_history_etl/scripts/convert_transactions_summary.py
-// from "2025 Transactions and Allocations Details.xlsx")
-// ─────────────────────────────────────────
-const TX_SUMMARY = '../data/processed_data/residential_transactions_summary.json';
+// ── Residential section (era toggle) ───────────────────────────────────────
+let resEra = 'combined';
+function renderResidential() {
+  renderSummaryCards('res-summary', RPA.residential.summary[resEra], 'units');
+  const rows = RPA.residential.by_jurisdiction.map(j => ({
+    name:         j.name,
+    assigned:     j[resEra].assigned_to_projects,
+    not_assigned: j[resEra].not_assigned,
+  }));
+  renderStackedBar('res-chart', rows, 'units');
+}
+function setResEra(era, btn) {
+  resEra = era;
+  document.querySelectorAll('#res-era-toggle .toggle-btn')
+    .forEach(x => x.classList.toggle('active', x === btn));
+  renderResidential();
+}
 
-// Color per track #2 source taxonomy
-const SRC_COLOR = {
-  'Allocation':          TRPA.blue,
-  'Banked':              TRPA.forest,
-  'Transfer':            TRPA.orange,
-  'Conversion':          TRPA.purple,
-  'Allocation/Transfer': TRPA.olive,
-  'Bonus Unit':          TRPA.brick,
-  'Other':               TRPA.ice,
+// ── RBU / CFA / TAU section (commodity toggle) ─────────────────────────────
+const COMM_UNIT = {
+  residential_bonus_units:     'units',
+  commercial_floor_area:       'sq ft',
+  tourist_accommodation_units: 'units',
 };
-const SRC_HINT = {
-  'Allocation':          'Drawn from a residential allocation pool',
-  'Banked':              'From a banked development right (e.g. SFRUU/MFRUU bank)',
-  'Transfer':            'Transferred from another parcel (TDR)',
-  'Conversion':          'Converted from a different commodity (e.g. TAU → SFRUU)',
-  'Allocation/Transfer': 'Combined allocation + PRU/TDR transfer',
-  'Bonus Unit':          'From a residential bonus unit (RBU)',
-  'Other':               'Uncategorized or TBD',
-};
+let commKey = 'residential_bonus_units';
+function renderCommodity() {
+  const c    = RPA[commKey];
+  const unit = COMM_UNIT[commKey];
+  renderSummaryCards('comm-summary', c.status.summary, unit);
+  const rows = c.status.by_pool.map(p => ({
+    name:         p.name,
+    assigned:     p.assigned_to_projects,
+    not_assigned: p.not_assigned,
+  }));
+  renderStackedBar('comm-chart', rows, unit);
+}
+function setCommodity(key, btn) {
+  commKey = key;
+  document.querySelectorAll('#comm-toggle .toggle-btn')
+    .forEach(x => x.classList.toggle('active', x === btn));
+  renderCommodity();
+}
 
-async function renderTransactionsSummary() {
-  let data;
+// ── Boot ───────────────────────────────────────────────────────────────────
+async function main() {
   try {
-    const r = await fetch(TX_SUMMARY, { cache: 'no-cache' });
+    const r = await fetch(DATA_URL, { cache: 'no-cache' });
     if (!r.ok) throw new Error('HTTP ' + r.status);
-    data = await r.json();
+    RPA = await r.json();
   } catch (e) {
-    document.getElementById('src-cards').innerHTML =
-      '<div style="font-size:0.78rem;color:var(--text-mid);padding:10px;">Source breakdown unavailable (' + e.message + ')</div>';
+    document.querySelectorAll('#comparison-chart, #res-chart, #comm-chart').forEach(el => {
+      el.innerHTML = '<div style="padding:20px;color:var(--text-mid);font-size:0.8rem">'
+        + 'Data unavailable (' + e.message + '). Run '
+        + '<code>convert_regional_plan_allocations.py</code> to (re)build the JSON.</div>';
+    });
     return;
   }
-
-  document.getElementById('tx-total-completed').textContent = data.meta.completed.toLocaleString();
-
-  // ── Source cards ─────────────────────────────────────────────────────
-  const totalCompleted = data.meta.completed;
-  const cards = data.by_source
-    .filter(s => s.completed > 0)
-    .map(s => {
-      const color = SRC_COLOR[s.source] || TRPA.ice;
-      const pct   = totalCompleted ? (100 * s.completed / totalCompleted) : 0;
-      const hint  = SRC_HINT[s.source] || '';
-      return `
-        <div class="live-card">
-          <div class="live-accent" style="background:${color}"></div>
-          <div class="live-label">${s.source}</div>
-          <div class="live-value">${s.completed.toLocaleString()}</div>
-          <div class="live-pct">${pct.toFixed(1)} percent &middot; ${hint}</div>
-        </div>`;
-    }).join('');
-  document.getElementById('src-cards').innerHTML = cards;
-
-  // ── Single stacked-horizontal bar showing the composition (1 row) ────
-  const labels = ['Completed residential developments'];
-  const traces = data.by_source
-    .filter(s => s.completed > 0)
-    .map(s => ({
-      name: s.source,
-      type: 'bar', orientation: 'h',
-      x: [s.completed], y: labels,
-      marker: { color: SRC_COLOR[s.source] || TRPA.ice },
-      text: [s.completed.toLocaleString()],
-      textposition: 'inside',
-      insidetextfont: { color: (SRC_COLOR[s.source] === TRPA.ice) ? TRPA.navy : '#fff',
-                        size: 11, family: '"Open Sans"' },
-      hovertemplate: `<b>%{x:,}</b> completed<extra>${s.source}</extra>`,
-    }));
-  Plotly.react('src-stack', traces, {
-    barmode: 'stack',
-    font: plotFont,
-    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
-    margin: { t: 4, r: 16, b: 28, l: 16 },
-    xaxis: { range: [0, totalCompleted], gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 10 } },
-    yaxis: { tickfont: { size: 11 }, automargin: true, visible: false },
-    legend: { orientation: 'h', y: -0.6, font: { size: 10 } },
-    showlegend: true,
-  }, { responsive: true, displayModeBar: false });
-
-  // ── Annual construction stacked area ─────────────────────────────────
-  // Pivot data.by_year_source into year × source matrix
-  const sources = data.by_source.filter(s => s.completed > 0).map(s => s.source);
-  const years   = data.by_year.map(d => d.year);
-  const ySeries = {};
-  sources.forEach(s => ySeries[s] = years.map(() => 0));
-  for (const r of data.by_year_source) {
-    const yi = years.indexOf(r.year);
-    if (yi >= 0 && ySeries[r.source]) ySeries[r.source][yi] = r.completed;
-  }
-  const annualTraces = sources.map(src => ({
-    name: src, x: years, y: ySeries[src],
-    type: 'scatter', mode: 'none', stackgroup: 'one',
-    fillcolor: SRC_COLOR[src] || TRPA.ice,
-    hovertemplate: `<b>%{y:,}</b> completed<extra>${src}</extra>`,
-  }));
-  Plotly.react('annual-chart', annualTraces, {
-    font: plotFont,
-    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
-    margin: { t: 8, r: 16, b: 40, l: 56 },
-    xaxis: { gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 11 },
-             range: [data.meta.year_min - 0.5, data.meta.year_max + 0.5] },
-    yaxis: { gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 11 },
-             title: { text: 'Completed per year', font: { size: 11 } } },
-    legend: { orientation: 'h', y: -0.18, font: { size: 11 } },
-    hovermode: 'x unified',
-  }, { responsive: true, displayModeBar: false });
+  GAUGES.forEach(renderGauge);
+  renderComparison();
+  renderResidential();
+  renderCommodity();
+  document.querySelectorAll('#res-era-toggle .toggle-btn').forEach(b =>
+    b.addEventListener('click', () => setResEra(b.dataset.era, b)));
+  document.querySelectorAll('#comm-toggle .toggle-btn').forEach(b =>
+    b.addEventListener('click', () => setCommodity(b.dataset.comm, b)));
 }
+document.addEventListener('DOMContentLoaded', main);
 </script>
 </body>
 </html>

@@ -89,12 +89,31 @@ ALLOCATION_GRID_CSV = (
     r"C:\Users\mbindl\Documents\GitHub\Reporting"
     r"\data\raw_data\residentialAllocationGridExport.csv"
 )
-# Aggregated summary of the 2025 Transactions and Allocations Details xlsx,
-# filtered to residential commodities and bucketed by source. Consumed by
-# regional-capacity-dial.html (track #4 Total Development Tracking).
-RESIDENTIAL_TRANSACTIONS_SUMMARY_JSON = (
+# All Regional Plan Allocations Summary - analyst-delivered xlsx with the
+# 1987 / 2012 / combined plan-era split, Regional Plan Maximum + assigned /
+# not-assigned status, by jurisdiction, for all four commodities (RES / RBU /
+# CFA / TAU), plus a residential allocations-by-year (1986-2026) block.
+# This is the authoritative source for the "Assigned" reframe and the 8,687
+# expansion. Pre-2012 (1987 Plan) figures are not in LT Info, so this xlsx
+# is the only source for them.
+REGIONAL_PLAN_ALLOCATIONS_XLSX = (
     r"C:\Users\mbindl\Documents\GitHub\Reporting"
-    r"\data\processed_data\residential_transactions_summary.json"
+    r"\data\from_analyst\All Regional Plan Allocations Summary.xlsx"
+)
+# Tidy JSON form of the above, emitted by convert_regional_plan_allocations.py.
+# Consumed by regional-capacity-dial.html, allocation-tracking.html,
+# pool-balance-cards.html, and public-allocation-availability.html (Phase 2).
+REGIONAL_PLAN_ALLOCATIONS_JSON = (
+    r"C:\Users\mbindl\Documents\GitHub\Reporting"
+    r"\data\processed_data\regional_plan_allocations.json"
+)
+# Normalized 1987 Regional Plan baseline - the frozen historical half that is
+# NOT in Corral / LT Info and must live as a hard-coded reference (the
+# `RegionalPlanCapacity` seed in erd/regional_plan_allocations_service.md).
+# Extracted from the JSON above by extract_regional_plan_1987_seed.py.
+REGIONAL_PLAN_1987_BASELINE_CSV = (
+    r"C:\Users\mbindl\Documents\GitHub\Reporting"
+    r"\data\processed_data\regional_plan_1987_baseline.csv"
 )
 # Many-to-many junction table: one row per (Residential_Unit_ID, Transaction_ID)
 # pair. Captures the chronology of transactions affecting each unit and
@@ -115,6 +134,14 @@ BUILDINGS_INVENTORY_CSV = (
 BUILDINGS_WITH_UNITS_JSON = (
     r"C:\Users\mbindl\Documents\GitHub\Reporting"
     r"\data\processed_data\buildings_with_units.json"
+)
+# Output of build_genealogy_solver_data.py — pre-joined genealogy graph +
+# per-APN 2025 cross-reference (units / year built / jurisdiction) compacted
+# into a single JSON for client-side BFS in html/genealogy_solver/.
+# Co-located with the app (not data/processed_data/) since it's app-specific.
+GENEALOGY_SOLVER_JSON = (
+    r"C:\Users\mbindl\Documents\GitHub\Reporting"
+    r"\html\genealogy_solver\data\genealogy_solver.json"
 )
 
 # ── Parcel genealogy ───────────────────────────────────────────────────────────

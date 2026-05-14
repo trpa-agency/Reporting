@@ -228,8 +228,9 @@ header h1 span { color: var(--trpa-blue); }
     </div>
     <div class="header-meta">
       <div class="live-badge">Live Data</div><br>
-      Source: TRPA Permit System<br>
-      Latest pool balances per the analyst&rsquo;s 2026 report
+      Source: <a href="https://parcels.laketahoeinfo.org/ResidentialAllocation/Manage" style="color:var(--trpa-ice)">Lake Tahoe Info Parcel Tracker, Residential Allocation Tracking</a><br>
+      Latest pool balances: <a href="https://parcels.laketahoeinfo.org/DevelopmentRightPool/DevelopmentRightPoolBalanceReport" style="color:var(--trpa-ice)">Pool Balance Report</a><br>
+      Per-allocation drilldown of the 2,600 2012-Plan additional. Full 8,687 + all-commodity view: <a href="regional-capacity-dial.html" style="color:var(--trpa-ice)">Regional Plan Capacity Dial</a>
     </div>
   </div>
 </header>
@@ -303,7 +304,7 @@ header h1 span { color: var(--trpa-blue); }
       </div>
       <div class="card">
         <h3>Pool status by jurisdiction</h3>
-        <p>Allocated to Private Development (forest) &middot; Jurisdiction pool (orange) &middot; TRPA pool (ice)</p>
+        <p>Allocated to Private Development (forest) &middot; Jurisdiction pool (orange) &middot; TRPA pool (ice) &middot; Unreleased (purple)</p>
         <div id="bar-chart" style="height:400px;"></div>
       </div>
     </div>
@@ -319,6 +320,7 @@ header h1 span { color: var(--trpa-blue); }
       <option value="Allocated">Allocated to Private Development</option>
       <option value="In Pool">Jurisdiction pool</option>
       <option value="TRPA Pool">TRPA pool</option>
+      <option value="Unreleased">Unreleased</option>
     </select>
     <div class="ctrl-divider"></div>
     <span class="ctrl-label">Jurisdiction</span>
@@ -341,7 +343,7 @@ header h1 span { color: var(--trpa-blue); }
           <tr>
             <th>Jurisdiction / Pool</th>
             <th class="r">Pool Total</th>
-            <th class="r">Private Dev Pool</th>
+            <th class="r">Allocated to Private</th>
             <th class="r">In Pool</th>
             <th class="bar-cell">% Drawn</th>
           </tr>
@@ -361,6 +363,7 @@ header h1 span { color: var(--trpa-blue); }
         <option value="Allocated">Allocated to private development</option>
         <option value="In Pool">Jurisdiction pool</option>
         <option value="TRPA Pool">TRPA pool</option>
+        <option value="Unreleased">Unreleased</option>
       </select>
       <span class="ctrl-count" id="tbl-count">- records</span>
       <button class="dl-btn" onclick="downloadCSV()">&#8595; CSV</button>
@@ -494,10 +497,14 @@ function fmtVal(n) {
 // PARSERS
 // ─────────────────────────────────────────
 // Cols: 0=ID 1=PoolCode 2=Year 3=Type 4=Seq 5=AllocStatus 6=Transaction 7=Pool 8=PrevTrx 9=APN 10=ConstructionStatus
-// Maps the 4 raw allocation/pool combinations into leadership's 3-state framing:
+// Maps the raw allocation/pool combinations into a 4-state framing:
 //   Allocated to Private Development = Allocation Status 'Allocated' (drawn to a parcel)
 //   Jurisdiction pool        = 'Unallocated' AND Pool is a county/CSLT pool
-//   TRPA pool                = 'Unallocated' in "Residential Allocation - TRPA Pool"  OR  'Unreleased' (TBD)
+//   TRPA pool                = 'Unallocated' in "Residential Allocation - TRPA Pool"
+//   Unreleased               = Allocation Status 'Unreleased' (held centrally, not yet released)
+// `isTrpaReserve` stays the union of TRPA Pool + Unreleased (i.e. "no
+// jurisdiction") so jurisdiction-filtering code downstream is untouched;
+// the `status` field carries the 4-way distinction.
 // Construction Status (col 10) is intentionally not surfaced here - that
 // belongs to the "Total Development Tracking" view, not allocation tracking.
 function parseResCSV(text) {
@@ -511,8 +518,9 @@ function parseResCSV(text) {
     const isUnalloc    = statusRaw === 'Unallocated';
     const isAlloc      = statusRaw === 'Allocated';
 
-    // Two ways an allocation lands in TRPA pool: unreleased TBD, or sitting
-    // unallocated in the explicit "Residential Allocation - TRPA Pool".
+    // Non-jurisdiction union: unreleased TBD, or sitting unallocated in the
+    // explicit "Residential Allocation - TRPA Pool". Drives year/jurisdiction
+    // nulling and `isTrpaReserve`; the 4-way `status` below splits it further.
     const inTrpaState = isUnreleased || (isTrpaPool && isUnalloc);
 
     // Pre-2012 rows are out of 2012-Plan scope; drop unless they're TRPA-held
@@ -520,9 +528,10 @@ function parseResCSV(text) {
     if (!inTrpaState && (!year || year < 2012)) return null;
 
     let status;
-    if (inTrpaState)   status = 'TRPA Pool';
-    else if (isAlloc)  status = 'Allocated';        // = Allocated to Private Development
-    else               status = 'In Pool';          // = Jurisdiction pool
+    if (isUnreleased)                 status = 'Unreleased';     // held centrally, not yet released
+    else if (isTrpaPool && isUnalloc) status = 'TRPA Pool';      // unallocated in the TRPA Pool
+    else if (isAlloc)                 status = 'Allocated';      // = Allocated to Private Development
+    else                              status = 'In Pool';        // = Jurisdiction pool
 
     return {
       id:            (c[0] || '').trim(),
@@ -555,11 +564,16 @@ function parseCfaTauCSV(text) {
     if (!type) return null;
     // TRPA Draft = central reserve, not yet distributed to a jurisdiction
     const isTrpaReserve = poolCode === 'TRPA' && statusRaw === 'Draft';
+    // Mirror parseResCSV: TRPA-held rows must carry status 'TRPA Pool' or the
+    // KPI / Sankey / bar logic (which keys off status) never counts them -
+    // getJurisRows already excludes isTrpaReserve rows from the jurisdiction
+    // buckets, so without this they fall through the cracks entirely.
     return {
       id:            (c[0] || '').trim(),
       year,
       type,
-      status:        statusRaw === 'Approved' ? 'Allocated' : 'In Pool',
+      status:        isTrpaReserve            ? 'TRPA Pool' :
+                     statusRaw === 'Approved' ? 'Allocated' : 'In Pool',
       statusRaw,
       jurisdiction:  isTrpaReserve ? null : poolCodeToJuris(poolCode),
       pool:          poolCode,
@@ -601,15 +615,20 @@ function updateKPIs() {
   // When ALL jurisdiction pills are active, KPI1 also includes the small
   // set of TRPA-Pool-drawn Allocated rows (jurisdiction=null, ~20 rows) so
   // the three KPIs sum to the cap. When a single jurisdiction is selected,
-  // those rows are excluded \u2014 they don't belong to any specific jurisdiction.
+  // those rows are excluded - they don't belong to any specific jurisdiction.
   const allJurisActive = activePills.size === JURIS_ORDER.length;
   const trpaDrawn = allJurisActive
     ? sumQty(rawData.filter(r => r.status === 'Allocated' && !r.jurisdiction && (r.year || 0) <= sliderYear))
     : 0;
   const allocatedKpi = allocated + trpaDrawn;
 
-  // KPI3 (TRPA pool reserve) is system-wide \u2014 same value regardless of pill filter
-  const trpaPool = sumQty(rawData.filter(r => r.status === 'TRPA Pool'));
+  // KPI3 is system-wide - same value regardless of pill filter. The 4-state
+  // model splits TRPA-held into "TRPA Pool" (unallocated) + "Unreleased";
+  // KPI3 shows the combined total with the split spelled out in its sub-line
+  // so KPI1 + KPI2 + KPI3 still sums to the cap.
+  const trpaPoolHeld  = sumQty(rawData.filter(r => r.status === 'TRPA Pool'));
+  const unreleased    = sumQty(rawData.filter(r => r.status === 'Unreleased'));
+  const trpaHeldTotal = trpaPoolHeld + unreleased;
 
   const filterLabel = allJurisActive ? '' : ` (${activePills.size} of ${JURIS_ORDER.length} jurisdictions)`;
 
@@ -625,10 +644,12 @@ function updateKPIs() {
       : filterLabel),
     available / total * 100, tc);
 
-  setKPI(3, 'TRPA pool',
-    fmtVal(trpaPool),
-    (trpaPool / total * 100).toFixed(1) + '% \u00b7 TBD + TRPA Pool (system-wide, not filtered)',
-    trpaPool / total * 100, TRPA.ice);
+  const kpi3sub = unreleased > 0
+    ? (trpaHeldTotal / total * 100).toFixed(1) + '% \u00b7 ' + unreleased.toLocaleString()
+      + ' unreleased + ' + trpaPoolHeld.toLocaleString() + ' in TRPA Pool'
+    : (trpaHeldTotal / total * 100).toFixed(1) + '% \u00b7 TRPA Pool (system-wide, not filtered)';
+  setKPI(3, 'TRPA-held', fmtVal(trpaHeldTotal), kpi3sub,
+    trpaHeldTotal / total * 100, TRPA.ice);
 }
 
 function setKPI(n, label, value, sub, pct, color) {
@@ -744,10 +765,10 @@ function renderCharts() {
 }
 
 function renderSankey() {
-  // 3-column lifecycle Sankey per the framing (2026-05-11):
-  //   LEFT   ─►  Total Authorized (2,600)
-  //   MIDDLE ─►  6 pools (TRPA Pool + 5 jurisdiction pools - where allocations went)
-  //   RIGHT  ─►  3 current states (Still in TRPA / Still in Juris / Private Dev)
+  // 3-column lifecycle Sankey:
+  //   LEFT   ->  Total Authorized (2,600)
+  //   MIDDLE ->  6 pools (TRPA Pool + 5 jurisdiction pools - where allocations went)
+  //   RIGHT  ->  4 current states (Still in TRPA / Unreleased / Still in Juris / Private Dev)
   // Each row counts exactly once: total flow = 2,600.
   const total    = TOTAL_AUTH[currentType];
   const yr       = sliderYear;
@@ -755,43 +776,48 @@ function renderSankey() {
   const jRows    = getJurisRows(yr).filter(r => activePills.has(r.jurisdiction));
   const juris    = allJuris.filter(j => jRows.some(r => r.jurisdiction === j));
 
-  // Per-pool totals
-  const trpaHeld  = sumQty(rawData.filter(r => r.status === 'TRPA Pool'));
-  const trpaDrawn = sumQty(rawData.filter(r =>
+  // Per-pool totals. TRPA-held splits into TRPA Pool (unallocated) +
+  // Unreleased; both flow in through the middle "TRPA Pool" node.
+  const trpaHeld   = sumQty(rawData.filter(r => r.status === 'TRPA Pool'));
+  const unreleased = sumQty(rawData.filter(r => r.status === 'Unreleased'));
+  const trpaDrawn  = sumQty(rawData.filter(r =>
     r.status === 'Allocated' && !r.jurisdiction && (r.year || 0) <= yr));
-  const trpaTotal = trpaHeld + trpaDrawn;
+  const trpaTotal  = trpaHeld + unreleased + trpaDrawn;
 
   // Node indices
-  const iAuth      = 0;                                        // LEFT - Total Authorized
-  const iTrpaPool  = 1;                                        // MIDDLE - TRPA Pool
-  const iJ         = j => juris.indexOf(j) + 2;                // MIDDLE - 5 jurisdiction pools
-  const iTrpaDest  = juris.length + 2;                         // RIGHT - Still in TRPA Pool
-  const iJurisDest = juris.length + 3;                         // RIGHT - Still in Jurisdiction Pool
-  const iPrivate   = juris.length + 4;                         // RIGHT - Allocated to Private Development
+  const iAuth       = 0;                                       // LEFT - Total Authorized
+  const iTrpaPool   = 1;                                       // MIDDLE - TRPA Pool
+  const iJ          = j => juris.indexOf(j) + 2;               // MIDDLE - 5 jurisdiction pools
+  const iTrpaDest   = juris.length + 2;                        // RIGHT - Still in TRPA Pool
+  const iUnreleased = juris.length + 3;                        // RIGHT - Unreleased
+  const iJurisDest  = juris.length + 4;                        // RIGHT - Still in Jurisdiction Pool
+  const iPrivate    = juris.length + 5;                        // RIGHT - Allocated to Private Development
 
   const nodeLabels = [
     'Total Authorized',                            // 0 - left
     'TRPA Pool',                                   // 1 - middle
     ...juris.map(j => JURIS_SHORT[j] || j),        // 2..N+1 - middle (5 jurisdictions)
     'Still in TRPA Pool',                          // N+2 - right state
-    'Still in Jurisdiction Pool',                  // N+3 - right state
-    'Allocated to Private Development',                    // N+4 - right state
+    'Unreleased',                                  // N+3 - right state
+    'Still in Jurisdiction Pool',                  // N+4 - right state
+    'Allocated to Private Development',            // N+5 - right state
   ];
   const nodeColors = [
     TRPA.navy,                                     // Total Authorized
-    TRPA.purple,                                   // TRPA Pool (middle)
+    TRPA.navy,                                     // TRPA Pool (middle) - navy so it doesn't collide with the purple Unreleased node
     ...juris.map(() => TRPA.blue),                 // jurisdictions (middle)
     TRPA.ice,                                      // Still in TRPA Pool (right)
+    TRPA.purple,                                   // Unreleased (right)
     TRPA.orange,                                   // Still in Jurisdiction Pool (right)
     TRPA.forest,                                   // Allocated to Private Development (right)
   ];
 
   const src = [], tgt = [], val = [], lnkColor = [];
 
-  // Column 1 → Column 2: Authorized to each pool
+  // Column 1 -> Column 2: Authorized to each pool
   if (trpaTotal > 0) {
     src.push(iAuth); tgt.push(iTrpaPool); val.push(trpaTotal);
-    lnkColor.push(hexA(TRPA.purple, 0.30));
+    lnkColor.push(hexA(TRPA.navy, 0.25));
   }
   juris.forEach(j => {
     const jurisTotal = sumQty(jRows.filter(r => r.jurisdiction === j));
@@ -801,17 +827,21 @@ function renderSankey() {
     }
   });
 
-  // Column 2 → Column 3: TRPA Pool to states
+  // Column 2 -> Column 3: TRPA Pool to states
   if (trpaHeld > 0) {
     src.push(iTrpaPool); tgt.push(iTrpaDest); val.push(trpaHeld);
     lnkColor.push(hexA(TRPA.ice, 0.55));
+  }
+  if (unreleased > 0) {
+    src.push(iTrpaPool); tgt.push(iUnreleased); val.push(unreleased);
+    lnkColor.push(hexA(TRPA.purple, 0.45));
   }
   if (trpaDrawn > 0) {
     src.push(iTrpaPool); tgt.push(iPrivate); val.push(trpaDrawn);
     lnkColor.push(hexA(TRPA.forest, 0.30));
   }
 
-  // Column 2 → Column 3: each jurisdiction pool to states
+  // Column 2 -> Column 3: each jurisdiction pool to states
   juris.forEach(j => {
     const allocQty = sumQty(jRows.filter(r => r.jurisdiction === j && r.status === 'Allocated'));
     const availQty = sumQty(jRows.filter(r => r.jurisdiction === j && r.status === 'In Pool'));
@@ -852,6 +882,7 @@ function renderBar() {
   const allocated   = juris.map(j => sumQty(jRows.filter(r => r.jurisdiction === j && r.status === 'Allocated')));
   const available   = juris.map(j => sumQty(jRows.filter(r => r.jurisdiction === j && r.status === 'In Pool')));
   const notAssigned = sumQty(rawData.filter(r => r.status === 'TRPA Pool'));
+  const unreleased  = sumQty(rawData.filter(r => r.status === 'Unreleased'));
   const trpaAlloc   = sumQty(rawData.filter(r =>
     r.status === 'Allocated' && !r.jurisdiction && (r.year || 0) <= yr));
 
@@ -859,7 +890,7 @@ function renderBar() {
   const fc = document.querySelector('#chart-count');
   if (fc) {
     const inPool = sumQty(jRows.filter(r => activePills.has(r.jurisdiction)));
-    fc.innerHTML = '<strong>' + (inPool + notAssigned + trpaAlloc).toLocaleString() + '</strong> of ' + total.toLocaleString() + ' shown';
+    fc.innerHTML = '<strong>' + (inPool + notAssigned + unreleased + trpaAlloc).toLocaleString() + '</strong> of ' + total.toLocaleString() + ' shown';
   }
 
   const yTitle = currentType === 'commercial' ? 'Sq Ft (CFA)' : 'Units';
@@ -881,7 +912,13 @@ function renderBar() {
       name: 'TRPA Pool',
       type: 'bar', x: xLabels, y: [...juris.map(() => 0), notAssigned],
       marker: { color: TRPA.ice },
-      hovertemplate: '<b>%{y:,}</b> in TRPA pool (TBD + Residential Allocation - TRPA Pool)<extra></extra>',
+      hovertemplate: '<b>%{y:,}</b> unallocated in the TRPA Pool<extra></extra>',
+    },
+    {
+      name: 'Unreleased',
+      type: 'bar', x: xLabels, y: [...juris.map(() => 0), unreleased],
+      marker: { color: TRPA.purple },
+      hovertemplate: '<b>%{y:,}</b> unreleased (held centrally by TRPA)<extra></extra>',
     },
   ], {
     font: plotFont, paper_bgcolor: plotPaper, plot_bgcolor: plotPaper,
@@ -931,15 +968,35 @@ function renderDrawdownTable() {
     tbody.appendChild(tr);
   });
 
-  const notYet = total - gInPool;
+  // TRPA-side residual. For residential, split it into "TRPA pool" and
+  // "Unreleased" display rows that still sum to `notYet` (so the table keeps
+  // accounting for the full cap). Commercial/tourist have no unreleased state,
+  // so they keep the single residual row.
+  const notYet     = total - gInPool;
+  const unreleased = currentType === 'residential'
+    ? sumQty(rawData.filter(r => r.status === 'Unreleased'))
+    : 0;
+  const trpaResidual = notYet - unreleased;
+
   const ntr = document.createElement('tr');
   ntr.style.cssText = 'color:var(--text-light);';
   ntr.innerHTML =
     '<td style="font-style:italic">TRPA pool</td>' +
-    '<td class="r">' + notYet.toLocaleString() + '</td>' +
+    '<td class="r">' + trpaResidual.toLocaleString() + '</td>' +
     '<td class="r">-</td><td class="r">-</td>' +
-    '<td class="bar-cell"><div class="bar-pct">' + (notYet / total * 100).toFixed(1) + '% of total</div></td>';
+    '<td class="bar-cell"><div class="bar-pct">' + (trpaResidual / total * 100).toFixed(1) + '% of total</div></td>';
   tbody.appendChild(ntr);
+
+  if (unreleased > 0) {
+    const utr = document.createElement('tr');
+    utr.style.cssText = 'color:var(--text-light);';
+    utr.innerHTML =
+      '<td style="font-style:italic">Unreleased</td>' +
+      '<td class="r">' + unreleased.toLocaleString() + '</td>' +
+      '<td class="r">-</td><td class="r">-</td>' +
+      '<td class="bar-cell"><div class="bar-pct">' + (unreleased / total * 100).toFixed(1) + '% of total</div></td>';
+    tbody.appendChild(utr);
+  }
 
   const gPct = gInPool ? (gAlloc / gInPool * 100) : 0;
   tfoot.innerHTML =
@@ -964,9 +1021,9 @@ function getColDefs() {
       { field: 'jurisdiction', headerName: 'Jurisdiction', flex: 1,    sortable: true, filter: 'agTextColumnFilter' },
       { field: 'pool',         headerName: 'Pool',         flex: 1.5,  sortable: true, filter: 'agTextColumnFilter' },
       { field: 'status',       headerName: 'State',        width: 200, sortable: true, filter: 'agTextColumnFilter',
-        valueFormatter: p => ({ 'Allocated': 'Allocated to Private Development', 'In Pool': 'Jurisdiction pool', 'TRPA Pool': 'TRPA pool' })[p.value] || p.value,
+        valueFormatter: p => ({ 'Allocated': 'Allocated to Private Development', 'In Pool': 'Jurisdiction pool', 'TRPA Pool': 'TRPA pool', 'Unreleased': 'Unreleased' })[p.value] || p.value,
         cellStyle: p => ({
-          color: p.value === 'Allocated' ? TRPA.forest : (p.value === 'In Pool' ? TRPA.orange : TRPA.navy),
+          color: ({ 'Allocated': TRPA.forest, 'In Pool': TRPA.orange, 'TRPA Pool': TRPA.navy, 'Unreleased': TRPA.purple })[p.value] || TRPA.navy,
           fontWeight: '600'
         }) },
       { field: 'transaction',  headerName: 'Transaction',  flex: 1,    sortable: true, filter: 'agTextColumnFilter' },

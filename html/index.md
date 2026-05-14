@@ -4,7 +4,7 @@ Single-file HTML pages for the TRPA Cumulative Accounting cycle. Open from a bro
 
 - **Base URL**: `https://trpa-agency.github.io/Reporting/html/<filename>`
 - **Local preview**: from the repo root, `python -m http.server 8123` then `http://localhost:8123/html/<filename>`
-- **Active dashboards**: 8 (★ marks the primary view in each track)
+- **Active dashboards**: 9 (★ marks the primary view in each track)
 
 ---
 
@@ -40,14 +40,13 @@ Organized by the four conceptual tracks (5/11/2026):
 
 | Dashboard | Audience | Data |
 |---|---|---|
-| [**regional-capacity-dial.html**](regional-capacity-dial.html) ★ | Executive · board | the analyst's 2026 PPTX slide 8 (gauges) + `residentialAllocationGridExport.csv` (2012 Plan cards) + `residential_transactions_summary.json` (source-of-rights cards + annual chart) |
+| [**regional-capacity-dial.html**](regional-capacity-dial.html) ★ | Executive · board | `regional_plan_allocations.json` |
 
 Four sections, stacked top to bottom on the page:
-- **4 since-1987 cumulative gauges** (Residential / RBU / TBU / CFA)
-- **Capacity utilization horizontal stacked bar**
-- **2012 Plan additional grid** - 4 cards (Constructed · Private dev pool · Jurisdiction pool · TRPA pool = 2,600)
-- **Completed residential by source** - 7 cards (Allocation 894 / Banked 232 / Transfer 135 / Conversion 80 / Allocation-Transfer 54 / Bonus Unit 35 / Other 1 = 1,431)
-- **Annual residential construction** - stacked area 2009–2026 by source
+- **4 since-1987 cumulative gauges** (Residential / RBU / TBU / CFA) - assigned vs Regional Plan max
+- **Capacity utilization horizontal stacked bar** - assigned vs not assigned
+- **Residential allocations by jurisdiction** - all 8,687, era toggle (Combined / 1987 Plan / 2012 Plan)
+- **Bonus units, CFA & tourist allocations** - by pool, commodity toggle
 
 ## Companion views (broader development)
 
@@ -56,6 +55,7 @@ Four sections, stacked top to bottom on the page:
 | [development_history.html](development_history.html) | Building footprints by era; year slider | Tahoe Buildings FeatureServer (live AGOL) |
 | [development_history_units.html](development_history_units.html) | Residential units associated with buildings (sqft-weighted split) | Above + `data/processed_data/buildings_with_units.json` |
 | [qa-change-rationale.html](qa-change-rationale.html) | Per-APN audit log of 2023/2026 QA corrections | `qa_change_events.csv` from `04_load_ca_changes.ipynb` |
+| [genealogy_solver/](genealogy_solver/) | APN lineage lookup (single or batch CSV); full component walk + 2025 cross-reference | `apn_genealogy_tahoe.csv` + `PDH_2025_OriginalYrBuilt.csv` → `genealogy_solver.json` |
 
 ## Archived
 
@@ -72,11 +72,12 @@ Moved to [`_archive/`](_archive/) on 2026-05-11 - superseded by newer dashboards
 
 | Source | Used by |
 |---|---|
-| `residentialAllocationGridExport_fromAnalyst.xlsx` → CSV (one row per allocation, 2,600 rows, 11 cols incl. Construction Status) | allocation-tracking · regional-capacity-dial (live cards) |
-| `Additional Development as of April2026.xlsx` | pool-balance-cards · public-allocation-availability · regional-capacity-dial (gauges) |
-| `FINAL RES SUMMARY 2012 to 2025.xlsx` | residential-additions-by-source |
+| `residentialAllocationGridExport_fromAnalyst.xlsx` → CSV (one row per allocation, 2,600 rows, 11 cols incl. Construction Status) | allocation-tracking |
+| `All Regional Plan Allocations Summary.xlsx` → `regional_plan_allocations.json` (1987 / 2012 / combined split, assigned vs not-assigned, by jurisdiction/pool, all 4 commodities, + residential by-year) | regional-capacity-dial · pool-balance-cards · public-allocation-availability (metering) |
+| `Additional Development as of April2026.xlsx` | public-allocation-availability (jurisdiction tiles snapshot) |
+| `FINAL RES SUMMARY 2012 to 2025.xlsx` | residential-additions-by-source (additions + projects) |
 | `CA Changes breakdown.xlsx` (via `04_load_ca_changes.ipynb`) | qa-change-rationale |
-| `2025 Transactions and Allocations Details.xlsx` → summary JSON | regional-capacity-dial (source-of-rights + annual construction) · residential_units_inventory (downstream of development_history_units) |
+| `2025 Transactions and Allocations Details.xlsx` | residential_units_inventory (downstream of development_history_units) |
 | Tahoe Buildings FeatureServer (AGOL) | development_history · development_history_units |
 | TRPA ArcGIS REST | allocation-tracking (map tab) |
 
@@ -88,14 +89,19 @@ When the analyst sends a refreshed xlsx, drop it in `data/raw_data/` and run the
 # Set up alias once
 PY="C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/python.exe"
 
-# Per-allocation grid → CSV (allocation-tracking + regional-capacity-dial cards)
+# Per-allocation grid → CSV (allocation-tracking)
 PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/convert_allocation_grid.py
 
-# Transactions summary → JSON (regional-capacity-dial source-of-rights + annual chart)
-PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/convert_transactions_summary.py
+# Regional Plan allocations summary → JSON + 1987 baseline CSV
+#   (regional-capacity-dial + pool-balance-cards + public-allocation-availability)
+PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/convert_regional_plan_allocations.py
+PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/extract_regional_plan_1987_seed.py
 
 # Buildings × units join → JSON (development_history_units)
 PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/build_buildings_with_units.py
+
+# Genealogy graph + 2025 cross-reference → JSON (genealogy_solver)
+PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/build_genealogy_solver_data.py
 ```
 
 The PDH ETL pipeline (`main.py`) is upstream of all of the above - re-run when SDE parcels or the analyst's residential CSVs change.

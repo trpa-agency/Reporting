@@ -121,8 +121,7 @@ header h1 span { color: var(--trpa-blue); }
     </div>
     <div class="header-meta">
       <div class="live-badge">2026 Cycle</div><br>
-      Source: 2026 Cumulative Accounting Report<br>
-      Compiled by the analyst &middot; latest snapshot Apr 30, 2026
+      Source: Tahoe Regional Planning Agency, May 2026
     </div>
   </div>
 </header>
@@ -172,7 +171,7 @@ header h1 span { color: var(--trpa-blue); }
     </div>
     <div class="card">
       <h3>Major completed projects</h3>
-      <p>The story behind the inflections. Affordable / achievable units highlighted.</p>
+      <p>Residential projects completed by year.</p>
       <div class="proj-list" id="proj-list"></div>
     </div>
   </div>
@@ -181,6 +180,7 @@ header h1 span { color: var(--trpa-blue); }
 <!-- Footnote -->
 <div class="footnote">
   <strong>Data:</strong> <code>from_analyst/FINAL RES SUMMARY 2012 to 2025.xlsx</code> - Summary sheet <em>Added Residential Units</em> rows + <em>Major Completed Projects</em> column. Ultimate source: <code>dbo.TdrTransaction</code>, <code>dbo.ParcelPermitBankedDevelopmentRight</code>, <code>dbo.ResidentialBonusUnit*</code> in Corral, aggregated by year &times; movement type, filtered to SFRUU + MFRUU. See <a href="../erd/dashboards_to_schema_trace.md" style="color:var(--trpa-blue);">dashboards_to_schema_trace.md</a> for the trace.
+  <br><strong>Related:</strong> <a href="https://trpa.maps.arcgis.com/apps/dashboards/ddfe13ef914a48288bb4bc37c6b57936" style="color:var(--trpa-blue);">TRPA Development Rights Dashboard</a>.
 </div>
 
 <script>

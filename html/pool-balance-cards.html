@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Residential Allocation Pool Balances - TRPA</title>
+<title>Development Right Pool Balances - TRPA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
@@ -40,7 +40,6 @@ header { background: var(--trpa-navy); color: #fff; display: flex; align-items: 
 .header-eyebrow { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--trpa-ice); margin-bottom: 7px; }
 header h1 { font-weight: 700; font-size: 1.85rem; line-height: 1.15; letter-spacing: -0.02em; }
 header h1 span { color: var(--trpa-blue); }
-.header-sub { font-size: 0.82rem; color: var(--trpa-ice); margin-top: 6px; opacity: 0.9; max-width: 760px; }
 .header-meta { font-size: 0.75rem; color: var(--trpa-ice); text-align: right; line-height: 1.7; opacity: 0.85; white-space: nowrap; }
 .live-badge { display: inline-block; background: var(--trpa-forest); color: #fff; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; margin-bottom: 6px; }
 
@@ -53,12 +52,14 @@ header h1 span { color: var(--trpa-blue); }
 .kpi-value { font-size: 2.25rem; font-weight: 700; color: var(--text-dark); letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; }
 .kpi-sub { font-size: 0.73rem; color: var(--text-mid); margin-top: 7px; line-height: 1.4; }
 
-/* Sort bar */
-.sort-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 40px; display: flex; gap: 10px; align-items: center; }
-.sort-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); margin-right: 6px; }
-.sort-btn { padding: 6px 16px; border-radius: 4px; border: 1.5px solid var(--border); background: #fff; color: var(--text-mid); font-size: 0.78rem; font-family: inherit; cursor: pointer; transition: all 0.15s; font-weight: 600; }
-.sort-btn:hover { border-color: var(--trpa-blue); color: var(--trpa-blue); }
-.sort-btn.active { background: var(--trpa-navy); border-color: var(--trpa-navy); color: #fff; }
+/* Toolbar (commodity toggle + sort) */
+.toolbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 40px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.tb-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); margin-right: 4px; }
+.tb-divider { width: 1px; height: 20px; background: var(--border); margin: 0 8px; }
+.tb-btn { padding: 6px 14px; border-radius: 4px; border: 1.5px solid var(--border); background: #fff; color: var(--text-mid); font-size: 0.78rem; font-family: inherit; cursor: pointer; transition: all 0.15s; font-weight: 600; }
+.tb-btn:hover { border-color: var(--trpa-blue); color: var(--trpa-blue); }
+.tb-btn.active { background: var(--trpa-navy); border-color: var(--trpa-navy); color: #fff; }
+.tb-btn.active:hover { color: #fff; }
 .sort-count { margin-left: auto; font-size: 0.74rem; color: var(--text-light); }
 
 /* Cards grid */
@@ -79,15 +80,13 @@ header h1 span { color: var(--trpa-blue); }
   font-size: 2rem; font-weight: 700; color: var(--text-dark);
   letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums;
 }
-.pool-of { font-size: 0.72rem; color: var(--text-light); }
+.pool-of { font-size: 0.72rem; color: var(--text-light); text-align: right; }
 .pool-of strong { color: var(--text-mid); font-weight: 600; }
 .pool-bar-track { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin-top: 12px; }
 .pool-bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
 .pool-stats { display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.69rem; color: var(--text-mid); }
 .pool-pct-used { color: var(--text-mid); font-weight: 600; }
 .pool-pct-rem { color: var(--text-mid); }
-.pool-status-low  { color: var(--trpa-brick); font-weight: 700; }
-.pool-status-out  { color: var(--trpa-brick); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.65rem; }
 
 /* Detail panel */
 .detail-panel {
@@ -103,11 +102,14 @@ header h1 span { color: var(--trpa-blue); }
   line-height: 1.6; background: var(--surface); border-top: 1px solid var(--border); margin-top: 24px;
 }
 .footnote code { background: var(--bg); padding: 1px 5px; border-radius: 3px; font-size: 0.7rem; }
+.footnote a { color: var(--trpa-blue); }
+
+#loading { padding: 60px 40px; text-align: center; color: var(--text-light); font-size: 0.9rem; }
 
 @media (max-width: 900px) {
   .kpi-row { grid-template-columns: 1fr 1fr; }
   .kpi-card { border-bottom: 1px solid var(--border); }
-  header .header-content, .sort-bar, .section, .footnote { padding-left: 16px; padding-right: 16px; }
+  header .header-content, .toolbar, .section, .footnote { padding-left: 16px; padding-right: 16px; }
 }
 </style>
 </head>
@@ -118,15 +120,11 @@ header h1 span { color: var(--trpa-blue); }
   <div class="header-content">
     <div>
       <div class="header-eyebrow">Tahoe Regional Planning Agency</div>
-      <h1>Pool Balance <span>Cards</span></h1>
-      <div class="header-sub">
-        One card per residential allocation pool: remaining, % drawn, trajectory since 2013. Click a card for per-year detail.
-      </div>
+      <h1>Development Right <span>Pool Balances</span></h1>
     </div>
     <div class="header-meta">
       <div class="live-badge">B1 / Built</div><br>
-      Source: the analyst&rsquo;s 2026 Pool Balances<br>
-      + allocation_drawdown trajectory (2013&ndash;26)
+      Source: <a href="https://parcels.laketahoeinfo.org/DevelopmentRightPool/DevelopmentRightPoolBalanceReport" style="color:var(--trpa-ice)">Lake Tahoe Info Parcel Tracker,<br>Development Right Pool Balance Report</a>
     </div>
   </div>
 </header>
@@ -135,53 +133,61 @@ header h1 span { color: var(--trpa-blue); }
 <div class="kpi-row">
   <div class="kpi-card">
     <div class="kpi-accent" style="background:var(--trpa-navy)"></div>
-    <div class="kpi-label">Total residential remaining</div>
-    <div class="kpi-value" id="kpi-total">-</div>
-    <div class="kpi-sub" id="kpi-total-sub">across <span id="kpi-pool-count">0</span> active pools</div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-accent" style="background:var(--trpa-blue)"></div>
-    <div class="kpi-label">Allocations drawn down</div>
-    <div class="kpi-value" id="kpi-used">-</div>
-    <div class="kpi-sub" id="kpi-used-sub">since 2013 across the same pools</div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-accent" style="background:var(--trpa-orange)"></div>
-    <div class="kpi-label">Pools exhausted</div>
-    <div class="kpi-value" id="kpi-exhausted">-</div>
-    <div class="kpi-sub" id="kpi-exhausted-sub">remaining = 0</div>
+    <div class="kpi-label">Regional Plan maximum</div>
+    <div class="kpi-value" id="kpi-max">-</div>
+    <div class="kpi-sub" id="kpi-max-sub">total authorized capacity</div>
   </div>
   <div class="kpi-card">
     <div class="kpi-accent" style="background:var(--trpa-forest)"></div>
-    <div class="kpi-label">Unreleased to jurisdictions</div>
-    <div class="kpi-value" id="kpi-unreleased">770</div>
-    <div class="kpi-sub">held centrally; not yet released to any jurisdiction pool</div>
+    <div class="kpi-label">Assigned to projects</div>
+    <div class="kpi-value" id="kpi-used">-</div>
+    <div class="kpi-sub" id="kpi-used-sub">drawn to a parcel</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-accent" style="background:var(--trpa-blue)"></div>
+    <div class="kpi-label">Not assigned</div>
+    <div class="kpi-value" id="kpi-rem">-</div>
+    <div class="kpi-sub" id="kpi-rem-sub">still available in pools</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-accent" style="background:var(--trpa-orange)"></div>
+    <div class="kpi-label">Pools</div>
+    <div class="kpi-value" id="kpi-count">-</div>
+    <div class="kpi-sub" id="kpi-count-sub">jurisdiction + central pools</div>
   </div>
 </div>
 
-<!-- Sort bar -->
-<div class="sort-bar">
-  <span class="sort-label">Sort</span>
-  <button class="sort-btn active" data-sort="remaining" onclick="setSort('remaining')">Remaining (high &rarr; low)</button>
-  <button class="sort-btn"        data-sort="pct"       onclick="setSort('pct')">% used (high &rarr; low)</button>
-  <button class="sort-btn"        data-sort="name"      onclick="setSort('name')">Name (A &rarr; Z)</button>
+<!-- Toolbar -->
+<div class="toolbar">
+  <span class="tb-label">Commodity</span>
+  <button class="tb-btn comm-btn active" data-comm="residential">Residential</button>
+  <button class="tb-btn comm-btn"        data-comm="residential_bonus_units">Bonus Units</button>
+  <button class="tb-btn comm-btn"        data-comm="commercial_floor_area">CFA</button>
+  <button class="tb-btn comm-btn"        data-comm="tourist_accommodation_units">TAU</button>
+  <span class="tb-divider"></span>
+  <span class="tb-label">Sort</span>
+  <button class="tb-btn sort-btn active" data-sort="remaining">Not assigned</button>
+  <button class="tb-btn sort-btn"        data-sort="pct">% used</button>
+  <button class="tb-btn sort-btn"        data-sort="name">Name</button>
   <span class="sort-count" id="sort-count">- pools</span>
 </div>
 
 <!-- Cards + detail -->
 <div class="section">
+  <div id="loading">Loading pool balances&hellip;</div>
   <div class="cards-grid" id="cards-grid"></div>
 
-  <div class="detail-panel">
+  <div class="detail-panel" id="detail-panel" style="display:none;">
     <h3 id="detail-title">Pool detail</h3>
-    <div class="sub" id="detail-sub">Click a card above to see trajectory.</div>
+    <div class="sub" id="detail-sub">Click a card above for detail.</div>
     <div id="detail-chart" style="height:340px;"></div>
-    <div class="detail-empty" id="detail-empty">No pool selected.</div>
+    <div class="detail-empty" id="detail-empty" style="display:none;">No pool selected.</div>
   </div>
 </div>
 
 <div class="footnote">
-  <strong>Data:</strong> <code>from_analyst/Additional Development as of April2026.xlsx</code> (LT Info Pools Balances sheet, with the TRPA Pool 144&rarr;154 correction applied). Per-year trajectory inlined from the prior <code>allocation_drawdown.html</code> series. Eventually backed by <code>PoolDrawdownYearly</code>; see <a href="../erd/dashboards_to_schema_trace.md" style="color:var(--trpa-blue)">dashboards_to_schema_trace.md</a> Trace 2.
+  <strong>Data:</strong> <code>regional_plan_allocations.json</code>, converted from <code>All Regional Plan Allocations Summary.xlsx</code> by <code>convert_regional_plan_allocations.py</code>. Cards show the Regional Plan maximum, assigned to projects, and not-assigned balance per pool. The residential metering chart (released vs assigned by year) comes from the AllocationsByYear / Assigned blocks; per-year data is residential-only. Bars show the share <em>used</em>.<br>
+  <strong>Source:</strong> <a href="https://parcels.laketahoeinfo.org/DevelopmentRightPool/DevelopmentRightPoolBalanceReport">LT Info Development Right Pool Balance Report</a>; 1987 Plan figures from the 2012 Regional Plan Update Analysis.
 </div>
 
 <script>
@@ -190,105 +196,98 @@ const TRPA = {
   brick:'#9C3E27', olive:'#B5A64C', orange:'#E87722', purple:'#7B6A8A',
   ice:'#B4CBE8',
 };
+const DATA_URL = '../data/processed_data/regional_plan_allocations.json';
+const plotFont = { family: '"Open Sans", system-ui, sans-serif', color: TRPA.navy, size: 12 };
+const PLOT_CFG = { responsive: true, displayModeBar: false };
+const CARD_PALETTE = [TRPA.blue, TRPA.navy, TRPA.orange, TRPA.forest, TRPA.earth, TRPA.purple, TRPA.olive, TRPA.brick];
 
-// ─────────────────────────────────────────
-// DATA - residential allocation pools as of 2026, with 2013-26 trajectory
-// Initial capacity = 2013 starting value (when 2012 Plan kicked in)
-// Remaining = 2026 value (the analyst's correction layer applied for TRPA Pool)
-// Trajectory = year-by-year remaining, 2013-2026
-// ─────────────────────────────────────────
-const YEARS = [2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026];
+let RPA          = null;
+let commodity    = 'residential';
+let sortBy       = 'remaining';
+let selectedName = null;
 
-const POOLS = [
-  {
-    name: 'TRPA Pool',
-    juris: 'TRPA (central)',
-    initial: 162, remaining: 154, color: TRPA.navy,
-    note: 'manual correction: LT Info shows 144, correct value is 154.',
-    trajectory: [162, 159, 156, 155, 152, 152, 151, 149, 147, 145, 145, 145, 144, 154],
-  },
-  {
-    name: 'Placer County',
-    juris: 'Placer',
-    initial: 462, remaining: 342, color: TRPA.blue,
-    // 2025-26 drawdown of 7 units per the analyst's April 2026 update
-    trajectory: [462, 431, 394, 357, 349, 349, 349, 349, 349, 349, 349, 349, 342, 342],
-  },
-  {
-    name: 'El Dorado County',
-    juris: 'El Dorado',
-    initial: 407, remaining: 98, color: TRPA.orange,
-    trajectory: [407, 360, 330, 300, 270, 240, 210, 180, 150, 120, 101, 98, 98, 98],
-  },
-  {
-    name: 'City of South Lake Tahoe',
-    juris: 'CSLT',
-    initial: 155, remaining: 0, color: TRPA.brick,
-    note: 'Pool exhausted; new development shifts to CSLT sub-pools or RBU.',
-    trajectory: [155, 135, 106, 93, 65, 61, 31, 0, 0, 0, 0, 0, 0, 0],
-  },
-  {
-    name: 'Washoe County',
-    juris: 'Washoe',
-    initial: 124, remaining: 123, color: TRPA.purple,
-    trajectory: [124, 123, 123, 123, 123, 123, 123, 123, 123, 123, 123, 123, 123, 123],
-  },
-  {
-    name: 'CSLT – Single-Family',
-    juris: 'CSLT sub-pool',
-    initial: 143, remaining: 78, color: TRPA.earth,
-    trajectory: [143, 143, 143, 143, 142, 142, 142, 140, 109, 100, 78, 78, 78, 78],
-  },
-  {
-    name: 'Douglas County',
-    juris: 'Douglas',
-    initial: 134, remaining: 93, color: TRPA.forest,
-    trajectory: [134, 126, 116, 108, 98, 93, 93, 93, 93, 93, 93, 93, 93, 93],
-  },
-  {
-    name: 'CSLT – Multi-Family',
-    juris: 'CSLT sub-pool',
-    initial: 59, remaining: 52, color: TRPA.olive,
-    trajectory: [59, 59, 59, 59, 59, 59, 59, 59, 59, 52, 52, 52, 52, 52],
-  },
-  {
-    name: 'CSLT – Town Center',
-    juris: 'CSLT sub-pool',
-    initial: 59, remaining: 51, color: TRPA.ice,
-    trajectory: [59, 59, 57, 57, 57, 57, 55, 55, 54, 51, 51, 51, 51, 51],
-  },
-];
+const COMM_META = {
+  residential:                 { label: 'Residential', unit: 'units' },
+  residential_bonus_units:     { label: 'Bonus Units', unit: 'units' },
+  commercial_floor_area:       { label: 'CFA',         unit: 'sq ft' },
+  tourist_accommodation_units: { label: 'TAU',         unit: 'units' },
+};
 
-let sortBy = 'remaining';
-let selectedPool = null;
-
-// ─────────────────────────────────────────
-// KPI strip
-// ─────────────────────────────────────────
-function updateKPIs() {
-  const totalRem = POOLS.reduce((s, p) => s + p.remaining, 0);
-  const totalIni = POOLS.reduce((s, p) => s + p.initial, 0);
-  const used = totalIni - totalRem;
-  const exhausted = POOLS.filter(p => p.remaining === 0).length;
-
-  document.querySelector('#kpi-total').textContent = totalRem.toLocaleString();
-  document.querySelector('#kpi-pool-count').textContent = POOLS.length;
-  document.querySelector('#kpi-used').textContent = used.toLocaleString();
-  document.querySelector('#kpi-used-sub').textContent =
-    `${(used / totalIni * 100).toFixed(1)}% of ${totalIni.toLocaleString()} initial`;
-  document.querySelector('#kpi-exhausted').textContent = String(exhausted);
+function fmt(n) {
+  if (n == null) return '0';
+  return Math.round(n).toLocaleString();
+}
+function hexA(hex, a) {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
 }
 
-// ─────────────────────────────────────────
-// Cards
-// ─────────────────────────────────────────
+// ── Data shaping ───────────────────────────────────────────────────────────
+// Build the card list for the active commodity. Residential cards come from
+// the all-era by_jurisdiction breakdown; RBU/CFA/TAU from status.by_pool.
+function getCards() {
+  let rows;
+  if (commodity === 'residential') {
+    rows = RPA.residential.by_jurisdiction.map(j => ({
+      name: j.name,
+      initial:   j.combined.regional_plan_maximum,
+      remaining: j.combined.not_assigned,
+      used:      j.combined.assigned_to_projects,
+    }));
+  } else {
+    rows = RPA[commodity].status.by_pool.map(p => ({
+      name: p.name,
+      initial:   p.regional_plan_maximum,
+      remaining: p.not_assigned == null ? 0 : p.not_assigned,
+      used:      p.assigned_to_projects == null ? 0 : p.assigned_to_projects,
+      group: p.group,
+    }));
+  }
+  rows.forEach((r, i) => { r.color = CARD_PALETTE[i % CARD_PALETTE.length]; });
+  return rows;
+}
+
+function getSummary() {
+  return commodity === 'residential'
+    ? RPA.residential.summary.combined
+    : RPA[commodity].status.summary;
+}
+
+// A residential jurisdiction has metering data if it appears in the by_year blocks
+function meteringRow(block, name) {
+  return RPA.residential.by_year[block].rows.find(r => r.name === name) || null;
+}
+function hasMetering(name) {
+  return commodity === 'residential' && !!meteringRow('released', name);
+}
+
+// ── KPI strip ──────────────────────────────────────────────────────────────
+function updateKPIs(cards) {
+  const s = getSummary();
+  const unit = COMM_META[commodity].unit;
+  document.querySelector('#kpi-max').textContent  = fmt(s.regional_plan_maximum);
+  document.querySelector('#kpi-used').textContent = fmt(s.assigned_to_projects);
+  document.querySelector('#kpi-rem').textContent  = fmt(s.not_assigned);
+  document.querySelector('#kpi-count').textContent = String(cards.length);
+  document.querySelector('#kpi-max-sub').textContent  = `${unit} of authorized capacity`;
+  const pct = s.regional_plan_maximum ? (s.assigned_to_projects / s.regional_plan_maximum * 100) : 0;
+  document.querySelector('#kpi-used-sub').textContent = `${pct.toFixed(1)}% of the Regional Plan maximum`;
+  document.querySelector('#kpi-rem-sub').textContent  = `${unit} still available in pools`;
+  document.querySelector('#kpi-count-sub').textContent =
+    commodity === 'residential' ? 'jurisdiction + central pools' : 'development right pools';
+}
+
+// ── Cards ──────────────────────────────────────────────────────────────────
 function renderCards() {
-  const sorted = [...POOLS].sort((a, b) => {
+  const cards = getCards();
+  updateKPIs(cards);
+
+  const sorted = [...cards].sort((a, b) => {
     if (sortBy === 'remaining') return b.remaining - a.remaining;
     if (sortBy === 'pct') {
-      const pctA = (a.initial - a.remaining) / a.initial;
-      const pctB = (b.initial - b.remaining) / b.initial;
-      return pctB - pctA;
+      const pa = a.initial ? (a.used / a.initial) : 0;
+      const pb = b.initial ? (b.used / b.initial) : 0;
+      return pb - pa;
     }
     if (sortBy === 'name') return a.name.localeCompare(b.name);
     return 0;
@@ -296,95 +295,147 @@ function renderCards() {
 
   const grid = document.querySelector('#cards-grid');
   grid.innerHTML = '';
+  const unit = COMM_META[commodity].unit;
   sorted.forEach(p => {
-    const used = p.initial - p.remaining;
-    const pctUsed = (used / p.initial) * 100;
-    const pctRem = 100 - pctUsed;
+    const pctUsed = p.initial ? (p.used / p.initial) * 100 : 0;
     const card = document.createElement('div');
-    card.className = 'pool-card' + (selectedPool && selectedPool.name === p.name ? ' selected' : '');
-    card.onclick = () => selectPool(p);
-
-    const lowOut = p.remaining === 0
-      ? '<span class="pool-status-out">Pool exhausted</span>'
-      : (p.remaining < 50 ? `<span class="pool-status-low">${p.remaining} remaining (low)</span>` : '');
-
+    card.className = 'pool-card' + (selectedName === p.name ? ' selected' : '');
+    card.onclick = () => selectCard(p);
     card.innerHTML = `
       <div class="pool-accent" style="background:${p.color}"></div>
-      <div class="pool-jurisdiction">${p.juris}</div>
+      <div class="pool-jurisdiction">${p.group || COMM_META[commodity].label + ' pool'}</div>
       <div class="pool-name">${p.name}</div>
       <div class="pool-row">
-        <div class="pool-remaining">${p.remaining.toLocaleString()}</div>
-        <div class="pool-of">of <strong>${p.initial.toLocaleString()}</strong> initial</div>
+        <div class="pool-remaining">${fmt(p.remaining)}</div>
+        <div class="pool-of">not assigned<br>of <strong>${fmt(p.initial)}</strong> ${unit}</div>
       </div>
       <div class="pool-bar-track">
-        <div class="pool-bar-fill" style="width:${pctRem.toFixed(1)}%;background:${p.color}"></div>
+        <div class="pool-bar-fill" style="width:${pctUsed.toFixed(1)}%;background:${p.color}"></div>
       </div>
       <div class="pool-stats">
-        <span class="pool-pct-rem">${pctRem.toFixed(1)}% remaining</span>
-        <span class="pool-pct-used">${used} drawn down</span>
+        <span class="pool-pct-used">${pctUsed.toFixed(1)}% used</span>
+        <span class="pool-pct-rem">${fmt(p.used)} assigned</span>
       </div>
-      ${lowOut ? `<div style="margin-top:8px;font-size:0.7rem">${lowOut}</div>` : ''}
     `;
     grid.appendChild(card);
   });
-  document.querySelector('#sort-count').innerHTML = `<strong>${POOLS.length}</strong> pools`;
+  document.querySelector('#sort-count').innerHTML =
+    `<strong>${cards.length}</strong> ${COMM_META[commodity].label} pool${cards.length === 1 ? '' : 's'}`;
 }
 
-function setSort(s) {
-  sortBy = s;
-  document.querySelectorAll('.sort-btn').forEach(b => b.classList.toggle('active', b.dataset.sort === s));
+// ── Detail panel ───────────────────────────────────────────────────────────
+function selectCard(p) {
+  selectedName = p.name;
   renderCards();
-}
-
-// ─────────────────────────────────────────
-// Detail panel - trajectory line for the selected pool
-// ─────────────────────────────────────────
-function selectPool(p) {
-  selectedPool = p;
-  renderCards();  // re-render to update .selected outline
-
-  document.querySelector('#detail-title').textContent = p.name;
-  const used = p.initial - p.remaining;
-  const pctRem = (p.remaining / p.initial * 100);
-  let sub = `${p.juris} · <strong>${p.remaining.toLocaleString()}</strong> remaining of ${p.initial.toLocaleString()} initial · ${pctRem.toFixed(1)}% of capacity remaining · ${used} drawn down since 2013`;
-  if (p.note) sub += `<br><em>${p.note}</em>`;
-  document.querySelector('#detail-sub').innerHTML = sub;
+  document.querySelector('#detail-panel').style.display = 'block';
   document.querySelector('#detail-empty').style.display = 'none';
+  document.querySelector('#detail-title').textContent = p.name;
 
-  Plotly.react('detail-chart', [{
-    type: 'scatter', mode: 'lines+markers',
-    x: YEARS, y: p.trajectory,
-    line: { color: p.color, width: 3 },
-    marker: { color: p.color, size: 7, line: { color: '#fff', width: 1.5 } },
-    fill: 'tozeroy', fillcolor: hexA(p.color, 0.12),
-    hovertemplate: '<b>%{y:,}</b> remaining<extra>%{x}</extra>',
-  }], {
-    font: { family: '"Open Sans", system-ui, sans-serif', color: TRPA.navy, size: 12 },
-    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
-    margin: { t: 8, r: 16, b: 32, l: 56 },
-    xaxis: { title: { text: 'Year', font: { size: 11 } }, tickmode: 'linear', dtick: 1,
-              gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 10 } },
-    yaxis: { title: { text: 'Allocations remaining', font: { size: 11 } }, rangemode: 'tozero',
-              gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 10 } },
+  const unit = COMM_META[commodity].unit;
+  const pctUsed = p.initial ? (p.used / p.initial * 100) : 0;
+
+  if (hasMetering(p.name)) {
+    document.querySelector('#detail-sub').innerHTML =
+      `Allocations <strong>released</strong> to this pool each year vs <strong>assigned</strong> to projects. `
+      + `Allocations are metered out over time - not granted all at once. `
+      + `${fmt(p.used)} assigned &middot; ${fmt(p.remaining)} not assigned of ${fmt(p.initial)} ${unit}.`;
+    renderMetering(p.name);
+  } else {
+    document.querySelector('#detail-sub').innerHTML =
+      `${fmt(p.used)} assigned to projects &middot; ${fmt(p.remaining)} not assigned `
+      + `&middot; ${pctUsed.toFixed(1)}% of the ${fmt(p.initial)} ${unit} maximum used.`
+      + (commodity === 'residential' ? ' Per-year metering is not tracked for this pool.' : '');
+    renderBreakdown(p, unit);
+  }
+}
+
+// Residential per-year metering: released in vs assigned out
+function renderMetering(name) {
+  const years    = RPA.residential.by_year.released.years;
+  const released = meteringRow('released', name).values;
+  const assigned = meteringRow('assigned', name).values;
+  Plotly.react('detail-chart', [
+    {
+      name: 'Released to the pool', type: 'bar',
+      x: years, y: released, marker: { color: TRPA.forest },
+      hovertemplate: '<b>%{y:,}</b> released<extra>%{x}</extra>',
+    },
+    {
+      name: 'Assigned to projects', type: 'scatter', mode: 'lines+markers',
+      x: years, y: assigned,
+      line: { color: TRPA.orange, width: 2.5 },
+      marker: { color: TRPA.orange, size: 5, line: { color: '#fff', width: 1 } },
+      hovertemplate: '<b>%{y:,}</b> assigned<extra>%{x}</extra>',
+    },
+  ], {
+    font: plotFont, paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+    margin: { t: 8, r: 16, b: 36, l: 52 },
+    xaxis: { title: { text: 'Year', font: { size: 11 } }, gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 10 } },
+    yaxis: { title: { text: 'Allocations', font: { size: 11 } }, rangemode: 'tozero', gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 10 } },
+    legend: { orientation: 'h', y: -0.2, font: { size: 11 } },
     hovermode: 'x unified',
-    showlegend: false,
-  }, { responsive: true, displayModeBar: false });
+  }, PLOT_CFG);
 }
 
-function hexA(hex, a) {
-  const n = parseInt(hex.slice(1), 16);
-  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
+// Non-metered pools: a simple assigned vs not-assigned breakdown bar
+function renderBreakdown(p, unit) {
+  Plotly.react('detail-chart', [
+    {
+      name: 'Assigned to projects', type: 'bar', orientation: 'h',
+      x: [p.used], y: [p.name], marker: { color: TRPA.forest },
+      hovertemplate: `<b>%{x:,}</b> ${unit} assigned<extra></extra>`,
+    },
+    {
+      name: 'Not assigned', type: 'bar', orientation: 'h',
+      x: [p.remaining], y: [p.name], marker: { color: TRPA.ice },
+      hovertemplate: `<b>%{x:,}</b> ${unit} not assigned<extra></extra>`,
+    },
+  ], {
+    barmode: 'stack', font: plotFont,
+    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+    margin: { t: 40, r: 16, b: 36, l: 16 },
+    xaxis: { gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 10 }, rangemode: 'tozero' },
+    yaxis: { visible: false },
+    legend: { orientation: 'h', y: 1.3, font: { size: 11 } },
+  }, PLOT_CFG);
 }
 
-// ─────────────────────────────────────────
-// INIT
-// ─────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  updateKPIs();
+// ── Toolbar wiring ─────────────────────────────────────────────────────────
+function setCommodity(key) {
+  commodity = key;
+  selectedName = null;
+  document.querySelectorAll('.comm-btn').forEach(b => b.classList.toggle('active', b.dataset.comm === key));
+  document.querySelector('#detail-panel').style.display = 'none';
   renderCards();
-  // Auto-select the first card so the detail panel isn't empty
-  selectPool(POOLS.find(p => p.name === 'TRPA Pool') || POOLS[0]);
-});
+}
+function setSort(key) {
+  sortBy = key;
+  document.querySelectorAll('.sort-btn').forEach(b => b.classList.toggle('active', b.dataset.sort === key));
+  renderCards();
+}
+
+// ── Boot ───────────────────────────────────────────────────────────────────
+async function main() {
+  try {
+    const r = await fetch(DATA_URL, { cache: 'no-cache' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    RPA = await r.json();
+  } catch (e) {
+    document.querySelector('#loading').innerHTML =
+      'Data unavailable (' + e.message + '). Run <code>convert_regional_plan_allocations.py</code> to (re)build the JSON.';
+    return;
+  }
+  document.querySelector('#loading').style.display = 'none';
+  document.querySelectorAll('.comm-btn').forEach(b =>
+    b.addEventListener('click', () => setCommodity(b.dataset.comm)));
+  document.querySelectorAll('.sort-btn').forEach(b =>
+    b.addEventListener('click', () => setSort(b.dataset.sort)));
+  renderCards();
+  // Auto-select the first residential card so the detail panel isn't empty
+  const first = getCards()[0];
+  if (first) selectCard(first);
+}
+document.addEventListener('DOMContentLoaded', main);
 </script>
 </body>
 </html>
