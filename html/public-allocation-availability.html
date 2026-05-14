@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
 <style>
 :root {
   --trpa-blue:    #0072CE;
@@ -97,6 +98,14 @@ header h1 span { color: var(--trpa-blue); }
 .explainer p:last-child { margin-bottom: 0; }
 .explainer a { color: var(--trpa-blue); }
 
+/* Metering chart */
+.metering-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  padding: 22px 28px; margin-top: 28px; box-shadow: var(--shadow);
+}
+.metering-card h3 { font-size: 1rem; font-weight: 700; color: var(--text-dark); margin-bottom: 6px; }
+.metering-card p { font-size: 0.85rem; color: var(--text-mid); line-height: 1.55; margin-bottom: 14px; max-width: 760px; }
+
 .footnote {
   padding: 14px 40px 22px; font-size: 0.72rem; color: var(--text-light);
   line-height: 1.6; background: var(--surface); border-top: 1px solid var(--border); margin-top: 28px;
@@ -142,6 +151,12 @@ header h1 span { color: var(--trpa-blue); }
   </div>
 
   <div class="jurisdictions" id="jurisdictions"></div>
+
+  <div class="metering-card">
+    <h3>Allocations are metered out, not granted all at once</h3>
+    <p>The Regional Plan releases roughly 130 residential allocations to local jurisdictions each year. Jurisdictions then assign them to projects as permits are approved, and unused allocations return to the pool - so pool balances rise and fall over time rather than being handed out in one batch.</p>
+    <div id="metering-chart" style="height:320px;"></div>
+  </div>
 
   <div class="explainer">
     <h3>What&rsquo;s a residential allocation?</h3>
@@ -243,9 +258,55 @@ function renderTotal() {
   document.querySelector('#total-rem').textContent = totalRem.toLocaleString();
 }
 
+// Per-year metering chart: allocations released to jurisdictions vs assigned
+// to projects, basin-wide. Driven by regional_plan_allocations.json so it
+// stays current; the jurisdiction tiles above are the curated snapshot.
+const METERING_URL = '../data/processed_data/regional_plan_allocations.json';
+async function renderMetering() {
+  let RPA;
+  try {
+    const r = await fetch(METERING_URL, { cache: 'no-cache' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    RPA = await r.json();
+  } catch (e) {
+    document.querySelector('#metering-chart').innerHTML =
+      '<div style="padding:30px;color:var(--text-light);font-size:0.85rem">'
+      + 'Metering chart unavailable (' + e.message + ').</div>';
+    return;
+  }
+  const by  = RPA.residential.by_year;
+  const yrs = by.released.years;
+  const rel = by.released.rows.find(r => r.name === 'Grand Total');
+  const asg = by.assigned.rows.find(r => r.name === 'Grand Total');
+  if (!rel || !asg) return;
+  Plotly.react('metering-chart', [
+    {
+      name: 'Released to jurisdictions', type: 'bar',
+      x: yrs, y: rel.values, marker: { color: TRPA.blue },
+      hovertemplate: '<b>%{y:,}</b> released<extra>%{x}</extra>',
+    },
+    {
+      name: 'Assigned to projects', type: 'scatter', mode: 'lines+markers',
+      x: yrs, y: asg.values,
+      line: { color: TRPA.orange, width: 2.5 },
+      marker: { color: TRPA.orange, size: 5, line: { color: '#fff', width: 1 } },
+      hovertemplate: '<b>%{y:,}</b> assigned<extra>%{x}</extra>',
+    },
+  ], {
+    font: { family: '"Open Sans", system-ui, sans-serif', color: TRPA.navy, size: 12 },
+    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+    margin: { t: 10, r: 16, b: 40, l: 56 },
+    xaxis: { title: { text: 'Year', font: { size: 11 } }, gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 10 } },
+    yaxis: { title: { text: 'Residential allocations', font: { size: 11 } }, rangemode: 'tozero', gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 10 } },
+    legend: { orientation: 'h', y: -0.2, font: { size: 11 } },
+    hovermode: 'x unified',
+  }, { responsive: true, displayModeBar: false });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   renderTotal();
   renderJurisdictions();
+  renderMetering();
 });
 </script>
 </body>

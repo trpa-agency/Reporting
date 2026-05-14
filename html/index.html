@@ -125,15 +125,15 @@ footer { padding: 16px 40px 28px; font-size: 0.72rem; color: var(--text-light); 
     <div class="card">
       <div class="name"><a href="https://trpa-agency.github.io/Reporting/html/pool-balance-cards.html">pool-balance-cards.html</a></div>
       <div class="meta"><span><strong>Audience</strong> Staff &middot; per-pool drilldown</span></div>
-      <div class="desc">One card per pool: remaining, % drawn, trajectory since 2013.</div>
-      <div class="src">Data: the analyst&rsquo;s <code>Additional Development as of April2026.xlsx</code> LT Info Pools Balances sheet</div>
+      <div class="desc">Commodity toggle RES / Bonus Units / CFA / TAU; one card per pool (max, assigned, not-assigned); residential cards open a per-year released-vs-assigned metering chart.</div>
+      <div class="src">Data: <code>data/processed_data/regional_plan_allocations.json</code></div>
     </div>
 
     <div class="card">
       <div class="name"><a href="https://trpa-agency.github.io/Reporting/html/public-allocation-availability.html">public-allocation-availability.html</a></div>
       <div class="meta"><span><strong>Audience</strong> Public</span></div>
-      <div class="desc">Residential allocations remaining in each Tahoe Basin jurisdiction.</div>
-      <div class="src">Data: same as pool-balance-cards</div>
+      <div class="desc">Residential allocations remaining in each Tahoe Basin jurisdiction, plus a per-year metering chart showing allocations are released over time, not all at once.</div>
+      <div class="src">Data: jurisdiction tiles from <code>Additional Development as of April2026.xlsx</code>; metering chart from <code>regional_plan_allocations.json</code></div>
     </div>
 
   </div>
@@ -169,9 +169,9 @@ footer { padding: 16px 40px 28px; font-size: 0.72rem; color: var(--text-light); 
       </div>
       <div class="meta"><span><strong>Audience</strong> Executive &middot; board</span></div>
       <div class="desc">
-        Since-1987 gauges (Residential / RBU / TBU / CFA); capacity utilization bar; 2012 Plan additional 4-card grid.
+        Since-1987 gauges (assigned vs Regional Plan max); capacity utilization bar; residential allocations by jurisdiction with an era toggle (Combined 8,687 / 1987 / 2012); RBU / CFA / TAU by pool with a commodity toggle.
       </div>
-      <div class="src">Data: the analyst&rsquo;s 2026 PPTX slide 8 + <code>residentialAllocationGridExport.csv</code></div>
+      <div class="src">Data: <code>data/processed_data/regional_plan_allocations.json</code></div>
     </div>
 
   </div>
@@ -230,9 +230,10 @@ footer { padding: 16px 40px 28px; font-size: 0.72rem; color: var(--text-light); 
   <table>
     <thead><tr><th style="width: 38%">Source</th><th>Used by</th></tr></thead>
     <tbody>
-      <tr><td><code>residentialAllocationGridExport_fromAnalyst.xlsx</code> &rarr; CSV (one row per allocation, 2,600 rows, 11 cols incl. Construction Status)</td><td>allocation-tracking &middot; regional-capacity-dial (live cards)</td></tr>
-      <tr><td><code>Additional Development as of April2026.xlsx</code></td><td>pool-balance-cards &middot; public-allocation-availability &middot; regional-capacity-dial (gauges)</td></tr>
-      <tr><td><code>FINAL RES SUMMARY 2012 to 2025.xlsx</code></td><td>residential-additions-by-source</td></tr>
+      <tr><td><code>residentialAllocationGridExport_fromAnalyst.xlsx</code> &rarr; CSV (one row per allocation, 2,600 rows, 11 cols incl. Construction Status)</td><td>allocation-tracking</td></tr>
+      <tr><td><code>All Regional Plan Allocations Summary.xlsx</code> &rarr; <code>regional_plan_allocations.json</code> (1987 / 2012 / combined split, assigned vs not-assigned, by jurisdiction/pool, all 4 commodities, + residential by-year)</td><td>regional-capacity-dial &middot; pool-balance-cards &middot; public-allocation-availability (metering)</td></tr>
+      <tr><td><code>Additional Development as of April2026.xlsx</code></td><td>public-allocation-availability (jurisdiction tiles snapshot)</td></tr>
+      <tr><td><code>FINAL RES SUMMARY 2012 to 2025.xlsx</code></td><td>residential-additions-by-source (additions + projects)</td></tr>
       <tr><td><code>CA Changes breakdown.xlsx</code> (via <code>04_load_ca_changes.ipynb</code>)</td><td>qa-change-rationale</td></tr>
       <tr><td><code>2025 Transactions and Allocations Details.xlsx</code></td><td>residential_units_inventory (downstream)</td></tr>
       <tr><td>Tahoe Buildings FeatureServer (AGOL)</td><td>development_history &middot; development_history_units</td></tr>
@@ -245,11 +246,19 @@ footer { padding: 16px 40px 28px; font-size: 0.72rem; color: var(--text-light); 
   <pre><code># Set up alias once
 PY="C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/python.exe"
 
-# Per-allocation grid &rarr; CSV (allocation-tracking + regional-capacity-dial cards)
+# Per-allocation grid &rarr; CSV (allocation-tracking)
 PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/convert_allocation_grid.py
 
+# Regional Plan allocations summary &rarr; JSON + 1987 baseline CSV
+#   (regional-capacity-dial + pool-balance-cards + public-allocation-availability)
+PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/convert_regional_plan_allocations.py
+PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/extract_regional_plan_1987_seed.py
+
 # Buildings &times; units join &rarr; JSON (development_history_units)
-PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/build_buildings_with_units.py</code></pre>
+PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/build_buildings_with_units.py
+
+# Genealogy graph + 2025 cross-reference &rarr; JSON (genealogy_solver)
+PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/build_genealogy_solver_data.py</code></pre>
 
   <h2>Tech stack</h2>
   <ul style="font-size: 0.88rem; line-height: 1.7; padding-left: 22px; margin-bottom: 12px;">

@@ -82,6 +82,7 @@ Full list in [target_schema.md](./target_schema.md). The three highest-priority:
 | File | Status | Purpose |
 |---|---|---|
 | [target_schema.md](./target_schema.md) | **Draft - for team review** | The proposal itself. ERD + loading strategy + open questions. |
+| [system_of_record_roadmap.md](./system_of_record_roadmap.md) | Active | **Portfolio-level plan** for retiring every hand-assembled xlsx so each data element traces to a system of record. Sorts the analyst-delivered inputs into three types (a system already has it / Corral has the raw events / a human genuinely is the system of record) and lays out a phased migration. The companion overview to `target_schema.md` + `regional_plan_allocations_service.md`. |
 | [regional_plan_allocations_service.md](./regional_plan_allocations_service.md) | Active | Recommendation for a web service to replace the hand-assembled `All Regional Plan Allocations Summary.xlsx` - the 1987/2012-era split with assigned/not-assigned status. Recommended SQL against the proposed `PoolDrawdownYearly` + a hard-coded `RegionalPlanCapacity` seed. |
 | [tracks_status.md](./tracks_status.md) | Active | **Tracks A / B / C combined.** Track A - APN canonicalization + genealogy. Track B - Allocation accounting + dashboards. Track C - the analyst's CA Changes loader + reconciliation. |
 | [dashboards_to_schema_trace.md](./dashboards_to_schema_trace.md) | Active | Backward design from built dashboards through view contracts to schema columns. 14 open gaps roll-up against `target_schema.md`. |
