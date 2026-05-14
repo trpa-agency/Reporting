@@ -423,3 +423,55 @@ These are APN×Year pairs where SOURCE_FC has a non-zero unit value the CSV lack
 | `WITHIN_BONUSUNIT_BNDY` | SmallInt | 1 = within bonus unit boundary |
 
 ---
+
+## Downstream Tools
+
+### Genealogy Solver dashboard (`html/genealogy_solver/`)
+
+Interactive APN lineage lookup. Walks the consolidated genealogy graph for any input APN (single or batch CSV) and joins each APN on the lineage to its 2025 state plus a parcel-footprint map.
+
+| Component | Role |
+|-----------|------|
+| `parcel_development_history_etl/scripts/build_genealogy_solver_data.py` | Preprocessor. Pre-joins `apn_genealogy_tahoe.csv` + `PDH_2025_OriginalYrBuilt.csv` + aggregated `residential_units_inventory_2025.csv` into a compact JSON with single-letter keys and integer edge IDs for O(1) BFS lookup. Output: `html/genealogy_solver/data/genealogy_solver.json` (~11 MB raw, ~1.5 MB gzipped over HTTPS). Keeps ALL edges - not just ETL-applied - with an `applied_by_etl` flag so the analyst can toggle between the canonical filter and the full candidate graph. |
+| `html/genealogy_solver/app.js` | Client-side BFS. Bidirectional walk from the seed APN (upstream = ancestors via incoming edges, downstream = descendants via outgoing edges). Cycle defense via a `visited` Set. JS port of `canonical_apn` from `utils.py`, with shared test vectors. |
+| `html/genealogy_solver/index.html` + `styles.css` | Two-tab UI (Single APN / Batch CSV), KPI row, SVG vertical lineage diagram with `+N more` fan-out collapse, AG Grid component view, ArcGIS Maps SDK parcel map. |
+
+**Parcel-footprint map:** Uses AllParcels MapServer **layer 4** (`Parcels - Active`) as the primary geometry source. The historical year layers (32, 31, 30, ... 8) are kept in the fallback walk but currently return null geometry over REST - they only render via the MapServer's image-tile paths. So today the map shows the currently-active subset of the lineage; APNs renamed/split out of existence appear in the status row as "not in AllParcels." When a `Parcel_Development_History` map service is published (covering historical APNs with geometry), the dashboard's fallback walk will start populating them automatically without code changes.
+
+Note: AllParcels stores APNs in pre-2018 unpadded form (`132-231-10`) for several jurisdictions, while our internal canonical form pads to 3 digits (`132-231-010`). The client queries both forms in each REST call (mirrors `el_depad` in `utils.py`) and matches returned features back by canonicalizing the response's APN field.
+
+Polygons are colored by role:
+
+- Self: TRPA navy fill
+- Ancestor: TRPA blue fill
+- Descendant: TRPA orange fill
+
+Click any parcel on the map to re-seed the lookup with that APN.
+
+**Parcel-info cross-reference:** Currently sourced from `data/processed_data/PDH_2025_OriginalYrBuilt.csv`, which is generated from `C:\GIS\Parcel_Development_2025.gdb` (the working 2025 snapshot of the ETL output). When a public map service of `Parcel_Development_History` becomes available, the dashboard can switch to querying it directly at lookup time rather than depending on a pre-joined JSON refresh.
+
+**ETL filter toggle:** When checked (default), the BFS only traverses edges where `is_primary=1 AND in_fc_new=1 AND change_year notna` - the same filter applied by `s02b_genealogy.py`. When unchecked, the walk follows every edge in the consolidated genealogy (including LTinfo no-year speculative pairs and non-primary split children). The "filter OFF" view is the right tool for investigating why an APN's parcel history looks weird.
+
+**Test APNs** (verified via `tmp/verify_genealogy_solver.py`):
+
+| APN | Behavior |
+|-----|----------|
+| `048-041-03` | No genealogy events; single-APN component (most common case) |
+| `132-231-10` | Multi-hop rename chain; 3 APNs, 1 ancestor + 1 descendant |
+| `132-232-10` | Split parent; 1 → 2 descendants (filter ON shows primary only) |
+| `029-630-029` | Hub: 50 APNs in component with filter ON, 73 with filter OFF |
+| `032-301-011` | Largest single-event fan-out: 195 descendants from one split |
+| `124-071-42` | `is_primary` toggle test: 2 APNs filter ON, 3 filter OFF |
+| `132-231-09` | LTinfo-source no-year speculation: 2 APNs filter ON, 45 filter OFF |
+| `1318-22-310-001` | Douglas County long-form APN: passes through `canonical_apn` unchanged |
+| `015-331-04` | Pre-2018 El Dorado format: canonicalizes to `015-331-004` |
+
+Append `?test=1` to the URL to run the JS self-tests automatically (output goes to the browser console).
+
+**Refresh:** Re-run the preprocessor whenever `apn_genealogy_tahoe.csv` or `PDH_2025_OriginalYrBuilt.csv` change:
+
+```bash
+PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/build_genealogy_solver_data.py
+```
+
+---

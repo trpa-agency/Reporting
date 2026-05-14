@@ -119,14 +119,10 @@ header h1 span { color: var(--trpa-blue); }
     <div>
       <div class="header-eyebrow">Tahoe Regional Planning Agency</div>
       <h1>Pool Balance <span>Cards</span></h1>
-      <div class="header-sub">
-        One card per residential allocation pool: remaining, % drawn, trajectory since 2013. Click a card for per-year detail.
-      </div>
     </div>
     <div class="header-meta">
       <div class="live-badge">B1 / Built</div><br>
-      Source: the analyst&rsquo;s 2026 Pool Balances<br>
-      + allocation_drawdown trajectory (2013&ndash;26)
+      Source: <a href="https://parcels.laketahoeinfo.org/DevelopmentRightPool/DevelopmentRightPoolBalanceReport" style="color:var(--trpa-ice)">Lake Tahoe Info Parcel Tracker,<br>Development Right Pool Balance Report</a>
     </div>
   </div>
 </header>
@@ -221,13 +217,6 @@ const POOLS = [
     trajectory: [407, 360, 330, 300, 270, 240, 210, 180, 150, 120, 101, 98, 98, 98],
   },
   {
-    name: 'City of South Lake Tahoe',
-    juris: 'CSLT',
-    initial: 155, remaining: 0, color: TRPA.brick,
-    note: 'Pool exhausted; new development shifts to CSLT sub-pools or RBU.',
-    trajectory: [155, 135, 106, 93, 65, 61, 31, 0, 0, 0, 0, 0, 0, 0],
-  },
-  {
     name: 'Washoe County',
     juris: 'Washoe',
     initial: 124, remaining: 123, color: TRPA.purple,
@@ -299,7 +288,6 @@ function renderCards() {
   sorted.forEach(p => {
     const used = p.initial - p.remaining;
     const pctUsed = (used / p.initial) * 100;
-    const pctRem = 100 - pctUsed;
     const card = document.createElement('div');
     card.className = 'pool-card' + (selectedPool && selectedPool.name === p.name ? ' selected' : '');
     card.onclick = () => selectPool(p);
@@ -317,11 +305,11 @@ function renderCards() {
         <div class="pool-of">of <strong>${p.initial.toLocaleString()}</strong> initial</div>
       </div>
       <div class="pool-bar-track">
-        <div class="pool-bar-fill" style="width:${pctRem.toFixed(1)}%;background:${p.color}"></div>
+        <div class="pool-bar-fill" style="width:${pctUsed.toFixed(1)}%;background:${p.color}"></div>
       </div>
       <div class="pool-stats">
-        <span class="pool-pct-rem">${pctRem.toFixed(1)}% remaining</span>
-        <span class="pool-pct-used">${used} drawn down</span>
+        <span class="pool-pct-used">${pctUsed.toFixed(1)}% used</span>
+        <span class="pool-pct-rem">${used.toLocaleString()} drawn down</span>
       </div>
       ${lowOut ? `<div style="margin-top:8px;font-size:0.7rem">${lowOut}</div>` : ''}
     `;

@@ -125,8 +125,7 @@ header h1 span { color: var(--trpa-blue); }
     </div>
     <div class="header-meta">
       <div class="live-badge">G1 / Public</div><br>
-      Source: TRPA 2026 report<br>
-      Updated: April 2026
+      Source: <a href="https://parcels.laketahoeinfo.org/DevelopmentRightPool/DevelopmentRightPoolBalanceReport" style="color:var(--trpa-ice)">Lake Tahoe Info Parcel Tracker,<br>Development Right Pool Balance Report</a>
     </div>
   </div>
 </header>
@@ -138,8 +137,7 @@ header h1 span { color: var(--trpa-blue); }
       <div class="total-label">total residential allocations remaining across the Tahoe Basin</div>
     </div>
     <div class="total-extra" id="total-extra">
-      <strong>Plus 770</strong> unreleased allocations held centrally by TRPA, not yet distributed to any jurisdiction.
-      The since-1987 cumulative Regional Plan max is <strong>8,687</strong> residential allocations across the basin.
+      The since-1987 cumulative Regional Plan max is <strong>8,687</strong> residential allocations across the basin. The centrally-held TRPA pool is shown as its own card below.
     </div>
   </div>
 
@@ -148,13 +146,16 @@ header h1 span { color: var(--trpa-blue); }
   <div class="explainer">
     <h3>What&rsquo;s a residential allocation?</h3>
     <p>
-      A <strong>residential allocation</strong> is permission from TRPA to build one new residential unit in the Tahoe Basin. The Regional Plan caps the cumulative total at <strong>8,687 since 1987</strong> to pace development with environmental capacity.
+      A residential building allocation is permission to build one new residential unit in the Tahoe Basin. To construct a new residential dwelling, the property must have a potential residential unit of use (the ability to develop a lot) and obtain a residential allocation from the respective local jurisdiction or TRPA.
     </p>
     <p>
-      Each county and the City of South Lake Tahoe gets a <strong>pool</strong> of allocations to distribute as permits are approved. When a pool runs out, the jurisdiction waits for the next round, transfers development rights, or uses bonus units.
+      The Regional Plan caps the cumulative total at <strong>8,687 since 1987</strong>. Allocations are metered out to local jurisdictions, releasing 130 each year, to pace development with environmental capacity.
     </p>
     <p>
-      Per-parcel allocation history: <a href="https://parcels.laketahoeinfo.org/">parcels.laketahoeinfo.org</a>.
+      Each county and the City of South Lake Tahoe distribute allocations from their pool as permits are approved. Unused allocations are returned to the pool. When a pool runs out, property owners wanting to develop must wait for the next round of allocations, transfer or convert other development rights, or receive a bonus unit. For more information, please visit <a href="https://www.trpa.gov/development-rights/">trpa.gov/development-rights</a>.
+    </p>
+    <p>
+      The allocation tracking and history is available on the Lake Tahoe Info Parcel Tracker, at <a href="https://parcels.laketahoeinfo.org/ResidentialAllocation/Manage">parcels.laketahoeinfo.org/ResidentialAllocation/Manage</a>. Current allocation pool balances are shown at <a href="https://parcels.laketahoeinfo.org/DevelopmentRightPool/DevelopmentRightPoolBalanceReport">parcels.laketahoeinfo.org/DevelopmentRightPool/DevelopmentRightPoolBalanceReport</a>.
     </p>
   </div>
 </div>
@@ -170,10 +171,11 @@ const TRPA = {
   ice:'#B4CBE8',
 };
 
-// Six Lake Tahoe Basin jurisdictions with residential allocation pools.
-// Source: from_analyst/Additional Development as of April2026.xlsx + PPTX slide 5.
-// Carson is included even though it has just 4 residential units total - listed for completeness.
-// CSLT row aggregates the 3 CSLT sub-pools (Single-Family + Multi-Family + Town Center).
+// Five Lake Tahoe Basin jurisdictions with residential allocation pools, plus
+// the centrally-held TRPA pool. Carson City is excluded - it does not receive
+// residential allocations. CSLT row aggregates the 3 CSLT sub-pools
+// (Single-Family + Multi-Family + Town Center). The TRPA pool entry carries
+// `isTrpaPool` so renderTotal excludes it from the jurisdiction total.
 const JURISDICTIONS = [
   {
     name: 'Placer County',
@@ -197,9 +199,9 @@ const JURISDICTIONS = [
     initial: 134, remaining: 93, color: TRPA.forest,
   },
   {
-    name: 'Carson City',
-    initial: 4, remaining: 4, color: TRPA.olive,
-    note: 'Carson has only 4 residential units in the basin total; pool is essentially full.',
+    name: 'TRPA pool',
+    initial: 770, remaining: 770, color: TRPA.navy, isTrpaPool: true,
+    note: 'Held centrally by TRPA - unreleased allocations not yet distributed to a jurisdiction.',
   },
 ];
 
@@ -208,7 +210,7 @@ function renderJurisdictions() {
   container.innerHTML = '';
   JURISDICTIONS.forEach(j => {
     const used = j.initial - j.remaining;
-    const pctRem = (j.remaining / j.initial) * 100;
+    const pctUsed = (used / j.initial) * 100;
     const isOut = j.remaining === 0;
 
     const tile = document.createElement('div');
@@ -219,12 +221,12 @@ function renderJurisdictions() {
       <div class="juris-num">${j.remaining.toLocaleString()}</div>
       <div class="juris-unit">${j.remaining === 1 ? 'allocation' : 'allocations'} remaining</div>
       <div class="juris-bar-track">
-        <div class="juris-bar-fill" style="width:${pctRem.toFixed(1)}%;background:${j.color}"></div>
+        <div class="juris-bar-fill" style="width:${pctUsed.toFixed(1)}%;background:${j.color}"></div>
       </div>
       <div class="juris-context">
         ${isOut
           ? '<span class="juris-out">Pool exhausted</span>'
-          : `<strong>${used.toLocaleString()}</strong> of ${j.initial.toLocaleString()} initial used · ${pctRem.toFixed(0)}% remaining`}
+          : `<strong>${used.toLocaleString()}</strong> of ${j.initial.toLocaleString()} initial used · ${pctUsed.toFixed(0)}% used`}
       </div>
       ${j.note ? `<div class="juris-context" style="font-style:italic;margin-top:4px">${j.note}</div>` : ''}
     `;
@@ -233,7 +235,11 @@ function renderJurisdictions() {
 }
 
 function renderTotal() {
-  const totalRem = JURISDICTIONS.reduce((s, j) => s + j.remaining, 0);
+  // Jurisdiction total only - the centrally-held TRPA pool is shown as its
+  // own card but excluded from the "remaining across jurisdictions" headline.
+  const totalRem = JURISDICTIONS
+    .filter(j => !j.isTrpaPool)
+    .reduce((s, j) => s + j.remaining, 0);
   document.querySelector('#total-rem').textContent = totalRem.toLocaleString();
 }
 

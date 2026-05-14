@@ -1,0 +1,41 @@
+commodity,area,plan_era,metric,value
+RES,Placer County,1987,regional_plan_maximum,1549
+RES,Placer County,1987,not_assigned,0
+RES,Placer County,1987,assigned_to_projects,1549
+RES,Washoe County,1987,regional_plan_maximum,996
+RES,Washoe County,1987,not_assigned,12
+RES,Washoe County,1987,assigned_to_projects,984
+RES,Douglas County,1987,regional_plan_maximum,419
+RES,Douglas County,1987,not_assigned,0
+RES,Douglas County,1987,assigned_to_projects,419
+RES,El Dorado County,1987,regional_plan_maximum,2462
+RES,El Dorado County,1987,not_assigned,0
+RES,El Dorado County,1987,assigned_to_projects,2462
+RES,City of South Lake Tahoe,1987,regional_plan_maximum,450
+RES,City of South Lake Tahoe,1987,not_assigned,5
+RES,City of South Lake Tahoe,1987,assigned_to_projects,445
+RES,TRPA Allocation Incentive Pool,1987,regional_plan_maximum,211
+RES,TRPA Allocation Incentive Pool,1987,not_assigned,0
+RES,TRPA Allocation Incentive Pool,1987,assigned_to_projects,211
+RES,Unreleased Allocations,1987,regional_plan_maximum,0
+RES,Unreleased Allocations,1987,not_assigned,0
+RES,Unreleased Allocations,1987,assigned_to_projects,0
+RBU,Placer County,1987,regional_plan_maximum,90
+RBU,Washoe County,1987,regional_plan_maximum,180
+RBU,Douglas County,1987,regional_plan_maximum,130
+RBU,El Dorado County,1987,regional_plan_maximum,0
+RBU,City of South Lake Tahoe,1987,regional_plan_maximum,165
+RBU,TRPA Bonus Unit Pools,1987,regional_plan_maximum,835
+CFA,Placer County,1987,regional_plan_maximum,201232
+CFA,Washoe County,1987,regional_plan_maximum,89906
+CFA,Douglas County,1987,regional_plan_maximum,81550
+CFA,El Dorado County,1987,regional_plan_maximum,51400
+CFA,City of South Lake Tahoe,1987,regional_plan_maximum,130028
+CFA,TRPA Special Projects Pool,1987,regional_plan_maximum,245884
+TAU,Placer County,1987,regional_plan_maximum,37
+TAU,Washoe County,1987,regional_plan_maximum,33
+TAU,Douglas County,1987,regional_plan_maximum,50
+TAU,El Dorado County,1987,regional_plan_maximum,10
+TAU,City of South Lake Tahoe,1987,regional_plan_maximum,25
+TAU,Unassigned to CPs,1987,regional_plan_maximum,5
+TAU,TRPA Tourist Bonus Unit Pool,1987,regional_plan_maximum,240

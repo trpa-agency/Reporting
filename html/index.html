@@ -103,7 +103,7 @@ footer { padding: 16px 40px 28px; font-size: 0.72rem; color: var(--text-light); 
 
 <div class="section">
   <div class="intro">
-    <strong>Active set:</strong> 8 dashboards (&starf; marks the primary view in each track).
+    <strong>Active set:</strong> 9 dashboards (&starf; marks the primary view in each track).
     Source markdown: <a href="https://github.com/trpa-agency/Reporting/blob/MTB-Edits/html/index.md">index.md</a> &middot;
     Repo: <a href="https://github.com/trpa-agency/Reporting">trpa-agency/Reporting</a>
   </div>
@@ -169,9 +169,9 @@ footer { padding: 16px 40px 28px; font-size: 0.72rem; color: var(--text-light); 
       </div>
       <div class="meta"><span><strong>Audience</strong> Executive &middot; board</span></div>
       <div class="desc">
-        Since-1987 gauges (Residential / RBU / TBU / CFA); capacity utilization bar; 2012 Plan additional 4-card grid; completed-by-source breakdown; annual residential construction.
+        Since-1987 gauges (Residential / RBU / TBU / CFA); capacity utilization bar; 2012 Plan additional 4-card grid.
       </div>
-      <div class="src">Data: the analyst&rsquo;s 2026 PPTX slide 8 + <code>residentialAllocationGridExport.csv</code> + <code>residential_transactions_summary.json</code></div>
+      <div class="src">Data: the analyst&rsquo;s 2026 PPTX slide 8 + <code>residentialAllocationGridExport.csv</code></div>
     </div>
 
   </div>
@@ -201,6 +201,13 @@ footer { padding: 16px 40px 28px; font-size: 0.72rem; color: var(--text-light); 
       <div class="src">Data: <code>qa_change_events.csv</code> from <code>notebooks/04_load_ca_changes.ipynb</code></div>
     </div>
 
+    <div class="card">
+      <div class="name"><a href="https://trpa-agency.github.io/Reporting/html/genealogy_solver/">genealogy_solver/</a></div>
+      <div class="meta"><span><strong>Audience</strong> the analyst &middot; QA leads</span></div>
+      <div class="desc">APN lineage lookup. Walks the genealogy graph for any input (single APN or batch CSV), shows the connected component, and joins 2025 cross-reference inline: residential units, year built, jurisdiction, county.</div>
+      <div class="src">Data: <code>apn_genealogy_tahoe.csv</code> + <code>PDH_2025_OriginalYrBuilt.csv</code>, pre-joined to <code>html/genealogy_solver/data/genealogy_solver.json</code></div>
+    </div>
+
   </div>
 
   <h2>Archived <span class="tag" style="background:var(--text-light)">2026-05-11</span></h2>
@@ -227,7 +234,7 @@ footer { padding: 16px 40px 28px; font-size: 0.72rem; color: var(--text-light); 
       <tr><td><code>Additional Development as of April2026.xlsx</code></td><td>pool-balance-cards &middot; public-allocation-availability &middot; regional-capacity-dial (gauges)</td></tr>
       <tr><td><code>FINAL RES SUMMARY 2012 to 2025.xlsx</code></td><td>residential-additions-by-source</td></tr>
       <tr><td><code>CA Changes breakdown.xlsx</code> (via <code>04_load_ca_changes.ipynb</code>)</td><td>qa-change-rationale</td></tr>
-      <tr><td><code>2025 Transactions and Allocations Details.xlsx</code> &rarr; summary JSON</td><td>regional-capacity-dial (source-of-rights + annual construction) &middot; residential_units_inventory (downstream)</td></tr>
+      <tr><td><code>2025 Transactions and Allocations Details.xlsx</code></td><td>residential_units_inventory (downstream)</td></tr>
       <tr><td>Tahoe Buildings FeatureServer (AGOL)</td><td>development_history &middot; development_history_units</td></tr>
       <tr><td>TRPA ArcGIS REST</td><td>allocation-tracking (map tab)</td></tr>
     </tbody>
@@ -240,9 +247,6 @@ PY="C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/python.exe"
 
 # Per-allocation grid &rarr; CSV (allocation-tracking + regional-capacity-dial cards)
 PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/convert_allocation_grid.py
-
-# Transactions summary &rarr; JSON (regional-capacity-dial source-of-rights + annual chart)
-PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/convert_transactions_summary.py
 
 # Buildings &times; units join &rarr; JSON (development_history_units)
 PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/build_buildings_with_units.py</code></pre>

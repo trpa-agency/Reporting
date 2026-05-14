@@ -108,13 +108,13 @@ header h1 span { color: var(--trpa-blue); }
       <div class="header-eyebrow">Tahoe Regional Planning Agency</div>
       <h1>Regional Plan <span>Capacity Dial</span></h1>
       <div class="header-sub">
-        Where the Tahoe Region sits against its since-1987 cumulative capacity caps. One gauge per commodity: constructed vs Regional Plan max.
+        Where the Tahoe Region sits against the Regional Plan cumulative capacity.
       </div>
     </div>
     <div class="header-meta">
       <div class="live-badge">A1 / Headline</div><br>
-      Source: 2026 Cumulative Accounting Report (slide 8)<br>
-      Snapshot: Apr 30, 2026
+      Source: Tahoe Regional Planning Agency, May 2026<br>
+      Lake Tahoe Regional Plan, Policy DP-2.2 + Code 50.4.1
     </div>
   </div>
 </header>
@@ -160,36 +160,10 @@ header h1 span { color: var(--trpa-blue); }
     <div id="live-cards" class="live-cards"></div>
     <div id="live-chart" style="height:260px;margin-top:12px;"></div>
   </div>
-
-  <!-- LIVE: Where every completed residential unit came from (2009-2026) -->
-  <div class="card" style="margin-top: 24px;">
-    <h3>Completed residential units - by source of right</h3>
-    <p>Where the <strong><span id="tx-total-completed">-</span></strong> completed residential developments came from since 2009, bucketed by <em>Detailed Development Type</em>. Source: <code style="background:var(--bg);padding:1px 4px;border-radius:3px;font-size:0.7rem;">2025 Transactions and Allocations Details.xlsx</code>. Per-year story: <a href="residential-additions-by-source.html" style="color:var(--trpa-blue)">residential-additions-by-source.html</a>.</p>
-    <div id="src-cards" class="live-cards"></div>
-    <div id="src-stack" style="height:120px;margin-top:14px;"></div>
-  </div>
-
-  <!-- LIVE: Annual construction stacked area -->
-  <div class="card" style="margin-top: 24px;">
-    <h3>Annual residential construction - by source of right</h3>
-    <p>Yearly completed developments, stacked by source.</p>
-    <div id="annual-chart" style="height:320px;"></div>
-  </div>
-
-  <div class="framing">
-    <div class="framing-item">
-      <strong>Two cap numbers, both correct:</strong>
-      <span class="num">8,687</span> = since-1987 cumulative residential allocations max across both the 1987 and 2012 plans. What the gauges measure against.
-    </div>
-    <div class="framing-item">
-      <strong>2012 Plan additional:</strong>
-      <span class="num">2,600</span> residential units - the 2013 Board authorization for additional new units on top of remaining 1987 allocations. A subset of the 8,687.
-    </div>
-  </div>
 </div>
 
 <div class="footnote">
-  <strong>Gauges:</strong> <code>from_analyst/Cumulative Accounting 2026 Report.pptx</code> slide 8 + <code>Additional Development as of April2026.xlsx</code>.<br>
+  <strong>Sources:</strong> Tahoe Regional Planning Agency, May 2026; Lake Tahoe Regional Plan, Policy DP-2.2 and Code Section 50.4.1; <a href="https://parcels.laketahoeinfo.org/DevelopmentRightPool/DevelopmentRightPoolBalanceReport" style="color:var(--trpa-blue)">Development Right Pool Balance Report</a>.<br>
   <strong>2012 Plan additional (live):</strong> <code>residentialAllocationGridExport.csv</code> via <code>convert_allocation_grid.py</code>. Buckets: <strong>Constructed</strong> = Allocated &amp; Completed; <strong>Private dev pool</strong> = Allocated &amp; Not Completed; <strong>Jurisdiction pool</strong> = Unallocated in a county/CSLT pool; <strong>TRPA pool</strong> = Unallocated in TRPA Pool + Unreleased.<br>
   Eventually backed by <code>CumulativeAccountingSnapshot</code>; see <a href="../erd/dashboards_to_schema_trace.md" style="color:var(--trpa-blue)">dashboards_to_schema_trace.md</a> Trace 1.
 </div>
@@ -288,7 +262,6 @@ document.addEventListener('DOMContentLoaded', () => {
   COMMODITIES.forEach(renderGauge);
   renderComparison();
   renderLive2012Plan();
-  renderTransactionsSummary();
 });
 
 // ─────────────────────────────────────────
@@ -381,120 +354,6 @@ async function renderLive2012Plan() {
   }, { responsive: true, displayModeBar: false });
 }
 
-// ─────────────────────────────────────────
-// Source-of-rights breakdown + annual construction chart
-// Source: ../data/processed_data/residential_transactions_summary.json
-// (built by parcel_development_history_etl/scripts/convert_transactions_summary.py
-// from "2025 Transactions and Allocations Details.xlsx")
-// ─────────────────────────────────────────
-const TX_SUMMARY = '../data/processed_data/residential_transactions_summary.json';
-
-// Color per track #2 source taxonomy
-const SRC_COLOR = {
-  'Allocation':          TRPA.blue,
-  'Banked':              TRPA.forest,
-  'Transfer':            TRPA.orange,
-  'Conversion':          TRPA.purple,
-  'Allocation/Transfer': TRPA.olive,
-  'Bonus Unit':          TRPA.brick,
-  'Other':               TRPA.ice,
-};
-const SRC_HINT = {
-  'Allocation':          'Drawn from a residential allocation pool',
-  'Banked':              'From a banked development right (e.g. SFRUU/MFRUU bank)',
-  'Transfer':            'Transferred from another parcel (TDR)',
-  'Conversion':          'Converted from a different commodity (e.g. TAU → SFRUU)',
-  'Allocation/Transfer': 'Combined allocation + PRU/TDR transfer',
-  'Bonus Unit':          'From a residential bonus unit (RBU)',
-  'Other':               'Uncategorized or TBD',
-};
-
-async function renderTransactionsSummary() {
-  let data;
-  try {
-    const r = await fetch(TX_SUMMARY, { cache: 'no-cache' });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    data = await r.json();
-  } catch (e) {
-    document.getElementById('src-cards').innerHTML =
-      '<div style="font-size:0.78rem;color:var(--text-mid);padding:10px;">Source breakdown unavailable (' + e.message + ')</div>';
-    return;
-  }
-
-  document.getElementById('tx-total-completed').textContent = data.meta.completed.toLocaleString();
-
-  // ── Source cards ─────────────────────────────────────────────────────
-  const totalCompleted = data.meta.completed;
-  const cards = data.by_source
-    .filter(s => s.completed > 0)
-    .map(s => {
-      const color = SRC_COLOR[s.source] || TRPA.ice;
-      const pct   = totalCompleted ? (100 * s.completed / totalCompleted) : 0;
-      const hint  = SRC_HINT[s.source] || '';
-      return `
-        <div class="live-card">
-          <div class="live-accent" style="background:${color}"></div>
-          <div class="live-label">${s.source}</div>
-          <div class="live-value">${s.completed.toLocaleString()}</div>
-          <div class="live-pct">${pct.toFixed(1)} percent &middot; ${hint}</div>
-        </div>`;
-    }).join('');
-  document.getElementById('src-cards').innerHTML = cards;
-
-  // ── Single stacked-horizontal bar showing the composition (1 row) ────
-  const labels = ['Completed residential developments'];
-  const traces = data.by_source
-    .filter(s => s.completed > 0)
-    .map(s => ({
-      name: s.source,
-      type: 'bar', orientation: 'h',
-      x: [s.completed], y: labels,
-      marker: { color: SRC_COLOR[s.source] || TRPA.ice },
-      text: [s.completed.toLocaleString()],
-      textposition: 'inside',
-      insidetextfont: { color: (SRC_COLOR[s.source] === TRPA.ice) ? TRPA.navy : '#fff',
-                        size: 11, family: '"Open Sans"' },
-      hovertemplate: `<b>%{x:,}</b> completed<extra>${s.source}</extra>`,
-    }));
-  Plotly.react('src-stack', traces, {
-    barmode: 'stack',
-    font: plotFont,
-    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
-    margin: { t: 4, r: 16, b: 28, l: 16 },
-    xaxis: { range: [0, totalCompleted], gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 10 } },
-    yaxis: { tickfont: { size: 11 }, automargin: true, visible: false },
-    legend: { orientation: 'h', y: -0.6, font: { size: 10 } },
-    showlegend: true,
-  }, { responsive: true, displayModeBar: false });
-
-  // ── Annual construction stacked area ─────────────────────────────────
-  // Pivot data.by_year_source into year × source matrix
-  const sources = data.by_source.filter(s => s.completed > 0).map(s => s.source);
-  const years   = data.by_year.map(d => d.year);
-  const ySeries = {};
-  sources.forEach(s => ySeries[s] = years.map(() => 0));
-  for (const r of data.by_year_source) {
-    const yi = years.indexOf(r.year);
-    if (yi >= 0 && ySeries[r.source]) ySeries[r.source][yi] = r.completed;
-  }
-  const annualTraces = sources.map(src => ({
-    name: src, x: years, y: ySeries[src],
-    type: 'scatter', mode: 'none', stackgroup: 'one',
-    fillcolor: SRC_COLOR[src] || TRPA.ice,
-    hovertemplate: `<b>%{y:,}</b> completed<extra>${src}</extra>`,
-  }));
-  Plotly.react('annual-chart', annualTraces, {
-    font: plotFont,
-    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
-    margin: { t: 8, r: 16, b: 40, l: 56 },
-    xaxis: { gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 11 },
-             range: [data.meta.year_min - 0.5, data.meta.year_max + 0.5] },
-    yaxis: { gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 11 },
-             title: { text: 'Completed per year', font: { size: 11 } } },
-    legend: { orientation: 'h', y: -0.18, font: { size: 11 } },
-    hovermode: 'x unified',
-  }, { responsive: true, displayModeBar: false });
-}
 </script>
 </body>
 </html>
