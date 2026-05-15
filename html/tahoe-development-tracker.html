@@ -46,6 +46,27 @@ header h1 span { color: var(--trpa-blue); }
 
 /* Section + cards */
 .section { padding: 24px 40px; }
+.section-title { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-light); margin-bottom: 14px; }
+.section-title strong { color: var(--text-dark); }
+
+/* Existing inventory: baseline cards above the Regional Plan caps. Visually
+   distinct (ice background, no dial) so a viewer reads it as "the floor,"
+   then sees the dials below as "the ceiling added on top." */
+.existing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.existing-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 22px 16px; position: relative; box-shadow: var(--shadow);
+  border-left: 4px solid var(--trpa-ice);
+}
+.existing-card.live { border-left-color: var(--trpa-forest); }
+.existing-label { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); margin-bottom: 6px; }
+.existing-value {
+  font-size: 2.05rem; font-weight: 700; color: var(--text-dark);
+  letter-spacing: -0.02em; line-height: 1; font-variant-numeric: tabular-nums;
+}
+.existing-unit { font-size: 0.78rem; font-weight: 600; color: var(--text-mid); margin-top: 6px; letter-spacing: 0.04em; }
+@media (max-width: 900px) { .existing-grid { grid-template-columns: 1fr; } }
+
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px 24px; box-shadow: var(--shadow); }
 .card h3 { font-size: 0.95rem; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
 .card p { font-size: 0.73rem; color: var(--text-light); margin-bottom: 14px; }
@@ -116,14 +137,38 @@ header h1 span { color: var(--trpa-blue); }
       </div>
     </div>
     <div class="header-meta">
-      <div class="live-badge">A1 / Headline</div><br>
-      Source: Tahoe Regional Planning Agency, May 2026<br>
-      Lake Tahoe Regional Plan, Policy DP-2.2 + Code 50.4.1
+      <div class="live-badge">A1 / Headline</div>
     </div>
   </div>
 </header>
 
+<!-- Existing Development: the basin-wide inventory baseline that frames the
+     Regional Plan caps below. All three numbers are summed from layer 0
+     (Parcel Development History) at the most recent parcel-year - the system
+     of record for what is on the ground today. -->
 <div class="section">
+  <div class="section-title">Existing development <strong>on the ground</strong> (basin-wide, as of <span id="exist-year">&hellip;</span>)</div>
+  <div class="existing-grid">
+    <div class="existing-card live">
+      <div class="existing-label">Residential</div>
+      <div class="existing-value" id="exist-res">&hellip;</div>
+      <div class="existing-unit">units</div>
+    </div>
+    <div class="existing-card live">
+      <div class="existing-label">Commercial floor area</div>
+      <div class="existing-value" id="exist-cfa">&hellip;</div>
+      <div class="existing-unit">sq ft</div>
+    </div>
+    <div class="existing-card live">
+      <div class="existing-label">Tourist accommodation</div>
+      <div class="existing-value" id="exist-tau">&hellip;</div>
+      <div class="existing-unit">units</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Regional Plan <strong>development rights</strong> since 1987 (assigned to projects of total)</div>
   <div class="gauge-grid">
     <div class="gauge-card">
       <div class="gauge-accent" style="background:var(--trpa-blue)"></div>
@@ -184,7 +229,9 @@ header h1 span { color: var(--trpa-blue); }
 
 <div class="footnote">
   <strong>Sources:</strong> Tahoe Regional Planning Agency, May 2026; Lake Tahoe Regional Plan, Policy DP-2.2 and Code Section 50.4.1; <a href="https://parcels.laketahoeinfo.org/DevelopmentRightPool/DevelopmentRightPoolBalanceReport" style="color:var(--trpa-blue)">Development Right Pool Balance Report</a>.<br>
-  <strong>Data:</strong> <code>regional_plan_allocations.json</code>, converted from <code>All Regional Plan Allocations Summary.xlsx</code> by <code>convert_regional_plan_allocations.py</code>. "Assigned to projects" = allocations drawn to a parcel (built or in progress); "not assigned" = still available in the pool. 1987 Plan figures are hard-coded from the 2012 Regional Plan Update Analysis (not in LT Info); 2012-era figures trace to the LT Info pool balance report.
+  <strong>Existing inventory:</strong> live sums from <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/0" style="color:var(--trpa-blue)">Cumulative_Accounting layer 0</a> (Parcel Development History, the on-the-ground system of record). The query pins to the most recent <code>YEAR</code> on the layer (currently 2025) and sums <code>Residential_Units</code>, <code>CommercialFloorArea_SqFt</code>, and <code>TouristAccommodation_Units</code> across all parcels.<br>
+  <strong>Regional Plan:</strong> <code>regional_plan_allocations.json</code>, converted from <code>All Regional Plan Allocations Summary.xlsx</code> by <code>convert_regional_plan_allocations.py</code>. "Assigned to projects" = allocations drawn to a parcel (built or in progress); "not assigned" = still available in the pool. 1987 Plan figures are hard-coded from the 2012 Regional Plan Update Analysis (not in LT Info); 2012-era figures trace to the LT Info pool balance report.<br>
+  <strong>Banked:</strong> totals fetched live from <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/7" style="color:var(--trpa-blue)">Cumulative_Accounting layer 7</a> (staged from LT Info <code>GetBankedDevelopmentRights</code>).
 </div>
 
 <script>
@@ -194,7 +241,42 @@ const TRPA = {
   ice:'#B4CBE8',
 };
 const DATA_URL  = '../data/processed_data/regional_plan_allocations.json';
-const LAYER_7_URL = 'https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/7/query?where=1%3D1&outFields=DevelopmentRight%2CRemainingBankedQuantity&f=json&returnGeometry=false&resultRecordCount=5000';
+
+// Cumulative_Accounting layer 0 = Parcel Development History, the system of
+// record for what is on the ground (one row per parcel-year). The Existing
+// Development section sums Residential_Units / TouristAccommodation_Units /
+// CommercialFloorArea_SqFt across all parcels at the most recent YEAR.
+const PDH_URL = 'https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/0/query';
+const PDH_MAXYEAR_URL = PDH_URL
+  + '?where=1%3D1'
+  + '&outStatistics=' + encodeURIComponent(JSON.stringify([{
+      statisticType: 'max',
+      onStatisticField: 'YEAR',
+      outStatisticFieldName: 'max_year'
+    }]))
+  + '&returnGeometry=false&f=json';
+function pdhTotalsUrl(year) {
+  return PDH_URL
+    + '?where=' + encodeURIComponent('YEAR=' + year)
+    + '&outStatistics=' + encodeURIComponent(JSON.stringify([
+        { statisticType: 'sum', onStatisticField: 'Residential_Units',          outStatisticFieldName: 'res' },
+        { statisticType: 'sum', onStatisticField: 'TouristAccommodation_Units', outStatisticFieldName: 'tau' },
+        { statisticType: 'sum', onStatisticField: 'CommercialFloorArea_SqFt',   outStatisticFieldName: 'cfa' },
+      ]))
+    + '&returnGeometry=false&f=json';
+}
+// Server-side groupBy/sum so we get one row per DevelopmentRight regardless of
+// the layer's 2000-record default page size. Returns
+// features[*].attributes.{DevelopmentRight, sum_remaining}.
+const LAYER_7_URL = 'https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/7/query'
+  + '?where=1%3D1'
+  + '&outStatistics=' + encodeURIComponent(JSON.stringify([{
+      statisticType: 'sum',
+      onStatisticField: 'RemainingBankedQuantity',
+      outStatisticFieldName: 'sum_remaining'
+    }]))
+  + '&groupByFieldsForStatistics=DevelopmentRight'
+  + '&returnGeometry=false&f=json';
 const plotFont  = { family: '"Open Sans", system-ui, sans-serif', color: TRPA.navy };
 const PLOT_CFG  = { responsive: true, displayModeBar: false };
 
@@ -219,11 +301,43 @@ async function fetchBanked() {
     j.features.forEach(f => {
       const attrs = f.attributes || {};
       const key = BANKED_MAP[attrs.DevelopmentRight];
-      const qty = Number(attrs.RemainingBankedQuantity) || 0;
+      const qty = Number(attrs.sum_remaining) || 0;
       if (key) bankedTotals[key] += qty;
     });
   } catch (e) {
     console.warn('Banked layer fetch failed:', e.message);
+  }
+}
+
+// Populate the Existing Development tiles by chaining two PDH queries:
+// 1) max(YEAR) - to pin to the most recent parcel-year on file
+// 2) sum(Residential_Units, TouristAccommodation_Units, CommercialFloorArea_SqFt)
+//    where YEAR = max(YEAR) - basin-wide totals on the ground at that year
+// Banked TAU annotation (from layer 7) is rendered as a sub-strong on the
+// tourist card so the viewer sees the bank as a separate pool.
+async function renderExisting() {
+  try {
+    const yr = await fetch(PDH_MAXYEAR_URL, { cache: 'no-cache' });
+    if (!yr.ok) throw new Error('max-year HTTP ' + yr.status);
+    const yrJ = await yr.json();
+    const maxYear = Number(yrJ.features?.[0]?.attributes?.max_year);
+    if (!Number.isFinite(maxYear)) throw new Error('max-year missing from response');
+
+    const tr = await fetch(pdhTotalsUrl(maxYear), { cache: 'no-cache' });
+    if (!tr.ok) throw new Error('totals HTTP ' + tr.status);
+    const tj = await tr.json();
+    const a = tj.features?.[0]?.attributes || {};
+
+    document.getElementById('exist-year').textContent = maxYear;
+    document.getElementById('exist-res').textContent  = (Number(a.res) || 0).toLocaleString();
+    document.getElementById('exist-cfa').textContent  = Math.round(Number(a.cfa) || 0).toLocaleString();
+    document.getElementById('exist-tau').textContent  = (Number(a.tau) || 0).toLocaleString();
+  } catch (e) {
+    console.warn('PDH totals fetch failed:', e.message);
+    document.getElementById('exist-year').textContent = '2025';
+    document.getElementById('exist-res').textContent  = '49,018';
+    document.getElementById('exist-cfa').textContent  = '6,583,769';
+    document.getElementById('exist-tau').textContent  = '10,761';
   }
 }
 
@@ -373,6 +487,7 @@ async function main() {
   GAUGES.forEach(renderGauge);
   renderResidential();
   renderCommodity();
+  renderExisting();  // populates the Existing Development section
   document.querySelectorAll('#res-era-toggle .toggle-btn').forEach(b =>
     b.addEventListener('click', () => setResEra(b.dataset.era, b)));
   document.querySelectorAll('#comm-toggle .toggle-btn').forEach(b =>

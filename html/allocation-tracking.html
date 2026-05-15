@@ -68,11 +68,19 @@ header h1 span { color: var(--trpa-blue); }
 /* ── Commodity rows (Overview tab) ── */
 .comm-row { margin-bottom: 22px; }
 .comm-row:last-child { margin-bottom: 0; }
+.comm-row-header {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 12px; margin-bottom: 9px; padding-left: 2px; flex-wrap: wrap;
+}
 .comm-row-label {
   font-size: 0.8rem; font-weight: 700; letter-spacing: 0.06em;
-  text-transform: uppercase; color: var(--text-dark); margin-bottom: 9px; padding-left: 2px;
+  text-transform: uppercase; color: var(--text-dark);
 }
-.comm-cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+.comm-banked-note {
+  font-size: 0.78rem; color: var(--text-mid);
+}
+.comm-banked-note strong { color: var(--trpa-olive); font-weight: 700; font-variant-numeric: tabular-nums; }
+.comm-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
 .comm-card {
   background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
   padding: 18px 20px 16px; position: relative; box-shadow: var(--shadow);
@@ -179,6 +187,15 @@ header h1 span { color: var(--trpa-blue); }
 }
 .dl-btn:hover { border-color: var(--trpa-blue); color: var(--trpa-blue); }
 
+/* ── Footnote ── */
+.footnote {
+  padding: 18px 40px 26px; font-size: 0.74rem; color: var(--text-light);
+  line-height: 1.6; background: var(--surface); border-top: 1px solid var(--border);
+}
+.footnote a { color: var(--trpa-blue); text-decoration: none; }
+.footnote a:hover { text-decoration: underline; }
+.footnote strong { color: var(--text-mid); font-weight: 600; }
+
 /* ── Loading ── */
 #loading-overlay { position: fixed; inset: 0; background: rgba(0, 59, 113, 0.6); display: flex; align-items: center; justify-content: center; z-index: 9999; }
 .loading-card { background: #fff; border-radius: 10px; padding: 36px 48px; text-align: center; min-width: 260px; }
@@ -211,10 +228,7 @@ header h1 span { color: var(--trpa-blue); }
       <div class="header-sub" id="header-sub">Residential, commercial, and tourist allocations: authorized, allocated, and pool balances by jurisdiction.</div>
     </div>
     <div class="header-meta">
-      <div class="live-badge">Live Data</div><br>
-      Source: <a href="https://parcels.laketahoeinfo.org/ResidentialAllocation/Manage" style="color:var(--trpa-ice)">Lake Tahoe Info Parcel Tracker, Residential Allocation Tracking</a><br>
-      Latest pool balances: <a href="https://parcels.laketahoeinfo.org/DevelopmentRightPool/DevelopmentRightPoolBalanceReport" style="color:var(--trpa-ice)">Pool Balance Report</a><br>
-      Per-allocation detail by jurisdiction pool. Region-wide totals: <a href="regional-capacity-dial.html" style="color:var(--trpa-ice)">Tahoe Development Tracker</a>
+      <div class="live-badge">Live Data</div>
     </div>
   </div>
 </header>
@@ -349,6 +363,14 @@ header h1 span { color: var(--trpa-blue); }
   </div>
 </div>
 
+<!-- Footnote -->
+<div class="footnote">
+  <strong>Source:</strong> <a href="https://parcels.laketahoeinfo.org/ResidentialAllocation/Manage">Lake Tahoe Info Parcel Tracker, Residential Allocation Tracking</a>.
+  <strong>Latest pool balances:</strong> <a href="https://parcels.laketahoeinfo.org/DevelopmentRightPool/DevelopmentRightPoolBalanceReport">Pool Balance Report</a>.
+  Per-allocation detail by jurisdiction pool; region-wide totals on the <a href="tahoe-development-tracker.html">Tahoe Development Tracker</a>.
+  Banked totals fetched live from <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/7">Cumulative_Accounting layer 7</a>.
+</div>
+
 <script>
 // ─────────────────────────────────────────
 // TRPA brand color tokens (mirror CSS vars)
@@ -414,7 +436,17 @@ const CFA_TAU_URL = 'https://raw.githubusercontent.com/trpa-agency/Reporting/MTB
 // service staged into the Enterprise GDB by stage_ltinfo_allocations.py.
 // Fetched once at load and aggregated by commodity for the per-row Banked
 // tile. Failure is non-fatal (the tile reads 0 and the page still renders).
-const LAYER_7_URL = 'https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/7/query?where=1%3D1&outFields=DevelopmentRight%2CRemainingBankedQuantity&f=json&returnGeometry=false&resultRecordCount=5000';
+// Uses server-side groupBy/sum so a layer-side 2000-record page cap can't
+// silently truncate the totals.
+const LAYER_7_URL = 'https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/7/query'
+  + '?where=1%3D1'
+  + '&outStatistics=' + encodeURIComponent(JSON.stringify([{
+      statisticType: 'sum',
+      onStatisticField: 'RemainingBankedQuantity',
+      outStatisticFieldName: 'sum_remaining'
+    }]))
+  + '&groupByFieldsForStatistics=DevelopmentRight'
+  + '&returnGeometry=false&f=json';
 
 // Map the banked DevelopmentRight categories onto the dashboard's 3 commodity
 // rows. Conservative 1:1 - only obvious matches; SFRUU / PRUU / RBU etc. live
@@ -436,7 +468,7 @@ async function fetchBanked() {
     j.features.forEach(f => {
       const attrs = f.attributes || {};
       const cat = BANKED_MAP[attrs.DevelopmentRight];
-      const qty = Number(attrs.RemainingBankedQuantity) || 0;
+      const qty = Number(attrs.sum_remaining) || 0;
       if (cat) bankedTotals[cat] += qty;
     });
   } catch (e) {
@@ -769,12 +801,20 @@ function renderCommodityRows() {
     const cards = [
       { label: totalLabel, value: m.total, accent: TRPA.navy, sub: totalSub },
       { label: 'Allocated to private development', value: m.allocated, accent: TRPA.forest, sub: 'drawn to a parcel' + filterNote },
-      { label: 'Banked', value: banked, accent: TRPA.olive, sub: 'in the bank, available for transfer' },
       { label: 'Jurisdiction pool', value: m.available, accent: TYPE_ACCENT[c.key], sub: 'available in jurisdiction pools' + filterNote },
       { label: 'TRPA-held', value: m.trpaHeld, accent: TRPA.ice, sub: trpaSub },
     ];
+    // Banked is a separate pool (previously-developed rights re-deposited via
+    // TDR) - not in the 4-card sum. Surfaced as a header annotation so the
+    // arithmetic stays clean.
+    const bankedNote = banked > 0
+      ? '<div class="comm-banked-note">+ <strong>' + fmtValFor(banked, c.key) + '</strong> banked, available for transfer</div>'
+      : '';
     return '<div class="comm-row">' +
-      '<div class="comm-row-label">' + c.label + '</div>' +
+      '<div class="comm-row-header">' +
+        '<div class="comm-row-label">' + c.label + '</div>' +
+        bankedNote +
+      '</div>' +
       '<div class="comm-cards">' +
       cards.map(k =>
         '<div class="comm-card">' +

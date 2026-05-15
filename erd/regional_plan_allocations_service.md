@@ -8,7 +8,7 @@
 
 ## Why this doc exists
 
-The cumulative-accounting dashboards (`regional-capacity-dial`,
+The cumulative-accounting dashboards (`tahoe-development-tracker`,
 `allocation-tracking`, `pool-balance-cards`, `public-allocation-availability`)
 need allocation data split by **plan era** (1987 / 2012 / combined) with
 **assigned vs not-assigned** status, by jurisdiction, for all four commodities
@@ -127,13 +127,28 @@ per-year "metering" visualization deferred on the dashboards.
 
 ## Open questions for the LT Info owner
 
-These gate the staging ETL - it cannot ship until #1 and #2 are answered.
+These gate the combine view - the ETL refresh itself ships without them.
 
-1. **`GetDevelopmentRightPoolBalanceReport` field semantics.** Confirm the
-   mapping: is `BalanceRemaining` exactly "not assigned to a project," and is
-   `ApprovedTransactionsQuantity` + `BalanceRemaining` = the pool's
-   authorization? `TotalDisbursements` did not cleanly equal the xlsx
-   `RegionalPlanMaximum` in spot checks - what does it count?
+1. **`GetDevelopmentRightPoolBalanceReport` field semantics.** *Partially
+   resolved empirically* via `validate_layer5_mapping.py` (output in
+   `data/qa_data/layer5_mapping_validation.md`). Findings:
+    - `BalanceRemaining == json.not_assigned` is **exact** for RBU, CFA,
+      and TAU at the commodity-total level. **Confirmed.**
+    - Residential is off by exactly **770** - the unreleased allocations
+      tracked in the residential allocation grid (layer 4), not in the pool
+      balance report. The combine view must add these back in for
+      residential.
+    - `TotalDisbursements` is the 2012-era cumulative disbursed (Approved +
+      Pending + Balance), **not** the Regional Plan cap. The cap has to
+      come from layer 3 (1987 baseline) + a separate 2012-era reference.
+    - `ApprovedTransactionsQuantity` is **not** equal to
+      `assigned_to_projects` because the latter rolls in 1987-era
+      assignments that live in layer 3.
+   **Remaining open piece**: how to derive the **2012-era cap per
+   RBU/CFA/TAU pool**? Empirical guess: 2012-era cap = `TotalDisbursements +
+   BalanceRemaining`. For residential the cap is known (2,600 = 1,830 issued
+   per layer 4 + 770 unreleased). For non-residential it needs LT Info
+   owner confirmation before the combine view publishes.
 2. **"Assigned" definition.** In the xlsx, "Assigned to Projects" - is that an
    `ALLOCASSGN` transaction (allocation drawn to a parcel), or built-through-
    permit-completion? The dashboards need the former; confirm.

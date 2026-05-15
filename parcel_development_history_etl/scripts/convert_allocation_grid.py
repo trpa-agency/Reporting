@@ -1,7 +1,7 @@
 """
 convert_allocation_grid.py — Convert the analyst's residentialAllocationGridExport
 xlsx into the canonical CSV that allocation-tracking.html and
-regional-capacity-dial.html consume.
+tahoe-development-tracker.html consume.
 
 Reads the `residentialAllocationGridExport` sheet (NOT the Sheet1 pivot
 summary), writes UTF-8 CSV with the original column names preserved.

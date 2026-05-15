@@ -39,7 +39,7 @@ Organized by the four conceptual tracks (5/11/2026):
 
 | Dashboard | Audience | Data |
 |---|---|---|
-| [**regional-capacity-dial.html**](regional-capacity-dial.html) ★ | Executive · board | `regional_plan_allocations.json` |
+| [**tahoe-development-tracker.html**](tahoe-development-tracker.html) ★ | Executive · board | `regional_plan_allocations.json` |
 
 The page (titled **Tahoe Development Tracker**) has three sections, stacked top to bottom:
 - **4 since-1987 count gauges** (Residential / RBU / TBU / CFA) - allocations assigned to projects
@@ -82,7 +82,7 @@ One row per data source. The endpoint + layer columns link to the REST resource 
 | Allocations 2012 Regional Plan | [layer 4](https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/4) | - (CSV from analyst until LT Info exposes the grid) | ~11 × 2,600 | combine view (planned) |
 | Development Right Pool Balance Report | [layer 5](https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/5) | [GetDevelopmentRightPoolBalanceReport](https://www.laketahoeinfo.org/WebServices/GetDevelopmentRightPoolBalanceReport) (staged nightly) | 7 × ~50 (per-pool) | combine view consumer (planned) |
 | Development Right Transactions | [layer 6](https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/6) | [GetDevelopmentRightTransactions](https://www.laketahoeinfo.org/WebServices/GetDevelopmentRightTransactions) (staged nightly) | 25 × ~3,000 | downstream consumers (planned) |
-| Banked Development Rights | [layer 7](https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/7) | [GetBankedDevelopmentRights](https://www.laketahoeinfo.org/WebServices/GetBankedDevelopmentRights) (staged nightly) | 11 × ~1,500 | **allocation-tracking** (Banked tile) · **regional-capacity-dial** (banked sub-line) |
+| Banked Development Rights | [layer 7](https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/7) | [GetBankedDevelopmentRights](https://www.laketahoeinfo.org/WebServices/GetBankedDevelopmentRights) (staged nightly) | 11 × ~1,500 | **allocation-tracking** (Banked tile) · **tahoe-development-tracker** (banked sub-line) |
 | Transacted and Banked Development Rights | [layer 8](https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/8) | [GetTransactedAndBankedDevelopmentRights](https://www.laketahoeinfo.org/WebServices/GetTransactedAndBankedDevelopmentRights) (staged nightly) | 20 × ~3,000 | downstream consumers (planned) |
 
 ### External REST services
@@ -99,7 +99,7 @@ One row per data source. The endpoint + layer columns link to the REST resource 
 |---|---|---|---|
 | residentialAllocationGridExport | `data/raw_data/residentialAllocationGridExport.csv` | 11 × 2,600 (incl. Construction Status) | **allocation-tracking** (Overview / Charts / Table) |
 | CFA / TAU allocations | `data/raw_data/CFA_TAU_allocations.csv` | ~8 × ~700 | **allocation-tracking** (CFA + TAU rows) |
-| Regional Plan allocations summary | `data/processed_data/regional_plan_allocations.json` (from `All Regional Plan Allocations Summary.xlsx`; will be retired by combine view) | nested by commodity / pool / era | **regional-capacity-dial** · **pool-balance-cards** |
+| Regional Plan allocations summary | `data/processed_data/regional_plan_allocations.json` (from `All Regional Plan Allocations Summary.xlsx`; will be retired by combine view) | nested by commodity / pool / era | **tahoe-development-tracker** · **pool-balance-cards** |
 | FINAL RES SUMMARY 2012-2025 | `FINAL RES SUMMARY 2012 to 2025.xlsx` (inlined) | 13 years × 5 sources | **residential-additions-by-source** |
 | Buildings + units join | `data/processed_data/buildings_with_units.json` | footprint OID ↔ unit count | **development_history_units** |
 | QA change events + detail | `data/qa_data/qa_change_events.csv` + `qa_correction_detail.csv` (from `04_load_ca_changes.ipynb`) | per-APN audit events | **qa-change-rationale** |
@@ -117,7 +117,7 @@ PY="C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/python.exe"
 PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/convert_allocation_grid.py
 
 # Regional Plan allocations summary → JSON + 1987 baseline CSV
-#   (regional-capacity-dial + pool-balance-cards)
+#   (tahoe-development-tracker + pool-balance-cards)
 PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/convert_regional_plan_allocations.py
 PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/extract_regional_plan_1987_seed.py
 

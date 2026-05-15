@@ -163,14 +163,14 @@ footer { padding: 16px 40px 28px; font-size: 0.72rem; color: var(--text-light); 
 
     <div class="card primary">
       <div class="name">
-        <a href="https://trpa-agency.github.io/Reporting/html/regional-capacity-dial.html">regional-capacity-dial.html</a>
+        <a href="https://trpa-agency.github.io/Reporting/html/tahoe-development-tracker.html">tahoe-development-tracker.html</a>
         <span class="star">&starf;</span>
       </div>
       <div class="meta"><span><strong>Audience</strong> Executive &middot; board</span></div>
       <div class="desc">
-        Renamed <strong>Tahoe Development Tracker</strong>: since-1987 count gauges (assigned to projects vs Regional Plan total); residential allocations by jurisdiction with an era toggle (Combined 8,687 / 1987 / 2012); RBU / CFA / TAU by pool with a commodity toggle.
+        <strong>Tahoe Development Tracker</strong>: existing basin-wide inventory baseline (49k residential units, CFA, TAU); since-1987 count gauges (assigned to projects vs Regional Plan total); residential allocations by jurisdiction with an era toggle (Combined 8,687 / 1987 / 2012); RBU / CFA / TAU by pool with a commodity toggle.
       </div>
-      <div class="src">Data: <code>data/processed_data/regional_plan_allocations.json</code></div>
+      <div class="src">Data: <code>data/processed_data/regional_plan_allocations.json</code> + live Cumulative_Accounting layers 2 + 7</div>
     </div>
 
   </div>
@@ -316,7 +316,7 @@ footer { padding: 16px 40px 28px; font-size: 0.72rem; color: var(--text-light); 
         <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/7">layer 7</a></td>
         <td><a href="https://www.laketahoeinfo.org/WebServices/GetBankedDevelopmentRights">GetBankedDevelopmentRights</a> &middot; <span class="muted">staged nightly</span></td>
         <td>11 fields &times; ~1,500 rows</td>
-        <td><strong>allocation-tracking</strong> (Banked tile) &middot; <strong>regional-capacity-dial</strong> (banked sub-line)</td>
+        <td><strong>allocation-tracking</strong> (Banked tile) &middot; <strong>tahoe-development-tracker</strong> (banked sub-line)</td>
       </tr>
 
       <tr>
@@ -383,7 +383,7 @@ footer { padding: 16px 40px 28px; font-size: 0.72rem; color: var(--text-light); 
         <td><code>data/processed_data/regional_plan_allocations.json</code></td>
         <td class="muted">(hand-converted from <code>All Regional Plan Allocations Summary.xlsx</code>; will be retired by combine view)</td>
         <td>nested by commodity / pool / era</td>
-        <td><strong>regional-capacity-dial</strong> &middot; <strong>pool-balance-cards</strong></td>
+        <td><strong>tahoe-development-tracker</strong> &middot; <strong>pool-balance-cards</strong></td>
       </tr>
 
       <tr>
@@ -434,7 +434,7 @@ PY="C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/python.exe"
 PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/convert_allocation_grid.py
 
 # Regional Plan allocations summary &rarr; JSON + 1987 baseline CSV
-#   (regional-capacity-dial + pool-balance-cards)
+#   (tahoe-development-tracker + pool-balance-cards)
 PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/convert_regional_plan_allocations.py
 PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/extract_regional_plan_1987_seed.py
 

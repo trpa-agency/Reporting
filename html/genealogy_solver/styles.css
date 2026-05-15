@@ -112,11 +112,33 @@ header h1 span { color: var(--trpa-blue); }
 
 /* Sections / Cards */
 .section { padding: 24px 40px; }
-.split { display: grid; grid-template-columns: 1.3fr 1fr; gap: 20px; }
+/* Two-column layout: LEFT = Lineage stacked over Component grid (both
+   data/graph views of the seed); RIGHT = Map / Cross-ref sub-tabbed inside
+   one tall card so the right column stays a single visual unit. */
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+.split-col { display: flex; flex-direction: column; gap: 20px; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px 24px; box-shadow: var(--shadow); }
 .card h3 { font-size: 0.95rem; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
 .card p { font-size: 0.73rem; color: var(--text-light); margin-bottom: 14px; }
 .card.full { margin-top: 20px; }
+
+/* Right column: sub-tabbed Map / Cross-ref */
+.right-tabbed { padding: 0; overflow: hidden; }
+.subtab-nav {
+  display: flex; gap: 0; border-bottom: 1px solid var(--border);
+  background: var(--bg); padding: 0 8px;
+}
+.subtab-btn {
+  padding: 12px 18px; border: none; background: transparent; cursor: pointer;
+  font-family: inherit; font-size: 0.82rem; font-weight: 600; color: var(--text-mid);
+  border-bottom: 3px solid transparent; transition: color .15s, border-color .15s;
+}
+.subtab-btn:hover { color: var(--trpa-blue); }
+.subtab-btn.active { color: var(--trpa-navy); border-bottom-color: var(--trpa-blue); background: var(--surface); }
+.subtab-panel { display: none; padding: 18px 24px 20px; }
+.subtab-panel.active { display: block; }
+.subtab-panel h3 { display: none; }    /* the tab label replaces the card title */
+.subtab-panel p { font-size: 0.73rem; color: var(--text-light); margin-bottom: 12px; }
 
 /* Empty / hint state */
 .empty-state { padding: 40px 20px; text-align: center; color: var(--text-light); font-size: 0.85rem; }
@@ -149,7 +171,7 @@ header h1 span { color: var(--trpa-blue); }
 .applied-mark.no { color: var(--text-light); }
 
 /* Lineage SVG diagram */
-.diagram-wrap { overflow-x: auto; padding: 6px 0; }
+.diagram-wrap { overflow-x: auto; padding: 6px 0; min-height: 320px; }
 .diagram-wrap svg { display: block; min-width: 100%; }
 .diagram-node rect { fill: var(--surface); stroke: var(--border); stroke-width: 1.5; rx: 6; ry: 6; transition: stroke .15s, fill .15s; cursor: pointer; }
 .diagram-node:hover rect { stroke: var(--trpa-blue); fill: var(--bg); }
@@ -170,8 +192,9 @@ header h1 span { color: var(--trpa-blue); }
 /* Grids */
 #component-grid, #batch-grid { height: 460px; width: 100%; }
 
-/* Map */
-#genealogy-map { height: 480px; width: 100%; border-radius: 4px; overflow: hidden; border: 1px solid var(--border); background: var(--bg); }
+/* Map: tall and approximately square-ish at typical desktop widths so it
+   reads as a window into the basin, not a strip. */
+#genealogy-map { width: 100%; height: 600px; border-radius: 4px; overflow: hidden; border: 1px solid var(--border); background: var(--bg); }
 .map-status { display: flex; gap: 16px; flex-wrap: wrap; font-size: 0.74rem; color: var(--text-mid); padding: 10px 0 0; }
 .map-status strong { color: var(--text-dark); }
 .map-status .legend-swatch { display: inline-block; width: 14px; height: 14px; border-radius: 2px; vertical-align: middle; margin-right: 5px; }

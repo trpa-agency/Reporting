@@ -54,7 +54,7 @@ what makes the roadmap tractable:
 
 | Artifact | Feeds | What it really is | System of record | Type | Migration path |
 |---|---|---|---|---|---|
-| `All Regional Plan Allocations Summary.xlsx` | regional-capacity-dial, pool-balance-cards (via `convert_regional_plan_allocations.py`) | hand-compiled: 2012-era pulled from the LT Info pool balance report, 1987-era hard-coded from the 2012 RP Update Analysis | LT Info pool balance report (2012) + the 1987 baseline reference (Type C) | A + C | 1987 half is the `Allocations 1987 Regional Plan` layer 3 (live); 2012 half is interim-loaded as `Development Right Pool Balance Report` layer 5 (live); the staging ETL refreshes layer 5 from `GetDevelopmentRightPoolBalanceReport` |
+| `All Regional Plan Allocations Summary.xlsx` | tahoe-development-tracker, pool-balance-cards (via `convert_regional_plan_allocations.py`) | hand-compiled: 2012-era pulled from the LT Info pool balance report, 1987-era hard-coded from the 2012 RP Update Analysis | LT Info pool balance report (2012) + the 1987 baseline reference (Type C) | A + C | 1987 half is the `Allocations 1987 Regional Plan` layer 3 (live); 2012 half is interim-loaded as `Development Right Pool Balance Report` layer 5 (live); the staging ETL refreshes layer 5 from `GetDevelopmentRightPoolBalanceReport` |
 | `Additional Development as of April2026.xlsx` | (retired with public-allocation-availability) | a pull of the LT Info pool balance report | LT Info `GetDevelopmentRightPoolBalanceReport` | A | folded into layer 5 (above); no separate consumer remains |
 | `residentialAllocationGridExport_fromAnalyst.xlsx` | allocation-tracking (via `convert_allocation_grid.py`) | an **export** from the LT Info allocation grid; the analyst exports + drops it manually | LT Info `ResidentialAllocation` / the allocation grid | A | interim done: the CSV is live as `Cumulative_Accounting` layer 4, "Residential Allocations 2012 Regional Plan"; target: the nightly staging ETL refreshes that layer from a new LT Info allocation-grid endpoint |
 | `CFA_TAU_allocations.csv` | allocation-tracking Commercial/Tourist tabs (fetched off a GitHub branch URL) | CFA + TAU allocation transactions | LT Info / Corral CFA + TAU allocations | A | same live source as the allocation grid, via the LT Info staging ETL |
@@ -140,19 +140,29 @@ Inventory FC build (`build_buildings_inventory_fc.py`) is written, pending uploa
 to the service; the analyst's allocation-grid CSV is interim-loaded as
 `Cumulative_Accounting` layer 4, "Residential Allocations 2012 Regional Plan";
 the pool balance report is interim-loaded as layer 5, "Development Right Pool
-Balance Report"; the nightly LT Info staging ETL
-(`scripts/stage_ltinfo_allocations.py`) is a generic 4-pipeline runner that
-refreshes layers 5/6/7/8 (layer 4 stub awaits the LT Info grid endpoint). The
-3 transaction/banking CSVs (`GetDevelopmentRightTransactions`,
-`GetBankedDevelopmentRights`, `GetTransactedAndBankedDevelopmentRights`) are
-incoming as layers 6/7/8 (user to load the interim snapshots; ETL refreshes
-thereafter), and the older `Development_Rights_Transacted_and_Banked` REST
-service is being deprecated (it was a tagged copy of the same data). Ahead:
-confirm `GetDevelopmentRightPoolBalanceReport` field semantics with the LT
-Info owner, build the SDE combine view that UNIONs layers 3 + 5 into the
-dashboards' shape, repoint the remaining converters and dashboards, add the
-Banked column to the dashboards (per the UX review), and a structured
-QA-correction intake surface.
+Balance Report"; the 3 transaction/banking layers (6 Development Right
+Transactions, 7 Banked Development Rights, 8 Transacted and Banked
+Development Rights) are live; the nightly LT Info staging ETL
+(`scripts/stage_ltinfo_allocations.py`) is a generic 4-pipeline runner
+refreshing layers 5/6/7/8 (layer 4 stub awaits the LT Info grid endpoint).
+The older `Development_Rights_Transacted_and_Banked` REST service is being
+deprecated (it was a tagged copy of the same data). The Banked column has
+been added to the dashboards per the UX review (Tracker gauge sub-lines and
+allocation-tracking row annotations, both live from layer 7).
+`Cumulative_Accounting/MapServer/0` is now established as the on-the-ground
+system of record: the Tahoe Development Tracker (renamed from
+regional-capacity-dial) reads basin-wide existing inventory (Residential
+Units / Commercial Floor Area / Tourist Accommodation Units) by chained
+`MAX(YEAR)` then sum-by-commodity, giving 49,018 / 6,583,769 sq ft / 10,761
+at YEAR=2025. The `GetDevelopmentRightPoolBalanceReport` field semantics
+question (Phase-2 blocker) is now partially resolved empirically via
+`validate_layer5_mapping.py`: `BalanceRemaining == json.not_assigned` exact
+for RBU/CFA/TAU at the commodity-total level, residential off by exactly
+770 (the unreleased allocations not in the pool balance report). Ahead:
+build the SDE combine view that UNIONs layers 3 + 5 into the dashboards'
+shape, repoint the remaining converters and dashboards, walk the analyst
+through `banked_reconciliation_findings.csv` to triage LT Info data-quality
+issues in the bank, and a structured QA-correction intake surface.
 
 **Phase 3 - ahead.** Automation and hardening: scheduled refresh, freshness
 monitoring, reconciliation that fails loudly, schema-contract tests (below).
@@ -167,10 +177,16 @@ Beyond "wire up a source," a robust portfolio needs:
    GDB and are published.
 3. **Validated reference tables.** The 1987 baseline is now a real table; the
    QA-correction intake is still a free-form file with no real home.
-4. **Confirmed field semantics.** The LT Info pool balance service's fields
-   (`BalanceRemaining`, `ApprovedTransactionsQuantity`, `TotalDisbursements`)
-   do not cleanly map to assigned / not-assigned / maximum. Cannot safely build
-   on the service until the LT Info owner confirms - see `questions_for_analyst.md`.
+4. **Confirmed field semantics.** *Partially resolved empirically*
+   (`validate_layer5_mapping.py`, output in
+   `data/qa_data/layer5_mapping_validation.md`). `BalanceRemaining ==
+   json.not_assigned` is exact for RBU/CFA/TAU at the commodity-total level;
+   residential is off by exactly 770 (the unreleased allocations that live
+   in layer 4, not the pool balance report). `TotalDisbursements` is the
+   2012-era cumulative disbursed (Approved + Pending + Balance), NOT the
+   Regional Plan cap. Remaining open piece for the LT Info owner: how to
+   derive the 2012-era cap per RBU/CFA/TAU pool (residential is known: 2,600
+   = 1,830 issued + 770 unreleased). See `questions_for_analyst.md`.
 5. **Refresh automation + freshness monitoring.** The converters and the staging
    ETL run by hand. Robust = scheduled refresh + a "this source is N days stale" check.
 6. **Reconciliation that fails loudly.** A real discrepancy already surfaced
