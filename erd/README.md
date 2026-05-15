@@ -11,14 +11,18 @@ proposal under review - it has been decided and partly built:
   as REST services on `maps.trpa.org`) and the LT Info web services (for
   Corral-origin data).
 - **The `Cumulative_Accounting` REST service is live** on `maps.trpa.org`
-  with six populated layers/tables (Parcel Development History, Tahoe APN
+  with nine populated layers/tables (Parcel Development History, Tahoe APN
   Genealogy, Residential Unit Inventory, Allocations 1987 Regional Plan,
   Residential Allocations 2012 Regional Plan, Development Right Pool
-  Balance Report) and three more incoming: Development Right Transactions,
-  Banked Development Rights, and Transacted and Banked Development Rights
-  (the LT Info transaction/banking trio, refreshed nightly via the staging
-  ETL; the older `Development_Rights_Transacted_and_Banked` REST service is
-  being deprecated as a tagged copy of the same Corral data).
+  Balance Report, Development Right Transactions, Banked Development
+  Rights, and Transacted and Banked Development Rights). The LT Info
+  transaction/banking trio (layers 6/7/8) is refreshed nightly via the
+  staging ETL; the older `Development_Rights_Transacted_and_Banked` REST
+  service is being deprecated as a tagged copy of the same Corral data.
+- **Layer 0 (Parcel Development History) is the on-the-ground system of
+  record.** Summing `Residential_Units` / `CommercialFloorArea_SqFt` /
+  `TouristAccommodation_Units` across parcels at `MAX(YEAR)` gives the
+  basin-wide existing inventory the Tahoe Development Tracker consumes.
 
 The vocabulary for the accounting framework is documented in the
 `trpa-cumulative-accounting` Claude skill (a plain-markdown copy is kept at
@@ -147,14 +151,16 @@ The `_archive/` folder also keeps `.html` renders of the archived docs.
 The two valid data sources are the TRPA Enterprise Geodatabase (published
 as REST services on `maps.trpa.org`) and the LT Info web services (for
 Corral-origin data). Corral (`sql24/Corral`) is the LT Info web-application
-backend; the repo's read connection is a backup snapshot, so live reads go
-through the LT Info JSON web services at
-`https://www.laketahoeinfo.org/WebServices/*`. The `Cumulative_Accounting`
-REST service is live on `maps.trpa.org` with six populated layers/tables
-(Parcel Development History, Tahoe APN Genealogy, Residential Unit Inventory,
-Allocations 1987 Regional Plan, Residential Allocations 2012 Regional Plan,
-Development Right Pool Balance Report) and three more incoming for the LT
-Info transaction/banking trio (layers 6/7/8). The analyst's
+backend; the repo's read connection is a backup snapshot (now refreshed to
+`Corral_2026` on `sql24`), so live reads go through the LT Info JSON web
+services at `https://www.laketahoeinfo.org/WebServices/*`. The
+`Cumulative_Accounting` REST service is live on `maps.trpa.org` with nine
+populated layers/tables (Parcel Development History, Tahoe APN Genealogy,
+Residential Unit Inventory, Allocations 1987 Regional Plan, Residential
+Allocations 2012 Regional Plan, Development Right Pool Balance Report,
+Development Right Transactions, Banked Development Rights, Transacted and
+Banked Development Rights). The LT Info transaction/banking trio (layers
+6/7/8) is refreshed nightly via the staging ETL. The analyst's
 `data/raw_data/` spreadsheets fill the gaps those systems don't hold
 (pre-2012 baseline, year built, TRPA/MOU project IDs, completion status)
 and get loaded via ETL. Shorezone (Mooring, Pier) is out of scope - handled
