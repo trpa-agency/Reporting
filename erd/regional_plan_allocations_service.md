@@ -1,15 +1,18 @@
 # Future-state spec: Regional Plan Allocations web service
 
-> **Status: RECOMMENDATION.** Companion to [`target_schema.md`](./target_schema.md).
-> Not DDL. This is a starting point for the Corral / LT Info owner to validate
-> against the live schema.
+> **Status: Active - the pool-balance sibling to
+> [`residential_allocation_grid_service.md`](./residential_allocation_grid_service.md).**
+> Companion to [`system_of_record_roadmap.md`](./system_of_record_roadmap.md)
+> (the portfolio plan). A recommendation, not DDL - a starting point for the LT
+> Info owner to validate against the live service.
 
 ## Why this doc exists
 
-The Phase 2 dashboards (`regional-capacity-dial`, `allocation-tracking`,
-`pool-balance-cards`, `public-allocation-availability`) need allocation data
-split by **plan era** (1987 / 2012 / combined) with **assigned vs not-assigned**
-status, by jurisdiction, for all four commodities (RES / RBU / CFA / TAU).
+The cumulative-accounting dashboards (`regional-capacity-dial`,
+`allocation-tracking`, `pool-balance-cards`, `public-allocation-availability`)
+need allocation data split by **plan era** (1987 / 2012 / combined) with
+**assigned vs not-assigned** status, by jurisdiction, for all four commodities
+(RES / RBU / CFA / TAU).
 
 Today that data path is fully manual:
 
@@ -19,14 +22,14 @@ Today that data path is fully manual:
    converts that xlsx to `data/processed_data/regional_plan_allocations.json`.
 3. The dashboards fetch the JSON.
 
-Every accounting cycle repeats step 1 by hand. The goal of this doc: define
-the **web service** that would replace steps 1-2 so the dashboards
-self-refresh from a live source.
+Every accounting cycle repeats step 1 by hand. This doc defines what replaces
+steps 1-2 so the dashboards self-refresh from the `Cumulative_Accounting`
+service.
 
 ## What the service must return
 
-The shape is already pinned down by `regional_plan_allocations.json` (see the
-converter for the exact JSON structure). In tabular terms:
+The shape is pinned down by `regional_plan_allocations.json` (see the converter
+for the exact JSON structure). In tabular terms:
 
 | Grain | Fields |
 |---|---|
@@ -35,23 +38,25 @@ converter for the exact JSON structure). In tabular terms:
 
 `plan-era` is one of `1987`, `2012`, `combined` (combined = 1987 + 2012).
 
-## The fundamental split: what Corral has vs what it does not
+## The fundamental split: 2012-era is live, 1987-era is frozen
 
-This is the crux, and it is why a single clean SQL query is not enough.
+The data comes from two places, and only one of them is live. Phase 1 already
+stood up the frozen half as a published table.
 
-| Need | In Corral / LT Info? | Source |
+| Need | Source | Status |
 |---|---|---|
-| 2012-era pool balances, assigned / not-assigned, by pool x commodity x jurisdiction | **Yes** | `dbo.CommodityPool` + `dbo.TdrTransaction*` + `dbo.ResidentialAllocation`; or the proposed `PoolDrawdownYearly`; or the existing LT Info web service |
-| 2012-era per-year released / assigned | **Yes** | `dbo.ResidentialAllocation.IssuanceYear`, `dbo.TdrTransaction.ApprovalDate`; materialized in proposed `PoolDrawdownYearly` |
-| **1987 Plan per-jurisdiction maxima + status** | **No** | Hard-code. The analyst's note in the xlsx cites the source: *"1987 Allocations from 2012 Regional Plan Update Analysis"* |
-| **1987-era allocations-by-year (1986-2011)** | **No** | Hard-code. Same source. |
-| **Per-era Regional Plan Maximum (the policy caps)** | **No** | Hard-code. TRPA Code + the 2026 PPTX slide 8 (8,687 RES / 2,000 RBU / 400 TAU / 1,000,000 CFA). |
+| 2012-era pool balances - assigned / not-assigned, by pool x commodity x jurisdiction | LT Info `GetDevelopmentRightPoolBalanceReport` web service | live service; consume via the staging ETL |
+| 2012-era residential by-year (2013-2026) | `Cumulative_Accounting` layer 4 "Residential Allocations 2012 Regional Plan" - carries `IssuanceYear` per allocation | live (the allocation-grid interim load; the grid ETL keeps it fresh) |
+| **1987 Plan per-jurisdiction maxima + status** | `Cumulative_Accounting` layer 3 "Allocations 1987 Regional Plan" - already a published table | live (Type C frozen reference - the analyst's 1987 baseline, no upstream system) |
+| **1987-era residential by-year (1986-2012)** | the same 1987 frozen reference | confirm it is in layer 3 or needs a sibling reference table |
+| **Per-era Regional Plan Maximum (the policy caps)** | TRPA Code + the regional plan documents (8,687 RES / 2,000 RBU / 400 TAU / 1,000,000 CFA) | frozen reference values |
 
-The analyst's email said it directly: *"for now we would need to hard-code the
-1987 plan amounts, as those figures (especially pre-2012 allocations) are not
-currently in LT Info."* A perfect Corral query still cannot produce the 1987
-half. So the service is always **live 2012-era data UNION a hard-coded 1987-era
-reference**.
+The analyst's note in the source xlsx says it directly: the 1987 Plan figures,
+"especially pre-2012 allocations, are not currently in LT Info." No Corral query
+can produce the 1987 half. So the service is always **live 2012-era data UNION a
+frozen 1987-era reference** - and the frozen half (layer 3) already exists. The
+`RegionalPlanCapacity` seed-table idea from the earlier draft of this doc is
+realized: layer 3 *is* that seed table, published.
 
 ## The existing LT Info service - reuse, do not rebuild
 
@@ -68,149 +73,61 @@ already returns a clean 54-record JSON array of **2012-era** pool balances:
 
 It covers pool x commodity x jurisdiction for RES / RBU / CFA / TAU. **What it
 does not have:** the 1987-vs-2012 split, the per-era Regional Plan Maximum, or
-the residential by-year series. Those are exactly the hard-code gaps above.
+the residential by-year series - those are the frozen-reference gaps above. The
+new service does not recompute 2012-era balances from raw Corral; it leans on
+this existing service.
 
-So the existing service is a usable building block - the new service does not
-need to recompute 2012-era balances from raw Corral if it can lean on this one.
+## How it gets to the dashboards
 
-## Recommended: a `RegionalPlanCapacity` seed table
+Same pattern as the residential allocation grid: the nightly LT Info staging ETL
+does the pull, a SQL view does the combine.
 
-Hold the hard-coded half in one small reference table, seeded from the *2012
-Regional Plan Update Analysis* file (and re-checked each cycle, since the 1987
-Plan is effectively frozen - 6,070 of 6,087 residential already assigned).
-
-```sql
-CREATE TABLE RegionalPlanCapacity (
-    Commodity            varchar(20) NOT NULL,   -- 'RES','RBU','CFA','TAU'
-    Jurisdiction         varchar(40) NOT NULL,   -- matches dbo.Jurisdiction.JurisdictionName
-    PlanEra              varchar(10) NOT NULL,   -- '1987' (this table is the 1987 source of truth)
-    RegionalPlanMaximum  int NOT NULL,
-    NotAssigned          int NOT NULL,
-    AssignedToProjects   int NOT NULL,
-    SourceNote           varchar(200) NULL,      -- provenance, e.g. '2012 Regional Plan Update Analysis'
-    CONSTRAINT PK_RegionalPlanCapacity PRIMARY KEY (Commodity, Jurisdiction, PlanEra)
-);
--- Optionally a sibling RegionalPlanCapacityByYear for the 1986-2011 residential
--- by-year block (jurisdiction x year x released/assigned).
-```
-
-This is the same pattern `target_schema.md` already endorses for policy
-constants - reference data the transactional system does not carry.
-
-## Recommended SQL
-
-### Primary path: query the proposed `PoolDrawdownYearly`
-
-`target_schema.md` already proposes `PoolDrawdownYearly` - a nightly-materialized
-table, one row per `(PoolID, Year)`, with columns `StartingBalance`, `Released`,
-`Assigned`, `Used`, ... `EndingBalance`. If that table gets built, the 2012-era
-half of this service is a simple read - no new derivation logic:
+1. **Stage.** `stage_ltinfo_allocations.py` pulls `GetDevelopmentRightPoolBalanceReport`,
+   normalizes the 54 records, and truncate+inserts an `LTInfo_PoolBalance` table
+   in the TRPA Enterprise GDB, stamped with a refresh timestamp.
+2. **Combine.** A SQL view in the GDB UNIONs the three eras: `2012` from
+   `LTInfo_PoolBalance`, `1987` from the layer 3 table, `combined` =
+   `1987 + 2012` summed per commodity x jurisdiction.
+3. **Publish.** The view publishes through the `Cumulative_Accounting` service,
+   alongside the existing layers.
+4. **Repoint.** `convert_regional_plan_allocations.py` and the four dashboards
+   read the service instead of the hand-converted JSON; the manual xlsx step is
+   retired. `Additional Development as of April2026.xlsx` folds in here too - it
+   is the same pool balance report.
 
 ```sql
--- 2012-era status by pool (RES / RBU / CFA / TAU)
--- RegionalPlanMaximum = the pool's authorization (earliest-year StartingBalance)
--- NotAssigned         = what is still in the pool (latest-year EndingBalance)
--- AssignedToProjects  = Maximum - NotAssigned
-SELECT
-    cm.CommodityShortName                                  AS Commodity,
-    j.JurisdictionName                                     AS Jurisdiction,
-    cp.CommodityPoolName                                   AS Pool,
-    '2012'                                                 AS PlanEra,
-    pd_first.StartingBalance                               AS RegionalPlanMaximum,
-    pd_last.EndingBalance                                  AS NotAssigned,
-    pd_first.StartingBalance - pd_last.EndingBalance        AS AssignedToProjects
-FROM dbo.CommodityPool cp
-JOIN dbo.Commodity    cm ON cm.CommodityID   = cp.CommodityID
-JOIN dbo.Jurisdiction j  ON j.JurisdictionID = cp.JurisdictionID
-CROSS APPLY (SELECT TOP 1 * FROM PoolDrawdownYearly d
-             WHERE d.PoolID = cp.CommodityPoolID ORDER BY d.Year ASC ) pd_first
-CROSS APPLY (SELECT TOP 1 * FROM PoolDrawdownYearly d
-             WHERE d.PoolID = cp.CommodityPoolID ORDER BY d.Year DESC) pd_last;
-```
-
-Residential by-year (released / assigned / end-of-year not-assigned) is then
-just a straight read:
-
-```sql
-SELECT j.JurisdictionName AS Jurisdiction, pd.Year,
-       pd.Released, pd.Assigned, pd.EndingBalance AS NotAssignedEoY
-FROM PoolDrawdownYearly pd
-JOIN dbo.CommodityPool cp ON cp.CommodityPoolID = pd.PoolID
-JOIN dbo.Commodity    cm ON cm.CommodityID   = cp.CommodityID
-JOIN dbo.Jurisdiction j  ON j.JurisdictionID = cp.JurisdictionID
-WHERE cm.CommodityShortName IN ('SFRUU','MFRUU')          -- residential allocation
-ORDER BY j.JurisdictionName, pd.Year;
-```
-
-### Combine the two eras
-
-```sql
--- combined = live 2012 (from Corral / PoolDrawdownYearly) + frozen 1987 (seed table)
-SELECT Commodity, Jurisdiction, PlanEra,
+-- the combine view (sketch). LTInfo_PoolBalance = the staged 2012 data;
+-- Allocations_1987_Regional_Plan = layer 3, the frozen 1987 reference.
+SELECT Commodity, Jurisdiction, '2012' AS PlanEra,
        RegionalPlanMaximum, NotAssigned, AssignedToProjects
-FROM   v_RegionalPlanAllocations_2012        -- the query above, as a view
+FROM   LTInfo_PoolBalance
 UNION ALL
 SELECT Commodity, Jurisdiction, '1987' AS PlanEra,
        RegionalPlanMaximum, NotAssigned, AssignedToProjects
-FROM   RegionalPlanCapacity
-WHERE  PlanEra = '1987'
+FROM   Allocations_1987_Regional_Plan
 UNION ALL
 SELECT Commodity, Jurisdiction, 'combined' AS PlanEra,
        SUM(RegionalPlanMaximum), SUM(NotAssigned), SUM(AssignedToProjects)
-FROM ( /* the 1987 + 2012 rows above */ ) eras
+FROM   ( /* the 1987 + 2012 rows above */ ) eras
 GROUP BY Commodity, Jurisdiction;
 ```
 
-### Until `PoolDrawdownYearly` exists
+Mapping the web service's fields onto `RegionalPlanMaximum` / `NotAssigned` /
+`AssignedToProjects` is the **one unconfirmed piece** - see the open questions.
+The ETL must not ship until the LT Info owner confirms it.
 
-Two interim options, in order of preference:
+## The residential by-year series
 
-1. **Consume the existing `GetDevelopmentRightPoolBalanceReport` service** for
-   the live 2012-era numbers and UNION the `RegionalPlanCapacity` seed. The
-   "service" is then a thin combiner - lowest effort, no Corral write access
-   needed. Map `BalanceRemaining` -> `NotAssigned`,
-   `ApprovedTransactionsQuantity` (and/or `TotalDisbursements`) -> the
-   assigned side; confirm the exact mapping with the LT Info owner.
-2. **Derive 2012-era status from raw Corral tables.** The join spine (verify
-   column names against the live schema):
+The earlier draft of this doc punted the by-year residential grain to a
+hypothetical Corral-resident table. It no longer needs one: layer 4 carries
+`IssuanceYear` per allocation, so the 2012-era by-year released series is
+`layer 4 GROUP BY jurisdiction, IssuanceYear`. The 1987-era by-year block
+(1986-2012) is part of the frozen reference. This is also what unblocks the
+per-year "metering" visualization deferred on the dashboards.
 
-   ```sql
-   -- SKETCH - validate joins against the live Corral schema before use.
-   -- "Assigned" = an allocation drawn to a parcel via an ALLOCASSGN
-   -- TdrTransaction; "Not Assigned" = still sitting in its CommodityPool.
-   SELECT cm.CommodityShortName AS Commodity,
-          j.JurisdictionName    AS Jurisdiction,
-          cp.CommodityPoolName  AS Pool,
-          COUNT(ra.ResidentialAllocationID)                          AS RegionalPlanMaximum,
-          SUM(CASE WHEN asg.TdrTransactionID IS NULL THEN 1 ELSE 0 END) AS NotAssigned,
-          SUM(CASE WHEN asg.TdrTransactionID IS NOT NULL THEN 1 ELSE 0 END) AS AssignedToProjects
-   FROM dbo.CommodityPool cp
-   JOIN dbo.Commodity    cm ON cm.CommodityID   = cp.CommodityID
-   JOIN dbo.Jurisdiction j  ON j.JurisdictionID = cp.JurisdictionID
-   LEFT JOIN dbo.ResidentialAllocation ra ON ra.CommodityPoolID = cp.CommodityPoolID
-   -- ALLOCASSGN linkage: via dbo.TdrTransactionAllocation.SendingAllocationPoolID
-   -- + ReceivingParcelID, or whatever FK the live schema exposes - CONFIRM.
-   LEFT JOIN dbo.TdrTransactionAllocation asg
-          ON asg.SendingAllocationPoolID = cp.CommodityPoolID
-   GROUP BY cm.CommodityShortName, j.JurisdictionName, cp.CommodityPoolName;
-   ```
+## Open questions for the LT Info owner
 
-   This is the logic `PoolDrawdownYearly`'s nightly job would run anyway (see
-   the `vCommodityLedger` draft in `target_schema.md`), so building
-   `PoolDrawdownYearly` first and reading it is the cleaner long-term move.
-
-## Recommended delivery path
-
-| Phase | What | Effort |
-|---|---|---|
-| **Now** | The hand-converted `regional_plan_allocations.json` (already done) drives Phase 2 dashboards. | done |
-| **Near-term** | Seed `RegionalPlanCapacity`. Stand up the "thin combiner": existing LT Info service + the seed table -> the JSON shape. Removes the manual xlsx step. | small |
-| **Long-term** | Build `PoolDrawdownYearly` per `target_schema.md`. Expose `v_RegionalPlanAllocations` as an SDE-registered ESRI REST service (the same publishing path `target_schema.md` describes for the future Parcel Development History service). Dashboards fetch it directly. | follows the `target_schema.md` build |
-
-The near-term step alone retires the manual xlsx assembly; the long-term step
-removes the dependency on the external LT Info service entirely.
-
-## Open questions for the Corral / LT Info owner
+These gate the staging ETL - it cannot ship until #1 and #2 are answered.
 
 1. **`GetDevelopmentRightPoolBalanceReport` field semantics.** Confirm the
    mapping: is `BalanceRemaining` exactly "not assigned to a project," and is
@@ -219,16 +136,46 @@ removes the dependency on the external LT Info service entirely.
    `RegionalPlanMaximum` in spot checks - what does it count?
 2. **"Assigned" definition.** In the xlsx, "Assigned to Projects" - is that an
    `ALLOCASSGN` transaction (allocation drawn to a parcel), or built-through-
-   permit-completion (`Used` in `PoolDrawdownYearly`)? The dashboards need the
-   former; confirm.
-3. **1987 Plan source.** The analyst cites "2012 Regional Plan Update Analysis"
-   for the 1987 allocations. Is that file authoritative and stable enough to
-   seed `RegionalPlanCapacity` once, or does it get revised?
-4. **Pool -> jurisdiction -> plan-era mapping.** The LT Info pools are the
-   2012-era pools. Confirm there is no pool in `dbo.CommodityPool` that
-   represents 1987-era capacity (the assumption here is that 1987 is entirely
-   in the seed table, 2012 entirely in Corral).
+   permit-completion? The dashboards need the former; confirm.
+3. **1987 Plan source stability.** Layer 3 is seeded from the "2012 Regional
+   Plan Update Analysis" file. Confirm that file is authoritative and stable
+   enough that layer 3 needs no per-cycle revision (the 1987 Plan is effectively
+   frozen).
+4. **Pool to plan-era mapping.** The LT Info pools are the 2012-era pools.
+   Confirm no pool in the pool balance report represents 1987-era capacity (the
+   assumption: 1987 is entirely in layer 3, 2012 entirely in the LT Info
+   service).
 5. **TAU internal discrepancy.** The current xlsx has a known gap: the TAU
    status table jurisdiction rows sum to 395 but the summary says 400 (the
-   missing 5 is an "Unassigned to CPs" row that only appears in TAU's
-   plan-era table). A live service should reconcile this rather than inherit it.
+   missing 5 is an "Unassigned to CPs" row that only appears in TAU's plan-era
+   table). The staging ETL should reconcile this and fail loud, not inherit it.
+
+## The ask
+
+Two parts, mirroring the residential allocation grid:
+
+- **Interim - done.** The pool balance report is loaded into the
+  `Cumulative_Accounting` REST service as **layer 5, "Development Right Pool
+  Balance Report"** (`Cumulative_Accounting/MapServer/5`) - the same seven
+  fields the LT Info service returns (`BalanceRemaining`,
+  `ApprovedTransactionsQuantity`, `TotalDisbursements`,
+  `PendingTransactionQuantity`, `Jurisdiction`, `DevelopmentRight`,
+  `DevelopmentRightPoolName`). The 1987 baseline already lives as layer 3.
+  The dashboards still consume `regional_plan_allocations.json` for the era
+  splits and the residential by-year metering (both derived from layers 3 + 4
+  + 5); repoint when the combine view is published.
+- **ETL - done.** `parcel_development_history_etl/scripts/stage_ltinfo_allocations.py`
+  refreshes layer 5 from `GetDevelopmentRightPoolBalanceReport` nightly: fetch,
+  schema-verify, truncate+insert, stamp a refresh-log row. The script just
+  stages the 7 raw LT Info fields verbatim - field-semantics interpretation is
+  a downstream concern (the combine view + dashboards), not the ETL's. Default
+  write target is `STAGING_GDB`; repoint at an SDE path once direct SDE write
+  is wired in.
+- **Target - combine view + dashboard repoint.** Build the SDE combine view
+  that UNIONs layer 5 (2012-era) + layer 3 (1987-era) into the era-split shape
+  the dashboards consume, publish it through `Cumulative_Accounting`, then
+  repoint the converter and the dashboards. **Gated on the field-semantics
+  confirmation above** (this is where `BalanceRemaining` /
+  `ApprovedTransactionsQuantity` / `TotalDisbursements` get mapped to
+  `not_assigned` / `assigned_to_projects` / `regional_plan_maximum`; the wrong
+  mapping silently produces wrong numbers).

@@ -240,10 +240,42 @@ PARCELS_FS = "https://maps.trpa.org/server/rest/services/Parcels/FeatureServer/0
 # The official TRPA Enterprise GDB layers, published. The system-of-record
 # source that converters read from instead of local hand-built files.
 CUMULATIVE_ACCOUNTING_SERVICE = "https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer"
-CUMACCT_PDH_LAYER        = CUMULATIVE_ACCOUNTING_SERVICE + "/0"   # Parcel Development History
-CUMACCT_GENEALOGY_TABLE  = CUMULATIVE_ACCOUNTING_SERVICE + "/1"   # Tahoe APN Genealogy
-CUMACCT_UNITS_TABLE      = CUMULATIVE_ACCOUNTING_SERVICE + "/2"   # Residential Unit Inventory
-CUMACCT_ALLOC_1987_TABLE = CUMULATIVE_ACCOUNTING_SERVICE + "/3"   # Allocations 1987 Regional Plan
+CUMACCT_PDH_LAYER              = CUMULATIVE_ACCOUNTING_SERVICE + "/0"   # Parcel Development History
+CUMACCT_GENEALOGY_TABLE        = CUMULATIVE_ACCOUNTING_SERVICE + "/1"   # Tahoe APN Genealogy
+CUMACCT_UNITS_TABLE            = CUMULATIVE_ACCOUNTING_SERVICE + "/2"   # Residential Unit Inventory
+CUMACCT_ALLOC_1987_TABLE       = CUMULATIVE_ACCOUNTING_SERVICE + "/3"   # Allocations 1987 Regional Plan
+CUMACCT_ALLOC_2012_TABLE       = CUMULATIVE_ACCOUNTING_SERVICE + "/4"   # Residential Allocations 2012 Regional Plan
+CUMACCT_POOL_BALANCE_TABLE     = CUMULATIVE_ACCOUNTING_SERVICE + "/5"   # Development Right Pool Balance Report
+CUMACCT_TRANSACTIONS_TABLE     = CUMULATIVE_ACCOUNTING_SERVICE + "/6"   # Development Right Transactions
+CUMACCT_BANKED_TABLE           = CUMULATIVE_ACCOUNTING_SERVICE + "/7"   # Banked Development Rights
+CUMACCT_TRANSACTED_BANKED_TABLE = CUMULATIVE_ACCOUNTING_SERVICE + "/8"  # Transacted and Banked Development Rights
+
+# Impervious Surface 2019 - building footprints (filter Feature = 'Building').
+IMPERVIOUS_2019_URL = "https://maps.trpa.org/server/rest/services/Impervious_Surface_2019/MapServer/0"
+
+# Staging GDB - scratch feature classes built for upload to the service.
+STAGING_GDB = r"C:\GIS\Scratch.gdb"
+
+# ── LT Info web services (for stage_ltinfo_allocations.py) ───────────────────
+# The token lives in .env as LTINFO_API_KEY - never write it into a file.
+# Base URL pattern: <base>/<endpoint>/JSON/<token>
+LTINFO_BASE_URL                  = "https://www.laketahoeinfo.org/WebServices/"
+LTINFO_POOL_BALANCE_ENDPOINT     = "GetDevelopmentRightPoolBalanceReport"
+LTINFO_TRANSACTIONS_ENDPOINT     = "GetDevelopmentRightTransactions"
+LTINFO_BANKED_ENDPOINT           = "GetBankedDevelopmentRights"
+LTINFO_TRANSACTED_BANKED_ENDPOINT = "GetTransactedAndBankedDevelopmentRights"
+
+# Target tables for the LT Info -> Enterprise GDB staging ETL. The defaults
+# point at STAGING_GDB so the script runs end-to-end on the analyst's
+# workstation without an SDE connection; the user's publish step pushes each
+# staging table into the SDE source backing the matching Cumulative_Accounting
+# layer (5/6/7/8). Repoint at SDE paths once direct SDE write is wired in,
+# e.g. r"C:\Connections\trpa_sde.sde\SDE.LTInfo_PoolBalance".
+LTINFO_POOL_BALANCE_TABLE     = STAGING_GDB + r"\LTInfo_PoolBalance"          # -> layer 5
+LTINFO_TRANSACTIONS_TABLE     = STAGING_GDB + r"\LTInfo_Transactions"         # -> layer 6
+LTINFO_BANKED_TABLE           = STAGING_GDB + r"\LTInfo_BankedRights"         # -> layer 7
+LTINFO_TRANSACTED_BANKED_TABLE = STAGING_GDB + r"\LTInfo_TransactedAndBanked" # -> layer 8
+LTINFO_REFRESH_LOG_TABLE      = STAGING_GDB + r"\LTInfo_RefreshLog"
 
 # ── AllParcels MapServer (geometry fetch for missing parcels) ─────────────────
 ALLPARCELS_URL = "https://maps.trpa.org/server/rest/services/AllParcels/MapServer"

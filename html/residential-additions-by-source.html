@@ -116,7 +116,7 @@ header h1 span { color: var(--trpa-blue); }
       <div class="header-eyebrow">Tahoe Regional Planning Agency</div>
       <h1>Residential Additions <span>by Source</span></h1>
       <div class="header-sub">
-        Where added residential units came from each year, 2013&ndash;2025.
+        Where completed residential units came from each year, 2013&ndash;2025.
       </div>
     </div>
     <div class="header-meta">
@@ -130,9 +130,10 @@ header h1 span { color: var(--trpa-blue); }
 <div class="kpi-row">
   <div class="kpi-card">
     <div class="kpi-accent" style="background:var(--trpa-navy)"></div>
-    <div class="kpi-label">Total added 2013&ndash;2025</div>
-    <div class="kpi-value">1,573</div>
-    <div class="kpi-sub">Avg 121 units/yr &middot; net +1,469 after removals</div>
+    <div class="kpi-label">Total completed 2013&ndash;2025</div>
+    <!-- 1,579 = gross sum of all SOURCES arrays -->
+    <div class="kpi-value">1,579</div>
+    <div class="kpi-sub">Avg 121 units/yr across 13 years</div>
   </div>
   <div class="kpi-card">
     <div class="kpi-accent" style="background:var(--trpa-blue)"></div>
@@ -148,9 +149,9 @@ header h1 span { color: var(--trpa-blue); }
   </div>
   <div class="kpi-card">
     <div class="kpi-accent" style="background:var(--trpa-orange)"></div>
-    <div class="kpi-label">Peak year</div>
+    <div class="kpi-label">This year (2025)</div>
     <div class="kpi-value">215</div>
-    <div class="kpi-sub">2025 &middot; +207 net (next-highest 2024 at +186)</div>
+    <div class="kpi-sub">Highest year on record &middot; next-highest 2024 at 190</div>
   </div>
 </div>
 
@@ -165,8 +166,8 @@ header h1 span { color: var(--trpa-blue); }
 <div class="section">
   <div class="split">
     <div class="card">
-      <h3>Composition of added residential units by source</h3>
-      <p>Gross additions only; removals (banked or converted) excluded.</p>
+      <h3>Composition of completed residential units by source</h3>
+      <p>Gross completed units only; removals (banked or converted) are not shown here.</p>
       <div id="main-chart" style="height:480px;"></div>
     </div>
     <div class="card">
@@ -281,7 +282,7 @@ function renderCombined() {
       gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 11 },
     },
     yaxis: {
-      title: { text: 'Residential units added', font: { size: 12 } },
+      title: { text: 'Completed residential units', font: { size: 12 } },
       gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 11 },
       rangemode: 'tozero',
     },
@@ -296,17 +297,23 @@ function renderCombined() {
 // FACET MODE - one small chart per source, 3x2 grid
 // ─────────────────────────────────────────
 function renderFacet() {
-  // Common Y range for visual comparability across panels
-  const maxY = Math.max(...SOURCES.flatMap(s => s.data));
+  // 6th panel: total completed units per year (element-wise sum across sources).
+  // All panels share one Y range so the total reads as comparable to its parts.
+  const totalSeries = {
+    key: 'total', name: 'Total Completed', color: TRPA.navy,
+    data: YEARS.map((_, idx) => SOURCES.reduce((sum, s) => sum + s.data[idx], 0)),
+  };
+  const panels = [...SOURCES, totalSeries];
+  const maxY = Math.max(...panels.flatMap(s => s.data));
   const yMax = Math.ceil(maxY / 10) * 10 + 5;
 
-  // 3 columns × 2 rows (5 sources fit; last cell empty)
+  // 3 columns x 2 rows - 5 sources + 1 total = all 6 cells filled
   const COLS = 3, ROWS = 2;
   const traces = [];
   const annotations = [];
   const axes = {};
 
-  SOURCES.forEach((s, i) => {
+  panels.forEach((s, i) => {
     const xref = i === 0 ? 'x' : 'x' + (i + 1);
     const yref = i === 0 ? 'y' : 'y' + (i + 1);
     const total = s.data.reduce((a, b) => a + b, 0);
@@ -316,7 +323,7 @@ function renderFacet() {
       type: 'scatter', mode: 'lines+markers',
       x: YEARS, y: s.data,
       xaxis: xref, yaxis: yref,
-      line:   { color: s.color, width: 2 },
+      line:   { color: s.color, width: s.key === 'total' ? 2.8 : 2 },
       marker: { color: s.color, size: 5, line: { color: '#fff', width: 1 } },
       fill: 'tozeroy',
       fillcolor: hexA(s.color, 0.18),
@@ -341,7 +348,7 @@ function renderFacet() {
   const cellW = (1 - totalGap * (COLS - 1)) / COLS;
   const cellH = (1 - totalRowGap * (ROWS - 1)) / ROWS;
 
-  for (let i = 0; i < SOURCES.length; i++) {
+  for (let i = 0; i < panels.length; i++) {
     const col = i % COLS;
     const row = Math.floor(i / COLS);
     const xKey = 'xaxis' + (i === 0 ? '' : (i + 1));

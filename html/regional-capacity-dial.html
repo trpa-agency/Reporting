@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Regional Plan Capacity Dial - TRPA</title>
+<title>Tahoe Development Tracker - TRPA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
@@ -55,15 +55,19 @@ header h1 span { color: var(--trpa-blue); }
 .gauge-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 .gauge-card {
   background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
-  padding: 16px 12px 8px; box-shadow: var(--shadow); position: relative; min-height: 270px;
+  padding: 16px 12px 14px; box-shadow: var(--shadow); position: relative; min-height: 280px;
 }
 .gauge-accent { position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 8px 8px 0 0; }
 .gauge-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); text-align: center; margin-bottom: 4px; padding-top: 4px; }
-.gauge-sub { font-size: 0.74rem; color: var(--text-mid); text-align: center; margin-top: -8px; }
+.gauge-value {
+  font-size: 1.9rem; font-weight: 700; color: var(--text-dark);
+  letter-spacing: -0.02em; line-height: 1;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  margin: 0 0 4px;
+}
+.gauge-sub { font-size: 0.74rem; color: var(--text-mid); text-align: center; margin-top: 2px; }
 .gauge-sub strong { color: var(--text-dark); font-weight: 600; }
-
-/* Comparison */
-.comparison { margin-top: 24px; }
 
 /* Toggle bar */
 .toggle-bar { display: flex; gap: 6px; margin: 2px 0 14px; flex-wrap: wrap; }
@@ -106,9 +110,9 @@ header h1 span { color: var(--trpa-blue); }
   <div class="header-content">
     <div>
       <div class="header-eyebrow">Tahoe Regional Planning Agency</div>
-      <h1>Regional Plan <span>Capacity Dial</span></h1>
+      <h1>Tahoe <span>Development Tracker</span></h1>
       <div class="header-sub">
-        Where the Tahoe Region sits against the Regional Plan cumulative capacity.
+        Residential, bonus, tourist, and commercial development assigned to projects across the Tahoe Region, against the Regional Plan totals.
       </div>
     </div>
     <div class="header-meta">
@@ -124,33 +128,31 @@ header h1 span { color: var(--trpa-blue); }
     <div class="gauge-card">
       <div class="gauge-accent" style="background:var(--trpa-blue)"></div>
       <div class="gauge-label">Residential Allocations</div>
-      <div id="gauge-res" style="height:200px;"></div>
+      <div id="gauge-res" style="height:160px;"></div>
+      <div class="gauge-value" id="val-res">&hellip;</div>
       <div class="gauge-sub" id="sub-res">&hellip;</div>
     </div>
     <div class="gauge-card">
       <div class="gauge-accent" style="background:var(--trpa-forest)"></div>
       <div class="gauge-label">Residential Bonus Units</div>
-      <div id="gauge-rbu" style="height:200px;"></div>
+      <div id="gauge-rbu" style="height:160px;"></div>
+      <div class="gauge-value" id="val-rbu">&hellip;</div>
       <div class="gauge-sub" id="sub-rbu">&hellip;</div>
     </div>
     <div class="gauge-card">
       <div class="gauge-accent" style="background:var(--trpa-purple)"></div>
       <div class="gauge-label">Tourist Bonus Units</div>
-      <div id="gauge-tbu" style="height:200px;"></div>
+      <div id="gauge-tbu" style="height:160px;"></div>
+      <div class="gauge-value" id="val-tbu">&hellip;</div>
       <div class="gauge-sub" id="sub-tbu">&hellip;</div>
     </div>
     <div class="gauge-card">
       <div class="gauge-accent" style="background:var(--trpa-earth)"></div>
       <div class="gauge-label">Commercial Floor Area</div>
-      <div id="gauge-cfa" style="height:200px;"></div>
+      <div id="gauge-cfa" style="height:160px;"></div>
+      <div class="gauge-value" id="val-cfa">&hellip;</div>
       <div class="gauge-sub" id="sub-cfa">&hellip;</div>
     </div>
-  </div>
-
-  <div class="comparison card">
-    <h3>Capacity utilization comparison</h3>
-    <p>Allocated vs remaining compared to the Regional Plan maximum. If allocated projects are not fully constructed, rights may be returned to the pools if determined not to have been used.</p>
-    <div id="comparison-chart" style="height:260px;"></div>
   </div>
 
   <!-- Residential allocations by jurisdiction - all 8,687, era toggle -->
@@ -192,10 +194,38 @@ const TRPA = {
   ice:'#B4CBE8',
 };
 const DATA_URL  = '../data/processed_data/regional_plan_allocations.json';
+const LAYER_7_URL = 'https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/7/query?where=1%3D1&outFields=DevelopmentRight%2CRemainingBankedQuantity&f=json&returnGeometry=false&resultRecordCount=5000';
 const plotFont  = { family: '"Open Sans", system-ui, sans-serif', color: TRPA.navy };
 const PLOT_CFG  = { responsive: true, displayModeBar: false };
 
 let RPA = null;   // the loaded regional_plan_allocations.json
+
+// Banked totals fetched from Cumulative_Accounting layer 7. Keys match the
+// `pickKey` on each GAUGE; the TBU tile is wired to TAU data, so banked TAU
+// rolls into the same tile.
+const BANKED_MAP = {
+  'Residential Allocation':           'res',
+  'Residential Bonus Unit (RBU)':     'rbu',
+  'Tourist Accommodation Unit (TAU)': 'tbu',
+  'Commercial Floor Area (CFA)':      'cfa',
+};
+const bankedTotals = { res: 0, rbu: 0, tbu: 0, cfa: 0 };
+async function fetchBanked() {
+  try {
+    const r = await fetch(LAYER_7_URL, { cache: 'no-cache' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const j = await r.json();
+    if (!Array.isArray(j.features)) return;
+    j.features.forEach(f => {
+      const attrs = f.attributes || {};
+      const key = BANKED_MAP[attrs.DevelopmentRight];
+      const qty = Number(attrs.RemainingBankedQuantity) || 0;
+      if (key) bankedTotals[key] += qty;
+    });
+  } catch (e) {
+    console.warn('Banked layer fetch failed:', e.message);
+  }
+}
 
 function fmt(n) {
   if (n == null) return '0';
@@ -204,65 +234,39 @@ function fmt(n) {
 
 // ── Gauges: one per commodity, now showing ASSIGNED (built + allocated) ─────
 const GAUGES = [
-  { id:'gauge-res', sub:'sub-res', color:TRPA.blue,   unit:'units', pick: d => d.residential.summary.combined },
-  { id:'gauge-rbu', sub:'sub-rbu', color:TRPA.forest, unit:'units', pick: d => d.residential_bonus_units.status.summary },
-  { id:'gauge-tbu', sub:'sub-tbu', color:TRPA.purple, unit:'units', pick: d => d.tourist_accommodation_units.status.summary },
-  { id:'gauge-cfa', sub:'sub-cfa', color:TRPA.earth,  unit:'sq ft', pick: d => d.commercial_floor_area.status.summary },
+  { id:'gauge-res', val:'val-res', sub:'sub-res', bankKey:'res', color:TRPA.blue,   unit:'units', pick: d => d.residential.summary.combined },
+  { id:'gauge-rbu', val:'val-rbu', sub:'sub-rbu', bankKey:'rbu', color:TRPA.forest, unit:'units', pick: d => d.residential_bonus_units.status.summary },
+  { id:'gauge-tbu', val:'val-tbu', sub:'sub-tbu', bankKey:'tbu', color:TRPA.purple, unit:'units', pick: d => d.tourist_accommodation_units.status.summary },
+  { id:'gauge-cfa', val:'val-cfa', sub:'sub-cfa', bankKey:'cfa', color:TRPA.earth,  unit:'sq ft', pick: d => d.commercial_floor_area.status.summary },
 ];
 
+// Dial shows the visual proportion of assigned-to-projects vs the Regional Plan
+// total. Axis is in absolute counts (not %); the HTML number below the dial is
+// the actual count rendered as page typography (matches the rest of the page).
+// No % glyph anywhere - the dial is a fuel-gauge-style proportion indicator.
 function renderGauge(g) {
   const s = g.pick(RPA);
   const assigned = s.assigned_to_projects || 0;
   const max      = s.regional_plan_maximum || 0;
-  const pct      = max ? (assigned / max) * 100 : 0;
   Plotly.react(g.id, [{
-    type: 'indicator', mode: 'gauge+number', value: pct,
-    number: { suffix: '%', font: { size: 36, color: TRPA.navy, family: '"Open Sans"' }, valueformat: '.1f' },
+    type: 'indicator', mode: 'gauge', value: assigned,
     gauge: {
-      axis: { range: [0, 100], tickwidth: 1, tickcolor: TRPA.ice, tickfont: { size: 9 }, ticksuffix: '%' },
+      axis: { range: [0, max], tickwidth: 0, ticklen: 0, showticklabels: false },
       bar: { color: g.color, thickness: 0.32 },
       bgcolor: '#f5f7fa', borderwidth: 1, bordercolor: TRPA.ice,
-      steps: [{ range: [0, 100], color: 'rgba(180, 203, 232, 0.2)' }],
-      threshold: { line: { color: TRPA.navy, width: 2 }, thickness: 0.85, value: pct },
+      steps: [{ range: [0, max], color: 'rgba(180, 203, 232, 0.2)' }],
     },
   }], {
-    font: plotFont, paper_bgcolor: 'rgba(0,0,0,0)', margin: { t: 10, r: 16, b: 8, l: 16 },
+    font: plotFont, paper_bgcolor: 'rgba(0,0,0,0)',
+    margin: { t: 8, r: 16, b: 4, l: 16 },
   }, PLOT_CFG);
+  document.getElementById(g.val).textContent = fmt(assigned);
+  const banked = bankedTotals[g.bankKey] || 0;
+  const bankLine = banked > 0
+    ? `<br><span style="color:var(--text-light);font-size:0.72rem">+ <strong>${fmt(banked)}</strong> banked, available for transfer</span>`
+    : '';
   document.getElementById(g.sub).innerHTML =
-    `<strong>${fmt(assigned)}</strong> assigned &middot; max <strong>${fmt(max)}</strong> ${g.unit}`;
-}
-
-// ── Capacity utilization comparison: assigned vs not-assigned, % of max ─────
-function renderComparison() {
-  const labels = ['Residential Allocations', 'Residential Bonus Units',
-                  'Tourist Bonus Units', 'Commercial Floor Area'];
-  const s = GAUGES.map(g => g.pick(RPA));
-  const assignedPct = s.map(x => x.regional_plan_maximum ? (x.assigned_to_projects || 0) / x.regional_plan_maximum * 100 : 0);
-  const remPct      = assignedPct.map(p => 100 - p);
-  const colors      = GAUGES.map(g => g.color);
-  Plotly.react('comparison-chart', [
-    {
-      name: 'Assigned to projects', type: 'bar', orientation: 'h',
-      x: assignedPct, y: labels, marker: { color: colors },
-      text: s.map(x => `${fmt(x.assigned_to_projects)} / ${fmt(x.regional_plan_maximum)}`),
-      textposition: 'inside', insidetextfont: { color: '#fff', size: 11, family: '"Open Sans"' },
-      hovertemplate: '<b>%{x:.1f}%</b> assigned<extra>%{y}</extra>',
-    },
-    {
-      name: 'Not assigned (remaining)', type: 'bar', orientation: 'h',
-      x: remPct, y: labels, marker: { color: TRPA.ice },
-      text: s.map(x => `${fmt(x.not_assigned)} remaining`),
-      textposition: 'inside', insidetextfont: { color: TRPA.navy, size: 11, family: '"Open Sans"' },
-      hovertemplate: '<b>%{x:.1f}%</b> not assigned<extra>%{y}</extra>',
-    },
-  ], {
-    barmode: 'stack', font: plotFont,
-    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
-    margin: { t: 8, r: 24, b: 32, l: 200 },
-    xaxis: { range: [0, 100], ticksuffix: '%', gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 11 } },
-    yaxis: { autorange: 'reversed', tickfont: { size: 12 }, automargin: true },
-    legend: { orientation: 'h', y: -0.18, font: { size: 11 } }, showlegend: true,
-  }, PLOT_CFG);
+    `assigned to projects of <strong>${fmt(max)}</strong> ${g.unit}${bankLine}`;
 }
 
 // ── Shared: 3 summary mini-cards + a by-area stacked bar ───────────────────
@@ -352,11 +356,14 @@ function setCommodity(key, btn) {
 // ── Boot ───────────────────────────────────────────────────────────────────
 async function main() {
   try {
-    const r = await fetch(DATA_URL, { cache: 'no-cache' });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    RPA = await r.json();
+    const [rpaRes] = await Promise.all([
+      fetch(DATA_URL, { cache: 'no-cache' }),
+      fetchBanked(),
+    ]);
+    if (!rpaRes.ok) throw new Error('HTTP ' + rpaRes.status);
+    RPA = await rpaRes.json();
   } catch (e) {
-    document.querySelectorAll('#comparison-chart, #res-chart, #comm-chart').forEach(el => {
+    document.querySelectorAll('#res-chart, #comm-chart').forEach(el => {
       el.innerHTML = '<div style="padding:20px;color:var(--text-mid);font-size:0.8rem">'
         + 'Data unavailable (' + e.message + '). Run '
         + '<code>convert_regional_plan_allocations.py</code> to (re)build the JSON.</div>';
@@ -364,7 +371,6 @@ async function main() {
     return;
   }
   GAUGES.forEach(renderGauge);
-  renderComparison();
   renderResidential();
   renderCommodity();
   document.querySelectorAll('#res-era-toggle .toggle-btn').forEach(b =>
