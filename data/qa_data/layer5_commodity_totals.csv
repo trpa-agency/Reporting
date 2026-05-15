@@ -1,0 +1,5 @@
+commodity,layer5_n_pools,json_regional_plan_maximum,json_assigned_to_projects,json_not_assigned,l5_TotalDisbursements,l5_Approved,l5_Pending,l5_BalanceRemaining,delta_H1_balance_vs_not_assigned,delta_H2_approved_vs_assigned,delta_H2a_approved+pending_vs_assigned,delta_H3a_approved+balance_vs_max,delta_H3b_disbursements_vs_max,delta_H3c_all3_vs_max
+residential,9,2600,832,1768,2112,691,423,998,-770,-141,282,-911,-488,-488
+residential_bonus_units,12,2000,1260,740,1474,379,355,740,0,-881,-526,-881,-526,-526
+commercial_floor_area,19,1000000,511106,488894,581342,52117,40331,488894,0,-458989,-418658,-458989,-418658,-418658
+tourist_accommodation_units,14,400,196,204,342,48,90,204,0,-148,-58,-148,-58,-58

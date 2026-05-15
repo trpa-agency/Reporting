@@ -99,41 +99,53 @@
   </div>
 
   <div class="section">
+    <!-- Two-column layout (collapses to one at narrow widths):
+           LEFT  - Lineage diagram stacked over Full component grid
+                   (both anchored to the seed, both data-shaped)
+           RIGHT - Parcel map and Seed cross-reference, sub-tabbed so the
+                   column is a single tall card. The map is the default; the
+                   cross-ref is one click away. -->
     <div class="split">
-      <div class="card">
-        <h3>Lineage diagram</h3>
-        <p>Ancestors above, seed in middle, descendants below. Click any node to re-seed.</p>
-        <div class="diagram-wrap" id="lineage-diagram">
-          <div class="empty-state">
-            <div class="glyph">&#x21CC;</div>
-            <div>Look up an APN to see its lineage.</div>
+      <div class="split-col">
+        <div class="card">
+          <h3>Lineage diagram</h3>
+          <p>Ancestors above, seed in middle, descendants below. Click any node to re-seed.</p>
+          <div class="diagram-wrap" id="lineage-diagram">
+            <div class="empty-state">
+              <div class="glyph">&#x21CC;</div>
+              <div>Look up an APN to see its lineage.</div>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="card">
-        <h3>Seed cross-reference</h3>
-        <p>2025 state of the queried APN.</p>
-        <div id="xref-panel">
-          <div class="empty-state">
-            <div class="glyph">&#x25A2;</div>
-            <div>No APN selected.</div>
-          </div>
+        <div class="card">
+          <h3>Full component</h3>
+          <p>One row per APN in the connected component. Click a row to re-seed.</p>
+          <div id="component-grid" class="ag-theme-alpine"></div>
         </div>
       </div>
-    </div>
-    <div class="card full">
-      <h3>Parcel map</h3>
-      <p>Footprints from AllParcels MapServer. Seed parcel is filled navy with an orange highlight outline; ancestors and descendants are shown as colored outlines (blue / orange). Click a parcel to re-seed.</p>
-      <div id="genealogy-map"></div>
-      <div class="map-status" id="map-status">
-        <span>Enter an APN to load its parcels onto the map.</span>
-      </div>
-    </div>
 
-    <div class="card full">
-      <h3>Full component</h3>
-      <p>One row per APN in the connected component. Click a row to re-seed.</p>
-      <div id="component-grid" class="ag-theme-alpine"></div>
+      <div class="card right-tabbed">
+        <div class="subtab-nav">
+          <button class="subtab-btn active" data-subtab="map"  onclick="switchSubtab('map',this)">Parcel map</button>
+          <button class="subtab-btn"        data-subtab="xref" onclick="switchSubtab('xref',this)">Seed cross-reference</button>
+        </div>
+        <div class="subtab-panel active" id="subtab-map">
+          <p>Footprints from AllParcels MapServer. Seed parcel is filled navy with an orange highlight outline; ancestors and descendants are shown as colored outlines (blue / orange). Click a parcel to re-seed.</p>
+          <div id="genealogy-map"></div>
+          <div class="map-status" id="map-status">
+            <span>Enter an APN to load its parcels onto the map.</span>
+          </div>
+        </div>
+        <div class="subtab-panel" id="subtab-xref">
+          <p>2025 state of the queried APN.</p>
+          <div id="xref-panel">
+            <div class="empty-state">
+              <div class="glyph">&#x25A2;</div>
+              <div>No APN selected.</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

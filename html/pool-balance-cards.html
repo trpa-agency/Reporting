@@ -133,8 +133,7 @@ header h1 span { color: var(--trpa-blue); }
       <h1>Development Right <span>Pool Balances</span></h1>
     </div>
     <div class="header-meta">
-      <div class="live-badge">B1 / Built</div><br>
-      Source: <a href="https://parcels.laketahoeinfo.org/DevelopmentRightPool/DevelopmentRightPoolBalanceReport" style="color:var(--trpa-ice)">Lake Tahoe Info Parcel Tracker,<br>Development Right Pool Balance Report</a>
+      <div class="live-badge">B1 / Built</div>
     </div>
   </div>
 </header>
@@ -161,19 +160,15 @@ header h1 span { color: var(--trpa-blue); }
   </div>
 </div>
 
-<!-- Toolbar -->
+<!-- Toolbar (cards sort by % used descending, no user toggle) -->
 <div class="toolbar">
   <span class="tb-label">Commodity</span>
   <button class="tb-btn comm-btn active" data-comm="residential">Residential</button>
   <button class="tb-btn comm-btn"        data-comm="residential_bonus_units">Bonus Units</button>
-  <button class="tb-btn comm-btn"        data-comm="commercial_floor_area">CFA</button>
-  <button class="tb-btn comm-btn"        data-comm="tourist_accommodation_units">TAU</button>
+  <button class="tb-btn comm-btn"        data-comm="commercial_floor_area">Commercial Floor Area</button>
+  <button class="tb-btn comm-btn"        data-comm="tourist_accommodation_units">Tourist Units</button>
   <span class="tb-divider"></span>
-  <span class="tb-label">Sort</span>
-  <button class="tb-btn sort-btn active" data-sort="remaining">Not assigned</button>
-  <button class="tb-btn sort-btn"        data-sort="pct">% used</button>
-  <button class="tb-btn sort-btn"        data-sort="name">Name</button>
-  <span class="sort-count" id="sort-count">- pools</span>
+  <span class="sort-count" id="sort-count">- pools, sorted by % used</span>
 </div>
 
 <!-- Cards + detail -->
@@ -223,14 +218,13 @@ const CARD_PALETTE = [TRPA.blue, TRPA.navy, TRPA.orange, TRPA.forest, TRPA.earth
 
 let RPA          = null;
 let commodity    = 'residential';
-let sortBy       = 'remaining';
 let selectedName = null;
 
 const COMM_META = {
-  residential:                 { label: 'Residential', unit: 'units' },
-  residential_bonus_units:     { label: 'Bonus Units', unit: 'units' },
-  commercial_floor_area:       { label: 'CFA',         unit: 'sq ft' },
-  tourist_accommodation_units: { label: 'TAU',         unit: 'units' },
+  residential:                 { label: 'Residential',          unit: 'units' },
+  residential_bonus_units:     { label: 'Bonus Units',          unit: 'units' },
+  commercial_floor_area:       { label: 'Commercial Floor Area', unit: 'sq ft' },
+  tourist_accommodation_units: { label: 'Tourist Units',        unit: 'units' },
 };
 
 function fmt(n) {
@@ -298,15 +292,11 @@ function renderCards() {
   const cards = getCards();
   updateKPIs();
 
+  // Always sort by % used descending: pools nearest exhaustion surface first.
   const sorted = [...cards].sort((a, b) => {
-    if (sortBy === 'remaining') return b.remaining - a.remaining;
-    if (sortBy === 'pct') {
-      const pa = a.initial ? (a.used / a.initial) : 0;
-      const pb = b.initial ? (b.used / b.initial) : 0;
-      return pb - pa;
-    }
-    if (sortBy === 'name') return a.name.localeCompare(b.name);
-    return 0;
+    const pa = a.initial ? (a.used / a.initial) : 0;
+    const pb = b.initial ? (b.used / b.initial) : 0;
+    return pb - pa;
   });
 
   const grid = document.querySelector('#cards-grid');
@@ -336,7 +326,7 @@ function renderCards() {
     grid.appendChild(card);
   });
   document.querySelector('#sort-count').innerHTML =
-    `<strong>${cards.length}</strong> ${COMM_META[commodity].label} pool${cards.length === 1 ? '' : 's'}`;
+    `<strong>${cards.length}</strong> ${COMM_META[commodity].label} pool${cards.length === 1 ? '' : 's'}, sorted by % used`;
 }
 
 // ── Detail panel ───────────────────────────────────────────────────────────
@@ -424,12 +414,6 @@ function setCommodity(key) {
   document.querySelector('#detail-panel').style.display = 'none';
   renderCards();
 }
-function setSort(key) {
-  sortBy = key;
-  document.querySelectorAll('.sort-btn').forEach(b => b.classList.toggle('active', b.dataset.sort === key));
-  renderCards();
-}
-
 // ── Boot ───────────────────────────────────────────────────────────────────
 async function main() {
   try {
@@ -444,8 +428,6 @@ async function main() {
   document.querySelector('#loading').style.display = 'none';
   document.querySelectorAll('.comm-btn').forEach(b =>
     b.addEventListener('click', () => setCommodity(b.dataset.comm)));
-  document.querySelectorAll('.sort-btn').forEach(b =>
-    b.addEventListener('click', () => setSort(b.dataset.sort)));
   renderCards();
   // Auto-select the first residential card so the detail panel isn't empty
   const first = getCards()[0];

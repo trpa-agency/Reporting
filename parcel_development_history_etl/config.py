@@ -80,7 +80,7 @@ TRANSACTIONS_2025_XLSX = (
 )
 # Per-allocation grid export from the analyst (one row per residential allocation,
 # 2012 Plan additional = 2,600 allocations). Drives allocation-tracking.html
-# and the live counts in regional-capacity-dial.html.
+# and the live counts in tahoe-development-tracker.html.
 ALLOCATION_GRID_XLSX = (
     r"C:\Users\mbindl\Documents\GitHub\Reporting"
     r"\data\raw_data\residentialAllocationGridExport_fromAnalyst.xlsx"
@@ -101,7 +101,7 @@ REGIONAL_PLAN_ALLOCATIONS_XLSX = (
     r"\data\from_analyst\All Regional Plan Allocations Summary.xlsx"
 )
 # Tidy JSON form of the above, emitted by convert_regional_plan_allocations.py.
-# Consumed by regional-capacity-dial.html, allocation-tracking.html,
+# Consumed by tahoe-development-tracker.html, allocation-tracking.html,
 # pool-balance-cards.html, and public-allocation-availability.html (Phase 2).
 REGIONAL_PLAN_ALLOCATIONS_JSON = (
     r"C:\Users\mbindl\Documents\GitHub\Reporting"

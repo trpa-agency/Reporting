@@ -8,7 +8,7 @@
 
 ## Why this doc exists
 
-The cumulative-accounting dashboards (`regional-capacity-dial`,
+The cumulative-accounting dashboards (`tahoe-development-tracker`,
 `allocation-tracking`, `pool-balance-cards`, `public-allocation-availability`)
 need allocation data split by **plan era** (1987 / 2012 / combined) with
 **assigned vs not-assigned** status, by jurisdiction, for all four commodities

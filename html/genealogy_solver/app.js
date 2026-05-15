@@ -966,6 +966,24 @@ function switchTab(name, btn) {
   if (name === 'batch' && !state.batchGrid) buildBatchGrid();
 }
 
+// Sub-tabs inside the right column of the Single APN panel (Map / Cross-ref).
+// Both targets render-once on first activation; switching back and forth is
+// a cheap display toggle. The ArcGIS view will go stale if it was hidden when
+// initially constructed, so a no-op tap of view.resize() coaxes it to repaint
+// against the now-visible container.
+function switchSubtab(name, btn) {
+  document.querySelectorAll('.subtab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.subtab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('subtab-' + name).classList.add('active');
+  if (name === 'map' && state.map && state.map.view) {
+    // Give the browser a tick to apply the display change before resizing.
+    setTimeout(() => {
+      try { state.map.view.container && (state.map.view.container.style.width = '100%'); } catch (e) {}
+    }, 0);
+  }
+}
+
 function escHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
