@@ -133,7 +133,7 @@ header h1 span { color: var(--trpa-blue); }
       <div class="header-eyebrow">Tahoe Regional Planning Agency</div>
       <h1>Tahoe <span>Development Tracker</span></h1>
       <div class="header-sub">
-        Residential, bonus, tourist, and commercial development assigned to projects across the Tahoe Region, against the Regional Plan totals.
+        Residential, bonus, tourist, and commercial development assigned to projects across the Tahoe Region.
       </div>
     </div>
     <div class="header-meta">
@@ -227,11 +227,42 @@ header h1 span { color: var(--trpa-blue); }
   </div>
 </div>
 
+<!-- Banked Development Rights: SEPARATE from the Regional Plan allocations
+     above. These are previously-developed rights re-deposited via TDR; they
+     are not part of the 2,600 / 1,000,000 / 400 / 2,000 caps. Snapshot from
+     the analyst's Mar 26, 2026 tally - the live LT Info layer 7 totals can
+     differ; see data/qa_data/banked_reconciliation_summary.md. -->
+<div class="section">
+  <div class="section-title">Banked development rights <strong>(separate pool from Regional Plan allocations)</strong></div>
+  <div class="existing-grid" style="grid-template-columns: repeat(4, 1fr);">
+    <div class="existing-card live" style="border-left-color:var(--trpa-olive)">
+      <div class="existing-label">Multi-family residential</div>
+      <div class="existing-value">47</div>
+      <div class="existing-unit">MFRUU</div>
+    </div>
+    <div class="existing-card live" style="border-left-color:var(--trpa-olive)">
+      <div class="existing-label">Single-family residential</div>
+      <div class="existing-value">352</div>
+      <div class="existing-unit">SFRUU</div>
+    </div>
+    <div class="existing-card live" style="border-left-color:var(--trpa-olive)">
+      <div class="existing-label">Commercial floor area</div>
+      <div class="existing-value">326,776</div>
+      <div class="existing-unit">sq ft</div>
+    </div>
+    <div class="existing-card live" style="border-left-color:var(--trpa-olive)">
+      <div class="existing-label">Tourist accommodation</div>
+      <div class="existing-value">1,501</div>
+      <div class="existing-unit">TAU</div>
+    </div>
+  </div>
+</div>
+
 <div class="footnote">
   <strong>Sources:</strong> Tahoe Regional Planning Agency, May 2026; Lake Tahoe Regional Plan, Policy DP-2.2 and Code Section 50.4.1; <a href="https://parcels.laketahoeinfo.org/DevelopmentRightPool/DevelopmentRightPoolBalanceReport" style="color:var(--trpa-blue)">Development Right Pool Balance Report</a>.<br>
   <strong>Existing inventory:</strong> live sums from <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/0" style="color:var(--trpa-blue)">Cumulative_Accounting layer 0</a> (Parcel Development History, the on-the-ground system of record). The query pins to the most recent <code>YEAR</code> on the layer (currently 2025) and sums <code>Residential_Units</code>, <code>CommercialFloorArea_SqFt</code>, and <code>TouristAccommodation_Units</code> across all parcels.<br>
   <strong>Regional Plan:</strong> <code>regional_plan_allocations.json</code>, converted from <code>All Regional Plan Allocations Summary.xlsx</code> by <code>convert_regional_plan_allocations.py</code>. "Assigned to projects" = allocations drawn to a parcel (built or in progress); "not assigned" = still available in the pool. 1987 Plan figures are hard-coded from the 2012 Regional Plan Update Analysis (not in LT Info); 2012-era figures trace to the LT Info pool balance report.<br>
-  <strong>Banked:</strong> totals fetched live from <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/7" style="color:var(--trpa-blue)">Cumulative_Accounting layer 7</a> (staged from LT Info <code>GetBankedDevelopmentRights</code>).
+  <strong>Banked:</strong> snapshot from the analyst's tally as of Mar 26, 2026 (from <a href="https://parcels.laketahoeinfo.org/BankedDevelopmentRight/Index" style="color:var(--trpa-blue)">LT Info Banked Development Right Index</a>). The live <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/7" style="color:var(--trpa-blue)">Cumulative_Accounting layer 7</a> totals can differ; see <code>data/qa_data/banked_reconciliation_summary.md</code> for the in-progress reconciliation.
 </div>
 
 <script>
@@ -265,56 +296,15 @@ function pdhTotalsUrl(year) {
       ]))
     + '&returnGeometry=false&f=json';
 }
-// Server-side groupBy/sum so we get one row per DevelopmentRight regardless of
-// the layer's 2000-record default page size. Returns
-// features[*].attributes.{DevelopmentRight, sum_remaining}.
-const LAYER_7_URL = 'https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/7/query'
-  + '?where=1%3D1'
-  + '&outStatistics=' + encodeURIComponent(JSON.stringify([{
-      statisticType: 'sum',
-      onStatisticField: 'RemainingBankedQuantity',
-      outStatisticFieldName: 'sum_remaining'
-    }]))
-  + '&groupByFieldsForStatistics=DevelopmentRight'
-  + '&returnGeometry=false&f=json';
 const plotFont  = { family: '"Open Sans", system-ui, sans-serif', color: TRPA.navy };
 const PLOT_CFG  = { responsive: true, displayModeBar: false };
 
 let RPA = null;   // the loaded regional_plan_allocations.json
 
-// Banked totals fetched from Cumulative_Accounting layer 7. Keys match the
-// `pickKey` on each GAUGE; the TBU tile is wired to TAU data, so banked TAU
-// rolls into the same tile.
-const BANKED_MAP = {
-  'Residential Allocation':           'res',
-  'Residential Bonus Unit (RBU)':     'rbu',
-  'Tourist Accommodation Unit (TAU)': 'tbu',
-  'Commercial Floor Area (CFA)':      'cfa',
-};
-const bankedTotals = { res: 0, rbu: 0, tbu: 0, cfa: 0 };
-async function fetchBanked() {
-  try {
-    const r = await fetch(LAYER_7_URL, { cache: 'no-cache' });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const j = await r.json();
-    if (!Array.isArray(j.features)) return;
-    j.features.forEach(f => {
-      const attrs = f.attributes || {};
-      const key = BANKED_MAP[attrs.DevelopmentRight];
-      const qty = Number(attrs.sum_remaining) || 0;
-      if (key) bankedTotals[key] += qty;
-    });
-  } catch (e) {
-    console.warn('Banked layer fetch failed:', e.message);
-  }
-}
-
 // Populate the Existing Development tiles by chaining two PDH queries:
 // 1) max(YEAR) - to pin to the most recent parcel-year on file
 // 2) sum(Residential_Units, TouristAccommodation_Units, CommercialFloorArea_SqFt)
 //    where YEAR = max(YEAR) - basin-wide totals on the ground at that year
-// Banked TAU annotation (from layer 7) is rendered as a sub-strong on the
-// tourist card so the viewer sees the bank as a separate pool.
 async function renderExisting() {
   try {
     const yr = await fetch(PDH_MAXYEAR_URL, { cache: 'no-cache' });
@@ -346,12 +336,14 @@ function fmt(n) {
   return n >= 1000 ? Math.round(n).toLocaleString() : String(n);
 }
 
-// ── Gauges: one per commodity, now showing ASSIGNED (built + allocated) ─────
+// ── Gauges: one per commodity, showing ASSIGNED (built + allocated) ─────────
+// Banked rights are a separate pool from allocations and are surfaced in their
+// own section below (renderBanked) - intentionally not woven into the dials.
 const GAUGES = [
-  { id:'gauge-res', val:'val-res', sub:'sub-res', bankKey:'res', color:TRPA.blue,   unit:'units', pick: d => d.residential.summary.combined },
-  { id:'gauge-rbu', val:'val-rbu', sub:'sub-rbu', bankKey:'rbu', color:TRPA.forest, unit:'units', pick: d => d.residential_bonus_units.status.summary },
-  { id:'gauge-tbu', val:'val-tbu', sub:'sub-tbu', bankKey:'tbu', color:TRPA.purple, unit:'units', pick: d => d.tourist_accommodation_units.status.summary },
-  { id:'gauge-cfa', val:'val-cfa', sub:'sub-cfa', bankKey:'cfa', color:TRPA.earth,  unit:'sq ft', pick: d => d.commercial_floor_area.status.summary },
+  { id:'gauge-res', val:'val-res', sub:'sub-res', color:TRPA.blue,   unit:'units', pick: d => d.residential.summary.combined },
+  { id:'gauge-rbu', val:'val-rbu', sub:'sub-rbu', color:TRPA.forest, unit:'units', pick: d => d.residential_bonus_units.status.summary },
+  { id:'gauge-tbu', val:'val-tbu', sub:'sub-tbu', color:TRPA.purple, unit:'units', pick: d => d.tourist_accommodation_units.status.summary },
+  { id:'gauge-cfa', val:'val-cfa', sub:'sub-cfa', color:TRPA.earth,  unit:'sq ft', pick: d => d.commercial_floor_area.status.summary },
 ];
 
 // Dial shows the visual proportion of assigned-to-projects vs the Regional Plan
@@ -375,12 +367,8 @@ function renderGauge(g) {
     margin: { t: 8, r: 16, b: 4, l: 16 },
   }, PLOT_CFG);
   document.getElementById(g.val).textContent = fmt(assigned);
-  const banked = bankedTotals[g.bankKey] || 0;
-  const bankLine = banked > 0
-    ? `<br><span style="color:var(--text-light);font-size:0.72rem">+ <strong>${fmt(banked)}</strong> banked, available for transfer</span>`
-    : '';
   document.getElementById(g.sub).innerHTML =
-    `assigned to projects of <strong>${fmt(max)}</strong> ${g.unit}${bankLine}`;
+    `assigned to projects of <strong>${fmt(max)}</strong> ${g.unit}`;
 }
 
 // ── Shared: 3 summary mini-cards + a by-area stacked bar ───────────────────
@@ -470,10 +458,7 @@ function setCommodity(key, btn) {
 // ── Boot ───────────────────────────────────────────────────────────────────
 async function main() {
   try {
-    const [rpaRes] = await Promise.all([
-      fetch(DATA_URL, { cache: 'no-cache' }),
-      fetchBanked(),
-    ]);
+    const rpaRes = await fetch(DATA_URL, { cache: 'no-cache' });
     if (!rpaRes.ok) throw new Error('HTTP ' + rpaRes.status);
     RPA = await rpaRes.json();
   } catch (e) {

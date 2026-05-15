@@ -1674,7 +1674,7 @@
           "assigned_to_projects": 108693
         },
         {
-          "group": "Standalone",
+          "group": "Unreleased",
           "name": "Unreleased CFA from 2012 Plan",
           "regional_plan_maximum": 200000,
           "not_assigned": 200000,
@@ -1740,7 +1740,7 @@
           "total": 245884
         },
         {
-          "group": "Standalone",
+          "group": "Unreleased",
           "name": "Unreleased CFA from 2012 Plan",
           "plan_1987": null,
           "plan_2012": 200000,
