@@ -171,7 +171,7 @@ def _parse_pool_table(df, hdr_row, value_keys, commodity_name):
         elif c0 is not None and not has_val:
             current_group = c0  # section header
         elif c0 is not None and has_val:
-            by_pool.append({"group": "Standalone", "name": c0, **triple})
+            by_pool.append({"group": "Unreleased", "name": c0, **triple})
         elif c1 is not None and has_val:
             by_pool.append({"group": current_group or "Ungrouped",
                             "name": c1, **triple})

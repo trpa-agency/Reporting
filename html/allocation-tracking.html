@@ -68,19 +68,13 @@ header h1 span { color: var(--trpa-blue); }
 /* ── Commodity rows (Overview tab) ── */
 .comm-row { margin-bottom: 22px; }
 .comm-row:last-child { margin-bottom: 0; }
-.comm-row-header {
-  display: flex; align-items: baseline; justify-content: space-between;
-  gap: 12px; margin-bottom: 9px; padding-left: 2px; flex-wrap: wrap;
-}
 .comm-row-label {
   font-size: 0.8rem; font-weight: 700; letter-spacing: 0.06em;
   text-transform: uppercase; color: var(--text-dark);
+  margin-bottom: 9px; padding-left: 2px;
 }
-.comm-banked-note {
-  font-size: 0.78rem; color: var(--text-mid);
-}
-.comm-banked-note strong { color: var(--trpa-olive); font-weight: 700; font-variant-numeric: tabular-nums; }
-.comm-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+/* auto-fit so 4 cards (TAU) and 5 cards (residential / CFA) lay out cleanly */
+.comm-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
 .comm-card {
   background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
   padding: 18px 20px 16px; position: relative; box-shadow: var(--shadow);
@@ -368,7 +362,7 @@ header h1 span { color: var(--trpa-blue); }
   <strong>Source:</strong> <a href="https://parcels.laketahoeinfo.org/ResidentialAllocation/Manage">Lake Tahoe Info Parcel Tracker, Residential Allocation Tracking</a>.
   <strong>Latest pool balances:</strong> <a href="https://parcels.laketahoeinfo.org/DevelopmentRightPool/DevelopmentRightPoolBalanceReport">Pool Balance Report</a>.
   Per-allocation detail by jurisdiction pool; region-wide totals on the <a href="tahoe-development-tracker.html">Tahoe Development Tracker</a>.
-  Banked totals fetched live from <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/7">Cumulative_Accounting layer 7</a>.
+  Banked development rights are a separate pool from these allocations and are surfaced on the Tracker.
 </div>
 
 <script>
@@ -412,10 +406,14 @@ const TOTAL_AUTH = { residential: 2600, commercial: 1000000, tourist: 400 };
 
 const TYPE_UNIT = { residential: 'units', commercial: 'sq ft', tourist: 'units' };
 
+// Sub-text under the Total card per commodity. Ken's wording (2026-05-14
+// review): each commodity's authorization composes 1987 + 2012; the sub-text
+// spells out both eras explicitly so the cards below read as 2012-era
+// activity.
 const TYPE_DESC = {
-  residential: '2012 Regional Plan additional \u00b7 of 8,687 since-1987 max',
-  commercial:  '2012 Regional Plan \u00b7 sq ft commercial floor area',
-  tourist:     'Tourist bonus units \u00b7 since-1987 cumulative max',
+  residential: '1987 Regional Plan provided 6,087 residential allocations; 2012 Regional Plan added 2,600 residential allocations for a total of 8,687',
+  commercial:  '1987 Regional Plan provided 800,000 square feet of Commercial Floor Area; 2012 Regional Plan added 200,000 square feet for a total of 1,000,000',
+  tourist:     '1987 Regional Plan provided 400 Tourist Accommodation Bonus Units; no additional units added in the 2012 Regional Plan',
 };
 
 // Type-aware accent color for KPI #2 (Available in Pools)
@@ -431,51 +429,6 @@ const TYPE_ACCENT = {
 // Converted by:               parcel_development_history_etl/scripts/convert_allocation_grid.py
 const RES_URL     = '../data/raw_data/residentialAllocationGridExport.csv';
 const CFA_TAU_URL = 'https://raw.githubusercontent.com/trpa-agency/Reporting/MTB-Edits/data/raw_data/CFA_TAU_allocations.csv';
-
-// Cumulative_Accounting layer 7 = the LT Info GetBankedDevelopmentRights
-// service staged into the Enterprise GDB by stage_ltinfo_allocations.py.
-// Fetched once at load and aggregated by commodity for the per-row Banked
-// tile. Failure is non-fatal (the tile reads 0 and the page still renders).
-// Uses server-side groupBy/sum so a layer-side 2000-record page cap can't
-// silently truncate the totals.
-const LAYER_7_URL = 'https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/7/query'
-  + '?where=1%3D1'
-  + '&outStatistics=' + encodeURIComponent(JSON.stringify([{
-      statisticType: 'sum',
-      onStatisticField: 'RemainingBankedQuantity',
-      outStatisticFieldName: 'sum_remaining'
-    }]))
-  + '&groupByFieldsForStatistics=DevelopmentRight'
-  + '&returnGeometry=false&f=json';
-
-// Map the banked DevelopmentRight categories onto the dashboard's 3 commodity
-// rows. Conservative 1:1 - only obvious matches; SFRUU / PRUU / RBU etc. live
-// in their own categories and are not rolled into the rows here.
-const BANKED_MAP = {
-  'Residential Allocation':           'residential',
-  'Commercial Floor Area (CFA)':      'commercial',
-  'Tourist Accommodation Unit (TAU)': 'tourist',
-};
-
-let bankedTotals = { residential: 0, commercial: 0, tourist: 0 };
-
-async function fetchBanked() {
-  try {
-    const r = await fetch(LAYER_7_URL, { cache: 'no-cache' });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const j = await r.json();
-    if (!Array.isArray(j.features)) return;
-    j.features.forEach(f => {
-      const attrs = f.attributes || {};
-      const cat = BANKED_MAP[attrs.DevelopmentRight];
-      const qty = Number(attrs.sum_remaining) || 0;
-      if (cat) bankedTotals[cat] += qty;
-    });
-  } catch (e) {
-    // Banked data is informational; failure shouldn't block the page.
-    console.warn('Banked layer fetch failed:', e.message);
-  }
-}
 
 // Per the framing (2026-05-11): TRPA pool is its own pre-jurisdiction state,
 // not a 6th jurisdiction. Five real jurisdiction pools below; TRPA-held
@@ -773,6 +726,13 @@ function computeCommodity(commodity) {
 }
 
 // The Overview: three rows of summary cards, one row per commodity.
+// Per Ken's 2026-05-14 review:
+//   - Residential: 5 cards (Total / Allocated / Jurisdiction pool / TRPA pool / Unreleased)
+//   - CFA: 5 cards (Total / Allocated / Jurisdiction pool / TRPA pool / Unreleased - the 200k CFA reserved for 2012-RP use after 1987 is exhausted)
+//   - TAU: 4 cards (no separate unreleased)
+// Banked development rights are a separate pool and are NOT surfaced on this
+// page (allocations and banked are distinct).
+const CFA_UNRELEASED = 200000;  // 2012 Regional Plan CFA reserved (Not for Use until 1987 CFA is exhausted), per layer 5
 function renderCommodityRows() {
   const allJurisActive = activePills.size === JURIS_ORDER.length;
   const filterNote = allJurisActive
@@ -781,40 +741,36 @@ function renderCommodityRows() {
 
   document.querySelector('#commodity-rows').innerHTML = COMMODITIES.map(c => {
     const m = computeCommodity(c.key);
-    const banked = bankedTotals[c.key] || 0;
 
-    // For residential, every allocation is tracked in the data so the
-    // other 4 cards already sum to the cap (Total authorized). For CFA/TAU,
-    // the data covers only transactions, so the cap is a planning ceiling
-    // (Regional Plan max) and the 4 below it represent activity to date -
-    // they don't sum to the cap. The label + sub make this distinction
-    // explicit so the math isn't quietly misleading.
-    const totalLabel = c.key === 'residential' ? 'Total authorized' : 'Regional Plan max';
-    const totalSub   = c.key === 'residential'
-      ? TYPE_DESC[c.key]
-      : 'cap; cards below show activity to date';
+    const totalLabel = c.key === 'residential' ? 'Total authorized' : 'Total Authorized';
+    const totalSub   = TYPE_DESC[c.key];
 
-    const trpaSub = c.key === 'residential' && m.unreleased > 0
-      ? m.unreleased.toLocaleString() + ' unreleased + ' + m.trpaPoolHeld.toLocaleString() + ' in TRPA Pool'
-      : 'held centrally by TRPA';
+    // Static-pool note - TRPA pool amounts don't meter annually like the
+    // jurisdiction pools.
+    const trpaStaticNote = 'static; not metered annually';
 
     const cards = [
       { label: totalLabel, value: m.total, accent: TRPA.navy, sub: totalSub },
-      { label: 'Allocated to private development', value: m.allocated, accent: TRPA.forest, sub: 'drawn to a parcel' + filterNote },
+      { label: 'Allocated to private development', value: m.allocated, accent: TRPA.forest, sub: 'allocated to a parcel' + filterNote },
       { label: 'Jurisdiction pool', value: m.available, accent: TYPE_ACCENT[c.key], sub: 'available in jurisdiction pools' + filterNote },
-      { label: 'TRPA-held', value: m.trpaHeld, accent: TRPA.ice, sub: trpaSub },
     ];
-    // Banked is a separate pool (previously-developed rights re-deposited via
-    // TDR) - not in the 4-card sum. Surfaced as a header annotation so the
-    // arithmetic stays clean.
-    const bankedNote = banked > 0
-      ? '<div class="comm-banked-note">+ <strong>' + fmtValFor(banked, c.key) + '</strong> banked, available for transfer</div>'
-      : '';
+
+    // Residential: split TRPA-held into TRPA pool (154) + Unreleased (770) per Ken
+    if (c.key === 'residential') {
+      cards.push({ label: 'TRPA pool',  value: m.trpaPoolHeld, accent: TRPA.ice,    sub: trpaStaticNote });
+      cards.push({ label: 'Unreleased', value: m.unreleased,   accent: TRPA.purple, sub: 'reserved for future release' });
+    } else if (c.key === 'commercial') {
+      // CFA: TRPA pool from jurisdiction-less Allocated/TRPA-Pool rows, plus
+      // a hardcoded Unreleased card for the 200k reserved 2012-RP CFA.
+      cards.push({ label: 'TRPA pool',  value: m.trpaHeld,        accent: TRPA.ice,    sub: 'held in TRPA pool · ' + trpaStaticNote });
+      cards.push({ label: 'Unreleased', value: CFA_UNRELEASED,    accent: TRPA.purple, sub: 'reserved for future release (not for use until 1987 CFA is used)' });
+    } else {
+      // TAU: 4 cards (no unreleased)
+      cards.push({ label: 'TRPA pool',  value: m.trpaHeld, accent: TRPA.ice, sub: 'held in TRPA pool · ' + trpaStaticNote });
+    }
+
     return '<div class="comm-row">' +
-      '<div class="comm-row-header">' +
-        '<div class="comm-row-label">' + c.label + '</div>' +
-        bankedNote +
-      '</div>' +
+      '<div class="comm-row-label">' + c.label + '</div>' +
       '<div class="comm-cards">' +
       cards.map(k =>
         '<div class="comm-card">' +
@@ -1301,7 +1257,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const [resResp, cfaTauResp] = await Promise.all([
       fetch(RES_URL,     { cache: 'no-cache' }),
       fetch(CFA_TAU_URL, { cache: 'no-cache' }),
-      fetchBanked(),  // side-effect: populates bankedTotals; resolves to undefined
     ]);
     if (!resResp.ok)    throw new Error('Residential data: HTTP ' + resResp.status);
     if (!cfaTauResp.ok) throw new Error('CFA/TAU data: HTTP ' + cfaTauResp.status);

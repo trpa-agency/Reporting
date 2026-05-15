@@ -72,6 +72,10 @@ header h1 span { color: var(--trpa-blue); }
 }
 .pool-card:hover { transform: translateY(-2px); box-shadow: 0 4px 24px rgba(0, 59, 113, 0.12); }
 .pool-card.selected { outline: 3px solid var(--trpa-blue); outline-offset: -3px; }
+/* All Jurisdictions card: visually distinct (navy header bar) so it reads as
+   a summary, not a peer to the individual pools. */
+.pool-card-all { background: linear-gradient(180deg, rgba(0, 59, 113, 0.04) 0%, var(--surface) 100%); border-top: 3px solid var(--trpa-navy); }
+.pool-card-all .pool-jurisdiction { color: var(--trpa-navy); }
 .pool-accent { position: absolute; top: 0; left: 0; right: 0; height: 4px; border-radius: 8px 8px 0 0; }
 .pool-name { font-size: 0.82rem; font-weight: 700; color: var(--text-dark); margin-top: 8px; line-height: 1.25; }
 .pool-jurisdiction { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); margin-bottom: 4px; }
@@ -163,10 +167,10 @@ header h1 span { color: var(--trpa-blue); }
 <!-- Toolbar (cards sort by % used descending, no user toggle) -->
 <div class="toolbar">
   <span class="tb-label">Commodity</span>
-  <button class="tb-btn comm-btn active" data-comm="residential">Residential</button>
-  <button class="tb-btn comm-btn"        data-comm="residential_bonus_units">Bonus Units</button>
+  <button class="tb-btn comm-btn active" data-comm="residential">Residential Allocations</button>
+  <button class="tb-btn comm-btn"        data-comm="residential_bonus_units">Residential Bonus Units</button>
   <button class="tb-btn comm-btn"        data-comm="commercial_floor_area">Commercial Floor Area</button>
-  <button class="tb-btn comm-btn"        data-comm="tourist_accommodation_units">Tourist Units</button>
+  <button class="tb-btn comm-btn"        data-comm="tourist_accommodation_units">Tourist Bonus Units</button>
   <span class="tb-divider"></span>
   <span class="sort-count" id="sort-count">- pools, sorted by % used</span>
 </div>
@@ -221,10 +225,10 @@ let commodity    = 'residential';
 let selectedName = null;
 
 const COMM_META = {
-  residential:                 { label: 'Residential',          unit: 'units' },
-  residential_bonus_units:     { label: 'Bonus Units',          unit: 'units' },
-  commercial_floor_area:       { label: 'Commercial Floor Area', unit: 'sq ft' },
-  tourist_accommodation_units: { label: 'Tourist Units',        unit: 'units' },
+  residential:                 { label: 'Residential Allocations',  unit: 'units' },
+  residential_bonus_units:     { label: 'Residential Bonus Units',  unit: 'units' },
+  commercial_floor_area:       { label: 'Commercial Floor Area',    unit: 'sq ft' },
+  tourist_accommodation_units: { label: 'Tourist Bonus Units',      unit: 'units' },
 };
 
 function fmt(n) {
@@ -261,6 +265,23 @@ function getCards() {
   return rows;
 }
 
+// Synthetic "All Jurisdictions" card - sums the per-pool numbers. Distinct
+// accent (navy) so it doesn't get confused with a real pool. Default-selected
+// on page load and on commodity change.
+function getAllCard() {
+  const rows = getCards();
+  const sum = (k) => rows.reduce((a, r) => a + (r[k] || 0), 0);
+  return {
+    name:      'All Jurisdictions',
+    group:     COMM_META[commodity].label,
+    initial:   sum('initial'),
+    remaining: sum('remaining'),
+    used:      sum('used'),
+    color:     TRPA.navy,
+    _all:      true,
+  };
+}
+
 function getSummary() {
   return commodity === 'residential'
     ? RPA.residential.summary.combined
@@ -293,11 +314,13 @@ function renderCards() {
   updateKPIs();
 
   // Always sort by % used descending: pools nearest exhaustion surface first.
-  const sorted = [...cards].sort((a, b) => {
+  // The synthetic "All Jurisdictions" card is always pinned to the front.
+  const allCard = getAllCard();
+  const sorted = [allCard, ...[...cards].sort((a, b) => {
     const pa = a.initial ? (a.used / a.initial) : 0;
     const pb = b.initial ? (b.used / b.initial) : 0;
     return pb - pa;
-  });
+  })];
 
   const grid = document.querySelector('#cards-grid');
   grid.innerHTML = '';
@@ -305,11 +328,13 @@ function renderCards() {
   sorted.forEach(p => {
     const pctUsed = p.initial ? (p.used / p.initial) * 100 : 0;
     const card = document.createElement('div');
-    card.className = 'pool-card' + (selectedName === p.name ? ' selected' : '');
+    card.className = 'pool-card'
+      + (selectedName === p.name ? ' selected' : '')
+      + (p._all ? ' pool-card-all' : '');
     card.onclick = () => selectCard(p);
     card.innerHTML = `
       <div class="pool-accent" style="background:${p.color}"></div>
-      <div class="pool-jurisdiction">${p.group || COMM_META[commodity].label + ' pool'}</div>
+      <div class="pool-jurisdiction">${p._all ? 'Combined' : (p.group || COMM_META[commodity].label + ' pool')}</div>
       <div class="pool-name">${p.name}</div>
       <div class="pool-row">
         <div class="pool-remaining">${fmt(p.remaining)}</div>
@@ -326,7 +351,7 @@ function renderCards() {
     grid.appendChild(card);
   });
   document.querySelector('#sort-count').innerHTML =
-    `<strong>${cards.length}</strong> ${COMM_META[commodity].label} pool${cards.length === 1 ? '' : 's'}, sorted by % used`;
+    `<strong>${cards.length}</strong> ${COMM_META[commodity].label} pool${cards.length === 1 ? '' : 's'}, sorted by % used (plus All Jurisdictions)`;
 }
 
 // ── Detail panel ───────────────────────────────────────────────────────────
@@ -339,6 +364,19 @@ function selectCard(p) {
 
   const unit = COMM_META[commodity].unit;
   const pctUsed = p.initial ? (p.used / p.initial * 100) : 0;
+
+  if (p._all) {
+    // Synthetic All Jurisdictions card - one bar per real pool, stacked
+    // assigned (forest) vs not-assigned (ice) so a viewer can scan the
+    // breakdown across pools in one view.
+    document.querySelector('#detail-sub').innerHTML =
+      `Combined across all ${COMM_META[commodity].label} pools. `
+      + `<strong>${fmt(p.used)}</strong> assigned to projects &middot; `
+      + `<strong>${fmt(p.remaining)}</strong> not assigned of `
+      + `<strong>${fmt(p.initial)}</strong> ${unit}.`;
+    renderAll(unit);
+    return;
+  }
 
   if (hasMetering(p.name)) {
     document.querySelector('#detail-sub').innerHTML =
@@ -383,6 +421,38 @@ function renderMetering(name) {
   }, PLOT_CFG);
 }
 
+// All-jurisdictions combined chart: horizontal stacked bar per pool, ordered
+// by % used descending so the scan-pattern matches the card grid.
+function renderAll(unit) {
+  const rows = [...getCards()].sort((a, b) => {
+    const pa = a.initial ? (a.used / a.initial) : 0;
+    const pb = b.initial ? (b.used / b.initial) : 0;
+    return pb - pa;
+  });
+  const names    = rows.map(r => r.name);
+  const used     = rows.map(r => r.used);
+  const notAssig = rows.map(r => r.remaining);
+  Plotly.react('detail-chart', [
+    {
+      name: 'Assigned to projects', type: 'bar', orientation: 'h',
+      x: used, y: names, marker: { color: TRPA.forest },
+      hovertemplate: `<b>%{x:,}</b> ${unit} assigned<extra>%{y}</extra>`,
+    },
+    {
+      name: 'Not assigned', type: 'bar', orientation: 'h',
+      x: notAssig, y: names, marker: { color: TRPA.ice },
+      hovertemplate: `<b>%{x:,}</b> ${unit} not assigned<extra>%{y}</extra>`,
+    },
+  ], {
+    barmode: 'stack', font: plotFont,
+    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+    margin: { t: 8, r: 24, b: 36, l: 200 },
+    xaxis: { gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 10 }, rangemode: 'tozero' },
+    yaxis: { autorange: 'reversed', tickfont: { size: 10 }, automargin: true },
+    legend: { orientation: 'h', y: -0.18, font: { size: 11 } },
+  }, PLOT_CFG);
+}
+
 // Non-metered pools: a simple assigned vs not-assigned breakdown bar
 function renderBreakdown(p, unit) {
   Plotly.react('detail-chart', [
@@ -406,6 +476,44 @@ function renderBreakdown(p, unit) {
   }, PLOT_CFG);
 }
 
+// Commodity-aware explainer. Residential carries the full markup; the other
+// three are placeholders pending content from the analyst. Swapping happens
+// on every setCommodity() call.
+const EXPLAINERS = {
+  residential: `
+    <h3>What&rsquo;s a residential allocation?</h3>
+    <p>
+      A residential building allocation is permission to build one new residential unit in the Tahoe Basin. To construct a new residential dwelling, the property must have a potential residential unit of use (the ability to develop a lot) and obtain a residential allocation from the respective local jurisdiction or TRPA.
+    </p>
+    <p>
+      The Regional Plan caps the cumulative total at <strong>8,687 since 1987</strong>. Allocations are metered out to local jurisdictions, releasing 130 each year, to pace development with environmental capacity.
+    </p>
+    <p>
+      Each county and the City of South Lake Tahoe distribute allocations from their pool as permits are approved. Unused allocations are returned to the pool. When a pool runs out, property owners wanting to develop must wait for the next round of allocations, transfer or convert other development rights, or receive a bonus unit. For more information, please visit <a href="https://www.trpa.gov/development-rights/">trpa.gov/development-rights</a>.
+    </p>
+    <p>
+      The allocation tracking and history is available on the Lake Tahoe Info Parcel Tracker, at <a href="https://parcels.laketahoeinfo.org/ResidentialAllocation/Manage">parcels.laketahoeinfo.org/ResidentialAllocation/Manage</a>. Current allocation pool balances are shown at <a href="https://parcels.laketahoeinfo.org/DevelopmentRightPool/DevelopmentRightPoolBalanceReport">parcels.laketahoeinfo.org/DevelopmentRightPool/DevelopmentRightPoolBalanceReport</a>.
+    </p>
+  `,
+  residential_bonus_units: `
+    <h3>What&rsquo;s a residential bonus unit?</h3>
+    <p><em>Content forthcoming - the analyst is drafting commodity-specific guidance for this section.</em></p>
+  `,
+  commercial_floor_area: `
+    <h3>What&rsquo;s a commercial floor area allocation?</h3>
+    <p><em>Content forthcoming - the analyst is drafting commodity-specific guidance for this section.</em></p>
+  `,
+  tourist_accommodation_units: `
+    <h3>What&rsquo;s a tourist bonus unit?</h3>
+    <p><em>Content forthcoming - the analyst is drafting commodity-specific guidance for this section.</em></p>
+  `,
+};
+
+function updateExplainer() {
+  const el = document.querySelector('.explainer');
+  if (el && EXPLAINERS[commodity]) el.innerHTML = EXPLAINERS[commodity];
+}
+
 // ── Toolbar wiring ─────────────────────────────────────────────────────────
 function setCommodity(key) {
   commodity = key;
@@ -413,6 +521,11 @@ function setCommodity(key) {
   document.querySelectorAll('.comm-btn').forEach(b => b.classList.toggle('active', b.dataset.comm === key));
   document.querySelector('#detail-panel').style.display = 'none';
   renderCards();
+  updateExplainer();
+  // Auto-select the All Jurisdictions card after a commodity change so the
+  // detail panel never reads stale.
+  const all = getAllCard();
+  selectCard(all);
 }
 // ── Boot ───────────────────────────────────────────────────────────────────
 async function main() {
@@ -429,9 +542,10 @@ async function main() {
   document.querySelectorAll('.comm-btn').forEach(b =>
     b.addEventListener('click', () => setCommodity(b.dataset.comm)));
   renderCards();
-  // Auto-select the first residential card so the detail panel isn't empty
-  const first = getCards()[0];
-  if (first) selectCard(first);
+  updateExplainer();
+  // Default-select the All Jurisdictions card so the detail panel opens on
+  // the combined view (was confusing to open on Placer's per-pool detail).
+  selectCard(getAllCard());
 }
 document.addEventListener('DOMContentLoaded', main);
 </script>

@@ -149,7 +149,7 @@ header h1 span { color: var(--trpa-blue); }
   </div>
   <div class="kpi-card">
     <div class="kpi-accent" style="background:var(--trpa-orange)"></div>
-    <div class="kpi-label">This year (2025)</div>
+    <div class="kpi-label">Added Units This Year</div>
     <div class="kpi-value">215</div>
     <div class="kpi-sub">Highest year on record &middot; next-highest 2024 at 190</div>
   </div>
@@ -172,9 +172,18 @@ header h1 span { color: var(--trpa-blue); }
     </div>
     <div class="card">
       <h3>Major completed projects</h3>
-      <p>Residential projects completed by year.</p>
+      <p>Residential units completed by year.</p>
       <div class="proj-list" id="proj-list"></div>
     </div>
+  </div>
+
+  <!-- Removed-by-year chart: units returned to the pool via Banking or
+       Converted to another commodity. Sign-flipped so the bars go down,
+       making the additive/subtractive nature obvious next to the chart above. -->
+  <div class="card" style="margin-top: 16px;">
+    <h3>Residential units removed by year</h3>
+    <p>Units returned to the pool via <strong>Banking</strong> or <strong>Converted</strong> to a different commodity. Sign-flipped (negative) so the visual reads as subtraction from the chart above. Per the analyst's FINAL RES SUMMARY: 2013-2025 totals are -103 Banked + -7 Converted = -110 removed.</p>
+    <div id="removed-chart" style="height:300px;"></div>
   </div>
 </div>
 
@@ -217,6 +226,17 @@ const SOURCES = [
     data:  [ 1,  2,  4, 10,  3,  0,  3,  19, 27,  2, 17, 42, 31] },
   { key: 'banked',      name: 'From Banked',  color: TRPA.purple,
     data:  [ 5,  8,  3,  3,  3,  5, 14,  32, 29,  7, 28, 13, 21] },
+];
+
+// Removed by year - from the analyst's FINAL RES SUMMARY Summary sheet
+// "Banked" and "Converted" rows. Sign-flipped (already negative) so the bars
+// render downward and read as subtractive next to the additions chart.
+// 2013-2025 totals: -103 Banked + -7 Converted = -110 net Removed.
+const REMOVED = [
+  { key: 'banked_out', name: 'Banked',    color: TRPA.brick,
+    data:  [-4, -5, -14, -21, -8, -20, -8, -3, -2, -4, -4, -4, -6] },
+  { key: 'converted',  name: 'Converted', color: TRPA.earth,
+    data:  [ 0,  0,   0,   0,  0,   0,  0, -1, -4,  0,  0,  0, -2] },
 ];
 
 // Major completed projects (PPTX slide 4 + the analyst's Summary "Major Completed Projects" row)
@@ -423,11 +443,36 @@ function renderProjects() {
 }
 
 // ─────────────────────────────────────────
+// REMOVED-BY-YEAR (Banked + Converted, sign-flipped down)
+// ─────────────────────────────────────────
+function renderRemoved() {
+  const traces = REMOVED.map(r => ({
+    name:  r.name,
+    type:  'bar',
+    x:     YEARS,
+    y:     r.data,
+    marker:{ color: r.color },
+    hovertemplate: '<b>%{y}</b> units<extra>' + r.name + ' &middot; %{x}</extra>',
+  }));
+  Plotly.react('removed-chart', traces, {
+    barmode: 'stack',
+    font: { family: '"Open Sans", system-ui, sans-serif', color: TRPA.navy },
+    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+    margin: { t: 8, r: 20, b: 36, l: 56 },
+    xaxis: { tickmode: 'array', tickvals: YEARS, ticktext: YEARS.map(String), gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 10 } },
+    yaxis: { title: { text: 'Units removed', font: { size: 11 } }, gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 10 }, zeroline: true, zerolinecolor: TRPA.ice, zerolinewidth: 1 },
+    legend: { orientation: 'h', y: -0.2, font: { size: 11 } },
+    hovermode: 'x unified',
+  }, { responsive: true, displayModeBar: false });
+}
+
+// ─────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   render();
   renderProjects();
+  renderRemoved();
 });
 </script>
 </body>
