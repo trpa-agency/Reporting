@@ -11,8 +11,14 @@ proposal under review - it has been decided and partly built:
   as REST services on `maps.trpa.org`) and the LT Info web services (for
   Corral-origin data).
 - **The `Cumulative_Accounting` REST service is live** on `maps.trpa.org`
-  with four populated layers/tables: Parcel Development History, Tahoe APN
-  Genealogy, Residential Unit Inventory, and Allocations 1987 Regional Plan.
+  with six populated layers/tables (Parcel Development History, Tahoe APN
+  Genealogy, Residential Unit Inventory, Allocations 1987 Regional Plan,
+  Residential Allocations 2012 Regional Plan, Development Right Pool
+  Balance Report) and three more incoming: Development Right Transactions,
+  Banked Development Rights, and Transacted and Banked Development Rights
+  (the LT Info transaction/banking trio, refreshed nightly via the staging
+  ETL; the older `Development_Rights_Transacted_and_Banked` REST service is
+  being deprecated as a tagged copy of the same Corral data).
 
 The vocabulary for the accounting framework is documented in the
 `trpa-cumulative-accounting` Claude skill (a plain-markdown copy is kept at
@@ -70,7 +76,8 @@ they surface during the system-of-record work.
 |---|---|---|
 | [system_of_record_roadmap.md](./system_of_record_roadmap.md) | Current | **The architecture.** Portfolio-level plan for retiring every hand-assembled xlsx so each data element traces to a system of record. Sorts the analyst-delivered inputs into three types and lays out a phased migration. |
 | [questions_for_analyst.md](./questions_for_analyst.md) | Current | **Open questions only the analyst can answer** - data provenance, domain judgment, which numbers are tracked in a system versus carried by hand. Collected as they surface during the system-of-record work. |
-| [regional_plan_allocations_service.md](./regional_plan_allocations_service.md) | Reference | Recommendation for a web service to replace the hand-assembled `All Regional Plan Allocations Summary.xlsx` - the 1987/2012-era split with assigned/not-assigned status. Note: parts of its SQL reference the superseded table proposal; the `RegionalPlanCapacity` seed-table idea and the live-LT-Info-service reasoning still hold. |
+| [regional_plan_allocations_service.md](./regional_plan_allocations_service.md) | Active | Pool-balance sibling to the residential allocation grid spec. How the hand-assembled `All Regional Plan Allocations Summary.xlsx` gets retired: stage `GetDevelopmentRightPoolBalanceReport` into `LTInfo_PoolBalance`, UNION the live layer 3 (1987 reference), publish through `Cumulative_Accounting`. |
+| [residential_allocation_grid_service.md](./residential_allocation_grid_service.md) | Active | Web-service spec for the residential allocation grid - the SQL (reverse-engineered, tested against `Corral_2026`) to replace the hand-exported `residentialAllocationGridExport_fromAnalyst.xlsx`. Ready to hand to the LT Info team. |
 | [inventory_tables_erd.md](./inventory_tables_erd.md) | Current | Analyst-facing inventory tables (Residential Units / Buildings / PDH 2025 join) with field dictionaries. Built in the 2026 cycle; feeds the live Residential Unit Inventory layer. |
 
 ### Supporting analysis (the evidence base)
@@ -143,9 +150,11 @@ Corral-origin data). Corral (`sql24/Corral`) is the LT Info web-application
 backend; the repo's read connection is a backup snapshot, so live reads go
 through the LT Info JSON web services at
 `https://www.laketahoeinfo.org/WebServices/*`. The `Cumulative_Accounting`
-REST service is live on `maps.trpa.org` with four populated layers/tables:
-Parcel Development History, Tahoe APN Genealogy, Residential Unit
-Inventory, and Allocations 1987 Regional Plan. The analyst's
+REST service is live on `maps.trpa.org` with six populated layers/tables
+(Parcel Development History, Tahoe APN Genealogy, Residential Unit Inventory,
+Allocations 1987 Regional Plan, Residential Allocations 2012 Regional Plan,
+Development Right Pool Balance Report) and three more incoming for the LT
+Info transaction/banking trio (layers 6/7/8). The analyst's
 `data/raw_data/` spreadsheets fill the gaps those systems don't hold
 (pre-2012 baseline, year built, TRPA/MOU project IDs, completion status)
 and get loaded via ETL. Shorezone (Mooring, Pier) is out of scope - handled

@@ -44,7 +44,7 @@ header h1 span { color: var(--trpa-blue); }
 .live-badge { display: inline-block; background: var(--trpa-forest); color: #fff; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; margin-bottom: 6px; }
 
 /* KPI strip */
-.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--surface); border-bottom: 1px solid var(--border); }
+.kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--surface); border-bottom: 1px solid var(--border); }
 .kpi-card { padding: 22px 28px 18px; border-right: 1px solid var(--border); position: relative; }
 .kpi-card:last-child { border-right: none; }
 .kpi-accent { position: absolute; top: 0; left: 0; right: 0; height: 3px; }
@@ -96,6 +96,16 @@ header h1 span { color: var(--trpa-blue); }
 .detail-panel h3 { font-size: 1.05rem; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
 .detail-panel .sub { font-size: 0.75rem; color: var(--text-light); margin-bottom: 16px; }
 .detail-empty { color: var(--text-light); font-size: 0.85rem; padding: 80px 0; text-align: center; }
+
+/* "What's a residential allocation?" explainer (folded in from the retired public page) */
+.explainer {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  padding: 22px 28px; margin-top: 28px; box-shadow: var(--shadow);
+}
+.explainer h3 { font-size: 1rem; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; }
+.explainer p { font-size: 0.88rem; color: var(--text-mid); line-height: 1.6; margin-bottom: 10px; }
+.explainer p:last-child { margin-bottom: 0; }
+.explainer a { color: var(--trpa-blue); }
 
 .footnote {
   padding: 12px 40px 22px; font-size: 0.72rem; color: var(--text-light);
@@ -149,12 +159,6 @@ header h1 span { color: var(--trpa-blue); }
     <div class="kpi-value" id="kpi-rem">-</div>
     <div class="kpi-sub" id="kpi-rem-sub">still available in pools</div>
   </div>
-  <div class="kpi-card">
-    <div class="kpi-accent" style="background:var(--trpa-orange)"></div>
-    <div class="kpi-label">Pools</div>
-    <div class="kpi-value" id="kpi-count">-</div>
-    <div class="kpi-sub" id="kpi-count-sub">jurisdiction + central pools</div>
-  </div>
 </div>
 
 <!-- Toolbar -->
@@ -182,6 +186,22 @@ header h1 span { color: var(--trpa-blue); }
     <div class="sub" id="detail-sub">Click a card above for detail.</div>
     <div id="detail-chart" style="height:340px;"></div>
     <div class="detail-empty" id="detail-empty" style="display:none;">No pool selected.</div>
+  </div>
+
+  <div class="explainer">
+    <h3>What&rsquo;s a residential allocation?</h3>
+    <p>
+      A residential building allocation is permission to build one new residential unit in the Tahoe Basin. To construct a new residential dwelling, the property must have a potential residential unit of use (the ability to develop a lot) and obtain a residential allocation from the respective local jurisdiction or TRPA.
+    </p>
+    <p>
+      The Regional Plan caps the cumulative total at <strong>8,687 since 1987</strong>. Allocations are metered out to local jurisdictions, releasing 130 each year, to pace development with environmental capacity.
+    </p>
+    <p>
+      Each county and the City of South Lake Tahoe distribute allocations from their pool as permits are approved. Unused allocations are returned to the pool. When a pool runs out, property owners wanting to develop must wait for the next round of allocations, transfer or convert other development rights, or receive a bonus unit. For more information, please visit <a href="https://www.trpa.gov/development-rights/">trpa.gov/development-rights</a>.
+    </p>
+    <p>
+      The allocation tracking and history is available on the Lake Tahoe Info Parcel Tracker, at <a href="https://parcels.laketahoeinfo.org/ResidentialAllocation/Manage">parcels.laketahoeinfo.org/ResidentialAllocation/Manage</a>. Current allocation pool balances are shown at <a href="https://parcels.laketahoeinfo.org/DevelopmentRightPool/DevelopmentRightPoolBalanceReport">parcels.laketahoeinfo.org/DevelopmentRightPool/DevelopmentRightPoolBalanceReport</a>.
+    </p>
   </div>
 </div>
 
@@ -262,25 +282,21 @@ function hasMetering(name) {
 }
 
 // ── KPI strip ──────────────────────────────────────────────────────────────
-function updateKPIs(cards) {
+function updateKPIs() {
   const s = getSummary();
   const unit = COMM_META[commodity].unit;
   document.querySelector('#kpi-max').textContent  = fmt(s.regional_plan_maximum);
   document.querySelector('#kpi-used').textContent = fmt(s.assigned_to_projects);
   document.querySelector('#kpi-rem').textContent  = fmt(s.not_assigned);
-  document.querySelector('#kpi-count').textContent = String(cards.length);
   document.querySelector('#kpi-max-sub').textContent  = `${unit} of authorized capacity`;
-  const pct = s.regional_plan_maximum ? (s.assigned_to_projects / s.regional_plan_maximum * 100) : 0;
-  document.querySelector('#kpi-used-sub').textContent = `${pct.toFixed(1)}% of the Regional Plan maximum`;
+  document.querySelector('#kpi-used-sub').textContent = `${unit} drawn to a parcel since 1987`;
   document.querySelector('#kpi-rem-sub').textContent  = `${unit} still available in pools`;
-  document.querySelector('#kpi-count-sub').textContent =
-    commodity === 'residential' ? 'jurisdiction + central pools' : 'development right pools';
 }
 
 // ── Cards ──────────────────────────────────────────────────────────────────
 function renderCards() {
   const cards = getCards();
-  updateKPIs(cards);
+  updateKPIs();
 
   const sorted = [...cards].sort((a, b) => {
     if (sortBy === 'remaining') return b.remaining - a.remaining;

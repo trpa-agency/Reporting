@@ -4,7 +4,7 @@ Single-file HTML pages for the TRPA Cumulative Accounting cycle. Open from a bro
 
 - **Base URL**: `https://trpa-agency.github.io/Reporting/html/<filename>`
 - **Local preview**: from the repo root, `python -m http.server 8123` then `http://localhost:8123/html/<filename>`
-- **Active dashboards**: 9 (★ marks the primary view in each track)
+- **Active dashboards**: 8 (★ marks the primary view in each track)
 
 ---
 
@@ -18,7 +18,6 @@ Organized by the four conceptual tracks (5/11/2026):
 |---|---|---|
 | [**allocation-tracking.html**](allocation-tracking.html) ★ | Staff · daily ops | `data/raw_data/residentialAllocationGridExport.csv` (one row per allocation, 2,600 total) |
 | [pool-balance-cards.html](pool-balance-cards.html) | Staff · per-pool drilldown | the analyst's `Additional Development as of April2026.xlsx` + inlined trajectory |
-| [public-allocation-availability.html](public-allocation-availability.html) | Public | Same as pool-balance-cards |
 
 ## 2 · Source of rights
 
@@ -36,15 +35,14 @@ Organized by the four conceptual tracks (5/11/2026):
 
 ## 4 · Total development tracking
 
-> *How much of everything is actually built.* Headline caps + live state breakdown + source-of-rights mix + annual construction.
+> *How much of each development right is assigned to projects.* Since-1987 totals, with by-jurisdiction and by-pool breakdowns.
 
 | Dashboard | Audience | Data |
 |---|---|---|
 | [**regional-capacity-dial.html**](regional-capacity-dial.html) ★ | Executive · board | `regional_plan_allocations.json` |
 
-Four sections, stacked top to bottom on the page:
-- **4 since-1987 cumulative gauges** (Residential / RBU / TBU / CFA) - assigned vs Regional Plan max
-- **Capacity utilization horizontal stacked bar** - assigned vs not assigned
+The page (titled **Tahoe Development Tracker**) has three sections, stacked top to bottom:
+- **4 since-1987 count gauges** (Residential / RBU / TBU / CFA) - allocations assigned to projects
 - **Residential allocations by jurisdiction** - all 8,687, era toggle (Combined / 1987 Plan / 2012 Plan)
 - **Bonus units, CFA & tourist allocations** - by pool, commodity toggle
 
@@ -65,21 +63,47 @@ Moved to [`_archive/`](_archive/) on 2026-05-11 - superseded by newer dashboards
 |---|---|
 | [`_archive/residential-allocations-dashboard.html`](_archive/residential-allocations-dashboard.html) | `allocation-tracking.html` |
 | [`_archive/allocation_drawdown.html`](_archive/allocation_drawdown.html) | `allocation-tracking.html` (year slider) + `pool-balance-cards.html` |
+| [`_archive/public-allocation-availability.html`](_archive/public-allocation-availability.html) | `pool-balance-cards.html` (explainer folded in) |
 
 ---
 
-## Data sources at a glance
+## Data sources
 
-| Source | Used by |
-|---|---|
-| `residentialAllocationGridExport_fromAnalyst.xlsx` → CSV (one row per allocation, 2,600 rows, 11 cols incl. Construction Status) | allocation-tracking |
-| `All Regional Plan Allocations Summary.xlsx` → `regional_plan_allocations.json` (1987 / 2012 / combined split, assigned vs not-assigned, by jurisdiction/pool, all 4 commodities, + residential by-year) | regional-capacity-dial · pool-balance-cards · public-allocation-availability (metering) |
-| `Additional Development as of April2026.xlsx` | public-allocation-availability (jurisdiction tiles snapshot) |
-| `FINAL RES SUMMARY 2012 to 2025.xlsx` | residential-additions-by-source (additions + projects) |
-| `CA Changes breakdown.xlsx` (via `04_load_ca_changes.ipynb`) | qa-change-rationale |
-| `2025 Transactions and Allocations Details.xlsx` | residential_units_inventory (downstream of development_history_units) |
-| Tahoe Buildings FeatureServer (AGOL) | development_history · development_history_units |
-| TRPA ArcGIS REST | allocation-tracking (map tab) |
+One row per data source. The endpoint + layer columns link to the REST resource and its specific layer ID; the upstream column links to the LT Info JSON web service for layers staged nightly via the ETL.
+
+### Cumulative_Accounting REST service (`maps.trpa.org`, live)
+
+| Source | Layer | Upstream (LT Info) | Schema (fields × rows) | Used by |
+|---|---|---|---|---|
+| Parcel Development History | [layer 0](https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/0) | - (PDH ETL from Enterprise GDB) | ~30 × ~150k (parcel-year) | future dashboards |
+| Tahoe APN Genealogy | [layer 1](https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/1) | - (4-source ETL) | ~8 × ~25k edges | genealogy_solver (pre-joined) |
+| Residential Unit Inventory | [layer 2](https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/2) | - | ~15 × ~50k units | future dashboards |
+| Allocations 1987 Regional Plan | [layer 3](https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/3) | - | ~11 × 6,087 | combine view (planned) |
+| Allocations 2012 Regional Plan | [layer 4](https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/4) | - (CSV from analyst until LT Info exposes the grid) | ~11 × 2,600 | combine view (planned) |
+| Development Right Pool Balance Report | [layer 5](https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/5) | [GetDevelopmentRightPoolBalanceReport](https://www.laketahoeinfo.org/WebServices/GetDevelopmentRightPoolBalanceReport) (staged nightly) | 7 × ~50 (per-pool) | combine view consumer (planned) |
+| Development Right Transactions | [layer 6](https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/6) | [GetDevelopmentRightTransactions](https://www.laketahoeinfo.org/WebServices/GetDevelopmentRightTransactions) (staged nightly) | 25 × ~3,000 | downstream consumers (planned) |
+| Banked Development Rights | [layer 7](https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/7) | [GetBankedDevelopmentRights](https://www.laketahoeinfo.org/WebServices/GetBankedDevelopmentRights) (staged nightly) | 11 × ~1,500 | **allocation-tracking** (Banked tile) · **regional-capacity-dial** (banked sub-line) |
+| Transacted and Banked Development Rights | [layer 8](https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/8) | [GetTransactedAndBankedDevelopmentRights](https://www.laketahoeinfo.org/WebServices/GetTransactedAndBankedDevelopmentRights) (staged nightly) | 20 × ~3,000 | downstream consumers (planned) |
+
+### External REST services
+
+| Source | Endpoint | Schema | Used by |
+|---|---|---|---|
+| Tahoe Buildings (AGOL) | [Tahoe_Buildings FeatureServer / layer 0](https://services5.arcgis.com/fXXSUzHD5JjcOt1v/arcgis/rest/services/Tahoe_Buildings/FeatureServer/0) | ~20 × ~70k footprints | **development_history** · **development_history_units** |
+| TRPA Parcels | [Parcels FeatureServer / layer 0](https://maps.trpa.org/server/rest/services/Parcels/FeatureServer/0) | ~15 × ~50k parcels | **allocation-tracking** (map tab) |
+| AllParcels | [AllParcels MapServer](https://maps.trpa.org/server/rest/services/AllParcels/MapServer) | parcel polygons + APN | **genealogy_solver** (map) |
+
+### Analyst-delivered files (xlsx → csv / json via converter scripts)
+
+| Source | File | Schema | Used by |
+|---|---|---|---|
+| residentialAllocationGridExport | `data/raw_data/residentialAllocationGridExport.csv` | 11 × 2,600 (incl. Construction Status) | **allocation-tracking** (Overview / Charts / Table) |
+| CFA / TAU allocations | `data/raw_data/CFA_TAU_allocations.csv` | ~8 × ~700 | **allocation-tracking** (CFA + TAU rows) |
+| Regional Plan allocations summary | `data/processed_data/regional_plan_allocations.json` (from `All Regional Plan Allocations Summary.xlsx`; will be retired by combine view) | nested by commodity / pool / era | **regional-capacity-dial** · **pool-balance-cards** |
+| FINAL RES SUMMARY 2012-2025 | `FINAL RES SUMMARY 2012 to 2025.xlsx` (inlined) | 13 years × 5 sources | **residential-additions-by-source** |
+| Buildings + units join | `data/processed_data/buildings_with_units.json` | footprint OID ↔ unit count | **development_history_units** |
+| QA change events + detail | `data/qa_data/qa_change_events.csv` + `qa_correction_detail.csv` (from `04_load_ca_changes.ipynb`) | per-APN audit events | **qa-change-rationale** |
+| Genealogy solver pre-join | `html/genealogy_solver/data/genealogy_solver.json` (from `apn_genealogy_tahoe.csv` + `PDH_2025_OriginalYrBuilt.csv`) | graph + per-APN attrs | **genealogy_solver** |
 
 ### Refresh commands
 
@@ -93,7 +117,7 @@ PY="C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/python.exe"
 PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/convert_allocation_grid.py
 
 # Regional Plan allocations summary → JSON + 1987 baseline CSV
-#   (regional-capacity-dial + pool-balance-cards + public-allocation-availability)
+#   (regional-capacity-dial + pool-balance-cards)
 PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/convert_regional_plan_allocations.py
 PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/extract_regional_plan_1987_seed.py
 
@@ -105,6 +129,22 @@ PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/build_geneal
 ```
 
 The PDH ETL pipeline (`main.py`) is upstream of all of the above - re-run when SDE parcels or the analyst's residential CSVs change.
+
+### Backend ETL (scheduled, not analyst-facing)
+
+`stage_ltinfo_allocations.py` is a generic 4-pipeline runner that pulls each LT Info JSON service into a `Cumulative_Accounting` staging layer nightly via Task Scheduler:
+
+- [`GetDevelopmentRightPoolBalanceReport`](https://www.laketahoeinfo.org/WebServices/GetDevelopmentRightPoolBalanceReport) → [layer 5](https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/5) (pool balances)
+- [`GetDevelopmentRightTransactions`](https://www.laketahoeinfo.org/WebServices/GetDevelopmentRightTransactions) → [layer 6](https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/6) (transaction log, ~3,000 rows)
+- [`GetBankedDevelopmentRights`](https://www.laketahoeinfo.org/WebServices/GetBankedDevelopmentRights) → [layer 7](https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/7) (current bank state per APN)
+- [`GetTransactedAndBankedDevelopmentRights`](https://www.laketahoeinfo.org/WebServices/GetTransactedAndBankedDevelopmentRights) → [layer 8](https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/8) (APN-transaction junction)
+
+The older `Development_Rights_Transacted_and_Banked` REST service is being deprecated as a tagged copy of the same Corral data. The dashboards still consume the hand-converted JSON for pool balances until the combine view + LT Info field-semantics confirmation land - see [`erd/system_of_record_roadmap.md`](../erd/system_of_record_roadmap.md).
+
+```bash
+# Nightly LT Info to Enterprise GDB staging ETL (Task Scheduler)
+PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/stage_ltinfo_allocations.py
+```
 
 ---
 

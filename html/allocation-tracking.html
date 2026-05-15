@@ -65,43 +65,28 @@ header h1 span { color: var(--trpa-blue); }
   padding: 3px 8px; border-radius: 2px; margin-bottom: 6px;
 }
 
-/* ── Type Bar ── */
-.type-bar {
-  background: var(--surface); border-bottom: 1px solid var(--border);
-  padding: 12px 40px; display: flex; gap: 8px; align-items: center;
+/* ── Commodity rows (Overview tab) ── */
+.comm-row { margin-bottom: 22px; }
+.comm-row:last-child { margin-bottom: 0; }
+.comm-row-label {
+  font-size: 0.8rem; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--text-dark); margin-bottom: 9px; padding-left: 2px;
 }
-.type-label {
-  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--text-light); margin-right: 6px;
+.comm-cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+.comm-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px 20px 16px; position: relative; box-shadow: var(--shadow);
 }
-.type-btn {
-  padding: 6px 18px; border-radius: 4px; border: 1.5px solid var(--border);
-  background: #fff; color: var(--text-mid);
-  font-size: 0.8rem; font-family: inherit; cursor: pointer; transition: all 0.15s;
-  font-weight: 600;
-}
-.type-btn:hover { border-color: var(--trpa-blue); color: var(--trpa-blue); }
-.type-btn.active.residential { background: var(--trpa-blue);   border-color: var(--trpa-blue);   color: #fff; }
-.type-btn.active.commercial  { background: var(--trpa-earth);  border-color: var(--trpa-earth);  color: #fff; }
-.type-btn.active.tourist     { background: var(--trpa-purple); border-color: var(--trpa-purple); color: #fff; }
-
-/* ── KPI Row ── */
-.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--surface); border-bottom: 1px solid var(--border); }
-.kpi-card { padding: 22px 28px 18px; border-right: 1px solid var(--border); position: relative; }
-.kpi-card:last-child { border-right: none; }
-.kpi-accent { position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.kpi-accent { position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 8px 8px 0 0; }
 .kpi-label {
-  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--text-light); margin-bottom: 8px;
+  font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text-light); margin-bottom: 7px;
 }
 .kpi-value {
-  font-size: 2.25rem; font-weight: 700; color: var(--text-dark);
-  letter-spacing: -0.03em; line-height: 1;
-  font-variant-numeric: tabular-nums;
+  font-size: 1.85rem; font-weight: 700; color: var(--text-dark);
+  letter-spacing: -0.02em; line-height: 1; font-variant-numeric: tabular-nums;
 }
-.kpi-sub { font-size: 0.73rem; color: var(--text-mid); margin-top: 7px; line-height: 1.4; }
-.kpi-progress { margin-top: 12px; height: 5px; border-radius: 3px; background: var(--border); overflow: hidden; }
-.kpi-progress-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+.kpi-sub { font-size: 0.71rem; color: var(--text-mid); margin-top: 7px; line-height: 1.4; }
 
 /* ── Tab Nav ── */
 .tab-nav-wrapper { background: var(--surface); border-bottom: 2px solid var(--border); padding: 0 40px; display: flex; }
@@ -160,7 +145,7 @@ header h1 span { color: var(--trpa-blue); }
 }
 .slider-val { font-size: 1rem; font-weight: 700; color: var(--trpa-navy); min-width: 36px; }
 
-/* ── Two-chart grid ── */
+/* Two-chart grid (Charts tab) */
 .chart-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 20px; }
 
 /* ── Sections / Cards ── */
@@ -202,9 +187,8 @@ header h1 span { color: var(--trpa-blue); }
 #loading-bar { height: 100%; width: 0; background: linear-gradient(90deg, var(--trpa-blue), var(--trpa-forest)); border-radius: 2px; transition: width 0.3s; }
 
 @media (max-width: 900px) {
-  .kpi-row { grid-template-columns: 1fr 1fr; }
-  .kpi-card { border-bottom: 1px solid var(--border); }
-  header .header-content, .type-bar, .ctrl-bar, .section { padding-left: 16px; padding-right: 16px; }
+  .comm-cards { grid-template-columns: 1fr 1fr; }
+  header .header-content, .ctrl-bar, .section { padding-left: 16px; padding-right: 16px; }
 }
 </style>
 </head>
@@ -224,82 +208,60 @@ header h1 span { color: var(--trpa-blue); }
     <div>
       <div class="header-eyebrow">Tahoe Regional Planning Agency</div>
       <h1>Allocation <span>Tracking</span></h1>
-      <div class="header-sub" id="header-sub">2,600 authorized &middot; 2012 Regional Plan additional &middot; of 8,687 since-1987 max</div>
+      <div class="header-sub" id="header-sub">Residential, commercial, and tourist allocations: authorized, allocated, and pool balances by jurisdiction.</div>
     </div>
     <div class="header-meta">
       <div class="live-badge">Live Data</div><br>
       Source: <a href="https://parcels.laketahoeinfo.org/ResidentialAllocation/Manage" style="color:var(--trpa-ice)">Lake Tahoe Info Parcel Tracker, Residential Allocation Tracking</a><br>
       Latest pool balances: <a href="https://parcels.laketahoeinfo.org/DevelopmentRightPool/DevelopmentRightPoolBalanceReport" style="color:var(--trpa-ice)">Pool Balance Report</a><br>
-      Per-allocation drilldown of the 2,600 2012-Plan additional. Full 8,687 + all-commodity view: <a href="regional-capacity-dial.html" style="color:var(--trpa-ice)">Regional Plan Capacity Dial</a>
+      Per-allocation detail by jurisdiction pool. Region-wide totals: <a href="regional-capacity-dial.html" style="color:var(--trpa-ice)">Tahoe Development Tracker</a>
     </div>
   </div>
 </header>
 
-<!-- Type Switcher -->
-<div class="type-bar">
-  <span class="type-label">Type</span>
-  <button class="type-btn residential active" onclick="switchType('residential',this)">Residential</button>
-  <button class="type-btn commercial"         onclick="switchType('commercial', this)">Commercial</button>
-  <button class="type-btn tourist"            onclick="switchType('tourist',    this)">Tourist</button>
-</div>
-
-<!-- KPIs -->
-<div class="kpi-row">
-  <div class="kpi-card">
-    <div class="kpi-accent" style="background:var(--trpa-navy)"></div>
-    <div class="kpi-label">Total authorized</div>
-    <div class="kpi-value" id="kpi0-value">2,600</div>
-    <div class="kpi-sub"   id="kpi0-sub">2012 Regional Plan additional &middot; of 8,687 since-1987 max</div>
-    <div class="kpi-progress"><div class="kpi-progress-fill" style="width:100%;background:var(--trpa-navy)"></div></div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-accent" style="background:var(--trpa-forest)"></div>
-    <div class="kpi-label" id="kpi1-label">Allocated to Private Development</div>
-    <div class="kpi-value" id="kpi1-value">-</div>
-    <div class="kpi-sub"   id="kpi1-sub">loading&hellip;</div>
-    <div class="kpi-progress"><div class="kpi-progress-fill" id="kpi1-bar" style="width:0%;background:var(--trpa-forest)"></div></div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-accent" id="kpi2-accent" style="background:var(--trpa-orange)"></div>
-    <div class="kpi-label" id="kpi2-label">Jurisdiction pool</div>
-    <div class="kpi-value" id="kpi2-value">-</div>
-    <div class="kpi-sub"   id="kpi2-sub">loading&hellip;</div>
-    <div class="kpi-progress"><div class="kpi-progress-fill" id="kpi2-bar" style="width:0%;background:var(--trpa-orange)"></div></div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-accent" style="background:var(--trpa-ice)"></div>
-    <div class="kpi-label" id="kpi3-label">TRPA pool</div>
-    <div class="kpi-value" id="kpi3-value">-</div>
-    <div class="kpi-sub"   id="kpi3-sub">loading&hellip;</div>
-    <div class="kpi-progress"><div class="kpi-progress-fill" id="kpi3-bar" style="width:0%;background:var(--trpa-ice)"></div></div>
-  </div>
-</div>
-
 <!-- Tab Nav -->
 <div class="tab-nav-wrapper">
-  <button class="tab-btn active" onclick="switchTab('charts',this)">Charts</button>
-  <button class="tab-btn"        onclick="switchTab('map',   this)">Map</button>
-  <button class="tab-btn"        onclick="switchTab('table', this)">Data Table</button>
+  <button class="tab-btn active" onclick="switchTab('overview',this)">Overview</button>
+  <button class="tab-btn"        onclick="switchTab('charts',  this)">Charts</button>
+  <button class="tab-btn"        onclick="switchTab('map',     this)">Map</button>
+  <button class="tab-btn"        onclick="switchTab('table',   this)">Data Table</button>
+</div>
+
+<!-- Shared filter bar: visible on Overview + Charts, hidden on Map + Data Table -->
+<div class="ctrl-bar" id="shared-filter-bar">
+  <span class="ctrl-label">Through year</span>
+  <div class="slider-wrap">
+    <input type="range" id="year-slider" min="2012" max="2025" step="1" value="2025" oninput="setSliderYear(this.value)">
+    <span class="slider-val" id="slider-val">2025</span>
+  </div>
+  <div class="ctrl-divider"></div>
+  <span class="ctrl-label">Jurisdictions</span>
+  <div class="juris-pills" id="juris-pills"></div>
+</div>
+
+<!-- Overview Tab -->
+<div class="tab-panel active" id="tab-overview">
+  <div class="section">
+    <div id="commodity-rows"></div>
+  </div>
 </div>
 
 <!-- Charts Tab -->
-<div class="tab-panel active" id="tab-charts">
+<div class="tab-panel" id="tab-charts">
   <div class="ctrl-bar">
-    <span class="ctrl-label">Through year</span>
-    <div class="slider-wrap">
-      <input type="range" id="year-slider" min="2012" max="2025" step="1" value="2025" oninput="setSliderYear(this.value)">
-      <span class="slider-val" id="slider-val">2025</span>
-    </div>
-    <div class="ctrl-divider"></div>
-    <span class="ctrl-label">Jurisdictions</span>
-    <div class="juris-pills" id="juris-pills"></div>
+    <span class="ctrl-label">Type</span>
+    <select id="type-charts" class="ctrl-select" onchange="applyCommodity('charts')">
+      <option value="residential">Residential</option>
+      <option value="commercial">Commercial</option>
+      <option value="tourist">Tourist</option>
+    </select>
     <span class="ctrl-count" id="chart-count"></span>
   </div>
   <div class="section">
     <div class="chart-grid">
       <div class="card">
         <h3>Allocation flow &middot; authorized &rarr; pool &rarr; current state</h3>
-        <p>Authorized &rarr; 6 pools &rarr; current state. Cumulative through <span id="sankey-year-label">2025</span>.</p>
+        <p>Authorized &rarr; pools &rarr; current state. Cumulative through <span id="sankey-year-label">2025</span>.</p>
         <div id="sankey-chart" style="height:400px;"></div>
       </div>
       <div class="card">
@@ -314,6 +276,13 @@ header h1 span { color: var(--trpa-blue); }
 <!-- Map Tab -->
 <div class="tab-panel" id="tab-map">
   <div class="ctrl-bar">
+    <span class="ctrl-label">Type</span>
+    <select id="type-map" class="ctrl-select" onchange="applyCommodity('map')">
+      <option value="residential">Residential</option>
+      <option value="commercial">Commercial</option>
+      <option value="tourist">Tourist</option>
+    </select>
+    <div class="ctrl-divider"></div>
     <span class="ctrl-label">Status</span>
     <select id="filter-status-map" class="ctrl-select" onchange="applyMapFilters()">
       <option value="all">All states</option>
@@ -355,6 +324,12 @@ header h1 span { color: var(--trpa-blue); }
   </div>
   <div class="section" style="padding-top:0;">
     <div class="ctrl-bar" style="background:var(--bg);border:1px solid var(--border);border-radius:8px 8px 0 0;padding:10px 16px;margin-bottom:0;">
+      <span class="ctrl-label">Type</span>
+      <select id="type-tbl" class="ctrl-select" onchange="applyCommodity('table')">
+        <option value="residential">Residential</option>
+        <option value="commercial">Commercial</option>
+        <option value="tourist">Tourist</option>
+      </select>
       <span class="ctrl-label">Jurisdiction</span>
       <select id="filter-juris-tbl" class="ctrl-select" onchange="applyTableFilters()"><option value="all">All</option></select>
       <span class="ctrl-label">Status</span>
@@ -435,6 +410,41 @@ const TYPE_ACCENT = {
 const RES_URL     = '../data/raw_data/residentialAllocationGridExport.csv';
 const CFA_TAU_URL = 'https://raw.githubusercontent.com/trpa-agency/Reporting/MTB-Edits/data/raw_data/CFA_TAU_allocations.csv';
 
+// Cumulative_Accounting layer 7 = the LT Info GetBankedDevelopmentRights
+// service staged into the Enterprise GDB by stage_ltinfo_allocations.py.
+// Fetched once at load and aggregated by commodity for the per-row Banked
+// tile. Failure is non-fatal (the tile reads 0 and the page still renders).
+const LAYER_7_URL = 'https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/7/query?where=1%3D1&outFields=DevelopmentRight%2CRemainingBankedQuantity&f=json&returnGeometry=false&resultRecordCount=5000';
+
+// Map the banked DevelopmentRight categories onto the dashboard's 3 commodity
+// rows. Conservative 1:1 - only obvious matches; SFRUU / PRUU / RBU etc. live
+// in their own categories and are not rolled into the rows here.
+const BANKED_MAP = {
+  'Residential Allocation':           'residential',
+  'Commercial Floor Area (CFA)':      'commercial',
+  'Tourist Accommodation Unit (TAU)': 'tourist',
+};
+
+let bankedTotals = { residential: 0, commercial: 0, tourist: 0 };
+
+async function fetchBanked() {
+  try {
+    const r = await fetch(LAYER_7_URL, { cache: 'no-cache' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const j = await r.json();
+    if (!Array.isArray(j.features)) return;
+    j.features.forEach(f => {
+      const attrs = f.attributes || {};
+      const cat = BANKED_MAP[attrs.DevelopmentRight];
+      const qty = Number(attrs.RemainingBankedQuantity) || 0;
+      if (cat) bankedTotals[cat] += qty;
+    });
+  } catch (e) {
+    // Banked data is informational; failure shouldn't block the page.
+    console.warn('Banked layer fetch failed:', e.message);
+  }
+}
+
 // Per the framing (2026-05-11): TRPA pool is its own pre-jurisdiction state,
 // not a 6th jurisdiction. Five real jurisdiction pools below; TRPA-held
 // allocations (770 Unreleased + 154 Unallocated rows from "Residential
@@ -489,8 +499,8 @@ function sumQty(rows) {
   return rows.reduce((s, r) => s + (r.qty || 0), 0);
 }
 
-function fmtVal(n) {
-  return n.toLocaleString() + (currentType === 'commercial' ? ' sq ft' : '');
+function fmtValFor(n, commodity) {
+  return n.toLocaleString() + (commodity === 'commercial' ? ' sq ft' : '');
 }
 
 // ─────────────────────────────────────────
@@ -586,79 +596,7 @@ function parseCfaTauCSV(text) {
 // ─────────────────────────────────────────
 // KPIs
 // ─────────────────────────────────────────
-function updateKPIs() {
-  const total = TOTAL_AUTH[currentType];
-
-  // kpi0 - always the plan constant for the active type
-  document.querySelector('#kpi0-value').textContent = total.toLocaleString();
-  document.querySelector('#kpi0-sub').textContent   = TYPE_DESC[currentType];
-
-  // Header subtitle
-  const headerSubs = {
-    residential: '2,600 authorized \u00b7 2012 Regional Plan additional \u00b7 of 8,687 since-1987 max',
-    commercial:  '1,000,000 sq ft authorized \u00b7 2012 Regional Plan',
-    tourist:     '400 authorized \u00b7 since-1987 cumulative tourist bonus units',
-  };
-  document.querySelector('#header-sub').textContent = headerSubs[currentType];
-
-  // kpi2 accent tracks the type's brand color
-  const tc = TYPE_ACCENT[currentType];
-  document.querySelector('#kpi2-accent').style.background = tc;
-  document.querySelector('#kpi2-bar').style.background    = tc;
-
-  // Jurisdiction rows filtered by slider year and active pills
-  const allJurisRows = getJurisRows(sliderYear);
-  const jurisRows    = allJurisRows.filter(r => activePills.has(r.jurisdiction));
-  const allocated    = sumQty(jurisRows.filter(r => r.status === 'Allocated'));
-  const available    = sumQty(jurisRows.filter(r => r.status === 'In Pool'));
-
-  // When ALL jurisdiction pills are active, KPI1 also includes the small
-  // set of TRPA-Pool-drawn Allocated rows (jurisdiction=null, ~20 rows) so
-  // the three KPIs sum to the cap. When a single jurisdiction is selected,
-  // those rows are excluded - they don't belong to any specific jurisdiction.
-  const allJurisActive = activePills.size === JURIS_ORDER.length;
-  const trpaDrawn = allJurisActive
-    ? sumQty(rawData.filter(r => r.status === 'Allocated' && !r.jurisdiction && (r.year || 0) <= sliderYear))
-    : 0;
-  const allocatedKpi = allocated + trpaDrawn;
-
-  // KPI3 is system-wide - same value regardless of pill filter. The 4-state
-  // model splits TRPA-held into "TRPA Pool" (unallocated) + "Unreleased";
-  // KPI3 shows the combined total with the split spelled out in its sub-line
-  // so KPI1 + KPI2 + KPI3 still sums to the cap.
-  const trpaPoolHeld  = sumQty(rawData.filter(r => r.status === 'TRPA Pool'));
-  const unreleased    = sumQty(rawData.filter(r => r.status === 'Unreleased'));
-  const trpaHeldTotal = trpaPoolHeld + unreleased;
-
-  const filterLabel = allJurisActive ? '' : ` (${activePills.size} of ${JURIS_ORDER.length} jurisdictions)`;
-
-  setKPI(1, 'Allocated to Private Development',
-    fmtVal(allocatedKpi),
-    (allocatedKpi / total * 100).toFixed(1) + '% of ' + total.toLocaleString() + ' authorized' + filterLabel,
-    allocatedKpi / total * 100, TRPA.forest);
-
-  setKPI(2, 'Jurisdiction pool',
-    fmtVal(available),
-    (available / total * 100).toFixed(1) + '%' + (allJurisActive
-      ? ' \u00b7 across 5 jurisdiction pools'
-      : filterLabel),
-    available / total * 100, tc);
-
-  const kpi3sub = unreleased > 0
-    ? (trpaHeldTotal / total * 100).toFixed(1) + '% \u00b7 ' + unreleased.toLocaleString()
-      + ' unreleased + ' + trpaPoolHeld.toLocaleString() + ' in TRPA Pool'
-    : (trpaHeldTotal / total * 100).toFixed(1) + '% \u00b7 TRPA Pool (system-wide, not filtered)';
-  setKPI(3, 'TRPA-held', fmtVal(trpaHeldTotal), kpi3sub,
-    trpaHeldTotal / total * 100, TRPA.ice);
-}
-
-function setKPI(n, label, value, sub, pct, color) {
-  document.querySelector('#kpi' + n + '-label').textContent = label;
-  document.querySelector('#kpi' + n + '-value').textContent = value;
-  document.querySelector('#kpi' + n + '-sub').textContent   = sub;
-  const bar = document.querySelector('#kpi' + n + '-bar');
-  if (bar) { bar.style.width = Math.min(100, pct || 0).toFixed(1) + '%'; bar.style.background = color; }
-}
+// updateKPIs and setKPI removed here - the Overview's 3 commodity rows replace the KPI strip.
 
 // ─────────────────────────────────────────
 // PILLS
@@ -700,8 +638,9 @@ function toggleAllPills() {
     activePills.add(p.dataset.juris);
   });
   document.querySelector('#pill-all').classList.add('active');
-  updateKPIs();
-  renderCharts();
+  renderCommodityRows();
+  renderSankey();
+  renderBar();
 }
 
 // Click on a single jurisdiction pill → filter to ONLY that jurisdiction.
@@ -720,8 +659,9 @@ function togglePill(btn) {
     p.classList.toggle('active', p.dataset.juris === j);
   });
   syncAllPill();
-  updateKPIs();
-  renderCharts();
+  renderCommodityRows();
+  renderSankey();
+  renderBar();
 }
 
 // ─────────────────────────────────────────
@@ -729,92 +669,181 @@ function togglePill(btn) {
 // ─────────────────────────────────────────
 function setSliderYear(val) {
   sliderYear = parseInt(val);
-  document.querySelector('#slider-val').textContent       = sliderYear;
-  document.querySelector('#sankey-year-label').textContent = sliderYear;
-  updateKPIs();
-  renderCharts();
+  document.querySelector('#slider-val').textContent = sliderYear;
+  const yl = document.querySelector('#sankey-year-label');
+  if (yl) yl.textContent = sliderYear;
+  renderCommodityRows();
+  renderSankey();
+  renderBar();
 }
 
 function initSlider() {
-  const years = rawData.map(r => r.year).filter(y => y > 0);
+  const years = [...resData, ...cfaTauAllData].map(r => r.year).filter(y => y > 0);
   const maxY  = years.length ? Math.max(...years) : 2025;
   sliderYear  = maxY;
   const sl    = document.querySelector('#year-slider');
   sl.max      = maxY;
   sl.value    = maxY;
-  document.querySelector('#slider-val').textContent        = maxY;
-  document.querySelector('#sankey-year-label').textContent = maxY;
+  document.querySelector('#slider-val').textContent = maxY;
 }
 
 // ─────────────────────────────────────────
 // FILTERED DATA HELPERS
 // ─────────────────────────────────────────
-function getJurisRows(yr) {
-  return rawData.filter(r => !r.isTrpaReserve && r.jurisdiction && r.year <= yr);
+function getJurisRows(data, yr) {
+  return data.filter(r => !r.isTrpaReserve && r.jurisdiction && r.year <= yr);
 }
 
 // ─────────────────────────────────────────
-// CHARTS - Plotly with TRPA brand
+// OVERVIEW + CHARTS - shared rendering helpers
 // ─────────────────────────────────────────
 const plotFont  = { family: '"Open Sans", system-ui, sans-serif', color: TRPA.navy, size: 12 };
 const plotPaper = 'rgba(0,0,0,0)';
 
-function renderCharts() {
-  renderSankey();
-  renderBar();
+const COMMODITIES = [
+  { key: 'residential', label: 'Residential allocations' },
+  { key: 'commercial',  label: 'Commercial floor area' },
+  { key: 'tourist',     label: 'Tourist accommodation' },
+];
+
+// Total / Allocated / Jurisdiction pool / TRPA-held for one commodity, honoring
+// the year slider and the active jurisdiction pills. Lifted from the old KPI
+// arithmetic, looped per commodity instead of one active type.
+function computeCommodity(commodity) {
+  const data = commodity === 'residential'
+    ? resData
+    : cfaTauAllData.filter(r => r.type === commodity);
+  const total = TOTAL_AUTH[commodity];
+
+  const jurisRows = getJurisRows(data, sliderYear)
+    .filter(r => activePills.has(r.jurisdiction));
+  const allocated = sumQty(jurisRows.filter(r => r.status === 'Allocated'));
+  const available = sumQty(jurisRows.filter(r => r.status === 'In Pool'));
+
+  // With ALL jurisdiction pills active, also count Allocated rows drawn
+  // straight from the TRPA Pool (jurisdiction = null) so the four cards sum
+  // to the cap. With a jurisdiction filtered, those are excluded.
+  const allJurisActive = activePills.size === JURIS_ORDER.length;
+  const trpaDrawn = allJurisActive
+    ? sumQty(data.filter(r => r.status === 'Allocated' && !r.jurisdiction && (r.year || 0) <= sliderYear))
+    : 0;
+
+  const trpaPoolHeld = sumQty(data.filter(r => r.status === 'TRPA Pool'));
+  const unreleased   = sumQty(data.filter(r => r.status === 'Unreleased'));
+
+  return {
+    total,
+    allocated: allocated + trpaDrawn,
+    available,
+    trpaPoolHeld, unreleased,
+    trpaHeld: trpaPoolHeld + unreleased,
+  };
 }
 
+// The Overview: three rows of summary cards, one row per commodity.
+function renderCommodityRows() {
+  const allJurisActive = activePills.size === JURIS_ORDER.length;
+  const filterNote = allJurisActive
+    ? ''
+    : ' (' + activePills.size + ' of ' + JURIS_ORDER.length + ' jurisdictions)';
+
+  document.querySelector('#commodity-rows').innerHTML = COMMODITIES.map(c => {
+    const m = computeCommodity(c.key);
+    const banked = bankedTotals[c.key] || 0;
+
+    // For residential, every allocation is tracked in the data so the
+    // other 4 cards already sum to the cap (Total authorized). For CFA/TAU,
+    // the data covers only transactions, so the cap is a planning ceiling
+    // (Regional Plan max) and the 4 below it represent activity to date -
+    // they don't sum to the cap. The label + sub make this distinction
+    // explicit so the math isn't quietly misleading.
+    const totalLabel = c.key === 'residential' ? 'Total authorized' : 'Regional Plan max';
+    const totalSub   = c.key === 'residential'
+      ? TYPE_DESC[c.key]
+      : 'cap; cards below show activity to date';
+
+    const trpaSub = c.key === 'residential' && m.unreleased > 0
+      ? m.unreleased.toLocaleString() + ' unreleased + ' + m.trpaPoolHeld.toLocaleString() + ' in TRPA Pool'
+      : 'held centrally by TRPA';
+
+    const cards = [
+      { label: totalLabel, value: m.total, accent: TRPA.navy, sub: totalSub },
+      { label: 'Allocated to private development', value: m.allocated, accent: TRPA.forest, sub: 'drawn to a parcel' + filterNote },
+      { label: 'Banked', value: banked, accent: TRPA.olive, sub: 'in the bank, available for transfer' },
+      { label: 'Jurisdiction pool', value: m.available, accent: TYPE_ACCENT[c.key], sub: 'available in jurisdiction pools' + filterNote },
+      { label: 'TRPA-held', value: m.trpaHeld, accent: TRPA.ice, sub: trpaSub },
+    ];
+    return '<div class="comm-row">' +
+      '<div class="comm-row-label">' + c.label + '</div>' +
+      '<div class="comm-cards">' +
+      cards.map(k =>
+        '<div class="comm-card">' +
+          '<div class="kpi-accent" style="background:' + k.accent + '"></div>' +
+          '<div class="kpi-label">' + k.label + '</div>' +
+          '<div class="kpi-value">' + fmtValFor(k.value, c.key) + '</div>' +
+          '<div class="kpi-sub">' + k.sub + '</div>' +
+        '</div>'
+      ).join('') +
+      '</div></div>';
+  }).join('');
+}
+
+// ─────────────────────────────────────────
+// CHARTS - Sankey + stacked bar (Charts tab)
+// ─────────────────────────────────────────
+// Both functions self-guard: skip rendering if their target div is hidden
+// (the Charts tab panel uses display:none when inactive; Plotly into a
+// display:none container sizes badly).
+
 function renderSankey() {
-  // 3-column lifecycle Sankey:
-  //   LEFT   ->  Total Authorized (2,600)
-  //   MIDDLE ->  6 pools (TRPA Pool + 5 jurisdiction pools - where allocations went)
-  //   RIGHT  ->  4 current states (Still in TRPA / Unreleased / Still in Juris / Private Dev)
-  // Each row counts exactly once: total flow = 2,600.
+  const target = document.querySelector('#sankey-chart');
+  if (!target || target.offsetParent === null) return;
+
+  // 3-column lifecycle:
+  //   LEFT   -> Total Authorized
+  //   MIDDLE -> TRPA Pool + jurisdiction pools (where allocations went)
+  //   RIGHT  -> 4 current states (Still TRPA / Unreleased / Still Juris / Private Dev)
   const total    = TOTAL_AUTH[currentType];
   const yr       = sliderYear;
   const allJuris = activeJurisOrder().filter(j => activePills.has(j));
-  const jRows    = getJurisRows(yr).filter(r => activePills.has(r.jurisdiction));
+  const jRows    = getJurisRows(rawData, yr).filter(r => activePills.has(r.jurisdiction));
   const juris    = allJuris.filter(j => jRows.some(r => r.jurisdiction === j));
 
-  // Per-pool totals. TRPA-held splits into TRPA Pool (unallocated) +
-  // Unreleased; both flow in through the middle "TRPA Pool" node.
   const trpaHeld   = sumQty(rawData.filter(r => r.status === 'TRPA Pool'));
   const unreleased = sumQty(rawData.filter(r => r.status === 'Unreleased'));
   const trpaDrawn  = sumQty(rawData.filter(r =>
     r.status === 'Allocated' && !r.jurisdiction && (r.year || 0) <= yr));
   const trpaTotal  = trpaHeld + unreleased + trpaDrawn;
 
-  // Node indices
-  const iAuth       = 0;                                       // LEFT - Total Authorized
-  const iTrpaPool   = 1;                                       // MIDDLE - TRPA Pool
-  const iJ          = j => juris.indexOf(j) + 2;               // MIDDLE - 5 jurisdiction pools
-  const iTrpaDest   = juris.length + 2;                        // RIGHT - Still in TRPA Pool
-  const iUnreleased = juris.length + 3;                        // RIGHT - Unreleased
-  const iJurisDest  = juris.length + 4;                        // RIGHT - Still in Jurisdiction Pool
-  const iPrivate    = juris.length + 5;                        // RIGHT - Allocated to Private Development
+  const iAuth       = 0;
+  const iTrpaPool   = 1;
+  const iJ          = j => juris.indexOf(j) + 2;
+  const iTrpaDest   = juris.length + 2;
+  const iUnreleased = juris.length + 3;
+  const iJurisDest  = juris.length + 4;
+  const iPrivate    = juris.length + 5;
 
   const nodeLabels = [
-    'Total Authorized',                            // 0 - left
-    'TRPA Pool',                                   // 1 - middle
-    ...juris.map(j => JURIS_SHORT[j] || j),        // 2..N+1 - middle (5 jurisdictions)
-    'Still in TRPA Pool',                          // N+2 - right state
-    'Unreleased',                                  // N+3 - right state
-    'Still in Jurisdiction Pool',                  // N+4 - right state
-    'Allocated to Private Development',            // N+5 - right state
+    'Total Authorized',
+    'TRPA Pool',
+    ...juris.map(j => JURIS_SHORT[j] || j),
+    'Still in TRPA Pool',
+    'Unreleased',
+    'Still in Jurisdiction Pool',
+    'Allocated to Private Development',
   ];
   const nodeColors = [
-    TRPA.navy,                                     // Total Authorized
-    TRPA.navy,                                     // TRPA Pool (middle) - navy so it doesn't collide with the purple Unreleased node
-    ...juris.map(() => TRPA.blue),                 // jurisdictions (middle)
-    TRPA.ice,                                      // Still in TRPA Pool (right)
-    TRPA.purple,                                   // Unreleased (right)
-    TRPA.orange,                                   // Still in Jurisdiction Pool (right)
-    TRPA.forest,                                   // Allocated to Private Development (right)
+    TRPA.navy,
+    TRPA.navy,
+    ...juris.map(() => TRPA.blue),
+    TRPA.ice,
+    TRPA.purple,
+    TRPA.orange,
+    TRPA.forest,
   ];
 
   const src = [], tgt = [], val = [], lnkColor = [];
 
-  // Column 1 -> Column 2: Authorized to each pool
   if (trpaTotal > 0) {
     src.push(iAuth); tgt.push(iTrpaPool); val.push(trpaTotal);
     lnkColor.push(hexA(TRPA.navy, 0.25));
@@ -827,7 +856,6 @@ function renderSankey() {
     }
   });
 
-  // Column 2 -> Column 3: TRPA Pool to states
   if (trpaHeld > 0) {
     src.push(iTrpaPool); tgt.push(iTrpaDest); val.push(trpaHeld);
     lnkColor.push(hexA(TRPA.ice, 0.55));
@@ -841,7 +869,6 @@ function renderSankey() {
     lnkColor.push(hexA(TRPA.forest, 0.30));
   }
 
-  // Column 2 -> Column 3: each jurisdiction pool to states
   juris.forEach(j => {
     const allocQty = sumQty(jRows.filter(r => r.jurisdiction === j && r.status === 'Allocated'));
     const availQty = sumQty(jRows.filter(r => r.jurisdiction === j && r.status === 'In Pool'));
@@ -868,15 +895,14 @@ function renderSankey() {
 }
 
 function renderBar() {
+  const target = document.querySelector('#bar-chart');
+  if (!target || target.offsetParent === null) return;
+
   const total    = TOTAL_AUTH[currentType];
   const yr       = sliderYear;
   const juris    = activeJurisOrder().filter(j => activePills.has(j));
-  const jRows    = getJurisRows(yr);
+  const jRows    = getJurisRows(rawData, yr);
 
-  // Per-jurisdiction stacks first, then "TRPA Pool" reserve at the end.
-  // (The "Authorized" summary bar was removed - the 2,600 total is already
-  // shown in the KPI cards above, and stacking it next to the smaller pools
-  // squashed their visual proportions.)
   const xLabels  = [...juris.map(j => JURIS_SHORT[j] || j), 'TRPA Pool'];
 
   const allocated   = juris.map(j => sumQty(jRows.filter(r => r.jurisdiction === j && r.status === 'Allocated')));
@@ -886,7 +912,6 @@ function renderBar() {
   const trpaAlloc   = sumQty(rawData.filter(r =>
     r.status === 'Allocated' && !r.jurisdiction && (r.year || 0) <= yr));
 
-  // Update chart count
   const fc = document.querySelector('#chart-count');
   if (fc) {
     const inPool = sumQty(jRows.filter(r => activePills.has(r.jurisdiction)));
@@ -1166,35 +1191,64 @@ function applyMapFilters() {
 }
 
 // ─────────────────────────────────────────
-// TAB + TYPE SWITCHING
+// TAB + COMMODITY SWITCHING
 // ─────────────────────────────────────────
 function switchTab(name, btn) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelector('#tab-' + name).classList.add('active');
   btn.classList.add('active');
-  if (name === 'charts') setTimeout(() => { Plotly.Plots.resize('sankey-chart'); Plotly.Plots.resize('bar-chart'); }, 50);
-  if (name === 'map')    initMap();
+
+  // Shared filter bar (year slider + jurisdiction pills) applies to Overview
+  // and Charts; hide it on Map and Data Table (those have their own filters).
+  document.querySelector('#shared-filter-bar').style.display =
+    (name === 'overview' || name === 'charts') ? 'flex' : 'none';
+
+  // Map, Data Table, and Charts each carry their own commodity selector;
+  // re-sync the shared currentType / rawData to the entered tab's selection.
+  if (name === 'map')   { applyCommodity('map'); initMap(); }
+  if (name === 'table') { applyCommodity('table'); }
+  if (name === 'charts') {
+    applyCommodity('charts');
+    // Plotly needs a resize hint after a hidden -> visible transition
+    setTimeout(() => {
+      Plotly.Plots.resize('sankey-chart');
+      Plotly.Plots.resize('bar-chart');
+    }, 50);
+  }
 }
 
-function switchType(type, btn) {
-  if (type === currentType) return;
-  currentType = type;
-  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-
-  rawData = type === 'residential'
+// Map and Data Table are per-commodity; the Overview shows all three at once.
+// applyCommodity points the shared currentType / rawData at the tab's selected
+// commodity, then re-renders just that tab.
+function applyCommodity(tab) {
+  const selId = tab === 'map'    ? '#type-map'
+              : tab === 'table'  ? '#type-tbl'
+              : tab === 'charts' ? '#type-charts'
+              :                    null;
+  const sel = selId ? document.querySelector(selId) : null;
+  currentType = sel ? sel.value : 'residential';
+  rawData = currentType === 'residential'
     ? resData
-    : cfaTauAllData.filter(r => r.type === type);
+    : cfaTauAllData.filter(r => r.type === currentType);
 
-  initSlider();
-  buildPills();      // populate activePills BEFORE KPIs read from it
-  updateKPIs();
-  renderCharts();
-  renderDrawdownTable();
-  populateJurisFilters();
-  initGrid();
-  document.querySelector('#tbl-count').innerHTML = '<strong>' + rawData.length.toLocaleString() + '</strong> records';
+  if (tab === 'map') {
+    if (parcelsLayer) {
+      parcelsLayer.renderer = {
+        type: 'simple',
+        symbol: { type: 'simple-fill', color: TYPE_FILL[currentType], outline: { color: [0, 59, 113, 0.8], width: 0.6 } },
+      };
+    }
+    applyMapFilters();
+  } else if (tab === 'charts') {
+    renderSankey();
+    renderBar();
+  } else {
+    populateJurisFilters();
+    renderDrawdownTable();
+    initGrid();
+    document.querySelector('#tbl-count').innerHTML = '<strong>' + rawData.length.toLocaleString() + '</strong> records';
+  }
 }
 
 // ─────────────────────────────────────────
@@ -1205,8 +1259,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     if (bar) bar.style.width = '20%';
     const [resResp, cfaTauResp] = await Promise.all([
-      fetch(RES_URL,    { cache: 'no-cache' }),
-      fetch(CFA_TAU_URL, { cache: 'no-cache' })
+      fetch(RES_URL,     { cache: 'no-cache' }),
+      fetch(CFA_TAU_URL, { cache: 'no-cache' }),
+      fetchBanked(),  // side-effect: populates bankedTotals; resolves to undefined
     ]);
     if (!resResp.ok)    throw new Error('Residential data: HTTP ' + resResp.status);
     if (!cfaTauResp.ok) throw new Error('CFA/TAU data: HTTP ' + cfaTauResp.status);
@@ -1224,13 +1279,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   document.querySelector('#loading-overlay').style.display = 'none';
   initSlider();
-  buildPills();      // populate activePills BEFORE KPIs read from it
-  updateKPIs();
-  renderCharts();
-  renderDrawdownTable();
-  populateJurisFilters();
-  initGrid();
-  document.querySelector('#tbl-count').innerHTML = '<strong>' + rawData.length.toLocaleString() + '</strong> records';
+  buildPills();              // populate activePills before the Overview reads it
+  renderCommodityRows();     // Overview tab: the 3 commodity rows
+  applyCommodity('table');   // Data Table tab: drawdown table + grid + filters
 });
 </script>
 </body>

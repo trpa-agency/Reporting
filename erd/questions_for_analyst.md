@@ -5,7 +5,7 @@ and which numbers are tracked in a system versus carried by hand. Collected as
 they surface during the system-of-record work. Mark a question answered (or
 ~~strike it~~) once resolved, and fold the answer into the relevant spec.
 
-## 1. Is the 2012-Plan 2,600-allocation authorization tracked anywhere queryable?
+## 1. Is the 2012-Plan 2,600-allocation authorization tracked anywhere queryable? [ANSWERED]
 
 Corral's `ResidentialAllocation` holds only *instantiated* allocations - 2,112
 rows in `Corral_2026`, all sitting in named jurisdiction or TRPA pools. The
@@ -20,6 +20,19 @@ instantiated allocations, plus the unreleased remainder from somewhere else.
 This decides whether the "unreleased" rows come from a query or from a
 `RegionalPlanCapacity`-style reference table. See `probe_corral_2026.py` and
 `regional_plan_allocations_service.md`.
+
+**Answered (tested against `Corral_2026`).** The 2,600 is the 2012-Plan
+residential authorization - a number from the regional plan document, not a
+Corral query. The grid is a **union**: the saved query, filtered to
+`IssuanceYear > 2012`, gives the instantiated 2012-Plan allocations; the 770
+"TBD" rows are the unreleased remainder. Model: `(IssuanceYear > 2012) + 770 =
+2,600`. Tested: `Corral_2026` returns 1,820 for `IssuanceYear > 2012`, so
+`1,820 + 770 = 2,590` - within ~10 of the 2,600 authorization (the April grid
+export and the `Corral_2026` snapshot differ slightly; reconcile before the ETL
+goes live). The 770 "TBD" rows are blank placeholder padding, not records - in
+the architecture the unreleased count is a scalar reference value (the
+regional-plan figure), never phantom rows. See
+`residential_allocation_grid_service.md`.
 
 ## 2. Where does `CFA_TAU_allocations.csv` come from?
 

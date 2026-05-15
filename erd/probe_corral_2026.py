@@ -75,6 +75,18 @@ def main() -> int:
             )).fetchone()
             print(f"ResidentialAllocation: {ra_n:,} rows, IssuanceYear {yr[0]} - {yr[1]}")
 
+            print("\nResidentialAllocation by IssuanceYear:")
+            for y, n in conn.execute(text(
+                "SELECT IssuanceYear, COUNT(*) n FROM dbo.ResidentialAllocation "
+                "GROUP BY IssuanceYear ORDER BY IssuanceYear"
+            )):
+                print(f"  {y}  {n:>6,}")
+            post_2012 = conn.execute(text(
+                "SELECT COUNT(*) FROM dbo.ResidentialAllocation WHERE IssuanceYear > 2012"
+            )).scalar()
+            print(f"\n  IssuanceYear > 2012: {post_2012:,}")
+            print(f"  + 770 (regional-plan unreleased) = {post_2012 + 770:,}   (hypothesis: = 2,600)")
+
             print("\nAllocationStatus distribution (reverse-engineered CASE):")
             for status, n in conn.execute(text(
                 f"SELECT AllocationStatus, COUNT(*) n FROM (\n{STATUS_SQL}\n) q "
