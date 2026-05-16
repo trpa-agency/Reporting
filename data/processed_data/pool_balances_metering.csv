@@ -1,0 +1,854 @@
+Commodity,CommodityCode,Pool,Year,Direction,Units,AsOfDate,LoadedDate
+Residential allocations,RES,Placer County,1986,Released,103,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1987,Released,103,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1988,Released,103,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1989,Released,56,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1990,Released,63,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1991,Released,63,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1992,Released,83,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1993,Released,68,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1994,Released,62,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1995,Released,76,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1996,Released,88,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1997,Released,50,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1998,Released,49,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1999,Released,54,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2000,Released,51,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2001,Released,55,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2002,Released,60,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2003,Released,46,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2004,Released,46,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2005,Released,50,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2006,Released,50,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2007,Released,50,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2008,Released,50,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2009,Released,50,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2010,Released,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2011,Released,20,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2012,Released,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2013,Released,26,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2014,Released,31,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2015,Released,37,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2016,Released,37,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2017,Released,37,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2018,Released,37,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2019,Released,37,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2020,Released,37,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2021,Released,37,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2022,Released,37,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2023,Released,37,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2024,Released,37,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2025,Released,31,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2026,Released,30,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1986,Released,67,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1987,Released,67,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1988,Released,67,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1989,Released,37,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1990,Released,45,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1991,Released,45,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1992,Released,53,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1993,Released,52,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1994,Released,35,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1995,Released,48,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1996,Released,59,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1997,Released,53,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1998,Released,38,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1999,Released,20,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2000,Released,32,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2001,Released,47,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2002,Released,24,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2003,Released,17,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2004,Released,18,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2005,Released,15,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2006,Released,31,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2007,Released,31,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2008,Released,37,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2009,Released,40,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2010,Released,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2011,Released,18,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2012,Released,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2013,Released,22,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2014,Released,22,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2015,Released,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2016,Released,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2017,Released,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2018,Released,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2019,Released,8,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2020,Released,8,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2021,Released,6,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2022,Released,6,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2023,Released,7,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2024,Released,6,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2025,Released,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2026,Released,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1986,Released,23,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1987,Released,13,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1988,Released,23,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1989,Released,12,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1990,Released,18,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1991,Released,18,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1992,Released,20,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1993,Released,17,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1994,Released,15,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1995,Released,22,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1996,Released,23,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1997,Released,22,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1998,Released,17,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1999,Released,17,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2000,Released,23,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2001,Released,22,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2002,Released,12,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2003,Released,13,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2004,Released,14,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2005,Released,12,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2006,Released,13,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2007,Released,14,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2008,Released,14,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2009,Released,15,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2010,Released,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2011,Released,7,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2012,Released,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2013,Released,8,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2014,Released,9,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2015,Released,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2016,Released,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2017,Released,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2018,Released,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2019,Released,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2020,Released,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2021,Released,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2022,Released,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2023,Released,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2024,Released,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2025,Released,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2026,Released,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1986,Released,107,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1987,Released,107,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1988,Released,105,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1989,Released,59,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1990,Released,175,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1991,Released,174,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1992,Released,129,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1993,Released,127,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1994,Released,120,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1995,Released,111,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1996,Released,130,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1997,Released,80,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1998,Released,81,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1999,Released,85,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2000,Released,88,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2001,Released,86,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2002,Released,84,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2003,Released,111,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2004,Released,90,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2005,Released,82,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2006,Released,83,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2007,Released,76,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2008,Released,76,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2009,Released,69,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2010,Released,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2011,Released,27,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2012,Released,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2013,Released,45,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2014,Released,47,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2015,Released,30,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2016,Released,30,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2017,Released,30,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2018,Released,30,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2019,Released,30,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2020,Released,30,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2021,Released,30,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2022,Released,30,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2023,Released,30,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2024,Released,30,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2025,Released,30,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2026,Released,30,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,1997,Released,30,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,1998,Released,35,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,1999,Released,35,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2000,Released,30,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2001,Released,35,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2002,Released,35,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2003,Released,41,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2004,Released,35,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2005,Released,29,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2006,Released,35,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2007,Released,29,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2008,Released,35,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2009,Released,32,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2010,Released,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2011,Released,14,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2012,Released,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2013,Released,18,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2014,Released,20,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2015,Released,33,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2016,Released,33,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2017,Released,33,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2018,Released,33,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2019,Released,33,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2020,Released,33,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2021,Released,33,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2022,Released,33,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2023,Released,33,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2024,Released,33,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2025,Released,33,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2026,Released,33,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,1999,Released,1,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2000,Released,5,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2001,Released,15,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2002,Released,38,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2003,Released,47,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2004,Released,38,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2005,Released,41,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2006,Released,21,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2007,Released,5,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2008,Released,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2009,Released,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2010,Released,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2011,Released,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2012,Released,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2013,Released,11,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2014,Released,1,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2015,Released,20,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2016,Released,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2017,Released,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2018,Released,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2019,Released,12,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2020,Released,12,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2021,Released,14,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2022,Released,14,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2023,Released,13,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2024,Released,14,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2025,Released,16,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2026,Released,17,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1986,Released,300,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1987,Released,290,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1988,Released,298,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1989,Released,164,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1990,Released,301,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1991,Released,300,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1992,Released,285,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1993,Released,264,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1994,Released,232,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1995,Released,257,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1996,Released,300,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1997,Released,235,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1998,Released,220,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1999,Released,212,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2000,Released,229,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2001,Released,260,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2002,Released,253,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2003,Released,275,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2004,Released,241,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2005,Released,229,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2006,Released,233,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2007,Released,205,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2008,Released,212,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2009,Released,206,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2010,Released,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2011,Released,86,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2012,Released,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2013,Released,130,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2014,Released,130,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2015,Released,140,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2016,Released,130,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2017,Released,130,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2018,Released,130,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2019,Released,130,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2020,Released,130,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2021,Released,130,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2022,Released,130,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2023,Released,130,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2024,Released,130,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2025,Released,130,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2026,Released,130,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1986,Assigned,103,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1987,Assigned,103,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1988,Assigned,103,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1989,Assigned,56,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1990,Assigned,63,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1991,Assigned,63,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1992,Assigned,83,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1993,Assigned,68,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1994,Assigned,62,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1995,Assigned,76,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1996,Assigned,88,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1997,Assigned,50,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1998,Assigned,49,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1999,Assigned,54,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2000,Assigned,51,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2001,Assigned,55,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2002,Assigned,60,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2003,Assigned,46,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2004,Assigned,46,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2005,Assigned,50,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2006,Assigned,50,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2007,Assigned,50,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2008,Assigned,50,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2009,Assigned,50,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2010,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2011,Assigned,20,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2012,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2013,Assigned,26,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2014,Assigned,31,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2015,Assigned,37,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2016,Assigned,37,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2017,Assigned,8,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2018,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2019,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2020,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2021,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2022,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2023,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2024,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2025,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2026,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1986,Assigned,67,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1987,Assigned,67,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1988,Assigned,67,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1989,Assigned,37,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1990,Assigned,45,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1991,Assigned,45,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1992,Assigned,53,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1993,Assigned,52,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1994,Assigned,35,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1995,Assigned,48,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1996,Assigned,59,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1997,Assigned,53,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1998,Assigned,38,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1999,Assigned,20,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2000,Assigned,32,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2001,Assigned,47,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2002,Assigned,24,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2003,Assigned,17,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2004,Assigned,18,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2005,Assigned,15,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2006,Assigned,31,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2007,Assigned,31,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2008,Assigned,37,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2009,Assigned,33,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2010,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2011,Assigned,13,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2012,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2013,Assigned,21,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2014,Assigned,1,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2015,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2016,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2017,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2018,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2019,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2020,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2021,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2022,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2023,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2024,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2025,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2026,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1986,Assigned,23,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1987,Assigned,13,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1988,Assigned,23,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1989,Assigned,12,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1990,Assigned,18,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1991,Assigned,18,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1992,Assigned,20,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1993,Assigned,17,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1994,Assigned,15,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1995,Assigned,22,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1996,Assigned,23,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1997,Assigned,22,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1998,Assigned,17,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1999,Assigned,17,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2000,Assigned,23,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2001,Assigned,22,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2002,Assigned,12,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2003,Assigned,13,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2004,Assigned,14,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2005,Assigned,12,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2006,Assigned,13,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2007,Assigned,14,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2008,Assigned,14,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2009,Assigned,15,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2010,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2011,Assigned,7,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2012,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2013,Assigned,3,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2014,Assigned,8,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2015,Assigned,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2016,Assigned,8,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2017,Assigned,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2018,Assigned,5,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2019,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2020,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2021,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2022,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2023,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2024,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2025,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2026,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1986,Assigned,107,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1987,Assigned,107,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1988,Assigned,105,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1989,Assigned,59,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1990,Assigned,175,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1991,Assigned,174,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1992,Assigned,129,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1993,Assigned,127,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1994,Assigned,120,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1995,Assigned,111,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1996,Assigned,130,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1997,Assigned,80,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1998,Assigned,81,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1999,Assigned,85,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2000,Assigned,88,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2001,Assigned,86,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2002,Assigned,84,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2003,Assigned,111,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2004,Assigned,90,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2005,Assigned,82,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2006,Assigned,83,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2007,Assigned,76,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2008,Assigned,76,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2009,Assigned,69,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2010,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2011,Assigned,27,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2012,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2013,Assigned,45,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2014,Assigned,47,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2015,Assigned,30,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2016,Assigned,30,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2017,Assigned,30,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2018,Assigned,30,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2019,Assigned,30,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2020,Assigned,30,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2021,Assigned,30,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2022,Assigned,30,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2023,Assigned,19,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2024,Assigned,3,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2025,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2026,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,1997,Assigned,30,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,1998,Assigned,35,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,1999,Assigned,35,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2000,Assigned,30,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2001,Assigned,35,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2002,Assigned,35,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2003,Assigned,41,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2004,Assigned,35,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2005,Assigned,29,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2006,Assigned,35,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2007,Assigned,29,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2008,Assigned,35,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2009,Assigned,28,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2010,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2011,Assigned,13,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2012,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2013,Assigned,18,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2014,Assigned,20,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2015,Assigned,31,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2016,Assigned,13,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2017,Assigned,29,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2018,Assigned,4,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2019,Assigned,32,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2020,Assigned,33,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2021,Assigned,32,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2022,Assigned,19,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2023,Assigned,22,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2024,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2025,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2026,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,1999,Assigned,1,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2000,Assigned,5,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2001,Assigned,15,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2002,Assigned,38,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2003,Assigned,47,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2004,Assigned,38,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2005,Assigned,41,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2006,Assigned,21,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2007,Assigned,5,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2008,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2009,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2010,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2011,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2012,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2013,Assigned,4,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2014,Assigned,1,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2015,Assigned,3,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2016,Assigned,1,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2017,Assigned,3,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2018,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2019,Assigned,1,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2020,Assigned,2,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2021,Assigned,2,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2022,Assigned,2,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2023,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2024,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2025,Assigned,1,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2026,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1986,Assigned,300,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1987,Assigned,290,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1988,Assigned,298,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1989,Assigned,164,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1990,Assigned,301,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1991,Assigned,300,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1992,Assigned,285,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1993,Assigned,264,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1994,Assigned,232,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1995,Assigned,257,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1996,Assigned,300,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1997,Assigned,235,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1998,Assigned,220,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1999,Assigned,212,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2000,Assigned,229,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2001,Assigned,260,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2002,Assigned,253,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2003,Assigned,275,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2004,Assigned,241,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2005,Assigned,229,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2006,Assigned,233,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2007,Assigned,205,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2008,Assigned,212,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2009,Assigned,195,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2010,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2011,Assigned,80,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2012,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2013,Assigned,117,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2014,Assigned,108,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2015,Assigned,111,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2016,Assigned,89,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2017,Assigned,80,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2018,Assigned,39,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2019,Assigned,63,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2020,Assigned,65,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2021,Assigned,64,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2022,Assigned,51,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2023,Assigned,41,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2024,Assigned,3,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2025,Assigned,1,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2026,Assigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1986,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1987,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1988,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1989,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1990,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1991,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1992,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1993,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1994,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1995,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1996,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1997,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1998,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,1999,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2000,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2001,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2002,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2003,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2004,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2005,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2006,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2007,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2008,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2009,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2010,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2011,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2012,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2013,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2014,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2015,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2016,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2017,NotAssigned,29,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2018,NotAssigned,37,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2019,NotAssigned,37,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2020,NotAssigned,37,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2021,NotAssigned,37,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2022,NotAssigned,37,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2023,NotAssigned,37,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2024,NotAssigned,37,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2025,NotAssigned,31,"May 12, 2026",2026-05-15
+Residential allocations,RES,Placer County,2026,NotAssigned,30,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1986,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1987,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1988,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1989,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1990,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1991,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1992,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1993,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1994,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1995,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1996,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1997,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1998,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,1999,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2000,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2001,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2002,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2003,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2004,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2005,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2006,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2007,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2008,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2009,NotAssigned,7,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2010,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2011,NotAssigned,5,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2012,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2013,NotAssigned,1,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2014,NotAssigned,21,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2015,NotAssigned,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2016,NotAssigned,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2017,NotAssigned,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2018,NotAssigned,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2019,NotAssigned,8,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2020,NotAssigned,8,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2021,NotAssigned,6,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2022,NotAssigned,6,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2023,NotAssigned,7,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2024,NotAssigned,6,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2025,NotAssigned,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Washoe County,2026,NotAssigned,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1986,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1987,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1988,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1989,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1990,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1991,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1992,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1993,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1994,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1995,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1996,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1997,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1998,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,1999,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2000,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2001,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2002,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2003,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2004,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2005,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2006,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2007,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2008,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2009,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2010,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2011,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2012,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2013,NotAssigned,5,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2014,NotAssigned,1,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2015,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2016,NotAssigned,2,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2017,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2018,NotAssigned,5,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2019,NotAssigned,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2020,NotAssigned,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2021,NotAssigned,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2022,NotAssigned,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2023,NotAssigned,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2024,NotAssigned,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2025,NotAssigned,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,Douglas County,2026,NotAssigned,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1986,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1987,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1988,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1989,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1990,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1991,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1992,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1993,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1994,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1995,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1996,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1997,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1998,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,1999,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2000,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2001,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2002,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2003,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2004,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2005,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2006,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2007,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2008,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2009,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2010,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2011,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2012,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2013,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2014,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2015,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2016,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2017,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2018,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2019,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2020,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2021,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2022,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2023,NotAssigned,11,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2024,NotAssigned,27,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2025,NotAssigned,30,"May 12, 2026",2026-05-15
+Residential allocations,RES,El Dorado County,2026,NotAssigned,30,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,1986,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,1987,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,1988,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,1989,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,1990,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,1991,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,1992,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,1993,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,1994,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,1995,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,1996,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,1997,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,1998,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,1999,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2000,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2001,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2002,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2003,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2004,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2005,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2006,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2007,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2008,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2009,NotAssigned,4,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2010,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2011,NotAssigned,1,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2012,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2013,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2014,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2015,NotAssigned,2,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2016,NotAssigned,20,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2017,NotAssigned,4,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2018,NotAssigned,29,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2019,NotAssigned,1,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2020,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2021,NotAssigned,1,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2022,NotAssigned,14,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2023,NotAssigned,11,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2024,NotAssigned,33,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2025,NotAssigned,33,"May 12, 2026",2026-05-15
+Residential allocations,RES,City of South Lake Tahoe,2026,NotAssigned,33,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,1986,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,1987,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,1988,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,1989,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,1990,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,1991,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,1992,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,1993,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,1994,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,1995,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,1996,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,1997,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,1998,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,1999,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2000,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2001,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2002,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2003,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2004,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2005,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2006,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2007,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2008,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2009,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2010,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2011,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2012,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2013,NotAssigned,7,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2015,NotAssigned,17,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2016,NotAssigned,9,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2017,NotAssigned,7,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2018,NotAssigned,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2019,NotAssigned,11,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2020,NotAssigned,10,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2021,NotAssigned,12,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2022,NotAssigned,12,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2023,NotAssigned,13,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2024,NotAssigned,14,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2025,NotAssigned,15,"May 12, 2026",2026-05-15
+Residential allocations,RES,TRPA Allocation Incentive Pool,2026,NotAssigned,17,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1986,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1987,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1988,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1989,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1990,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1991,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1992,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1993,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1994,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1995,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1996,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1997,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1998,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,1999,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2000,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2001,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2002,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2003,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2004,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2005,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2006,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2007,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2008,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2009,NotAssigned,11,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2010,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2011,NotAssigned,6,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2012,NotAssigned,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2013,NotAssigned,13,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2014,NotAssigned,22,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2015,NotAssigned,29,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2016,NotAssigned,41,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2017,NotAssigned,50,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2018,NotAssigned,91,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2019,NotAssigned,67,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2020,NotAssigned,65,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2021,NotAssigned,66,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2022,NotAssigned,79,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2023,NotAssigned,89,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2024,NotAssigned,127,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2025,NotAssigned,129,"May 12, 2026",2026-05-15
+Residential allocations,RES,Grand Total,2026,NotAssigned,130,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 1987 Plan,1986,Unreleased,5787,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 1987 Plan,1987,Unreleased,5497,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 1987 Plan,1988,Unreleased,5199,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 1987 Plan,1989,Unreleased,5035,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 1987 Plan,1990,Unreleased,4734,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 1987 Plan,1991,Unreleased,4434,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 1987 Plan,1992,Unreleased,4149,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 1987 Plan,1993,Unreleased,3885,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 1987 Plan,1994,Unreleased,3653,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 1987 Plan,1995,Unreleased,3396,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 1987 Plan,1996,Unreleased,3096,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 1987 Plan,1997,Unreleased,2861,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 1987 Plan,1998,Unreleased,2641,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 1987 Plan,1999,Unreleased,2429,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 1987 Plan,2000,Unreleased,2200,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 1987 Plan,2001,Unreleased,1940,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 1987 Plan,2002,Unreleased,1687,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 1987 Plan,2003,Unreleased,1412,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 1987 Plan,2004,Unreleased,1171,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 1987 Plan,2005,Unreleased,942,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 1987 Plan,2006,Unreleased,709,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 1987 Plan,2007,Unreleased,504,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 1987 Plan,2008,Unreleased,292,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 1987 Plan,2009,Unreleased,86,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 1987 Plan,2010,Unreleased,86,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 1987 Plan,2011,Unreleased,0,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 2012 Plan,2012,Unreleased,2600,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 2012 Plan,2013,Unreleased,2470,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 2012 Plan,2014,Unreleased,2340,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 2012 Plan,2015,Unreleased,2200,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 2012 Plan,2016,Unreleased,2070,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 2012 Plan,2017,Unreleased,1940,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 2012 Plan,2018,Unreleased,1810,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 2012 Plan,2019,Unreleased,1680,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 2012 Plan,2020,Unreleased,1550,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 2012 Plan,2021,Unreleased,1420,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 2012 Plan,2022,Unreleased,1290,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 2012 Plan,2023,Unreleased,1160,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 2012 Plan,2024,Unreleased,1030,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 2012 Plan,2025,Unreleased,900,"May 12, 2026",2026-05-15
+Residential allocations,RES,Unreleased Allocations - 2012 Plan,2026,Unreleased,770,"May 12, 2026",2026-05-15

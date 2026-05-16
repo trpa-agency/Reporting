@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
 <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
 <style>
 :root {
   --trpa-blue:    #0072CE;
@@ -205,8 +206,10 @@ header h1 span { color: var(--trpa-blue); }
 </div>
 
 <div class="footnote">
-  <strong>Data:</strong> <code>regional_plan_allocations.json</code>, converted from <code>All Regional Plan Allocations Summary.xlsx</code> by <code>convert_regional_plan_allocations.py</code>. Cards show the Regional Plan maximum, assigned to projects, and not-assigned balance per pool. The residential metering chart (released vs assigned by year) comes from the AllocationsByYear / Assigned blocks; per-year data is residential-only. Bars show the share <em>used</em>.<br>
-  <strong>Source:</strong> <a href="https://parcels.laketahoeinfo.org/DevelopmentRightPool/DevelopmentRightPoolBalanceReport">LT Info Development Right Pool Balance Report</a>; 1987 Plan figures from the 2012 Regional Plan Update Analysis.
+  <strong>Cards + KPIs:</strong> live from <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/12" style="color:var(--trpa-blue);">Cumulative_Accounting layer 12</a> ("Development Right Pool Balances"). 26 rows = 4 commodities x per-pool. Normalized from the analyst's <code>All Regional Plan Allocations Summary.xlsx</code> via <code>scripts/convert_pool_balances.py</code>.
+  <br><strong>Residential per-year metering chart:</strong> live from <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/13" style="color:var(--trpa-blue);">Cumulative_Accounting layer 13</a> ("Development Right Pool Balances Metering"). 853 rows = per-pool x per-year x per-direction, normalized by <code>scripts/convert_pool_balances_metering.py</code>.
+  <br><strong>Explainer text:</strong> <code>content/explainers/pool-balance-cards/*.md</code> (4 commodity files; rendered at runtime via <a href="https://github.com/markedjs/marked">marked</a>).
+  <br><strong>Upstream:</strong> <a href="https://parcels.laketahoeinfo.org/DevelopmentRightPool/DevelopmentRightPoolBalanceReport">LT Info Development Right Pool Balance Report</a>; 1987 Plan figures from the 2012 Regional Plan Update Analysis.
 </div>
 
 <script>
@@ -215,21 +218,71 @@ const TRPA = {
   brick:'#9C3E27', olive:'#B5A64C', orange:'#E87722', purple:'#7B6A8A',
   ice:'#B4CBE8',
 };
-const DATA_URL = '../data/processed_data/regional_plan_allocations.json';
+// Per-pool cards + KPIs: live from Cumulative_Accounting layer 12
+// ("Development Right Pool Balances"). 26 rows = 4 commodities x per-pool
+// breakdown. Source-of-load is the analyst's All Regional Plan Allocations
+// Summary xlsx, normalized by scripts/convert_pool_balances.py.
+const POOL_BALANCES_URL = 'https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/12/query'
+  + '?where=1%3D1'
+  + '&outFields=CommodityCode%2CPool%2CGroup_%2CRegionalPlanMaximum%2CAssignedToProjects%2CNotAssigned%2CAsOfDate'
+  + '&orderByFields=CommodityCode%2CPool'
+  + '&returnGeometry=false&f=json';
+// Per-year residential metering: live from Cumulative_Accounting layer 13
+// (Development Right Pool Balances Metering). 853 rows; residential only
+// (Released / Assigned / NotAssigned / Unreleased per pool per year).
+const METERING_URL = 'https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/13/query'
+  + '?where=1%3D1'
+  + '&outFields=Commodity%2CCommodityCode%2CPool%2CYear%2CDirection%2CUnits'
+  + '&orderByFields=Pool%2CDirection%2CYear'
+  + '&returnGeometry=false&f=json';
 const plotFont = { family: '"Open Sans", system-ui, sans-serif', color: TRPA.navy, size: 12 };
+// Shared hover styling: white background, ice border, navy text. Pair with
+// hovermode 'x unified' so the x-value reads as the tooltip header.
+const HOVERLABEL = { bgcolor: '#ffffff', bordercolor: TRPA.ice, font: { color: TRPA.navy, family: '"Open Sans"', size: 12 } };
 const PLOT_CFG = { responsive: true, displayModeBar: false };
 const CARD_PALETTE = [TRPA.blue, TRPA.navy, TRPA.orange, TRPA.forest, TRPA.earth, TRPA.purple, TRPA.olive, TRPA.brick];
 
-let RPA          = null;
-let commodity    = 'residential';
-let selectedName = null;
+let METERING      = {};       // Pool -> { Direction -> { years: [...], values: [...] } }
+let POOL_BALANCES = {};       // CommodityCode -> [{ Pool, Group, RegionalPlanMaximum, AssignedToProjects, NotAssigned, ... }]
+let balancesAsOf  = '';
+let commodity     = 'residential';
+let selectedName  = null;
 
 const COMM_META = {
-  residential:                 { label: 'Residential Allocations',  unit: 'units' },
-  residential_bonus_units:     { label: 'Residential Bonus Units',  unit: 'units' },
-  commercial_floor_area:       { label: 'Commercial Floor Area',    unit: 'sq ft' },
-  tourist_accommodation_units: { label: 'Tourist Bonus Units',      unit: 'units' },
+  residential:                 { label: 'Residential Allocations',  unit: 'units', code: 'RES' },
+  residential_bonus_units:     { label: 'Residential Bonus Units',  unit: 'units', code: 'RBU' },
+  commercial_floor_area:       { label: 'Commercial Floor Area',    unit: 'sq ft', code: 'CFA' },
+  tourist_accommodation_units: { label: 'Tourist Bonus Units',      unit: 'units', code: 'TAU' },
 };
+
+// Load the flat pool balances data. Accepts both the local JSON shape
+// ({ rows: [...] }) and ESRI features shape ({ features: [{ attributes }] }).
+// Field aliasing handles SDE renames: Plan -> Plan_ and Group -> Group_
+// (SQL reserved words). Normalize to the unsuffixed names so the rest of
+// the dashboard reads `row.Group` / `row.Plan` regardless of source.
+async function loadPoolBalances() {
+  const r = await fetch(POOL_BALANCES_URL, { cache: 'no-cache' });
+  if (!r.ok) throw new Error('pool balances: HTTP ' + r.status);
+  const js = await r.json();
+  const rawRows = Array.isArray(js.rows)     ? js.rows
+                : Array.isArray(js.features) ? js.features.map(f => f.attributes)
+                : [];
+  if (!rawRows.length) throw new Error('no rows in pool balances payload');
+  // Normalize SDE-renamed fields back to the unsuffixed names
+  const rows = rawRows.map(r => ({
+    ...r,
+    Group: r.Group != null ? r.Group : r.Group_,
+    Plan:  r.Plan  != null ? r.Plan  : r.Plan_,
+  }));
+  balancesAsOf = js.asOfDate || (rows[0]?.AsOfDate) || '';
+  POOL_BALANCES = {};
+  for (const row of rows) {
+    const code = row.CommodityCode;
+    if (!code) continue;
+    if (!POOL_BALANCES[code]) POOL_BALANCES[code] = [];
+    POOL_BALANCES[code].push(row);
+  }
+}
 
 function fmt(n) {
   if (n == null) return '0';
@@ -241,26 +294,18 @@ function hexA(hex, a) {
 }
 
 // ── Data shaping ───────────────────────────────────────────────────────────
-// Build the card list for the active commodity. Residential cards come from
-// the all-era by_jurisdiction breakdown; RBU/CFA/TAU from status.by_pool.
+// Build the card list for the active commodity. Reads from the flat
+// POOL_BALANCES (layer 12 staging) - one row per (Commodity, Pool).
 function getCards() {
-  let rows;
-  if (commodity === 'residential') {
-    rows = RPA.residential.by_jurisdiction.map(j => ({
-      name: j.name,
-      initial:   j.combined.regional_plan_maximum,
-      remaining: j.combined.not_assigned,
-      used:      j.combined.assigned_to_projects,
-    }));
-  } else {
-    rows = RPA[commodity].status.by_pool.map(p => ({
-      name: p.name,
-      initial:   p.regional_plan_maximum,
-      remaining: p.not_assigned == null ? 0 : p.not_assigned,
-      used:      p.assigned_to_projects == null ? 0 : p.assigned_to_projects,
-      group: p.group,
-    }));
-  }
+  const code = COMM_META[commodity].code;
+  const src  = POOL_BALANCES[code] || [];
+  const rows = src.map(r => ({
+    name:      r.Pool,
+    initial:   r.RegionalPlanMaximum   || 0,
+    used:      r.AssignedToProjects    || 0,
+    remaining: r.NotAssigned           || 0,
+    group:     r.Group || '',
+  }));
   rows.forEach((r, i) => { r.color = CARD_PALETTE[i % CARD_PALETTE.length]; });
   return rows;
 }
@@ -282,18 +327,40 @@ function getAllCard() {
   };
 }
 
+// Sum across all pools for the active commodity (matches what the analyst's
+// xlsx shows as Grand Total). Derived client-side from the flat data.
 function getSummary() {
-  return commodity === 'residential'
-    ? RPA.residential.summary.combined
-    : RPA[commodity].status.summary;
+  const cards = getCards();
+  return {
+    regional_plan_maximum: cards.reduce((s, c) => s + (c.initial   || 0), 0),
+    assigned_to_projects:  cards.reduce((s, c) => s + (c.used      || 0), 0),
+    not_assigned:          cards.reduce((s, c) => s + (c.remaining || 0), 0),
+  };
 }
 
-// A residential jurisdiction has metering data if it appears in the by_year blocks
-function meteringRow(block, name) {
-  return RPA.residential.by_year[block].rows.find(r => r.name === name) || null;
+// Load the long-form metering data (layer 15 candidate) and index by Pool -> Direction.
+async function loadMetering() {
+  const r = await fetch(METERING_URL, { cache: 'no-cache' });
+  if (!r.ok) throw new Error('metering: HTTP ' + r.status);
+  const js = await r.json();
+  const rows = Array.isArray(js.rows)     ? js.rows
+             : Array.isArray(js.features) ? js.features.map(f => f.attributes)
+             : [];
+  // Group by Pool + Direction; collect year-aligned arrays. Years come in
+  // sorted because the converter emits them that way.
+  METERING = {};
+  for (const row of rows) {
+    const pool = row.Pool, dir = row.Direction;
+    if (!METERING[pool]) METERING[pool] = {};
+    if (!METERING[pool][dir]) METERING[pool][dir] = { years: [], values: [] };
+    METERING[pool][dir].years.push(row.Year);
+    METERING[pool][dir].values.push(row.Units);
+  }
 }
+
+// A pool has metering data if both 'Released' and 'Assigned' blocks exist for it.
 function hasMetering(name) {
-  return commodity === 'residential' && !!meteringRow('released', name);
+  return commodity === 'residential' && !!(METERING[name]?.Released && METERING[name]?.Assigned);
 }
 
 // ── KPI strip ──────────────────────────────────────────────────────────────
@@ -395,9 +462,10 @@ function selectCard(p) {
 
 // Residential per-year metering: released in vs assigned out
 function renderMetering(name) {
-  const years    = RPA.residential.by_year.released.years;
-  const released = meteringRow('released', name).values;
-  const assigned = meteringRow('assigned', name).values;
+  const m        = METERING[name] || {};
+  const years    = (m.Released || m.Assigned)?.years || [];
+  const released = m.Released?.values || [];
+  const assigned = m.Assigned?.values || [];
   Plotly.react('detail-chart', [
     {
       name: 'Released to the pool', type: 'bar',
@@ -414,6 +482,7 @@ function renderMetering(name) {
   ], {
     font: plotFont, paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
     margin: { t: 8, r: 16, b: 36, l: 52 },
+    hoverlabel: HOVERLABEL,
     xaxis: { title: { text: 'Year', font: { size: 11 } }, gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 10 } },
     yaxis: { title: { text: 'Allocations', font: { size: 11 } }, rangemode: 'tozero', gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 10 } },
     legend: { orientation: 'h', y: -0.2, font: { size: 11 } },
@@ -436,17 +505,19 @@ function renderAll(unit) {
     {
       name: 'Assigned to projects', type: 'bar', orientation: 'h',
       x: used, y: names, marker: { color: TRPA.forest },
-      hovertemplate: `<b>%{x:,}</b> ${unit} assigned<extra>%{y}</extra>`,
+      hovertemplate: `<b>%{x:,}</b> ${unit}<extra>Assigned to projects</extra>`,
     },
     {
       name: 'Not assigned', type: 'bar', orientation: 'h',
       x: notAssig, y: names, marker: { color: TRPA.ice },
-      hovertemplate: `<b>%{x:,}</b> ${unit} not assigned<extra>%{y}</extra>`,
+      hovertemplate: `<b>%{x:,}</b> ${unit}<extra>Not assigned</extra>`,
     },
   ], {
     barmode: 'stack', font: plotFont,
     paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
     margin: { t: 8, r: 24, b: 36, l: 200 },
+    hovermode: 'y unified',  // horizontal bars - pool name (y) reads as the tooltip header
+    hoverlabel: HOVERLABEL,
     xaxis: { gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 10 }, rangemode: 'tozero' },
     yaxis: { autorange: 'reversed', tickfont: { size: 10 }, automargin: true },
     legend: { orientation: 'h', y: -0.18, font: { size: 11 } },
@@ -459,55 +530,54 @@ function renderBreakdown(p, unit) {
     {
       name: 'Assigned to projects', type: 'bar', orientation: 'h',
       x: [p.used], y: [p.name], marker: { color: TRPA.forest },
-      hovertemplate: `<b>%{x:,}</b> ${unit} assigned<extra></extra>`,
+      hovertemplate: `<b>%{x:,}</b> ${unit}<extra>Assigned to projects</extra>`,
     },
     {
       name: 'Not assigned', type: 'bar', orientation: 'h',
       x: [p.remaining], y: [p.name], marker: { color: TRPA.ice },
-      hovertemplate: `<b>%{x:,}</b> ${unit} not assigned<extra></extra>`,
+      hovertemplate: `<b>%{x:,}</b> ${unit}<extra>Not assigned</extra>`,
     },
   ], {
     barmode: 'stack', font: plotFont,
     paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
     margin: { t: 40, r: 16, b: 36, l: 16 },
+    hovermode: 'y unified',
+    hoverlabel: HOVERLABEL,
     xaxis: { gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 10 }, rangemode: 'tozero' },
     yaxis: { visible: false },
     legend: { orientation: 'h', y: 1.3, font: { size: 11 } },
   }, PLOT_CFG);
 }
 
-// Commodity-aware explainer. Residential carries the full markup; the other
-// three are placeholders pending content from the analyst. Swapping happens
-// on every setCommodity() call.
-const EXPLAINERS = {
-  residential: `
-    <h3>What&rsquo;s a residential allocation?</h3>
-    <p>
-      A residential building allocation is permission to build one new residential unit in the Tahoe Basin. To construct a new residential dwelling, the property must have a potential residential unit of use (the ability to develop a lot) and obtain a residential allocation from the respective local jurisdiction or TRPA.
-    </p>
-    <p>
-      The Regional Plan caps the cumulative total at <strong>8,687 since 1987</strong>. Allocations are metered out to local jurisdictions, releasing 130 each year, to pace development with environmental capacity.
-    </p>
-    <p>
-      Each county and the City of South Lake Tahoe distribute allocations from their pool as permits are approved. Unused allocations are returned to the pool. When a pool runs out, property owners wanting to develop must wait for the next round of allocations, transfer or convert other development rights, or receive a bonus unit. For more information, please visit <a href="https://www.trpa.gov/development-rights/">trpa.gov/development-rights</a>.
-    </p>
-    <p>
-      The allocation tracking and history is available on the Lake Tahoe Info Parcel Tracker, at <a href="https://parcels.laketahoeinfo.org/ResidentialAllocation/Manage">parcels.laketahoeinfo.org/ResidentialAllocation/Manage</a>. Current allocation pool balances are shown at <a href="https://parcels.laketahoeinfo.org/DevelopmentRightPool/DevelopmentRightPoolBalanceReport">parcels.laketahoeinfo.org/DevelopmentRightPool/DevelopmentRightPoolBalanceReport</a>.
-    </p>
-  `,
-  residential_bonus_units: `
-    <h3>What&rsquo;s a residential bonus unit?</h3>
-    <p><em>Content forthcoming - the analyst is drafting commodity-specific guidance for this section.</em></p>
-  `,
-  commercial_floor_area: `
-    <h3>What&rsquo;s a commercial floor area allocation?</h3>
-    <p><em>Content forthcoming - the analyst is drafting commodity-specific guidance for this section.</em></p>
-  `,
-  tourist_accommodation_units: `
-    <h3>What&rsquo;s a tourist bonus unit?</h3>
-    <p><em>Content forthcoming - the analyst is drafting commodity-specific guidance for this section.</em></p>
-  `,
+// Commodity-aware explainer. Content lives in markdown files under
+// content/explainers/pool-balance-cards/ so the analyst (or any content owner)
+// can edit without touching JS. Loaded once on init via loadExplainers();
+// updateExplainer() swaps the rendered HTML on every setCommodity() call.
+const EXPLAINER_URLS = {
+  residential:                 '../content/explainers/pool-balance-cards/residential.md',
+  residential_bonus_units:     '../content/explainers/pool-balance-cards/residential_bonus_units.md',
+  commercial_floor_area:       '../content/explainers/pool-balance-cards/commercial_floor_area.md',
+  tourist_accommodation_units: '../content/explainers/pool-balance-cards/tourist_accommodation_units.md',
 };
+
+let EXPLAINERS = {};   // commodity key -> rendered HTML
+
+async function loadExplainers() {
+  const entries = await Promise.all(
+    Object.entries(EXPLAINER_URLS).map(async ([key, url]) => {
+      try {
+        const r = await fetch(url, { cache: 'no-cache' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const md = await r.text();
+        return [key, marked.parse(md)];
+      } catch (e) {
+        console.warn('Explainer load failed for ' + key + ':', e.message);
+        return [key, '<p><em>Explainer unavailable (' + e.message + ').</em></p>'];
+      }
+    })
+  );
+  EXPLAINERS = Object.fromEntries(entries);
+}
 
 function updateExplainer() {
   const el = document.querySelector('.explainer');
@@ -530,12 +600,14 @@ function setCommodity(key) {
 // ── Boot ───────────────────────────────────────────────────────────────────
 async function main() {
   try {
-    const r = await fetch(DATA_URL, { cache: 'no-cache' });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    RPA = await r.json();
+    // Load in parallel: layer 12 (flat per-pool, cards + KPIs), layer-15-staging
+    // metering (per-year residential per-pool), and explainer markdown files
+    // (commodity-aware narrative). Explainer failure is non-fatal - falls
+    // through to a placeholder in the loader.
+    await Promise.all([loadPoolBalances(), loadMetering(), loadExplainers()]);
   } catch (e) {
     document.querySelector('#loading').innerHTML =
-      'Data unavailable (' + e.message + '). Run <code>convert_regional_plan_allocations.py</code> to (re)build the JSON.';
+      'Data unavailable (' + e.message + '). Run <code>convert_pool_balances.py</code> + <code>convert_pool_balances_metering.py</code> to (re)build the JSON.';
     return;
   }
   document.querySelector('#loading').style.display = 'none';

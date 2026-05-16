@@ -1,0 +1,4 @@
+CommodityCode,Commodity,Units,Unit,AsOfDate,LoadedDate,SourceNote
+RES,Residential allocations,698,units,2026-05-15,2026-05-15,analyst tally; path-to-live = layer 4 Construction_Status + 1987 RP equivalent
+CFA,Commercial floor area,46962,sq ft,2026-05-15,2026-05-15,analyst tally; path-to-live = layer 4 Construction_Status + 1987 RP equivalent
+TAU,Tourist accommodation units,138,units,2026-05-15,2026-05-15,analyst tally; path-to-live = layer 4 Construction_Status + 1987 RP equivalent

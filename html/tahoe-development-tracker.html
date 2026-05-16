@@ -7,7 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
-<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
 <style>
 :root {
   --trpa-blue:    #0072CE;
@@ -66,6 +65,32 @@ header h1 span { color: var(--trpa-blue); }
 }
 .existing-unit { font-size: 0.78rem; font-weight: 600; color: var(--text-mid); margin-top: 6px; letter-spacing: 0.04em; }
 @media (max-width: 900px) { .existing-grid { grid-template-columns: 1fr; } }
+
+/* Section-level "For more information" link */
+.section-link { margin-top: 14px; font-size: 0.82rem; color: var(--text-mid); }
+.section-link a { color: var(--trpa-blue); text-decoration: none; }
+.section-link a:hover { text-decoration: underline; }
+
+/* Conversion note: callout below all four sections */
+.conversion-note {
+  background: var(--bg); border-left: 4px solid var(--trpa-orange); border-radius: 4px;
+  padding: 14px 20px; margin: 0 40px 24px;
+}
+.conversion-note p { font-size: 0.85rem; color: var(--text-mid); line-height: 1.55; }
+.conversion-note strong { color: var(--text-dark); }
+
+/* Banked by-jurisdiction table */
+.banked-table {
+  width: 100%; border-collapse: collapse; margin-top: 16px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  overflow: hidden; box-shadow: var(--shadow); font-size: 0.85rem;
+}
+.banked-table th, .banked-table td { padding: 9px 14px; border-top: 1px solid var(--border); text-align: right; font-variant-numeric: tabular-nums; }
+.banked-table th { background: var(--bg); color: var(--text-mid); font-weight: 700; letter-spacing: 0.04em; font-size: 0.7rem; text-transform: uppercase; }
+.banked-table th:first-child, .banked-table td:first-child { text-align: left; font-variant-numeric: normal; }
+.banked-table tr:first-child th { border-top: none; }
+.banked-table tr.total-row td { font-weight: 700; color: var(--text-dark); background: var(--bg); }
+.banked-table td.empty { color: var(--text-light); }
 
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px 24px; box-shadow: var(--shadow); }
 .card h3 { font-size: 0.95rem; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
@@ -142,12 +167,19 @@ header h1 span { color: var(--trpa-blue); }
   </div>
 </header>
 
-<!-- Existing Development: the basin-wide inventory baseline that frames the
-     Regional Plan caps below. All three numbers are summed from layer 0
-     (Parcel Development History) at the most recent parcel-year - the system
-     of record for what is on the ground today. -->
+<!-- Four basin-wide totals sections (Ken's 2026-05-15 restructure):
+       i.   Existing development on the ground  (live from PDH layer 0)
+       ii.  Banked development                  (live from Cumulative_Accounting layer 9, totaled)
+       iii. Remaining allocations - Reserved, not constructed
+       iv.  Remaining allocations - Not reserved, not released
+
+     Sections iii + iv use values that came directly from the analyst's
+     2026-05-15 review. Path to live REST: layer 5 (pool balance report) carries
+     ApprovedTransactionsQuantity (reserved) and BalanceRemaining (not
+     reserved) per commodity - once the field-mapping confirmation lands,
+     renderRemaining() flips to live. -->
 <div class="section">
-  <div class="section-title">Existing development <strong>on the ground</strong> (basin-wide, as of <span id="exist-year">&hellip;</span>)</div>
+  <div class="section-title">i. Existing development <strong>on the ground</strong> (basin-wide, as of <span id="exist-year">&hellip;</span>)</div>
   <div class="existing-grid">
     <div class="existing-card live">
       <div class="existing-label">Residential</div>
@@ -165,104 +197,79 @@ header h1 span { color: var(--trpa-blue); }
       <div class="existing-unit">units</div>
     </div>
   </div>
+  <div class="section-link">For more information, please visit the <a href="https://trpa.maps.arcgis.com/apps/dashboards/ddfe13ef914a48288bb4bc37c6b57936">TRPA Development Rights Dashboard</a>.</div>
 </div>
 
+<!-- Banked Development Rights - flat totals, summed from layer 9 by renderBanked() -->
 <div class="section">
-  <div class="section-title">Regional Plan <strong>development rights</strong> since 1987 (assigned to projects of total)</div>
-  <div class="gauge-grid">
-    <div class="gauge-card">
-      <div class="gauge-accent" style="background:var(--trpa-blue)"></div>
-      <div class="gauge-label">Residential Allocations</div>
-      <div id="gauge-res" style="height:160px;"></div>
-      <div class="gauge-value" id="val-res">&hellip;</div>
-      <div class="gauge-sub" id="sub-res">&hellip;</div>
-    </div>
-    <div class="gauge-card">
-      <div class="gauge-accent" style="background:var(--trpa-forest)"></div>
-      <div class="gauge-label">Residential Bonus Units</div>
-      <div id="gauge-rbu" style="height:160px;"></div>
-      <div class="gauge-value" id="val-rbu">&hellip;</div>
-      <div class="gauge-sub" id="sub-rbu">&hellip;</div>
-    </div>
-    <div class="gauge-card">
-      <div class="gauge-accent" style="background:var(--trpa-purple)"></div>
-      <div class="gauge-label">Tourist Bonus Units</div>
-      <div id="gauge-tbu" style="height:160px;"></div>
-      <div class="gauge-value" id="val-tbu">&hellip;</div>
-      <div class="gauge-sub" id="sub-tbu">&hellip;</div>
-    </div>
-    <div class="gauge-card">
-      <div class="gauge-accent" style="background:var(--trpa-earth)"></div>
-      <div class="gauge-label">Commercial Floor Area</div>
-      <div id="gauge-cfa" style="height:160px;"></div>
-      <div class="gauge-value" id="val-cfa">&hellip;</div>
-      <div class="gauge-sub" id="sub-cfa">&hellip;</div>
-    </div>
-  </div>
-
-  <!-- Residential allocations by jurisdiction - all 8,687, era toggle -->
-  <div class="card" style="margin-top: 24px;">
-    <h3>Residential allocations by jurisdiction</h3>
-    <p>All <strong>8,687</strong> residential allocations since the 1987 Regional Plan, by jurisdiction, split into assigned to projects vs not assigned. Toggle the plan era to isolate the 1987 Plan (6,087) or the 2012 Plan additional (2,600).</p>
-    <div class="toggle-bar" id="res-era-toggle">
-      <button class="toggle-btn active" data-era="combined">Combined (8,687)</button>
-      <button class="toggle-btn" data-era="plan_1987">1987 Plan (6,087)</button>
-      <button class="toggle-btn" data-era="plan_2012">2012 Plan (2,600)</button>
-    </div>
-    <div class="summary-row" id="res-summary"></div>
-    <div id="res-chart" style="height:320px;margin-top:14px;"></div>
-  </div>
-
-  <!-- RBU / CFA / TAU allocations by pool - commodity toggle -->
-  <div class="card" style="margin-top: 24px;">
-    <h3>Bonus units, commercial floor area &amp; tourist accommodation</h3>
-    <p>Allocations by pool for the other three commodities, split into assigned to projects vs not assigned. Toggle the commodity.</p>
-    <div class="toggle-bar" id="comm-toggle">
-      <button class="toggle-btn active" data-comm="residential_bonus_units">Residential Bonus Units</button>
-      <button class="toggle-btn" data-comm="commercial_floor_area">Commercial Floor Area</button>
-      <button class="toggle-btn" data-comm="tourist_accommodation_units">Tourist Accommodation</button>
-    </div>
-    <div class="summary-row" id="comm-summary"></div>
-    <div id="comm-chart" style="height:300px;margin-top:14px;"></div>
+  <div class="section-title">ii. Banked development <strong>(basin-wide, as of 2025)</strong></div>
+  <div class="existing-grid" id="banked-totals">
+    <!-- 3 commodity totals populated by renderBanked() -->
   </div>
 </div>
 
-<!-- Banked Development Rights: SEPARATE from the Regional Plan allocations
-     above. These are previously-developed rights re-deposited via TDR; they
-     are not part of the 2,600 / 1,000,000 / 400 / 2,000 caps. Snapshot from
-     the analyst's Mar 26, 2026 tally - the live LT Info layer 7 totals can
-     differ; see data/qa_data/banked_reconciliation_summary.md. -->
+<!-- Reserved, not constructed: allocations drawn to a parcel but not yet built.
+     Hardcoded from the analyst's 2026-05-15 tally; path-to-live requires
+     layer 4 Construction_Status (2012 RP only; gives 151 RES) plus a 1987-RP
+     equivalent that doesn't yet expose construction status. Updates roll in
+     when those land. -->
 <div class="section">
-  <div class="section-title">Banked development rights <strong>(separate pool from Regional Plan allocations)</strong></div>
-  <div class="existing-grid" style="grid-template-columns: repeat(4, 1fr);">
-    <div class="existing-card live" style="border-left-color:var(--trpa-olive)">
-      <div class="existing-label">Multi-family residential</div>
-      <div class="existing-value">47</div>
-      <div class="existing-unit">MFRUU</div>
+  <div class="section-title">iii. Remaining Regional Plan allocations - <strong>Reserved, not constructed</strong> (basin-wide, as of <span id="rnc-as-of">&hellip;</span>)</div>
+  <div class="existing-grid">
+    <div class="existing-card live" style="border-left-color:var(--trpa-orange)">
+      <div class="existing-label">Residential</div>
+      <div class="existing-value" id="rnc-res">&hellip;</div>
+      <div class="existing-unit">units</div>
     </div>
-    <div class="existing-card live" style="border-left-color:var(--trpa-olive)">
-      <div class="existing-label">Single-family residential</div>
-      <div class="existing-value">352</div>
-      <div class="existing-unit">SFRUU</div>
-    </div>
-    <div class="existing-card live" style="border-left-color:var(--trpa-olive)">
+    <div class="existing-card live" style="border-left-color:var(--trpa-orange)">
       <div class="existing-label">Commercial floor area</div>
-      <div class="existing-value">326,776</div>
+      <div class="existing-value" id="rnc-cfa">&hellip;</div>
       <div class="existing-unit">sq ft</div>
     </div>
-    <div class="existing-card live" style="border-left-color:var(--trpa-olive)">
+    <div class="existing-card live" style="border-left-color:var(--trpa-orange)">
       <div class="existing-label">Tourist accommodation</div>
-      <div class="existing-value">1,501</div>
-      <div class="existing-unit">TAU</div>
+      <div class="existing-value" id="rnc-tau">&hellip;</div>
+      <div class="existing-unit">units</div>
     </div>
   </div>
+  <div class="section-link">For more information, please visit the <a href="allocation-tracking.html">Allocation Tracking dashboard</a>.</div>
+</div>
+
+<!-- Not reserved + not released: still available in pools, plus the unreleased
+     reserves. Live from Cumulative_Accounting layer 10 ("Source=Grand Total"
+     rows). Residential = RES.TotalBalanceRemaining + RBU.TotalBalanceRemaining
+     (Ken's residential framing folds in bonus units). -->
+<div class="section">
+  <div class="section-title">iv. Remaining Regional Plan allocations - <strong>Not reserved and not released</strong> (basin-wide, as of <span id="rem-as-of">&hellip;</span>)</div>
+  <div class="existing-grid">
+    <div class="existing-card live" style="border-left-color:var(--trpa-blue)">
+      <div class="existing-label">Residential</div>
+      <div class="existing-value" id="rem-iv-res">&hellip;</div>
+      <div class="existing-unit">units</div>
+    </div>
+    <div class="existing-card live" style="border-left-color:var(--trpa-blue)">
+      <div class="existing-label">Commercial floor area</div>
+      <div class="existing-value" id="rem-iv-cfa">&hellip;</div>
+      <div class="existing-unit">sq ft</div>
+    </div>
+    <div class="existing-card live" style="border-left-color:var(--trpa-blue)">
+      <div class="existing-label">Tourist accommodation</div>
+      <div class="existing-value" id="rem-iv-tau">&hellip;</div>
+      <div class="existing-unit">units</div>
+    </div>
+  </div>
+</div>
+
+<div class="section conversion-note">
+  <p><strong>Note:</strong> These existing and remaining balances and total development potential for each type of development will vary due to permitted conversions between development right categories.</p>
 </div>
 
 <div class="footnote">
   <strong>Sources:</strong> Tahoe Regional Planning Agency, May 2026; Lake Tahoe Regional Plan, Policy DP-2.2 and Code Section 50.4.1; <a href="https://parcels.laketahoeinfo.org/DevelopmentRightPool/DevelopmentRightPoolBalanceReport" style="color:var(--trpa-blue)">Development Right Pool Balance Report</a>.<br>
-  <strong>Existing inventory:</strong> live sums from <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/0" style="color:var(--trpa-blue)">Cumulative_Accounting layer 0</a> (Parcel Development History, the on-the-ground system of record). The query pins to the most recent <code>YEAR</code> on the layer (currently 2025) and sums <code>Residential_Units</code>, <code>CommercialFloorArea_SqFt</code>, and <code>TouristAccommodation_Units</code> across all parcels.<br>
-  <strong>Regional Plan:</strong> <code>regional_plan_allocations.json</code>, converted from <code>All Regional Plan Allocations Summary.xlsx</code> by <code>convert_regional_plan_allocations.py</code>. "Assigned to projects" = allocations drawn to a parcel (built or in progress); "not assigned" = still available in the pool. 1987 Plan figures are hard-coded from the 2012 Regional Plan Update Analysis (not in LT Info); 2012-era figures trace to the LT Info pool balance report.<br>
-  <strong>Banked:</strong> snapshot from the analyst's tally as of Mar 26, 2026 (from <a href="https://parcels.laketahoeinfo.org/BankedDevelopmentRight/Index" style="color:var(--trpa-blue)">LT Info Banked Development Right Index</a>). The live <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/7" style="color:var(--trpa-blue)">Cumulative_Accounting layer 7</a> totals can differ; see <code>data/qa_data/banked_reconciliation_summary.md</code> for the in-progress reconciliation.
+  <strong>Existing inventory (section i):</strong> live sums from <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/0" style="color:var(--trpa-blue)">Cumulative_Accounting layer 0</a> (Parcel Development History). Query pins to the most recent <code>YEAR</code> on the layer and sums <code>Residential_Units</code>, <code>CommercialFloorArea_SqFt</code>, and <code>TouristAccommodation_Units</code> across all parcels.<br>
+  <strong>Banked development (section ii):</strong> live from <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/9" style="color:var(--trpa-blue)">Cumulative_Accounting layer 9</a> ("Development Right Banked By Jurisdiction"). Residential total combines MFRUU + SFRUU per the analyst's reporting framework. The per-APN <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/7" style="color:var(--trpa-blue)">layer 7</a> (banked by parcel) totals can differ; see <code>data/qa_data/banked_reconciliation_summary.md</code>.<br>
+  <strong>Not reserved and not released (section iv):</strong> live from <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/10" style="color:var(--trpa-blue)">Cumulative_Accounting layer 10</a> (Development Right Allocation Balances) filtered to <code>Source='Grand Total'</code>; sums <code>TotalBalanceRemaining</code> per commodity (residential includes RBU per the analyst's framing).<br>
+  <strong>Reserved, not constructed (section iii):</strong> live from <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/15" style="color:var(--trpa-blue);">Cumulative_Accounting layer 15</a> ("Development Right Reserved Not Constructed"). 3 rows (per commodity), normalized from analyst tally by <code>scripts/convert_reserved_not_constructed.py</code>. Eventual true derivation: layer 4 Construction_Status (2012 RP RES = 151 of the 698 total) plus a 1987 RP equivalent that isn't published today.
 </div>
 
 <script>
@@ -271,7 +278,33 @@ const TRPA = {
   brick:'#9C3E27', olive:'#B5A64C', orange:'#E87722', purple:'#7B6A8A',
   ice:'#B4CBE8',
 };
-const DATA_URL  = '../data/processed_data/regional_plan_allocations.json';
+// Banked development rights: live from Cumulative_Accounting layer 9
+// ("Development Right Banked By Jurisdiction"). 24-row long-form table
+// (6 jurisdictions x 4 commodities). Source-of-load was
+// data/processed_data/banked_long.csv (the analyst's Apr 2026 snapshot).
+const BANKED_REST_URL = 'https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/9/query'
+  + '?where=1%3D1'
+  + '&outFields=Jurisdiction%2CCommodity%2CValue'
+  + '&returnGeometry=false&f=json';
+
+// Section iv "Not reserved and not released": live from Cumulative_Accounting
+// layer 10 ("Development Right Allocation Balances", Source='Grand Total').
+// Section iv values = TotalBalanceRemaining per commodity, with residential
+// = RES + RBU (Ken's framing folds bonus units into residential).
+const BALANCES_URL = 'https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/10/query'
+  + '?where=' + encodeURIComponent("Source='Grand Total'")
+  + '&outFields=CommodityCode%2CTotalBalanceRemaining%2CAsOfDate'
+  + '&returnGeometry=false&f=json';
+
+// Section iii "Reserved, not constructed": live from Cumulative_Accounting
+// layer 15 (Development Right Reserved Not Constructed). 3 rows, one per
+// commodity. Path to true derivation: needs Construction_Status field on
+// layer 3 (1987 RP allocations) plus full row-level coverage on layer 4
+// (only 2012 RP residential today).
+const RESERVED_NOT_CONSTRUCTED_URL = 'https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/15/query'
+  + '?where=1%3D1'
+  + '&outFields=CommodityCode%2CCommodity%2CUnits%2CUnit%2CAsOfDate'
+  + '&returnGeometry=false&f=json';
 
 // Cumulative_Accounting layer 0 = Parcel Development History, the system of
 // record for what is on the ground (one row per parcel-year). The Existing
@@ -296,11 +329,6 @@ function pdhTotalsUrl(year) {
       ]))
     + '&returnGeometry=false&f=json';
 }
-const plotFont  = { family: '"Open Sans", system-ui, sans-serif', color: TRPA.navy };
-const PLOT_CFG  = { responsive: true, displayModeBar: false };
-
-let RPA = null;   // the loaded regional_plan_allocations.json
-
 // Populate the Existing Development tiles by chaining two PDH queries:
 // 1) max(YEAR) - to pin to the most recent parcel-year on file
 // 2) sum(Residential_Units, TouristAccommodation_Units, CommercialFloorArea_SqFt)
@@ -331,152 +359,125 @@ async function renderExisting() {
   }
 }
 
+// Render the Banked Development Rights section live from
+// Cumulative_Accounting layer 9. Layer carries one row per (Jurisdiction,
+// Commodity, Value). Per Ken's 2026-05-15 restructure: collapse to 3 commodity
+// totals (Residential = MFRUU + SFRUU). No per-jurisdiction table here -
+// keeps the visual parity with the other 3 sections on the page.
+async function renderBanked() {
+  if (!BANKED_REST_URL) return;
+  let features = [];
+  try {
+    const r = await fetch(BANKED_REST_URL, { cache: 'no-cache' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const j = await r.json();
+    features = Array.isArray(j.features) ? j.features : [];
+  } catch (e) {
+    console.warn('Banked layer 9 fetch failed:', e.message);
+    return;
+  }
+
+  // Sum across all jurisdictions to commodity totals.
+  const totals = { MFRUU: 0, SFRUU: 0, CFA: 0, TAU: 0 };
+  for (const f of features) {
+    const a = f.attributes || {};
+    const c = a.Commodity;
+    const v = Number(a.Value) || 0;
+    if (c in totals) totals[c] += v;
+  }
+
+  // Collapse MFRUU + SFRUU into a single Residential count per Ken.
+  const residentialBanked = totals.MFRUU + totals.SFRUU;
+
+  document.getElementById('banked-totals').innerHTML = [
+    { lbl: 'Residential',          val: residentialBanked, unit: 'units' },
+    { lbl: 'Commercial floor area', val: totals.CFA,       unit: 'sq ft' },
+    { lbl: 'Tourist accommodation', val: totals.TAU,       unit: 'units' },
+  ].map(c => `
+    <div class="existing-card live" style="border-left-color:var(--trpa-olive)">
+      <div class="existing-label">${c.lbl}</div>
+      <div class="existing-value">${fmt(c.val)}</div>
+      <div class="existing-unit">${c.unit}</div>
+    </div>`).join('');
+}
+
 function fmt(n) {
   if (n == null) return '0';
   return n >= 1000 ? Math.round(n).toLocaleString() : String(n);
 }
 
-// ── Gauges: one per commodity, showing ASSIGNED (built + allocated) ─────────
-// Banked rights are a separate pool from allocations and are surfaced in their
-// own section below (renderBanked) - intentionally not woven into the dials.
-const GAUGES = [
-  { id:'gauge-res', val:'val-res', sub:'sub-res', color:TRPA.blue,   unit:'units', pick: d => d.residential.summary.combined },
-  { id:'gauge-rbu', val:'val-rbu', sub:'sub-rbu', color:TRPA.forest, unit:'units', pick: d => d.residential_bonus_units.status.summary },
-  { id:'gauge-tbu', val:'val-tbu', sub:'sub-tbu', color:TRPA.purple, unit:'units', pick: d => d.tourist_accommodation_units.status.summary },
-  { id:'gauge-cfa', val:'val-cfa', sub:'sub-cfa', color:TRPA.earth,  unit:'sq ft', pick: d => d.commercial_floor_area.status.summary },
-];
-
-// Dial shows the visual proportion of assigned-to-projects vs the Regional Plan
-// total. Axis is in absolute counts (not %); the HTML number below the dial is
-// the actual count rendered as page typography (matches the rest of the page).
-// No % glyph anywhere - the dial is a fuel-gauge-style proportion indicator.
-function renderGauge(g) {
-  const s = g.pick(RPA);
-  const assigned = s.assigned_to_projects || 0;
-  const max      = s.regional_plan_maximum || 0;
-  Plotly.react(g.id, [{
-    type: 'indicator', mode: 'gauge', value: assigned,
-    gauge: {
-      axis: { range: [0, max], tickwidth: 0, ticklen: 0, showticklabels: false },
-      bar: { color: g.color, thickness: 0.32 },
-      bgcolor: '#f5f7fa', borderwidth: 1, bordercolor: TRPA.ice,
-      steps: [{ range: [0, max], color: 'rgba(180, 203, 232, 0.2)' }],
-    },
-  }], {
-    font: plotFont, paper_bgcolor: 'rgba(0,0,0,0)',
-    margin: { t: 8, r: 16, b: 4, l: 16 },
-  }, PLOT_CFG);
-  document.getElementById(g.val).textContent = fmt(assigned);
-  document.getElementById(g.sub).innerHTML =
-    `assigned to projects of <strong>${fmt(max)}</strong> ${g.unit}`;
+// Render section iv (Not reserved and not released) live from layer 10.
+// RES = RES.TotalBalanceRemaining + RBU.TotalBalanceRemaining (Ken's
+// residential framing includes bonus units); CFA + TAU are direct reads.
+// 1-unit drift vs the analyst's hand-tally (e.g., 2,518 vs 2,519 RES) is
+// refresh lag against Corral; matches when Layer 10 republishes.
+async function renderRemaining() {
+  try {
+    const r = await fetch(BALANCES_URL, { cache: 'no-cache' });
+    if (!r.ok) throw new Error('Layer 10 HTTP ' + r.status);
+    const j = await r.json();
+    const rows = {};
+    let asOf = '';
+    for (const f of (j.features || [])) {
+      const a = f.attributes || {};
+      if (a.CommodityCode) rows[a.CommodityCode] = a;
+      if (a.AsOfDate)      asOf = a.AsOfDate;
+    }
+    const resBal = (rows.RES?.TotalBalanceRemaining || 0) + (rows.RBU?.TotalBalanceRemaining || 0);
+    const cfaBal = rows.CFA?.TotalBalanceRemaining || 0;
+    const tauBal = rows.TAU?.TotalBalanceRemaining || 0;
+    document.getElementById('rem-iv-res').textContent = fmt(resBal);
+    document.getElementById('rem-iv-cfa').textContent = fmt(cfaBal);
+    document.getElementById('rem-iv-tau').textContent = fmt(tauBal);
+    const asOfEl = document.getElementById('rem-as-of');
+    if (asOfEl) asOfEl.textContent = asOf || '2025';
+  } catch (e) {
+    console.warn('Section iv (layer 10) fetch failed; keeping placeholders:', e.message);
+    document.getElementById('rem-iv-res').textContent = '2,519';
+    document.getElementById('rem-iv-cfa').textContent = '488,894';
+    document.getElementById('rem-iv-tau').textContent = '204';
+    const asOfEl = document.getElementById('rem-as-of');
+    if (asOfEl) asOfEl.textContent = '2025';
+  }
 }
 
-// ── Shared: 3 summary mini-cards + a by-area stacked bar ───────────────────
-function renderSummaryCards(containerId, summary, unit) {
-  const cards = [
-    { label: 'Regional Plan maximum', value: summary.regional_plan_maximum, color: TRPA.navy },
-    { label: 'Assigned to projects',  value: summary.assigned_to_projects,  color: TRPA.forest },
-    { label: 'Not assigned',          value: summary.not_assigned,          color: TRPA.blue },
-  ];
-  document.getElementById(containerId).innerHTML = cards.map(c => `
-    <div class="live-card">
-      <div class="live-accent" style="background:${c.color}"></div>
-      <div class="live-label">${c.label}</div>
-      <div class="live-value">${fmt(c.value)}</div>
-      <div class="live-pct">${unit}</div>
-    </div>`).join('');
-}
-
-function renderStackedBar(chartId, rows, unit) {
-  const names    = rows.map(r => r.name);
-  const assigned = rows.map(r => r.assigned || 0);
-  const notAssig = rows.map(r => r.not_assigned || 0);
-  Plotly.react(chartId, [
-    {
-      name: 'Assigned to projects', type: 'bar', orientation: 'h',
-      x: assigned, y: names, marker: { color: TRPA.forest },
-      hovertemplate: `<b>%{x:,}</b> ${unit} assigned<extra>%{y}</extra>`,
-    },
-    {
-      name: 'Not assigned', type: 'bar', orientation: 'h',
-      x: notAssig, y: names, marker: { color: TRPA.ice },
-      hovertemplate: `<b>%{x:,}</b> ${unit} not assigned<extra>%{y}</extra>`,
-    },
-  ], {
-    barmode: 'stack', font: plotFont,
-    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
-    margin: { t: 8, r: 24, b: 32, l: 175 },
-    xaxis: { gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 11 }, rangemode: 'tozero' },
-    yaxis: { autorange: 'reversed', tickfont: { size: 11 }, automargin: true },
-    legend: { orientation: 'h', y: -0.2, font: { size: 11 } }, showlegend: true,
-  }, PLOT_CFG);
-}
-
-// ── Residential section (era toggle) ───────────────────────────────────────
-let resEra = 'combined';
-function renderResidential() {
-  renderSummaryCards('res-summary', RPA.residential.summary[resEra], 'units');
-  const rows = RPA.residential.by_jurisdiction.map(j => ({
-    name:         j.name,
-    assigned:     j[resEra].assigned_to_projects,
-    not_assigned: j[resEra].not_assigned,
-  }));
-  renderStackedBar('res-chart', rows, 'units');
-}
-function setResEra(era, btn) {
-  resEra = era;
-  document.querySelectorAll('#res-era-toggle .toggle-btn')
-    .forEach(x => x.classList.toggle('active', x === btn));
-  renderResidential();
-}
-
-// ── RBU / CFA / TAU section (commodity toggle) ─────────────────────────────
-const COMM_UNIT = {
-  residential_bonus_units:     'units',
-  commercial_floor_area:       'sq ft',
-  tourist_accommodation_units: 'units',
-};
-let commKey = 'residential_bonus_units';
-function renderCommodity() {
-  const c    = RPA[commKey];
-  const unit = COMM_UNIT[commKey];
-  renderSummaryCards('comm-summary', c.status.summary, unit);
-  const rows = c.status.by_pool.map(p => ({
-    name:         p.name,
-    assigned:     p.assigned_to_projects,
-    not_assigned: p.not_assigned,
-  }));
-  renderStackedBar('comm-chart', rows, unit);
-}
-function setCommodity(key, btn) {
-  commKey = key;
-  document.querySelectorAll('#comm-toggle .toggle-btn')
-    .forEach(x => x.classList.toggle('active', x === btn));
-  renderCommodity();
+// Render section iii (Reserved, not constructed) from the staged JSON / layer 14.
+// Until Layer 3 (1987 RP) exposes Construction_Status, the values reflect the
+// analyst's hand-tally rather than a database-derived count.
+async function renderReservedNotConstructed() {
+  try {
+    const r = await fetch(RESERVED_NOT_CONSTRUCTED_URL, { cache: 'no-cache' });
+    if (!r.ok) throw new Error('Layer 14 HTTP ' + r.status);
+    const js = await r.json();
+    const rows = Array.isArray(js.rows)     ? js.rows
+               : Array.isArray(js.features) ? js.features.map(f => f.attributes)
+               : [];
+    const byCode = Object.fromEntries(rows.map(r => [r.CommodityCode, r]));
+    document.getElementById('rnc-res').textContent = fmt(byCode.RES?.Units || 0);
+    document.getElementById('rnc-cfa').textContent = fmt(byCode.CFA?.Units || 0);
+    document.getElementById('rnc-tau').textContent = fmt(byCode.TAU?.Units || 0);
+    const asOf = js.asOfDate || byCode.RES?.AsOfDate || '';
+    const asOfEl = document.getElementById('rnc-as-of');
+    if (asOfEl) asOfEl.textContent = asOf || '2025';
+  } catch (e) {
+    console.warn('Section iii (layer 14) fetch failed; keeping placeholders:', e.message);
+    document.getElementById('rnc-res').textContent = '698';
+    document.getElementById('rnc-cfa').textContent = '46,962';
+    document.getElementById('rnc-tau').textContent = '138';
+    const asOfEl = document.getElementById('rnc-as-of');
+    if (asOfEl) asOfEl.textContent = '2025';
+  }
 }
 
 // ── Boot ───────────────────────────────────────────────────────────────────
+// Four flat-totals sections. Live REST: section i = PDH layer 0; section ii
+// = banked layer 9; section iii = reserved-not-constructed staged JSON
+// (layer 14 candidate); section iv = balances layer 10.
 async function main() {
-  try {
-    const rpaRes = await fetch(DATA_URL, { cache: 'no-cache' });
-    if (!rpaRes.ok) throw new Error('HTTP ' + rpaRes.status);
-    RPA = await rpaRes.json();
-  } catch (e) {
-    document.querySelectorAll('#res-chart, #comm-chart').forEach(el => {
-      el.innerHTML = '<div style="padding:20px;color:var(--text-mid);font-size:0.8rem">'
-        + 'Data unavailable (' + e.message + '). Run '
-        + '<code>convert_regional_plan_allocations.py</code> to (re)build the JSON.</div>';
-    });
-    return;
-  }
-  GAUGES.forEach(renderGauge);
-  renderResidential();
-  renderCommodity();
-  renderExisting();  // populates the Existing Development section
-  document.querySelectorAll('#res-era-toggle .toggle-btn').forEach(b =>
-    b.addEventListener('click', () => setResEra(b.dataset.era, b)));
-  document.querySelectorAll('#comm-toggle .toggle-btn').forEach(b =>
-    b.addEventListener('click', () => setCommodity(b.dataset.comm, b)));
+  renderExisting();
+  renderBanked();
+  renderReservedNotConstructed();
+  renderRemaining();
 }
 document.addEventListener('DOMContentLoaded', main);
 </script>

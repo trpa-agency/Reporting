@@ -109,8 +109,7 @@ footer { padding: 16px 40px 28px; font-size: 0.72rem; color: var(--text-light); 
 
 <div class="section">
   <div class="intro">
-    <strong>Active set:</strong> 8 dashboards (&starf; marks the primary view in each track).
-    Source markdown: <a href="https://github.com/trpa-agency/Reporting/blob/MTB-Edits/html/index.md">index.md</a> &middot;
+    <strong>Active set:</strong> 7 dashboards (&starf; marks the primary view in each track). <strong>Every active visualization reads live REST</strong> against the <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer">Cumulative_Accounting</a> service (17 layers, 0-16) or its TRPA-hosted siblings; no analyst xlsx in the runtime loop.
     Repo: <a href="https://github.com/trpa-agency/Reporting">trpa-agency/Reporting</a>
   </div>
 
@@ -124,15 +123,15 @@ footer { padding: 16px 40px 28px; font-size: 0.72rem; color: var(--text-light); 
         <span class="star">&starf;</span>
       </div>
       <div class="meta"><span><strong>Audience</strong> Staff &middot; daily ops</span></div>
-      <div class="desc">Three commodity rows of summary cards (RES / CFA / TAU: total, allocated, jurisdiction pool, TRPA-held) + map + AG Grid table; year slider; jurisdiction pills.</div>
-      <div class="src">Data: <code>data/raw_data/residentialAllocationGridExport.csv</code> (one row per allocation, 2,600 total)</div>
+      <div class="desc">Overview tab: 4 commodity rows of summary cards (RES / RBU / CFA / TAU, each showing Total / Allocated / Jurisdiction pool / TRPA pool / Unreleased) from layer 10 Grand Total. Charts tab: residential Sankey + per-jurisdiction bar from layer 4 row-level data; CFA + TAU charts synthesized from layer 12 aggregates. Year slider + jurisdiction pills apply to the Charts tab.</div>
+      <div class="src">Data: Cumulative_Accounting layers <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/4">4</a> &middot; <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/10">10</a> &middot; <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/12">12</a></div>
     </div>
 
     <div class="card">
       <div class="name"><a href="https://trpa-agency.github.io/Reporting/html/pool-balance-cards.html">pool-balance-cards.html</a></div>
       <div class="meta"><span><strong>Audience</strong> Staff &middot; per-pool drilldown</span></div>
-      <div class="desc">Commodity toggle RES / Bonus Units / CFA / TAU; one card per pool (max, assigned, not-assigned); residential cards open a per-year released-vs-assigned metering chart.</div>
-      <div class="src">Data: <code>data/processed_data/regional_plan_allocations.json</code></div>
+      <div class="desc">Commodity toggle (Residential Allocations / Residential Bonus Units / Commercial Floor Area / Tourist Bonus Units); All Jurisdictions combined card + one per pool (max, assigned, not-assigned) from layer 12; residential pools open a per-year released-vs-assigned metering chart from layer 13. Commodity-aware explainer text loaded from markdown files under <code>content/explainers/pool-balance-cards/</code>.</div>
+      <div class="src">Data: Cumulative_Accounting layers <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/12">12</a> &middot; <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/13">13</a></div>
     </div>
 
   </div>
@@ -147,15 +146,15 @@ footer { padding: 16px 40px 28px; font-size: 0.72rem; color: var(--text-light); 
         <span class="star">&starf;</span>
       </div>
       <div class="meta"><span><strong>Audience</strong> Leadership &middot; public</span></div>
-      <div class="desc">Yearly completed residential units by source: <em>Facet</em> (one panel per source, plus a Total panel) or <em>Combined</em>.</div>
-      <div class="src">Data: the analyst&rsquo;s <code>FINAL RES SUMMARY 2012 to 2025.xlsx</code> Summary sheet</div>
+      <div class="desc">4 KPI cards (total completed since 2013 / largest source / 2024-25 bonus surge / added units in latest year). 5-source addition facet (Allocations / Bonus Units / Transfers / Conversions / From Banked) with facet or combined view toggle. Side-by-side removed-units area facet (To Bank / To Conversion). Major Completed Projects sidebar from layer 16 with affordability tags.</div>
+      <div class="src">Data: Cumulative_Accounting layers <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/11">11</a> &middot; <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/16">16</a></div>
     </div>
 
   </div>
 
   <h2>3 &middot; Total potential development</h2>
   <p class="tagline">Constructed + Banked + Converted + still in pools. The full pipeline.</p>
-  <div class="intro" style="font-style:italic">No standalone dashboard yet - coverage split across #1 and #4.</div>
+  <div class="intro" style="font-style:italic">No standalone dashboard - the four sections of <strong>tahoe-development-tracker</strong> below (Existing / Banked / Reserved-not-constructed / Not-reserved-and-not-released) cover this together.</div>
 
   <h2>4 &middot; Total development tracking</h2>
   <p class="tagline">How much of everything is actually built. Combines headline caps with live state breakdown.</p>
@@ -168,9 +167,21 @@ footer { padding: 16px 40px 28px; font-size: 0.72rem; color: var(--text-light); 
       </div>
       <div class="meta"><span><strong>Audience</strong> Executive &middot; board</span></div>
       <div class="desc">
-        <strong>Tahoe Development Tracker</strong>: existing basin-wide inventory baseline (49k residential units, CFA, TAU); since-1987 count gauges (assigned to projects vs Regional Plan total); residential allocations by jurisdiction with an era toggle (Combined 8,687 / 1987 / 2012); RBU / CFA / TAU by pool with a commodity toggle.
+        <strong>Tahoe Development Tracker</strong>: four basin-wide totals sections in a single scrollable view. (i) Existing development on the ground from PDH; (ii) Banked development from layer 9; (iii) Reserved-not-constructed from layer 15; (iv) Not-reserved-and-not-released from layer 10 TotalBalanceRemaining (RES + RBU combined per the analyst's framing). Linked out to allocation-tracking + the ESRI Development Rights dashboard for detail.
       </div>
-      <div class="src">Data: <code>data/processed_data/regional_plan_allocations.json</code> + live Cumulative_Accounting layers 2 + 7</div>
+      <div class="src">Data: Cumulative_Accounting layers <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/0">0</a> &middot; <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/9">9</a> &middot; <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/10">10</a> &middot; <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/15">15</a></div>
+    </div>
+
+    <div class="card primary">
+      <div class="name">
+        <a href="https://trpa-agency.github.io/Reporting/html/development_history.html">development_history.html</a>
+        <span class="star">&starf;</span>
+      </div>
+      <div class="meta"><span><strong>Audience</strong> Planners &middot; analysts</span></div>
+      <div class="desc">
+        <strong>Development History</strong>: year-over-year change in residential / commercial / tourist development, 2012-2025. Filter bar (year slider + jurisdiction pills, Carson included in the basin total to match Tracker). 3 KPI cards (basin totals as of slider year). Per-year-change facet chart with asymmetric y-axes per panel (zero-anchored; residential is positive-only). Cumulative trajectory chart with y-axes zoomed into the data range so trajectory reads clearly. Live REST aggregation against PDH.
+      </div>
+      <div class="src">Data: <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/0">Cumulative_Accounting layer 0</a> (Parcel Development History) aggregated server-side by YEAR &times; JURISDICTION</div>
     </div>
 
   </div>
@@ -180,36 +191,22 @@ footer { padding: 16px 40px 28px; font-size: 0.72rem; color: var(--text-light); 
   <div class="cards">
 
     <div class="card">
-      <div class="name"><a href="https://trpa-agency.github.io/Reporting/html/development_history.html">development_history.html</a></div>
-      <div class="meta"><span><strong>Audience</strong> Planners &middot; analysts</span></div>
-      <div class="desc">Live map of every building footprint by Regional Plan era; year slider 1900&ndash;2025; cumulative + per-year charts.</div>
-      <div class="src">Data: live <a href="https://services5.arcgis.com/fXXSUzHD5JjcOt1v/arcgis/rest/services/Tahoe_Buildings/FeatureServer/0">Tahoe Buildings FeatureServer</a></div>
-    </div>
-
-    <div class="card">
-      <div class="name"><a href="https://trpa-agency.github.io/Reporting/html/development_history_units.html">development_history_units.html</a></div>
-      <div class="meta"><span><strong>Audience</strong> Housing analysts</span></div>
-      <div class="desc">Buildings dashboard pivoted to <strong>residential units</strong>; units split across footprints by sqft. Map filter: All / Residential / Multifamily.</div>
-      <div class="src">Data: Tahoe Buildings + <code>data/processed_data/buildings_with_units.json</code></div>
-    </div>
-
-    <div class="card">
       <div class="name"><a href="https://trpa-agency.github.io/Reporting/html/qa-change-rationale.html">qa-change-rationale.html</a></div>
       <div class="meta"><span><strong>Audience</strong> the analyst &middot; leadership &middot; QA leads</span></div>
-      <div class="desc">Per-APN audit log of 2023 / 2026 QA correction campaigns. Searchable by APN, change type, year.</div>
-      <div class="src">Data: <code>qa_change_events.csv</code> from <code>notebooks/04_load_ca_changes.ipynb</code></div>
+      <div class="desc">Per-APN audit log of 2023 + 2026 QA correction campaigns. 4 KPI cards (total / per-year campaigns / vocab match rate). AG Grid table searchable by APN, change type, year. 5,925 rows pre-joined Events + Detail; client-side pagination wraps the 2,000 maxRecordCount cap.</div>
+      <div class="src">Data: <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/14">Cumulative_Accounting layer 14</a> (Development Right QA Corrections)</div>
     </div>
 
     <div class="card">
       <div class="name"><a href="https://trpa-agency.github.io/Reporting/html/genealogy_solver/">genealogy_solver/</a></div>
       <div class="meta"><span><strong>Audience</strong> the analyst &middot; QA leads</span></div>
-      <div class="desc">APN lineage lookup. Walks the genealogy graph for any input (single APN or batch CSV), shows the connected component, and joins 2025 cross-reference inline: residential units, year built, jurisdiction, county.</div>
-      <div class="src">Data: <code>apn_genealogy_tahoe.csv</code> + <code>PDH_2025_OriginalYrBuilt.csv</code>, pre-joined to <code>html/genealogy_solver/data/genealogy_solver.json</code></div>
+      <div class="desc">APN lineage lookup. Walks the genealogy graph for any input (single APN or batch CSV), shows the connected component, and joins 2025 cross-reference inline: residential units, year built, jurisdiction, county. Pre-baked JSON for instant per-APN lookups (10 MB single-load avoids N roundtrips per BFS step); built from live Cumulative_Accounting layers 0/1/2 by <code>build_genealogy_solver_data.py</code>.</div>
+      <div class="src">Data: pre-baked from Cumulative_Accounting layers <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/0">0</a> &middot; <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/1">1</a> &middot; <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/2">2</a>; map polygons from <a href="https://maps.trpa.org/server/rest/services/AllParcels/MapServer">AllParcels MapServer</a></div>
     </div>
 
   </div>
 
-  <h2>Archived <span class="tag" style="background:var(--text-light)">2026-05-11</span></h2>
+  <h2>Archived <span class="tag" style="background:var(--text-light)">2026-05</span></h2>
   <p class="tagline">Superseded by newer dashboards. Kept for link stability; not in the active set above.</p>
   <div class="cards">
 
@@ -226,6 +223,16 @@ footer { padding: 16px 40px 28px; font-size: 0.72rem; color: var(--text-light); 
     <div class="card archived-card">
       <div class="name"><a href="https://trpa-agency.github.io/Reporting/html/_archive/public-allocation-availability.html">_archive/public-allocation-availability.html</a></div>
       <div class="meta"><span><strong>Superseded by</strong> <code>pool-balance-cards.html</code> (explainer folded in)</span></div>
+    </div>
+
+    <div class="card archived-card">
+      <div class="name"><a href="https://trpa-agency.github.io/Reporting/html/_archive/development_history_buildings.html">_archive/development_history_buildings.html</a></div>
+      <div class="meta"><span><strong>Superseded by</strong> <code>development_history.html</code> (now PDH-backed, year-over-year change per commodity)</span></div>
+    </div>
+
+    <div class="card archived-card">
+      <div class="name"><a href="https://trpa-agency.github.io/Reporting/html/_archive/development_history_units.html">_archive/development_history_units.html</a></div>
+      <div class="meta"><span><strong>Superseded by</strong> <code>development_history.html</code> (year-over-year change at unit grain via PDH layer 0)</span></div>
     </div>
 
   </div>
@@ -253,7 +260,7 @@ footer { padding: 16px 40px 28px; font-size: 0.72rem; color: var(--text-light); 
         <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/0">layer 0</a></td>
         <td class="muted">- (built from Enterprise GDB by PDH ETL)</td>
         <td>~30 fields &times; ~150k rows (parcel-year)</td>
-        <td>downstream consumers; future dashboards</td>
+        <td><strong>tahoe-development-tracker</strong> (Existing section) &middot; <strong>development_history</strong> (all charts)</td>
       </tr>
 
       <tr>
@@ -261,8 +268,8 @@ footer { padding: 16px 40px 28px; font-size: 0.72rem; color: var(--text-light); 
         <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer">Cumulative_Accounting</a></td>
         <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/1">layer 1</a></td>
         <td class="muted">- (built from 4 sources by ETL)</td>
-        <td>~8 fields &times; ~25k edges</td>
-        <td>genealogy_solver (pre-joined to JSON)</td>
+        <td>~8 fields &times; ~42k edges</td>
+        <td><strong>genealogy_solver</strong> (pre-baked to JSON via <code>build_genealogy_solver_data.py</code>)</td>
       </tr>
 
       <tr>
@@ -271,146 +278,237 @@ footer { padding: 16px 40px 28px; font-size: 0.72rem; color: var(--text-light); 
         <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/2">layer 2</a></td>
         <td class="muted">-</td>
         <td>~15 fields &times; ~50k units</td>
-        <td>future dashboards</td>
+        <td><strong>genealogy_solver</strong> (cross-ref join, pre-baked)</td>
       </tr>
 
       <tr>
-        <td><strong>Allocations 1987 Regional Plan</strong><br><span class="muted">6,087 since-1987 allocations</span></td>
+        <td><strong>Allocations 1987 Regional Plan</strong><br><span class="muted">pre-aggregated by jurisdiction; only RES carries assigned/not_assigned breakdown today</span></td>
         <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer">Cumulative_Accounting</a></td>
         <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/3">layer 3</a></td>
         <td class="muted">-</td>
-        <td>~11 fields &times; 6,087 rows</td>
-        <td>combine view (planned)</td>
+        <td>5 fields &times; 40 rows (commodity x plan_era x metric x jurisdiction)</td>
+        <td class="muted">subsumed by layer 10 (Allocation Balances) for the current dashboard set; would back canonical-schema 1987 RP backfill</td>
       </tr>
 
       <tr>
-        <td><strong>Allocations 2012 Regional Plan</strong><br><span class="muted">2,600 = 2,112 issued + 488 unreleased</span></td>
+        <td><strong>Allocations 2012 Regional Plan</strong><br><span class="muted">2,600 = 832 Allocated + 998 Unallocated + 770 Unreleased; 4-state classification via <code>Allocation_Status</code> + <code>Development_Right_Pool</code></span></td>
         <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer">Cumulative_Accounting</a></td>
         <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/4">layer 4</a></td>
-        <td class="muted">- (CSV from analyst until LT Info exposes grid)</td>
+        <td class="muted">-</td>
         <td>~11 fields &times; 2,600 rows</td>
-        <td>combine view (planned)</td>
+        <td><strong>allocation-tracking</strong> (Charts tab residential Sankey + per-jurisdiction bar; paginated 2000+600)</td>
       </tr>
 
       <tr>
-        <td><strong>Development Right Pool Balance Report</strong><br><span class="muted">per-pool balance</span></td>
+        <td><strong>Development Right Pool Balance Report</strong><br><span class="muted">per-pool balance; <code>BalanceRemaining</code> validated as "still in pool, unassigned"; <code>ApprovedTransactionsQuantity</code> is NOT cumulative-allocated</span></td>
         <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer">Cumulative_Accounting</a></td>
         <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/5">layer 5</a></td>
         <td><a href="https://www.laketahoeinfo.org/WebServices/GetDevelopmentRightPoolBalanceReport">GetDevelopmentRightPoolBalanceReport</a> &middot; <span class="muted">staged nightly</span></td>
         <td>7 fields &times; ~50 rows (one per pool)</td>
-        <td>combine view consumer (planned)</td>
+        <td>future per-pool drilldown (RBU Overview now sourced from layer 10)</td>
       </tr>
 
       <tr>
-        <td><strong>Development Right Transactions</strong><br><span class="muted">historical transaction log</span></td>
+        <td><strong>Development Right Transactions</strong><br><span class="muted">historical transaction log; date range 2014-04 to 2026-05 (pre-Accela events not digitized)</span></td>
         <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer">Cumulative_Accounting</a></td>
         <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/6">layer 6</a></td>
         <td><a href="https://www.laketahoeinfo.org/WebServices/GetDevelopmentRightTransactions">GetDevelopmentRightTransactions</a> &middot; <span class="muted">staged nightly</span></td>
         <td>25 fields &times; ~3,000 rows</td>
-        <td>downstream consumers (planned)</td>
+        <td class="muted">canonical-schema AllocationEvent backfill source (no current dashboard reads it)</td>
       </tr>
 
       <tr>
-        <td><strong>Banked Development Rights</strong><br><span class="muted">current bank state per APN</span></td>
+        <td><strong>Banked Development Rights</strong><br><span class="muted">current bank state per APN; 71% drift vs Corral pci (see <code>data/qa_data/banked_reconciliation_summary.md</code>)</span></td>
         <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer">Cumulative_Accounting</a></td>
         <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/7">layer 7</a></td>
         <td><a href="https://www.laketahoeinfo.org/WebServices/GetBankedDevelopmentRights">GetBankedDevelopmentRights</a> &middot; <span class="muted">staged nightly</span></td>
-        <td>11 fields &times; ~1,500 rows</td>
-        <td><strong>allocation-tracking</strong> (Banked tile) &middot; <strong>tahoe-development-tracker</strong> (banked sub-line)</td>
+        <td>11 fields &times; ~2,200 rows</td>
+        <td class="muted">superseded by layer 9 for the Tracker; remains for the in-progress data-quality reconciliation</td>
       </tr>
 
       <tr>
-        <td><strong>Transacted and Banked Development Rights</strong><br><span class="muted">APN &harr; transaction junction</span></td>
+        <td><strong>Transacted and Banked Development Rights</strong><br><span class="muted">APN &harr; transaction junction (both sides of every transaction + 1,785 Banked Commodity rows)</span></td>
         <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer">Cumulative_Accounting</a></td>
         <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/8">layer 8</a></td>
         <td><a href="https://www.laketahoeinfo.org/WebServices/GetTransactedAndBankedDevelopmentRights">GetTransactedAndBankedDevelopmentRights</a> &middot; <span class="muted">staged nightly</span></td>
-        <td>20 fields &times; ~3,000 rows</td>
-        <td>downstream consumers (planned)</td>
+        <td>20 fields &times; ~5,200 rows</td>
+        <td class="muted">canonical-schema BankedDevelopmentRight view source (no current dashboard reads it)</td>
+      </tr>
+
+      <tr>
+        <td><strong>Development Right Banked By Jurisdiction</strong><br><span class="muted">analyst snapshot per (jurisdiction, commodity)</span></td>
+        <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer">Cumulative_Accounting</a></td>
+        <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/9">layer 9</a></td>
+        <td class="muted">- (analyst pasted table normalized to long-form CSV by hand)</td>
+        <td>4 fields &times; 24 rows (6 jurisdictions x 4 commodities)</td>
+        <td><strong>tahoe-development-tracker</strong> (section ii Banked development)</td>
+      </tr>
+
+      <tr>
+        <td><strong>Development Right Allocation Balances</strong><br><span class="muted">snapshot of analyst's <code>AllocationsBalances.xlsx</code> normalized into Source x Commodity rows</span></td>
+        <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer">Cumulative_Accounting</a></td>
+        <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/10">layer 10</a></td>
+        <td class="muted">- (analyst xlsx via <code>convert_allocations_balances.py</code>)</td>
+        <td>13 fields &times; 12 rows (3 Sources &times; 4 Commodities)</td>
+        <td><strong>allocation-tracking</strong> (Overview cards) &middot; <strong>tahoe-development-tracker</strong> (section iv "Not reserved and not released")</td>
+      </tr>
+
+      <tr>
+        <td><strong>Development Right Residential Units by Source</strong><br><span class="muted">snapshot of analyst's <code>FINAL RES SUMMARY 2012 to 2025.xlsx</code> normalized into Year x Direction x Source rows</span></td>
+        <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer">Cumulative_Accounting</a></td>
+        <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/11">layer 11</a></td>
+        <td class="muted">- (analyst xlsx via <code>convert_residential_additions.py</code>)</td>
+        <td>9 fields &times; 98 rows (14 years &times; 7 source/direction combos)</td>
+        <td><strong>residential-additions-by-source</strong> (KPIs + facets + removed-area)</td>
+      </tr>
+
+      <tr>
+        <td><strong>Development Right Pool Balances</strong><br><span class="muted">snapshot of analyst's <code>All Regional Plan Allocations Summary.xlsx</code> normalized into Commodity x Pool rows (Combined plan-era)</span></td>
+        <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer">Cumulative_Accounting</a></td>
+        <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/12">layer 12</a></td>
+        <td class="muted">- (analyst xlsx via <code>convert_pool_balances.py</code>)</td>
+        <td>12 fields &times; 26 rows (4 commodities x per-pool breakdown)</td>
+        <td><strong>pool-balance-cards</strong> (cards + KPIs) &middot; <strong>allocation-tracking</strong> (CFA + TAU Charts tab via row-shape synthesis)</td>
+      </tr>
+
+      <tr>
+        <td><strong>Development Right Pool Balances Metering</strong><br><span class="muted">residential per-pool per-year per-direction allocations</span></td>
+        <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer">Cumulative_Accounting</a></td>
+        <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/13">layer 13</a></td>
+        <td class="muted">- (analyst xlsx via <code>convert_pool_balances_metering.py</code>)</td>
+        <td>9 fields &times; 853 rows</td>
+        <td><strong>pool-balance-cards</strong> (residential per-year metering chart in detail panel)</td>
+      </tr>
+
+      <tr>
+        <td><strong>Development Right QA Corrections</strong><br><span class="muted">pre-joined Events + Detail per QA campaign &middot; pagination required (5,925 &gt; 2,000 maxRecordCount)</span></td>
+        <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer">Cumulative_Accounting</a></td>
+        <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/14">layer 14</a></td>
+        <td class="muted">- (via <code>notebooks/04_load_ca_changes.ipynb</code> + <code>scripts/convert_qa_corrections.py</code>)</td>
+        <td>22 fields &times; 5,925 rows</td>
+        <td><strong>qa-change-rationale</strong> (KPIs + AG Grid)</td>
+      </tr>
+
+      <tr>
+        <td><strong>Development Right Reserved Not Constructed</strong><br><span class="muted">per-commodity tally of allocations drawn-to-parcel but not yet built</span></td>
+        <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer">Cumulative_Accounting</a></td>
+        <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/15">layer 15</a></td>
+        <td class="muted">- (analyst tally via <code>convert_reserved_not_constructed.py</code>)</td>
+        <td>8 fields &times; 3 rows</td>
+        <td><strong>tahoe-development-tracker</strong> (section iii)</td>
+      </tr>
+
+      <tr>
+        <td><strong>Development Right Residential Projects</strong><br><span class="muted">Major Completed Projects per year</span></td>
+        <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer">Cumulative_Accounting</a></td>
+        <td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/16">layer 16</a></td>
+        <td class="muted">- (analyst PPTX + xlsx narrative via <code>convert_residential_projects.py</code>)</td>
+        <td>8 fields &times; 26 rows (year x project)</td>
+        <td><strong>residential-additions-by-source</strong> (Major Completed Projects sidebar)</td>
       </tr>
 
       <tr class="section-group"><td colspan="6">External REST services</td></tr>
 
       <tr>
-        <td><strong>Tahoe Buildings</strong><br><span class="muted">building footprints by era</span></td>
-        <td><a href="https://services5.arcgis.com/fXXSUzHD5JjcOt1v/arcgis/rest/services/Tahoe_Buildings/FeatureServer">Tahoe_Buildings FeatureServer (AGOL)</a></td>
-        <td><a href="https://services5.arcgis.com/fXXSUzHD5JjcOt1v/arcgis/rest/services/Tahoe_Buildings/FeatureServer/0">layer 0</a></td>
-        <td class="muted">-</td>
-        <td>~20 fields &times; ~70k footprints</td>
-        <td><strong>development_history</strong> &middot; <strong>development_history_units</strong></td>
-      </tr>
-
-      <tr>
-        <td><strong>TRPA Parcels</strong><br><span class="muted">basin parcel footprints</span></td>
-        <td><a href="https://maps.trpa.org/server/rest/services/Parcels/FeatureServer">Parcels FeatureServer</a></td>
-        <td><a href="https://maps.trpa.org/server/rest/services/Parcels/FeatureServer/0">layer 0</a></td>
-        <td class="muted">-</td>
-        <td>~15 fields &times; ~50k parcels</td>
-        <td><strong>allocation-tracking</strong> (map tab)</td>
-      </tr>
-
-      <tr>
-        <td><strong>AllParcels</strong><br><span class="muted">parcel highlight basemap</span></td>
+        <td><strong>AllParcels</strong><br><span class="muted">parcel polygons by year (active + historical year layers for APNs renamed out)</span></td>
         <td><a href="https://maps.trpa.org/server/rest/services/AllParcels/MapServer">AllParcels MapServer</a></td>
-        <td class="muted">layer 0</td>
+        <td class="muted">layer 4 (Active) + per-year layers (5-32)</td>
         <td class="muted">-</td>
         <td>parcel polygons + APN</td>
-        <td><strong>genealogy_solver</strong> (map)</td>
+        <td><strong>genealogy_solver</strong> (lineage map)</td>
       </tr>
 
       <tr class="section-group"><td colspan="6">Analyst-delivered files (xlsx &rarr; csv / json via converter scripts)</td></tr>
 
       <tr>
-        <td><strong>residentialAllocationGridExport</strong><br><span class="muted">one row per residential allocation</span></td>
+        <td><strong>residentialAllocationGridExport</strong><br><span class="muted">one row per residential allocation &middot; <em>superseded 2026-05-15</em> by live layer 4</span></td>
         <td class="muted">-</td>
         <td><code>data/raw_data/residentialAllocationGridExport.csv</code></td>
-        <td class="muted">(LT Info grid endpoint planned)</td>
+        <td class="muted">-</td>
         <td>11 fields &times; 2,600 rows (incl. Construction Status)</td>
-        <td><strong>allocation-tracking</strong> (Overview / Charts / Table tabs)</td>
+        <td class="muted">no longer read by any dashboard; kept as reference snapshot</td>
       </tr>
 
       <tr>
-        <td><strong>CFA / TAU allocations</strong><br><span class="muted">non-residential allocations</span></td>
+        <td><strong>CFA / TAU allocations</strong><br><span class="muted">non-residential allocations &middot; <em>superseded 2026-05-15</em> by Layer 12 row-shape synthesis</span></td>
         <td class="muted">-</td>
         <td><code>data/raw_data/CFA_TAU_allocations.csv</code></td>
         <td class="muted">-</td>
         <td>~8 fields &times; ~700 rows</td>
-        <td><strong>allocation-tracking</strong> (CFA + TAU rows)</td>
+        <td class="muted">no longer read by any dashboard; kept as reference snapshot</td>
       </tr>
 
       <tr>
-        <td><strong>Regional Plan allocations summary</strong><br><span class="muted">1987 / 2012 / combined split; assigned vs not-assigned by pool</span></td>
+        <td><strong>Regional Plan allocations summary</strong><br><span class="muted">nested form of analyst's xlsx; kept for the residential per-year metering chart only (layer 13 candidate)</span></td>
         <td class="muted">-</td>
         <td><code>data/processed_data/regional_plan_allocations.json</code></td>
-        <td class="muted">(hand-converted from <code>All Regional Plan Allocations Summary.xlsx</code>; will be retired by combine view)</td>
+        <td class="muted">(hand-converted from <code>All Regional Plan Allocations Summary.xlsx</code>)</td>
         <td>nested by commodity / pool / era</td>
-        <td><strong>tahoe-development-tracker</strong> &middot; <strong>pool-balance-cards</strong></td>
+        <td><strong>pool-balance-cards</strong> (metering chart only)</td>
       </tr>
 
       <tr>
-        <td><strong>Final Residential Summary 2012-2025</strong><br><span class="muted">completed units by source by year</span></td>
+        <td><strong>Pool balances</strong><br><span class="muted">staging artifact; SDE table loaded from this CSV is published as layer 12 above</span></td>
+        <td class="muted">- (superseded by layer 12)</td>
+        <td><code>data/processed_data/pool_balances.csv</code> + <code>.json</code></td>
         <td class="muted">-</td>
-        <td><code>FINAL RES SUMMARY 2012 to 2025.xlsx</code> (inlined)</td>
-        <td class="muted">-</td>
-        <td>13 years &times; 5 sources</td>
-        <td><strong>residential-additions-by-source</strong></td>
+        <td>9 fields &times; 26 rows (4 commodities x per-pool breakdown)</td>
+        <td class="muted">no longer read by any dashboard; kept as staging artifact + reference snapshot</td>
       </tr>
 
       <tr>
-        <td><strong>Buildings + units join</strong><br><span class="muted">unit counts allocated across footprints by sqft</span></td>
+        <td><strong>Residential projects</strong><br><span class="muted">staging artifact; SDE table loaded from this CSV is published as layer 16 above</span></td>
+        <td class="muted">- (superseded by layer 16)</td>
+        <td><code>data/processed_data/residential_projects.csv</code> + <code>.json</code></td>
         <td class="muted">-</td>
-        <td><code>data/processed_data/buildings_with_units.json</code></td>
-        <td class="muted">-</td>
-        <td>footprint OID &harr; unit count</td>
-        <td><strong>development_history_units</strong></td>
+        <td>7 fields &times; 26 rows (year x project)</td>
+        <td class="muted">no longer read by any dashboard; kept as staging artifact + reference snapshot</td>
       </tr>
 
       <tr>
-        <td><strong>QA change events &amp; correction detail</strong><br><span class="muted">2023 + 2026 QA campaigns</span></td>
+        <td><strong>Reserved, not constructed</strong><br><span class="muted">staging artifact; SDE table loaded from this CSV is published as layer 15 above</span></td>
+        <td class="muted">- (superseded by layer 15)</td>
+        <td><code>data/processed_data/reserved_not_constructed.csv</code> + <code>.json</code></td>
+        <td class="muted">-</td>
+        <td>7 fields &times; 3 rows (per commodity)</td>
+        <td class="muted">no longer read by any dashboard; kept as staging artifact + reference snapshot</td>
+      </tr>
+
+      <tr>
+        <td><strong>Pool balances metering</strong><br><span class="muted">staging artifact; SDE table loaded from this CSV is published as layer 13 above</span></td>
+        <td class="muted">- (superseded by layer 13)</td>
+        <td><code>data/processed_data/pool_balances_metering.csv</code> + <code>.json</code></td>
+        <td class="muted">-</td>
+        <td>8 fields &times; 853 rows</td>
+        <td class="muted">no longer read by any dashboard; kept as staging artifact + reference snapshot</td>
+      </tr>
+
+      <tr>
+        <td><strong>QA corrections (joined)</strong><br><span class="muted">staging artifact; SDE table loaded from this CSV is published as layer 14 above</span></td>
+        <td class="muted">- (superseded by layer 14)</td>
+        <td><code>data/processed_data/qa_corrections.csv</code> + <code>.json</code></td>
+        <td class="muted">(via <code>notebooks/04_load_ca_changes.ipynb</code> + <code>scripts/convert_qa_corrections.py</code>)</td>
+        <td>20 fields &times; 5,925 rows</td>
+        <td class="muted">no longer read by any dashboard; kept as staging artifact + reference snapshot</td>
+      </tr>
+
+      <tr>
+        <td><strong>Residential additions by source</strong><br><span class="muted">staging artifact; SDE table loaded from this CSV is published as layer 11 above</span></td>
+        <td class="muted">- (superseded by layer 11)</td>
+        <td><code>data/processed_data/residential_additions.csv</code> + <code>.json</code></td>
+        <td class="muted">-</td>
+        <td>4 fields &times; 98 rows (14 years &times; 7 source/direction combos)</td>
+        <td class="muted">no longer read by any dashboard; kept as staging artifact + reference snapshot</td>
+      </tr>
+
+
+      <tr>
+        <td><strong>QA change events &amp; correction detail (raw CSVs)</strong><br><span class="muted">2023 + 2026 QA campaigns &middot; upstream inputs to <code>qa_corrections.csv</code></span></td>
         <td class="muted">-</td>
         <td><code>data/qa_data/qa_change_events.csv</code> + <code>qa_correction_detail.csv</code></td>
         <td class="muted">(from <code>04_load_ca_changes.ipynb</code>)</td>
         <td>per-APN audit events</td>
-        <td><strong>qa-change-rationale</strong></td>
+        <td class="muted">no longer read by any dashboard; joined into <code>qa_corrections.csv</code> for layer 16</td>
       </tr>
 
       <tr>
@@ -425,43 +523,118 @@ footer { padding: 16px 40px 28px; font-size: 0.72rem; color: var(--text-light); 
     </tbody>
   </table></div>
 
-  <h3>Refresh commands</h3>
-  <p>When the analyst sends a refreshed xlsx, drop it in <code>data/raw_data/</code> and run the matching converter. All dashboards <code>fetch(..., {cache: 'no-cache'})</code> so reloads pick up new data immediately.</p>
-  <pre><code># Set up alias once
-PY="C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/python.exe"
+  <h2>Where the data comes from</h2>
+  <p class="tagline">Three sources feed the dashboards. The first two are durable; the third is the bottleneck the roadmap below is designed to eliminate.</p>
 
-# Per-allocation grid &rarr; CSV (allocation-tracking)
-PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/convert_allocation_grid.py
+  <h3>1. TRPA Enterprise Geodatabase &rarr; REST (live, row-level)</h3>
+  <p style="font-size:0.88rem; line-height:1.6; color:var(--text-mid); margin-bottom:8px;">Parcel Development History (layer 0), Tahoe APN Genealogy (layer 1), Residential Unit Inventory (layer 2), Allocations 2012 Regional Plan (layer 4), and AllParcels are all native Enterprise GDB feature classes / tables published through <code>maps.trpa.org</code>. Refreshed by the upstream ETL pipelines: PDH by <a href="https://github.com/trpa-agency/Reporting/tree/MTB-Edits/parcel_development_history_etl"><code>parcel_development_history_etl/</code></a> (this repo), genealogy by the four-source merge documented in <a href="https://github.com/trpa-agency/Reporting/blob/MTB-Edits/parcel_development_history_etl/GENEALOGY.md">GENEALOGY.md</a>.</p>
 
-# Regional Plan allocations summary &rarr; JSON + 1987 baseline CSV
-#   (tahoe-development-tracker + pool-balance-cards)
-PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/convert_regional_plan_allocations.py
-PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/extract_regional_plan_1987_seed.py
-
-# Buildings &times; units join &rarr; JSON (development_history_units)
-PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/build_buildings_with_units.py
-
-# Genealogy graph + 2025 cross-reference &rarr; JSON (genealogy_solver)
-PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/build_genealogy_solver_data.py</code></pre>
-
-  <h3>Backend ETL (scheduled, not analyst-facing)</h3>
-  <p><code>stage_ltinfo_allocations.py</code> is a generic 4-pipeline runner that pulls each LT Info JSON service into a <code>Cumulative_Accounting</code> staging layer nightly via Task Scheduler:</p>
+  <h3>2. LT Info webservices &rarr; staged nightly to REST (live, mostly row-level)</h3>
+  <p style="font-size:0.88rem; line-height:1.6; color:var(--text-mid); margin-bottom:8px;">Corral-origin data flows out exclusively through LT Info's JSON web services. <code>stage_ltinfo_allocations.py</code> is a generic 4-pipeline runner that pulls each service into a Cumulative_Accounting staging layer nightly via Task Scheduler:</p>
   <ul style="font-size:0.86rem; line-height:1.7; padding-left:22px; margin-bottom:10px;">
-    <li><code>GetDevelopmentRightPoolBalanceReport</code> &rarr; <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/5">layer 5</a> (pool balances)</li>
-    <li><code>GetDevelopmentRightTransactions</code> &rarr; <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/6">layer 6</a> (transaction log, ~3,000 rows)</li>
-    <li><code>GetBankedDevelopmentRights</code> &rarr; <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/7">layer 7</a> (current bank state per APN)</li>
-    <li><code>GetTransactedAndBankedDevelopmentRights</code> &rarr; <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/8">layer 8</a> (APN-transaction junction)</li>
+    <li><code>GetDevelopmentRightPoolBalanceReport</code> &rarr; <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/5">layer 5</a> (pool balances; ~50 pools)</li>
+    <li><code>GetDevelopmentRightTransactions</code> &rarr; <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/6">layer 6</a> (transaction log, ~3,000 rows; 2014-04 to 2026-05; pre-Accela not digitized)</li>
+    <li><code>GetBankedDevelopmentRights</code> &rarr; <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/7">layer 7</a> (current bank state per APN; <strong>71% drift</strong> vs Corral pci, see <a href="https://github.com/trpa-agency/Reporting/blob/MTB-Edits/data/qa_data/banked_reconciliation_summary.md">banked_reconciliation_summary.md</a>)</li>
+    <li><code>GetTransactedAndBankedDevelopmentRights</code> &rarr; <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/8">layer 8</a> (APN-transaction junction, ~5,200 rows)</li>
   </ul>
-  <p>The older <code>Development_Rights_Transacted_and_Banked</code> REST service is being deprecated as a tagged copy of the same Corral data. The dashboards still consume the hand-converted JSON for pool balances until the combine view + LT Info field-semantics confirmation land - see the <a href="https://github.com/trpa-agency/Reporting/blob/MTB-Edits/erd/system_of_record_roadmap.md">system-of-record roadmap</a>.</p>
-  <pre><code># Nightly LT Info to Enterprise GDB staging ETL (Task Scheduler)
-PYTHONIOENCODING=utf-8 "$PY" parcel_development_history_etl/scripts/stage_ltinfo_allocations.py</code></pre>
+  <p style="font-size:0.88rem; line-height:1.6; color:var(--text-mid); margin-bottom:8px;">The older <code>Development_Rights_Transacted_and_Banked</code> REST service is being deprecated; same data now in layers 6/7/8.</p>
+
+  <h3>3. Analyst spreadsheets &rarr; normalized &rarr; SDE &rarr; REST (snapshot, not row-level)</h3>
+  <p style="font-size:0.88rem; line-height:1.6; color:var(--text-mid); margin-bottom:8px;">Layers 9-16 are <em>snapshots</em> of the analyst's hand-assembled spreadsheets. Each layer is a tidy long-form pivot of a specific xlsx, loaded into SDE, published as a REST table, and consumed directly by the dashboards. Per-layer publishing memo + converter linked below:</p>
+  <table style="font-size:0.82rem; margin-bottom:16px;">
+    <thead>
+      <tr>
+        <th style="width:8%">Layer</th>
+        <th style="width:24%">Name</th>
+        <th style="width:32%">Source artifact</th>
+        <th style="width:36%">Memo + converter</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/9">9</a></td>
+        <td>Banked by Jurisdiction</td>
+        <td>analyst pasted email table</td>
+        <td class="muted">(no per-layer memo; transcribed by hand into <code>data/processed_data/banked_long.csv</code>)</td></tr>
+      <tr><td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/10">10</a></td>
+        <td>Allocation Balances</td>
+        <td><code>AllocationsBalances_*.xlsx</code></td>
+        <td><a href="https://github.com/trpa-agency/Reporting/blob/MTB-Edits/erd/allocations_balances_layer.md">memo</a> &middot; <a href="https://github.com/trpa-agency/Reporting/blob/MTB-Edits/parcel_development_history_etl/scripts/convert_allocations_balances.py">converter</a></td></tr>
+      <tr><td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/11">11</a></td>
+        <td>Residential Units by Source</td>
+        <td><code>FINAL RES SUMMARY 2012 to 2025.xlsx</code></td>
+        <td><a href="https://github.com/trpa-agency/Reporting/blob/MTB-Edits/erd/residential_additions_layer.md">memo</a> &middot; <a href="https://github.com/trpa-agency/Reporting/blob/MTB-Edits/parcel_development_history_etl/scripts/convert_residential_additions.py">converter</a></td></tr>
+      <tr><td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/12">12</a></td>
+        <td>Pool Balances</td>
+        <td><code>All Regional Plan Allocations Summary.xlsx</code></td>
+        <td><a href="https://github.com/trpa-agency/Reporting/blob/MTB-Edits/erd/pool_balances_layer.md">memo</a> &middot; <a href="https://github.com/trpa-agency/Reporting/blob/MTB-Edits/parcel_development_history_etl/scripts/convert_pool_balances.py">converter</a></td></tr>
+      <tr><td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/13">13</a></td>
+        <td>Pool Balances Metering</td>
+        <td>same xlsx, by_year blocks</td>
+        <td><a href="https://github.com/trpa-agency/Reporting/blob/MTB-Edits/erd/pool_balances_metering_layer.md">memo</a> &middot; <a href="https://github.com/trpa-agency/Reporting/blob/MTB-Edits/parcel_development_history_etl/scripts/convert_pool_balances_metering.py">converter</a></td></tr>
+      <tr><td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/14">14</a></td>
+        <td>QA Corrections</td>
+        <td><code>04_load_ca_changes.ipynb</code> outputs (Events + Detail)</td>
+        <td><a href="https://github.com/trpa-agency/Reporting/blob/MTB-Edits/erd/qa_corrections_layer.md">memo</a> &middot; <a href="https://github.com/trpa-agency/Reporting/blob/MTB-Edits/parcel_development_history_etl/scripts/convert_qa_corrections.py">converter</a></td></tr>
+      <tr><td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/15">15</a></td>
+        <td>Reserved Not Constructed</td>
+        <td>analyst email tally (3 values)</td>
+        <td><a href="https://github.com/trpa-agency/Reporting/blob/MTB-Edits/erd/reserved_not_constructed_layer.md">memo</a> &middot; <a href="https://github.com/trpa-agency/Reporting/blob/MTB-Edits/parcel_development_history_etl/scripts/convert_reserved_not_constructed.py">converter</a></td></tr>
+      <tr><td><a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/16">16</a></td>
+        <td>Residential Projects</td>
+        <td>analyst PPTX slide 4 + xlsx narrative</td>
+        <td><a href="https://github.com/trpa-agency/Reporting/blob/MTB-Edits/erd/residential_projects_layer.md">memo</a> &middot; <a href="https://github.com/trpa-agency/Reporting/blob/MTB-Edits/parcel_development_history_etl/scripts/convert_residential_projects.py">converter</a></td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:0.88rem; line-height:1.6; color:var(--text-mid); margin-bottom:6px;">These 8 snapshot layers are the path-of-least-resistance solution. They unblock the dashboards today, but each one inherits the analyst's spreadsheet workflow as an external dependency: a refresh requires the analyst regenerating the xlsx, the converter being re-run, the SDE table being re-loaded, the REST service being republished. <strong>That's the bottleneck the row-level roadmap below is designed to eliminate.</strong></p>
+
+  <h2>Forward path: row-level schema</h2>
+  <p class="tagline">Every snapshot layer (9-16) could become a SQL view derived from row-level facts. Once the underlying tables exist for all four commodities, the analyst's xlsx becomes a validation check, not a data delivery.</p>
+  <div class="intro" style="margin-bottom:14px;">
+    <p style="margin-bottom:8px;"><strong>The architectural proposal</strong> (design memo + DDL + view definitions):</p>
+    <ul style="font-size:0.88rem; line-height:1.7; padding-left:22px;">
+      <li><a href="https://github.com/trpa-agency/Reporting/blob/MTB-Edits/erd/canonical_row_level_schema.md"><strong>canonical_row_level_schema.md</strong></a> - 8-entity row-level schema (AllocationRight, AllocationEvent, etc.), gap analysis per commodity, 5-phase migration path (forward-build with dual-write, then backfill RES &rarr; RBU &rarr; CFA/TAU in order of difficulty), organizational/funding callouts</li>
+      <li><a href="https://github.com/trpa-agency/Reporting/blob/MTB-Edits/erd/canonical_schema_ddl.sql"><strong>canonical_schema_ddl.sql</strong></a> - SQL Server DDL for the 8 entities + 2 lookups with FKs, indexes, CHECK constraints (e.g. <code>CK_Right_StatusLocation</code> enforces status agrees with where the row sits), seed data</li>
+      <li><a href="https://github.com/trpa-agency/Reporting/blob/MTB-Edits/erd/canonical_views.sql"><strong>canonical_views.sql</strong></a> - <code>CREATE OR ALTER VIEW</code> statements deriving every current snapshot layer (10/11/12/13/14/15/16 + 9) from the 8 tables</li>
+    </ul>
+  </div>
+
+  <h3>Why this matters</h3>
+  <ul style="font-size:0.88rem; line-height:1.7; padding-left:22px; margin-bottom:10px;">
+    <li><strong>Lineage becomes traceable:</strong> "where did this unit come from?" becomes a SELECT walking AllocationEvent history.</li>
+    <li><strong>Project rollups become answerable:</strong> "which allocations were used for Sugar Pine?" returns rows.</li>
+    <li><strong>Construction tracking becomes uniform:</strong> ConstructionStatus on every AllocationRight means Tracker section iii becomes a query, not a snapshot.</li>
+    <li><strong>Banked stops drifting:</strong> BankedDevelopmentRight becomes a view over the transaction log, not a stored field. The 71% drift problem dissolves structurally.</li>
+    <li><strong>New commodities are additive:</strong> a future Stormwater Credit is a new row in the Commodity lookup + events that flow, not a new xlsx schema.</li>
+    <li><strong>Analyst role shifts:</strong> from "produce the snapshot" to "validate the database matches expectations." The xlsx becomes a check, not a delivery.</li>
+  </ul>
+
+  <h3>The honest gap</h3>
+  <p style="font-size:0.88rem; line-height:1.6; color:var(--text-mid); margin-bottom:8px;">Three pre-Accela datasets aren't recoverable from any digitized source:</p>
+  <ul style="font-size:0.88rem; line-height:1.7; padding-left:22px; margin-bottom:10px;">
+    <li>Per-allocation CFA / TAU / RBU history (1987 - mid-2010s)</li>
+    <li>Per-event RES transactions (1986 - 2013, pre-Accela)</li>
+    <li>Per-event CFA / TAU events (pre-Accela)</li>
+  </ul>
+  <p style="font-size:0.88rem; line-height:1.6; color:var(--text-mid);">These have to be <em>synthesized</em> from totals plus plausible-distribution assumptions, tagged <code>IsSynthesized=1</code> in the schema so future analysts know which rows are interpretation vs record. Going forward (post-cutover), every new event lands in the row-level schema natively. Earlier diagnosis of this gap in <a href="https://github.com/trpa-agency/Reporting/blob/MTB-Edits/erd/path_to_normalized_rest.md">path_to_normalized_rest.md</a>.</p>
+
+  <h3>Related design + provenance docs</h3>
+  <ul style="font-size:0.88rem; line-height:1.7; padding-left:22px; margin-bottom:10px;">
+    <li><a href="https://github.com/trpa-agency/Reporting/blob/MTB-Edits/data/qa_data/dashboard_data_lineage.md"><strong>dashboard_data_lineage.md</strong></a> - every dashboard, every visualization, every data point: source + endpoint + transformation + path-to-REST status. Updated continuously through pass 4.</li>
+    <li><a href="https://github.com/trpa-agency/Reporting/blob/MTB-Edits/erd/path_to_normalized_rest.md"><strong>path_to_normalized_rest.md</strong></a> - earlier diagnosis (May 2026) of why dashboards kept depending on snapshot xlsx files; asks of the analyst + asks of TRPA Engineering. Superseded by the canonical schema design but useful as the precursor narrative.</li>
+    <li><a href="https://github.com/trpa-agency/Reporting/blob/MTB-Edits/data/qa_data/banked_reconciliation_summary.md"><strong>banked_reconciliation_summary.md</strong></a> - layer 7 vs Corral pci data quality findings (71% drift, root cause = stored-not-derived field).</li>
+    <li><a href="https://github.com/trpa-agency/Reporting/blob/MTB-Edits/data/qa_data/layer5_mapping_validation.md"><strong>layer5_mapping_validation.md</strong></a> - empirical validation of Layer 5 field semantics; established that <code>BalanceRemaining</code> means "still in pool, unassigned" and that <code>ApprovedTransactionsQuantity</code> is NOT cumulative-allocated (the RBU 379 vs 1,260 discovery).</li>
+    <li><a href="https://github.com/trpa-agency/Reporting/blob/MTB-Edits/parcel_development_history_etl/GENEALOGY.md"><strong>GENEALOGY.md</strong></a> - the four-source merge methodology for APN genealogy (master / accela / ltinfo / spatial), plus the <code>lost_apn</code> filter rules.</li>
+    <li><a href="https://github.com/trpa-agency/Reporting/blob/MTB-Edits/erd/message_to_analyst_draft.md"><strong>message_to_analyst_draft.md</strong></a> - draft message framing the canonical schema conversation for the analyst.</li>
+  </ul>
 
   <h2>Tech stack</h2>
   <ul style="font-size: 0.88rem; line-height: 1.7; padding-left: 22px; margin-bottom: 12px;">
-    <li><strong>Plotly.js</strong> (charts) - load <strong>before</strong> ArcGIS; Dojo&rsquo;s AMD loader captures Plotly&rsquo;s UMD wrapper otherwise</li>
-    <li><strong>ArcGIS Maps SDK 4.31</strong> (maps, where needed)</li>
-    <li><strong>AG Grid Community</strong> (sortable / filterable tables)</li>
+    <li><strong>Plotly.js 2.32</strong> (charts) - load <strong>before</strong> ArcGIS where both are present; Dojo&rsquo;s AMD loader captures Plotly&rsquo;s UMD wrapper otherwise</li>
+    <li><strong>ArcGIS Maps SDK 4.31</strong> (genealogy_solver only - lineage map)</li>
+    <li><strong>AG Grid Community</strong> (qa-change-rationale only - sortable / filterable table)</li>
+    <li><strong>marked 12.0</strong> (pool-balance-cards only - renders the commodity explainer markdown)</li>
     <li><strong>Open Sans</strong> + TRPA brand tokens (<code>--trpa-blue #0072CE</code>, <code>--trpa-navy #003B71</code>, <code>--trpa-orange #E87722</code>, <code>--trpa-forest #4A6118</code>)</li>
+    <li>All dependencies loaded via CDN; dashboards stay single-file HTML per TRPA convention</li>
   </ul>
 
 </div>

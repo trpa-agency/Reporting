@@ -1,0 +1,213 @@
+{
+  "asOfDate": "2026-05-15",
+  "rows": [
+    {
+      "Year": 2014,
+      "ProjectName": "Aspens",
+      "Units": 48,
+      "Notes": "47 affordable, 1 moderate",
+      "Description": "Aspens: 48 units (47 affordable, 1 moderate)",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2016,
+      "ProjectName": "Peak 10",
+      "Units": 10,
+      "Notes": "",
+      "Description": "Peak 10: 10 units",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2018,
+      "ProjectName": "Sierra Colina",
+      "Units": 1,
+      "Notes": "",
+      "Description": "Sierra Colina: 1 unit",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2019,
+      "ProjectName": "Tahoe City Marina",
+      "Units": 10,
+      "Notes": "",
+      "Description": "Tahoe City Marina: 10 units",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2019,
+      "ProjectName": "Sierra Colina",
+      "Units": 4,
+      "Notes": "",
+      "Description": "Sierra Colina: 4 units",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2020,
+      "ProjectName": "Beach Club",
+      "Units": 25,
+      "Notes": "",
+      "Description": "Beach Club: 25 units",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2020,
+      "ProjectName": "Wildwood Commons",
+      "Units": 23,
+      "Notes": "",
+      "Description": "Wildwood Commons: 23 units",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2020,
+      "ProjectName": "Gondola Vista",
+      "Units": 20,
+      "Notes": "",
+      "Description": "Gondola Vista: 20 units",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2020,
+      "ProjectName": "Sierra Colina",
+      "Units": 5,
+      "Notes": "",
+      "Description": "Sierra Colina: 5 units",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2021,
+      "ProjectName": "Beach Club",
+      "Units": 21,
+      "Notes": "",
+      "Description": "Beach Club: 21 units",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2021,
+      "ProjectName": "Sierra Colina",
+      "Units": 6,
+      "Notes": "",
+      "Description": "Sierra Colina: 6 units",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2021,
+      "ProjectName": "WoodVista",
+      "Units": 6,
+      "Notes": "",
+      "Description": "WoodVista: 6 units",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2021,
+      "ProjectName": "Tahoe Cedars",
+      "Units": 4,
+      "Notes": "",
+      "Description": "Tahoe Cedars: 4 units",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2022,
+      "ProjectName": "Emerald Bay Cabins",
+      "Units": 6,
+      "Notes": "",
+      "Description": "Emerald Bay Cabins: 6 units",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2022,
+      "ProjectName": "Sierra Colina",
+      "Units": 3,
+      "Notes": "",
+      "Description": "Sierra Colina: 3 units",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2023,
+      "ProjectName": "Beach Club",
+      "Units": 24,
+      "Notes": "",
+      "Description": "Beach Club: 24 units",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2023,
+      "ProjectName": "Sierra Colina",
+      "Units": 6,
+      "Notes": "",
+      "Description": "Sierra Colina: 6 units",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2024,
+      "ProjectName": "Sugar Pine",
+      "Units": 69,
+      "Notes": "67 affordable",
+      "Description": "Sugar Pine: 69 units (67 affordable)",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2024,
+      "ProjectName": "Birds Nest",
+      "Units": 21,
+      "Notes": "affordable",
+      "Description": "Birds Nest: 21 MF units (affordable)",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2024,
+      "ProjectName": "395 N Lake",
+      "Units": 12,
+      "Notes": "",
+      "Description": "395 N Lake: 12 MF units",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2024,
+      "ProjectName": "Sierra Colina",
+      "Units": 11,
+      "Notes": "",
+      "Description": "Sierra Colina: 11 units",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2024,
+      "ProjectName": "Beach Club",
+      "Units": 8,
+      "Notes": "",
+      "Description": "Beach Club: 8 units",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2025,
+      "ProjectName": "Sugar Pine",
+      "Units": 60,
+      "Notes": "59 affordable",
+      "Description": "Sugar Pine: 60 units (59 affordable)",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2025,
+      "ProjectName": "LTCC Dorms",
+      "Units": 41,
+      "Notes": "19 affordable / 1 achievable",
+      "Description": "LTCC Dorms: 41 units (19 affordable / 1 achievable)",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2025,
+      "ProjectName": "Beach Club",
+      "Units": 16,
+      "Notes": "",
+      "Description": "Beach Club: 16 units",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2025,
+      "ProjectName": "Sierra Colina",
+      "Units": 8,
+      "Notes": "",
+      "Description": "Sierra Colina: 8 units",
+      "AsOfDate": "2026-05-15"
+    }
+  ]
+}

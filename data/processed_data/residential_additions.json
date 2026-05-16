@@ -1,0 +1,790 @@
+{
+  "asOfDate": "2026-05-15",
+  "sourceFile": "FINAL RES SUMMARY 2012 to 2025.xlsx",
+  "rows": [
+    {
+      "Year": 2012,
+      "Direction": "Added",
+      "Source": "Allocations",
+      "Units": 0,
+      "SourceRow": "Added Residential Units from Residential Allocations",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2013,
+      "Direction": "Added",
+      "Source": "Allocations",
+      "Units": 51,
+      "SourceRow": "Added Residential Units from Residential Allocations",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2014,
+      "Direction": "Added",
+      "Source": "Allocations",
+      "Units": 56,
+      "SourceRow": "Added Residential Units from Residential Allocations",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2015,
+      "Direction": "Added",
+      "Source": "Allocations",
+      "Units": 88,
+      "SourceRow": "Added Residential Units from Residential Allocations",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2016,
+      "Direction": "Added",
+      "Source": "Allocations",
+      "Units": 72,
+      "SourceRow": "Added Residential Units from Residential Allocations",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2017,
+      "Direction": "Added",
+      "Source": "Allocations",
+      "Units": 66,
+      "SourceRow": "Added Residential Units from Residential Allocations",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2018,
+      "Direction": "Added",
+      "Source": "Allocations",
+      "Units": 76,
+      "SourceRow": "Added Residential Units from Residential Allocations",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2019,
+      "Direction": "Added",
+      "Source": "Allocations",
+      "Units": 64,
+      "SourceRow": "Added Residential Units from Residential Allocations",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2020,
+      "Direction": "Added",
+      "Source": "Allocations",
+      "Units": 103,
+      "SourceRow": "Added Residential Units from Residential Allocations",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2021,
+      "Direction": "Added",
+      "Source": "Allocations",
+      "Units": 69,
+      "SourceRow": "Added Residential Units from Residential Allocations",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2022,
+      "Direction": "Added",
+      "Source": "Allocations",
+      "Units": 83,
+      "SourceRow": "Added Residential Units from Residential Allocations",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2023,
+      "Direction": "Added",
+      "Source": "Allocations",
+      "Units": 47,
+      "SourceRow": "Added Residential Units from Residential Allocations",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2024,
+      "Direction": "Added",
+      "Source": "Allocations",
+      "Units": 50,
+      "SourceRow": "Added Residential Units from Residential Allocations",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2025,
+      "Direction": "Added",
+      "Source": "Allocations",
+      "Units": 62,
+      "SourceRow": "Added Residential Units from Residential Allocations",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2012,
+      "Direction": "Added",
+      "Source": "Bonus Units",
+      "Units": 0,
+      "SourceRow": "Added Residential Units from Residential Bonus Unit",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2013,
+      "Direction": "Added",
+      "Source": "Bonus Units",
+      "Units": 0,
+      "SourceRow": "Added Residential Units from Residential Bonus Unit",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2014,
+      "Direction": "Added",
+      "Source": "Bonus Units",
+      "Units": 48,
+      "SourceRow": "Added Residential Units from Residential Bonus Unit",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2015,
+      "Direction": "Added",
+      "Source": "Bonus Units",
+      "Units": 0,
+      "SourceRow": "Added Residential Units from Residential Bonus Unit",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2016,
+      "Direction": "Added",
+      "Source": "Bonus Units",
+      "Units": 0,
+      "SourceRow": "Added Residential Units from Residential Bonus Unit",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2017,
+      "Direction": "Added",
+      "Source": "Bonus Units",
+      "Units": 0,
+      "SourceRow": "Added Residential Units from Residential Bonus Unit",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2018,
+      "Direction": "Added",
+      "Source": "Bonus Units",
+      "Units": 0,
+      "SourceRow": "Added Residential Units from Residential Bonus Unit",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2019,
+      "Direction": "Added",
+      "Source": "Bonus Units",
+      "Units": 9,
+      "SourceRow": "Added Residential Units from Residential Bonus Unit",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2020,
+      "Direction": "Added",
+      "Source": "Bonus Units",
+      "Units": 1,
+      "SourceRow": "Added Residential Units from Residential Bonus Unit",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2021,
+      "Direction": "Added",
+      "Source": "Bonus Units",
+      "Units": 1,
+      "SourceRow": "Added Residential Units from Residential Bonus Unit",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2022,
+      "Direction": "Added",
+      "Source": "Bonus Units",
+      "Units": 4,
+      "SourceRow": "Added Residential Units from Residential Bonus Unit",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2023,
+      "Direction": "Added",
+      "Source": "Bonus Units",
+      "Units": 4,
+      "SourceRow": "Added Residential Units from Residential Bonus Unit",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2024,
+      "Direction": "Added",
+      "Source": "Bonus Units",
+      "Units": 70,
+      "SourceRow": "Added Residential Units from Residential Bonus Unit",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2025,
+      "Direction": "Added",
+      "Source": "Bonus Units",
+      "Units": 85,
+      "SourceRow": "Added Residential Units from Residential Bonus Unit",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2012,
+      "Direction": "Added",
+      "Source": "Transfers",
+      "Units": 0,
+      "SourceRow": "Added Residential Units from Transfers",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2013,
+      "Direction": "Added",
+      "Source": "Transfers",
+      "Units": 1,
+      "SourceRow": "Added Residential Units from Transfers",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2014,
+      "Direction": "Added",
+      "Source": "Transfers",
+      "Units": 3,
+      "SourceRow": "Added Residential Units from Transfers",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2015,
+      "Direction": "Added",
+      "Source": "Transfers",
+      "Units": 7,
+      "SourceRow": "Added Residential Units from Transfers",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2016,
+      "Direction": "Added",
+      "Source": "Transfers",
+      "Units": 4,
+      "SourceRow": "Added Residential Units from Transfers",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2017,
+      "Direction": "Added",
+      "Source": "Transfers",
+      "Units": 8,
+      "SourceRow": "Added Residential Units from Transfers",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2018,
+      "Direction": "Added",
+      "Source": "Transfers",
+      "Units": 6,
+      "SourceRow": "Added Residential Units from Transfers",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2019,
+      "Direction": "Added",
+      "Source": "Transfers",
+      "Units": 8,
+      "SourceRow": "Added Residential Units from Transfers",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2020,
+      "Direction": "Added",
+      "Source": "Transfers",
+      "Units": 43,
+      "SourceRow": "Added Residential Units from Transfers",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2021,
+      "Direction": "Added",
+      "Source": "Transfers",
+      "Units": 10,
+      "SourceRow": "Added Residential Units from Transfers",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2022,
+      "Direction": "Added",
+      "Source": "Transfers",
+      "Units": 7,
+      "SourceRow": "Added Residential Units from Transfers",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2023,
+      "Direction": "Added",
+      "Source": "Transfers",
+      "Units": 10,
+      "SourceRow": "Added Residential Units from Transfers",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2024,
+      "Direction": "Added",
+      "Source": "Transfers",
+      "Units": 15,
+      "SourceRow": "Added Residential Units from Transfers",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2025,
+      "Direction": "Added",
+      "Source": "Transfers",
+      "Units": 16,
+      "SourceRow": "Added Residential Units from Transfers",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2012,
+      "Direction": "Added",
+      "Source": "Conversions",
+      "Units": 0,
+      "SourceRow": "Added Residential Units from Conversions",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2013,
+      "Direction": "Added",
+      "Source": "Conversions",
+      "Units": 1,
+      "SourceRow": "Added Residential Units from Conversions",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2014,
+      "Direction": "Added",
+      "Source": "Conversions",
+      "Units": 2,
+      "SourceRow": "Added Residential Units from Conversions",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2015,
+      "Direction": "Added",
+      "Source": "Conversions",
+      "Units": 4,
+      "SourceRow": "Added Residential Units from Conversions",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2016,
+      "Direction": "Added",
+      "Source": "Conversions",
+      "Units": 10,
+      "SourceRow": "Added Residential Units from Conversions",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2017,
+      "Direction": "Added",
+      "Source": "Conversions",
+      "Units": 3,
+      "SourceRow": "Added Residential Units from Conversions",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2018,
+      "Direction": "Added",
+      "Source": "Conversions",
+      "Units": 0,
+      "SourceRow": "Added Residential Units from Conversions",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2019,
+      "Direction": "Added",
+      "Source": "Conversions",
+      "Units": 3,
+      "SourceRow": "Added Residential Units from Conversions",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2020,
+      "Direction": "Added",
+      "Source": "Conversions",
+      "Units": 19,
+      "SourceRow": "Added Residential Units from Conversions",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2021,
+      "Direction": "Added",
+      "Source": "Conversions",
+      "Units": 27,
+      "SourceRow": "Added Residential Units from Conversions",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2022,
+      "Direction": "Added",
+      "Source": "Conversions",
+      "Units": 2,
+      "SourceRow": "Added Residential Units from Conversions",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2023,
+      "Direction": "Added",
+      "Source": "Conversions",
+      "Units": 17,
+      "SourceRow": "Added Residential Units from Conversions",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2024,
+      "Direction": "Added",
+      "Source": "Conversions",
+      "Units": 42,
+      "SourceRow": "Added Residential Units from Conversions",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2025,
+      "Direction": "Added",
+      "Source": "Conversions",
+      "Units": 31,
+      "SourceRow": "Added Residential Units from Conversions",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2012,
+      "Direction": "Added",
+      "Source": "Banked",
+      "Units": 0,
+      "SourceRow": "Added Residential Units from Banked",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2013,
+      "Direction": "Added",
+      "Source": "Banked",
+      "Units": 5,
+      "SourceRow": "Added Residential Units from Banked",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2014,
+      "Direction": "Added",
+      "Source": "Banked",
+      "Units": 8,
+      "SourceRow": "Added Residential Units from Banked",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2015,
+      "Direction": "Added",
+      "Source": "Banked",
+      "Units": 3,
+      "SourceRow": "Added Residential Units from Banked",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2016,
+      "Direction": "Added",
+      "Source": "Banked",
+      "Units": 3,
+      "SourceRow": "Added Residential Units from Banked",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2017,
+      "Direction": "Added",
+      "Source": "Banked",
+      "Units": 3,
+      "SourceRow": "Added Residential Units from Banked",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2018,
+      "Direction": "Added",
+      "Source": "Banked",
+      "Units": 5,
+      "SourceRow": "Added Residential Units from Banked",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2019,
+      "Direction": "Added",
+      "Source": "Banked",
+      "Units": 14,
+      "SourceRow": "Added Residential Units from Banked",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2020,
+      "Direction": "Added",
+      "Source": "Banked",
+      "Units": 32,
+      "SourceRow": "Added Residential Units from Banked",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2021,
+      "Direction": "Added",
+      "Source": "Banked",
+      "Units": 29,
+      "SourceRow": "Added Residential Units from Banked",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2022,
+      "Direction": "Added",
+      "Source": "Banked",
+      "Units": 7,
+      "SourceRow": "Added Residential Units from Banked",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2023,
+      "Direction": "Added",
+      "Source": "Banked",
+      "Units": 28,
+      "SourceRow": "Added Residential Units from Banked",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2024,
+      "Direction": "Added",
+      "Source": "Banked",
+      "Units": 13,
+      "SourceRow": "Added Residential Units from Banked",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2025,
+      "Direction": "Added",
+      "Source": "Banked",
+      "Units": 21,
+      "SourceRow": "Added Residential Units from Banked",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2012,
+      "Direction": "Removed",
+      "Source": "Banked",
+      "Units": 0,
+      "SourceRow": "Banked",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2013,
+      "Direction": "Removed",
+      "Source": "Banked",
+      "Units": -4,
+      "SourceRow": "Banked",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2014,
+      "Direction": "Removed",
+      "Source": "Banked",
+      "Units": -5,
+      "SourceRow": "Banked",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2015,
+      "Direction": "Removed",
+      "Source": "Banked",
+      "Units": -14,
+      "SourceRow": "Banked",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2016,
+      "Direction": "Removed",
+      "Source": "Banked",
+      "Units": -21,
+      "SourceRow": "Banked",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2017,
+      "Direction": "Removed",
+      "Source": "Banked",
+      "Units": -8,
+      "SourceRow": "Banked",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2018,
+      "Direction": "Removed",
+      "Source": "Banked",
+      "Units": -20,
+      "SourceRow": "Banked",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2019,
+      "Direction": "Removed",
+      "Source": "Banked",
+      "Units": -8,
+      "SourceRow": "Banked",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2020,
+      "Direction": "Removed",
+      "Source": "Banked",
+      "Units": -3,
+      "SourceRow": "Banked",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2021,
+      "Direction": "Removed",
+      "Source": "Banked",
+      "Units": -2,
+      "SourceRow": "Banked",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2022,
+      "Direction": "Removed",
+      "Source": "Banked",
+      "Units": -4,
+      "SourceRow": "Banked",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2023,
+      "Direction": "Removed",
+      "Source": "Banked",
+      "Units": -4,
+      "SourceRow": "Banked",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2024,
+      "Direction": "Removed",
+      "Source": "Banked",
+      "Units": -4,
+      "SourceRow": "Banked",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2025,
+      "Direction": "Removed",
+      "Source": "Banked",
+      "Units": -6,
+      "SourceRow": "Banked",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2012,
+      "Direction": "Removed",
+      "Source": "Converted",
+      "Units": 0,
+      "SourceRow": "Converted",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2013,
+      "Direction": "Removed",
+      "Source": "Converted",
+      "Units": 0,
+      "SourceRow": "Converted",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2014,
+      "Direction": "Removed",
+      "Source": "Converted",
+      "Units": 0,
+      "SourceRow": "Converted",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2015,
+      "Direction": "Removed",
+      "Source": "Converted",
+      "Units": 0,
+      "SourceRow": "Converted",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2016,
+      "Direction": "Removed",
+      "Source": "Converted",
+      "Units": 0,
+      "SourceRow": "Converted",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2017,
+      "Direction": "Removed",
+      "Source": "Converted",
+      "Units": 0,
+      "SourceRow": "Converted",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2018,
+      "Direction": "Removed",
+      "Source": "Converted",
+      "Units": 0,
+      "SourceRow": "Converted",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2019,
+      "Direction": "Removed",
+      "Source": "Converted",
+      "Units": 0,
+      "SourceRow": "Converted",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2020,
+      "Direction": "Removed",
+      "Source": "Converted",
+      "Units": -1,
+      "SourceRow": "Converted",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2021,
+      "Direction": "Removed",
+      "Source": "Converted",
+      "Units": -4,
+      "SourceRow": "Converted",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2022,
+      "Direction": "Removed",
+      "Source": "Converted",
+      "Units": 0,
+      "SourceRow": "Converted",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2023,
+      "Direction": "Removed",
+      "Source": "Converted",
+      "Units": 0,
+      "SourceRow": "Converted",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2024,
+      "Direction": "Removed",
+      "Source": "Converted",
+      "Units": 0,
+      "SourceRow": "Converted",
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Year": 2025,
+      "Direction": "Removed",
+      "Source": "Converted",
+      "Units": -2,
+      "SourceRow": "Converted",
+      "AsOfDate": "2026-05-15"
+    }
+  ]
+}

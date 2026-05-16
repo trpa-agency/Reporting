@@ -1,0 +1,27 @@
+Commodity,CommodityCode,Plan,Pool,Group,RegionalPlanMaximum,AssignedToProjects,NotAssigned,AsOfDate,LoadedDate,SourceFile
+Residential Allocations,RES,Combined,Placer County,Jurisdiction,2037,1688,349,"May 12, 2026",2026-05-15,regional_plan_allocations.json
+Residential Allocations,RES,Combined,Washoe County,Jurisdiction,1141,1006,135,"May 12, 2026",2026-05-15,regional_plan_allocations.json
+Residential Allocations,RES,Combined,Douglas County,Jurisdiction,556,463,93,"May 12, 2026",2026-05-15,regional_plan_allocations.json
+Residential Allocations,RES,Combined,El Dorado County,Jurisdiction,2914,2816,98,"May 12, 2026",2026-05-15,regional_plan_allocations.json
+Residential Allocations,RES,Combined,City of South Lake Tahoe,Jurisdiction,884,698,186,"May 12, 2026",2026-05-15,regional_plan_allocations.json
+Residential Allocations,RES,Combined,TRPA Allocation Incentive Pool,TRPA pools,385,231,154,"May 12, 2026",2026-05-15,regional_plan_allocations.json
+Residential Allocations,RES,Combined,Unreleased Allocations,Unreleased,770,0,770,"May 12, 2026",2026-05-15,regional_plan_allocations.json
+Residential Bonus Units,RBU,Combined,Placer County,Assigned to Community Plan/Area Plans,90,49,41,"May 12, 2026",2026-05-15,regional_plan_allocations.json
+Residential Bonus Units,RBU,Combined,Washoe County,Assigned to Community Plan/Area Plans,180,64,116,"May 12, 2026",2026-05-15,regional_plan_allocations.json
+Residential Bonus Units,RBU,Combined,Douglas County,Assigned to Community Plan/Area Plans,130,63,67,"May 12, 2026",2026-05-15,regional_plan_allocations.json
+Residential Bonus Units,RBU,Combined,El Dorado County,Assigned to Community Plan/Area Plans,0,0,0,"May 12, 2026",2026-05-15,regional_plan_allocations.json
+Residential Bonus Units,RBU,Combined,City of South Lake Tahoe,Assigned to Community Plan/Area Plans,165,151,14,"May 12, 2026",2026-05-15,regional_plan_allocations.json
+Residential Bonus Units,RBU,Combined,TRPA Bonus Unit Pools,Assigned to TRPA Bonus Unit Pools,1435,933,502,"May 12, 2026",2026-05-15,regional_plan_allocations.json
+Commercial Floor Area,CFA,Combined,Placer County,Assigned to Community Plan/Area Plans,201232,131913,69319,"May 12, 2026",2026-05-15,regional_plan_allocations.json
+Commercial Floor Area,CFA,Combined,Washoe County,Assigned to Community Plan/Area Plans,89906,88106,1800,"May 12, 2026",2026-05-15,regional_plan_allocations.json
+Commercial Floor Area,CFA,Combined,Douglas County,Assigned to Community Plan/Area Plans,81550,48030,33520,"May 12, 2026",2026-05-15,regional_plan_allocations.json
+Commercial Floor Area,CFA,Combined,El Dorado County,Assigned to Community Plan/Area Plans,51400,18005,33395,"May 12, 2026",2026-05-15,regional_plan_allocations.json
+Commercial Floor Area,CFA,Combined,City of South Lake Tahoe,Assigned to Community Plan/Area Plans,130028,116359,13669,"May 12, 2026",2026-05-15,regional_plan_allocations.json
+Commercial Floor Area,CFA,Combined,TRPA Special Projects Pool,Assigned to TRPA Special Projects/Community Enhancement Pool,245884,108693,137191,"May 12, 2026",2026-05-15,regional_plan_allocations.json
+Commercial Floor Area,CFA,Combined,Unreleased CFA from 2012 Plan,Unreleased,200000,0,200000,"May 12, 2026",2026-05-15,regional_plan_allocations.json
+Tourist Accommodation Units,TAU,Combined,Placer County,Assigned to Community Plan/Area Plans,37,0,37,"May 12, 2026",2026-05-15,regional_plan_allocations.json
+Tourist Accommodation Units,TAU,Combined,Washoe County,Assigned to Community Plan/Area Plans,33,0,33,"May 12, 2026",2026-05-15,regional_plan_allocations.json
+Tourist Accommodation Units,TAU,Combined,Douglas County,Assigned to Community Plan/Area Plans,50,25,25,"May 12, 2026",2026-05-15,regional_plan_allocations.json
+Tourist Accommodation Units,TAU,Combined,El Dorado County,Assigned to Community Plan/Area Plans,10,0,10,"May 12, 2026",2026-05-15,regional_plan_allocations.json
+Tourist Accommodation Units,TAU,Combined,City of South Lake Tahoe,Assigned to Community Plan/Area Plans,25,0,25,"May 12, 2026",2026-05-15,regional_plan_allocations.json
+Tourist Accommodation Units,TAU,Combined,TRPA Tourist Bonus Unit Pool,Assigned to TRPA Tourist Bonus Unit Pool,240,166,74,"May 12, 2026",2026-05-15,regional_plan_allocations.json
