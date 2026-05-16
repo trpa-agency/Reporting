@@ -1,0 +1,57 @@
+{
+  "meta": {
+    "source": "TRPA analyst snapshot, April 2026 (Banked Development Right Index)",
+    "upstream_url": "https://parcels.laketahoeinfo.org/BankedDevelopmentRight/Index",
+    "as_of": "2026-03-26",
+    "commodities": ["MFRUU", "SFRUU", "TAU", "CFA"],
+    "units": {
+      "MFRUU": "units",
+      "SFRUU": "units",
+      "TAU":   "units",
+      "CFA":   "sq ft"
+    },
+    "notes": [
+      "Banked development rights are a separate pool from Regional Plan allocations.",
+      "TAU column reads 'Banked / Received' in the source; combines banked TAUs with received-but-not-yet-developed TAUs.",
+      "Carson County does not receive Tahoe Regional Plan allocations and shows zeros throughout.",
+      "TRPA Incentive Pool row is intentionally blank in the source - not a data gap, the pool simply does not bank development rights."
+    ]
+  },
+  "by_jurisdiction": [
+    { "jurisdiction": "City of South Lake Tahoe", "MFRUU": 41, "SFRUU": 144, "TAU": 948,   "CFA": 98465 },
+    { "jurisdiction": "Douglas County",           "MFRUU": 0,  "SFRUU": 96,  "TAU": 131,   "CFA": 95586 },
+    { "jurisdiction": "El Dorado County",         "MFRUU": 0,  "SFRUU": 31,  "TAU": 1,     "CFA": 6695  },
+    { "jurisdiction": "Placer County",            "MFRUU": 2,  "SFRUU": 53,  "TAU": 320,   "CFA": 61852 },
+    { "jurisdiction": "Washoe County",            "MFRUU": 4,  "SFRUU": 28,  "TAU": 101,   "CFA": 64178 },
+    { "jurisdiction": "Carson County",            "MFRUU": 0,  "SFRUU": 0,   "TAU": 0,     "CFA": 0     },
+    { "jurisdiction": "TRPA Incentive Pool",      "MFRUU": null, "SFRUU": null, "TAU": null, "CFA": null }
+  ],
+  "totals": {
+    "MFRUU": 47,
+    "SFRUU": 352,
+    "TAU":   1501,
+    "CFA":   326776
+  },
+  "long_form": [
+    { "jurisdiction": "City of South Lake Tahoe", "commodity": "MFRUU", "quantity": 41    },
+    { "jurisdiction": "City of South Lake Tahoe", "commodity": "SFRUU", "quantity": 144   },
+    { "jurisdiction": "City of South Lake Tahoe", "commodity": "TAU",   "quantity": 948   },
+    { "jurisdiction": "City of South Lake Tahoe", "commodity": "CFA",   "quantity": 98465 },
+    { "jurisdiction": "Douglas County",           "commodity": "MFRUU", "quantity": 0     },
+    { "jurisdiction": "Douglas County",           "commodity": "SFRUU", "quantity": 96    },
+    { "jurisdiction": "Douglas County",           "commodity": "TAU",   "quantity": 131   },
+    { "jurisdiction": "Douglas County",           "commodity": "CFA",   "quantity": 95586 },
+    { "jurisdiction": "El Dorado County",         "commodity": "MFRUU", "quantity": 0     },
+    { "jurisdiction": "El Dorado County",         "commodity": "SFRUU", "quantity": 31    },
+    { "jurisdiction": "El Dorado County",         "commodity": "TAU",   "quantity": 1     },
+    { "jurisdiction": "El Dorado County",         "commodity": "CFA",   "quantity": 6695  },
+    { "jurisdiction": "Placer County",            "commodity": "MFRUU", "quantity": 2     },
+    { "jurisdiction": "Placer County",            "commodity": "SFRUU", "quantity": 53    },
+    { "jurisdiction": "Placer County",            "commodity": "TAU",   "quantity": 320   },
+    { "jurisdiction": "Placer County",            "commodity": "CFA",   "quantity": 61852 },
+    { "jurisdiction": "Washoe County",            "commodity": "MFRUU", "quantity": 4     },
+    { "jurisdiction": "Washoe County",            "commodity": "SFRUU", "quantity": 28    },
+    { "jurisdiction": "Washoe County",            "commodity": "TAU",   "quantity": 101   },
+    { "jurisdiction": "Washoe County",            "commodity": "CFA",   "quantity": 64178 }
+  ]
+}

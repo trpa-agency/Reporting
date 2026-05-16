@@ -336,6 +336,7 @@ function drawAreaChart(highlightYear) {
     paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
     margin: { t: 10, r: 18, b: 36, l: 56 },
     hovermode: 'x unified',
+    hoverlabel: { bgcolor: '#ffffff', bordercolor: TRPA.ice, font: { color: TRPA.navy, family: 'Open Sans', size: 12 } },
     xaxis: { gridcolor: '#eef1f6', linecolor: '#d8dde6', range: [MIN_YEAR, MAX_YEAR] },
     yaxis: { gridcolor: '#eef1f6', linecolor: '#d8dde6', title: { text: 'Cumulative buildings', font: { size: 11 } }, tickformat: ',' },
     showlegend: false,
@@ -370,12 +371,14 @@ function drawEraChart(highlightYear) {
   const trace = {
     x, y, type: 'bar',
     marker: { color: markerColors },
-    hovertemplate: '<b>%{y:,}</b> buildings built<extra>%{x}</extra>'
+    hovertemplate: '<b>%{y:,}</b> buildings built<extra>New construction</extra>'
   };
   const layout = {
     font: { family: 'Open Sans, system-ui, sans-serif', color: TRPA.navy, size: 12 },
     paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
     margin: { t: 8, r: 18, b: 36, l: 56 },
+    hovermode: 'x unified',
+    hoverlabel: { bgcolor: '#ffffff', bordercolor: TRPA.ice, font: { color: TRPA.navy, family: 'Open Sans', size: 12 } },
     xaxis: { gridcolor: '#eef1f6', linecolor: '#d8dde6', range: [MIN_YEAR, MAX_YEAR] },
     yaxis: { gridcolor: '#eef1f6', linecolor: '#d8dde6', title: { text: 'Per year', font: { size: 11 } } },
     bargap: 0.05

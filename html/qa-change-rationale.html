@@ -123,8 +123,8 @@ header h1 span { color: var(--trpa-blue); }
     </div>
     <div class="header-meta">
       <div class="live-badge">Cluster E1</div><br>
-      Source: <code>data/qa_data/qa_change_events.csv</code><br>
-      + <code>qa_correction_detail.csv</code> (joined client-side)
+      Source: Cumulative_Accounting layer 14<br>
+      (Development Right QA Corrections; 5,925 joined rows)
     </div>
   </div>
 </header>
@@ -197,10 +197,7 @@ header h1 span { color: var(--trpa-blue); }
 </div>
 
 <div class="footnote">
-  <strong>Data:</strong> <a href="https://raw.githubusercontent.com/trpa-agency/Reporting/MTB-Edits/data/qa_data/qa_change_events.csv" style="color:var(--trpa-blue)">qa_change_events.csv</a>
-  + <a href="https://raw.githubusercontent.com/trpa-agency/Reporting/MTB-Edits/data/qa_data/qa_correction_detail.csv" style="color:var(--trpa-blue)">qa_correction_detail.csv</a>
-  - outputs of <code>notebooks/04_load_ca_changes.ipynb</code>. Joined client-side on <code>ChangeEventID</code>. Re-run the notebook when the analyst sends a new XLSX; see
-  <a href="../erd/qa_corrections_track.md" style="color:var(--trpa-blue)">erd/qa_corrections_track.md</a> for the full Track C plan.
+  <strong>Source:</strong> live from <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/14" style="color:var(--trpa-blue)">Cumulative_Accounting layer 14</a> ("Development Right QA Corrections"). 5,925 rows pre-joined server-side (Events + Detail). Paginated client-side since the layer exceeds the 2,000 maxRecordCount cap. Source-of-load: <code>qa_change_events.csv</code> + <code>qa_correction_detail.csv</code> (from <code>notebooks/04_load_ca_changes.ipynb</code>) joined by <code>scripts/convert_qa_corrections.py</code>.
 </div>
 
 <script>
@@ -210,62 +207,50 @@ const TRPA = {
   ice:'#B4CBE8',
 };
 
-const EVENTS_URL = 'https://raw.githubusercontent.com/trpa-agency/Reporting/MTB-Edits/data/qa_data/qa_change_events.csv';
-const DETAIL_URL = 'https://raw.githubusercontent.com/trpa-agency/Reporting/MTB-Edits/data/qa_data/qa_correction_detail.csv';
+// Joined event + detail rows: live from Cumulative_Accounting layer 14
+// (Development Right QA Corrections). 5,925 rows; the layer pre-joins
+// Events + Detail server-side, so no client-side join is needed. The layer
+// exceeds the 2,000 maxRecordCount cap, so the loader paginates.
+const QA_CORRECTIONS_URL = 'https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/14/query'
+  + '?where=1%3D1'
+  + '&outFields=ChangeEventID%2CRawAPN%2CCanonicalAPN%2CYear%2CQuantity_Delta%2CRationale%2CRecordedBy%2CReportingYear%2CSweepCampaign%2CCorrectionCategory%2CCorrectionCategoryCanonical'
+  + '&orderByFields=ChangeEventID'
+  + '&returnGeometry=false&f=json';
 
 let allRows  = [];   // joined event + detail rows
 let gridApi  = null;
 let activeFilters = { year: 'all', sweep: 'all', vocab: 'all', search: '' };
 
-// ─── Minimal CSV parser (handles quoted fields with commas) ───
-function parseCSV(text) {
-  const lines = text.split(/\r?\n/).filter(l => l.length > 0);
-  if (!lines.length) return [];
-  const headers = parseRow(lines[0]);
-  return lines.slice(1).map(line => {
-    const cells = parseRow(line);
-    const obj = {};
-    headers.forEach((h, i) => obj[h] = cells[i] !== undefined ? cells[i] : '');
-    return obj;
-  });
-}
-function parseRow(line) {
-  const out = []; let cur = ''; let inQ = false;
-  for (let i = 0; i < line.length; i++) {
-    const c = line[i];
-    if (inQ) {
-      if (c === '"' && line[i+1] === '"') { cur += '"'; i++; }
-      else if (c === '"') { inQ = false; }
-      else cur += c;
-    } else {
-      if (c === ',') { out.push(cur); cur = ''; }
-      else if (c === '"') { inQ = true; }
-      else cur += c;
-    }
+async function loadQaCorrections() {
+  // Paginate: layer 14 has 5,925 rows > 2,000 maxRecordCount.
+  const collected = [];
+  let offset = 0;
+  while (true) {
+    const url = QA_CORRECTIONS_URL + '&resultOffset=' + offset + '&resultRecordCount=2000';
+    const r   = await fetch(url, { cache: 'no-cache' });
+    if (!r.ok) throw new Error('QA corrections: HTTP ' + r.status);
+    const js   = await r.json();
+    const feats = js.features || js.rows || [];
+    if (!feats.length) break;
+    const rows = Array.isArray(js.features) ? feats.map(f => f.attributes) : feats;
+    collected.push(...rows);
+    offset += rows.length;
+    if (rows.length < 2000) break;
   }
-  out.push(cur);
-  return out;
-}
-
-// ─── Join + populate ───
-function joinAndPopulate(events, details) {
-  const detailById = {};
-  for (const d of details) detailById[d.ChangeEventID] = d;
-  allRows = events.map(e => {
-    const d = detailById[e.ChangeEventID] || {};
-    return {
-      ChangeEventID:        e.ChangeEventID,
-      RawAPN:               e.RawAPN,
-      CanonicalAPN:         e.CanonicalAPN,
-      ReportingYear:        d.ReportingYear || e.Year,
-      SweepCampaign:        d.SweepCampaign || '',
-      Quantity_Delta:       parseInt(e.Quantity_Delta, 10) || 0,
-      CorrectionCategory:   d.CorrectionCategory || '',
-      Canonical:            d.CorrectionCategoryCanonical === 'True',
-      Rationale:            e.Rationale || '',
-      RecordedBy:           e.RecordedBy || '',
-    };
-  });
+  if (!collected.length) throw new Error('no rows in QA corrections payload');
+  // Map the joined rows to the lean shape the dashboard needs.
+  allRows = collected.map(r => ({
+    ChangeEventID:        r.ChangeEventID,
+    RawAPN:               r.RawAPN,
+    CanonicalAPN:         r.CanonicalAPN,
+    ReportingYear:        r.ReportingYear || r.Year,
+    SweepCampaign:        r.SweepCampaign || '',
+    Quantity_Delta:       parseInt(r.Quantity_Delta, 10) || 0,
+    CorrectionCategory:   r.CorrectionCategory || '',
+    Canonical:            r.CorrectionCategoryCanonical === true || r.CorrectionCategoryCanonical === 'True',
+    Rationale:            r.Rationale || '',
+    RecordedBy:           r.RecordedBy || '',
+  }));
 }
 
 function updateKPIs() {
@@ -371,11 +356,13 @@ function renderCategoryChart(rows) {
   Plotly.react('cat-chart', [{
     type: 'bar', orientation: 'h',
     x: values, y: labels, marker: { color: colors },
-    hovertemplate: '<b>%{x:,}</b> events<extra>%{y}</extra>',
+    hovertemplate: '<b>%{x:,}</b> events<extra>Correction category</extra>',
   }], {
     font: { family: '"Open Sans", system-ui, sans-serif', color: TRPA.navy, size: 11 },
     paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
     margin: { t: 8, r: 16, b: 30, l: 280 },
+    hovermode: 'y unified',  // horizontal bar - category (y) reads as the tooltip header
+    hoverlabel: { bgcolor: '#ffffff', bordercolor: TRPA.ice, font: { color: TRPA.navy, family: '"Open Sans"', size: 12 } },
     xaxis: { gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 10 } },
     yaxis: { autorange: 'reversed', tickfont: { size: 10 }, automargin: true },
     showlegend: false,
@@ -403,16 +390,8 @@ function downloadCSV() {
 document.addEventListener('DOMContentLoaded', async () => {
   const bar = document.querySelector('#loading-bar');
   try {
-    if (bar) bar.style.width = '20%';
-    const [evResp, dtResp] = await Promise.all([fetch(EVENTS_URL), fetch(DETAIL_URL)]);
-    if (!evResp.ok) throw new Error('events: HTTP ' + evResp.status);
-    if (!dtResp.ok) throw new Error('details: HTTP ' + dtResp.status);
-    if (bar) bar.style.width = '60%';
-    const [evText, dtText] = await Promise.all([evResp.text(), dtResp.text()]);
-    if (bar) bar.style.width = '85%';
-    const events  = parseCSV(evText);
-    const details = parseCSV(dtText);
-    joinAndPopulate(events, details);
+    if (bar) bar.style.width = '30%';
+    await loadQaCorrections();
     if (bar) bar.style.width = '100%';
   } catch (e) {
     document.querySelector('#loading-overlay').innerHTML =

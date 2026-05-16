@@ -1,0 +1,150 @@
+{
+  "asOfDate": "2026-05-15",
+  "sourceFile": "AllocationsBalances_May2026.xlsx",
+  "rows": [
+    {
+      "Source": "Grand Total",
+      "Commodity": "Residential allocations",
+      "CommodityCode": "RES",
+      "TotalAuthorized": 8687,
+      "AllocatedToPrivate": 6909,
+      "JurisdictionPool": 854,
+      "TRPAPool": 154,
+      "Unreleased": 770,
+      "TotalBalanceRemaining": 1778,
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Source": "Grand Total",
+      "Commodity": "Residential bonus units",
+      "CommodityCode": "RBU",
+      "TotalAuthorized": 2000,
+      "AllocatedToPrivate": 1260,
+      "JurisdictionPool": 238,
+      "TRPAPool": 502,
+      "Unreleased": 0,
+      "TotalBalanceRemaining": 740,
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Source": "Grand Total",
+      "Commodity": "Commercial floor area",
+      "CommodityCode": "CFA",
+      "TotalAuthorized": 1000000,
+      "AllocatedToPrivate": 511106,
+      "JurisdictionPool": 151703,
+      "TRPAPool": 137191,
+      "Unreleased": 200000,
+      "TotalBalanceRemaining": 488894,
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Source": "Grand Total",
+      "Commodity": "Tourist accommodation",
+      "CommodityCode": "TAU",
+      "TotalAuthorized": 400,
+      "AllocatedToPrivate": 196,
+      "JurisdictionPool": 130,
+      "TRPAPool": 74,
+      "Unreleased": 0,
+      "TotalBalanceRemaining": 204,
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Source": "1987 Regional Plan",
+      "Commodity": "Residential allocations",
+      "CommodityCode": "RES",
+      "TotalAuthorized": 6087,
+      "AllocatedToPrivate": 6070,
+      "JurisdictionPool": 17,
+      "TRPAPool": 0,
+      "Unreleased": 0,
+      "TotalBalanceRemaining": 17,
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Source": "1987 Regional Plan",
+      "Commodity": "Residential bonus units",
+      "CommodityCode": "RBU",
+      "TotalAuthorized": 1400,
+      "AllocatedToPrivate": 1042,
+      "JurisdictionPool": 238,
+      "TRPAPool": 120,
+      "Unreleased": 0,
+      "TotalBalanceRemaining": 358,
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Source": "1987 Regional Plan",
+      "Commodity": "Commercial floor area",
+      "CommodityCode": "CFA",
+      "TotalAuthorized": 800000,
+      "AllocatedToPrivate": 511106,
+      "JurisdictionPool": 151703,
+      "TRPAPool": 137191,
+      "Unreleased": 0,
+      "TotalBalanceRemaining": 288894,
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Source": "1987 Regional Plan",
+      "Commodity": "Tourist accommodation",
+      "CommodityCode": "TAU",
+      "TotalAuthorized": 400,
+      "AllocatedToPrivate": 196,
+      "JurisdictionPool": 130,
+      "TRPAPool": 74,
+      "Unreleased": 0,
+      "TotalBalanceRemaining": 204,
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Source": "2012 Regional Plan",
+      "Commodity": "Residential allocations",
+      "CommodityCode": "RES",
+      "TotalAuthorized": 2600,
+      "AllocatedToPrivate": 839,
+      "JurisdictionPool": 837,
+      "TRPAPool": 154,
+      "Unreleased": 770,
+      "TotalBalanceRemaining": 1761,
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Source": "2012 Regional Plan",
+      "Commodity": "Residential bonus units",
+      "CommodityCode": "RBU",
+      "TotalAuthorized": 600,
+      "AllocatedToPrivate": 218,
+      "JurisdictionPool": 0,
+      "TRPAPool": 382,
+      "Unreleased": 0,
+      "TotalBalanceRemaining": 382,
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Source": "2012 Regional Plan",
+      "Commodity": "Commercial floor area",
+      "CommodityCode": "CFA",
+      "TotalAuthorized": 200000,
+      "AllocatedToPrivate": 0,
+      "JurisdictionPool": 0,
+      "TRPAPool": 0,
+      "Unreleased": 200000,
+      "TotalBalanceRemaining": 200000,
+      "AsOfDate": "2026-05-15"
+    },
+    {
+      "Source": "2012 Regional Plan",
+      "Commodity": "Tourist accommodation",
+      "CommodityCode": "TAU",
+      "TotalAuthorized": 0,
+      "AllocatedToPrivate": 0,
+      "JurisdictionPool": 0,
+      "TRPAPool": 0,
+      "Unreleased": 0,
+      "TotalBalanceRemaining": 0,
+      "AsOfDate": "2026-05-15"
+    }
+  ]
+}

@@ -75,7 +75,13 @@ header h1 span { color: var(--trpa-blue); }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px 24px; box-shadow: var(--shadow); }
 .card h3 { font-size: 0.95rem; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
 .card p { font-size: 0.75rem; color: var(--text-light); margin-bottom: 14px; }
-.split { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+.split { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; align-items: stretch; }
+/* Left column stacks Composition over Banked/Conversion - both at the wider
+   2fr width. Right column's Major Completed Projects card stretches to match
+   the combined height. */
+.left-stack { display: flex; flex-direction: column; gap: 20px; }
+.right-tall { display: flex; flex-direction: column; }
+.right-tall .proj-list { flex: 1; overflow-y: auto; }
 
 /* ── Projects sidebar ── */
 .proj-list { font-size: 0.83rem; line-height: 1.55; }
@@ -126,32 +132,31 @@ header h1 span { color: var(--trpa-blue); }
   </div>
 </header>
 
-<!-- KPIs -->
+<!-- KPIs (values derived from SOURCES + REMOVED after loadAdditions() runs) -->
 <div class="kpi-row">
   <div class="kpi-card">
     <div class="kpi-accent" style="background:var(--trpa-navy)"></div>
-    <div class="kpi-label">Total completed 2013&ndash;2025</div>
-    <!-- 1,579 = gross sum of all SOURCES arrays -->
-    <div class="kpi-value">1,579</div>
-    <div class="kpi-sub">Avg 121 units/yr across 13 years</div>
+    <div class="kpi-label">Total completed <span id="kpi-range">&hellip;</span></div>
+    <div class="kpi-value" id="kpi-total">&hellip;</div>
+    <div class="kpi-sub" id="kpi-total-sub">&hellip;</div>
   </div>
   <div class="kpi-card">
     <div class="kpi-accent" style="background:var(--trpa-blue)"></div>
     <div class="kpi-label">Largest source overall</div>
-    <div class="kpi-value">887</div>
-    <div class="kpi-sub">From Allocations &middot; 56 percent of total additions</div>
+    <div class="kpi-value" id="kpi-largest">&hellip;</div>
+    <div class="kpi-sub"  id="kpi-largest-sub">&hellip;</div>
   </div>
   <div class="kpi-card">
     <div class="kpi-accent" style="background:var(--trpa-forest)"></div>
     <div class="kpi-label">2024&ndash;25 bonus surge</div>
-    <div class="kpi-value">155</div>
+    <div class="kpi-value" id="kpi-bonus">&hellip;</div>
     <div class="kpi-sub">Sugar Pine 70 + LTCC 85 affordable units</div>
   </div>
   <div class="kpi-card">
     <div class="kpi-accent" style="background:var(--trpa-orange)"></div>
-    <div class="kpi-label">Added Units This Year</div>
-    <div class="kpi-value">215</div>
-    <div class="kpi-sub">Highest year on record &middot; next-highest 2024 at 190</div>
+    <div class="kpi-label">Added Units <span id="kpi-latest-year">This Year</span></div>
+    <div class="kpi-value" id="kpi-latest">&hellip;</div>
+    <div class="kpi-sub"  id="kpi-latest-sub">&hellip;</div>
   </div>
 </div>
 
@@ -162,34 +167,35 @@ header h1 span { color: var(--trpa-blue); }
   <button class="toggle-btn"        id="btn-lines" onclick="setMode('lines')">Combined</button>
 </div>
 
-<!-- Main -->
+<!-- Main: LEFT column stacks Composition over Banked/Conversion (both at the
+     wider 2fr width); RIGHT column carries Major Completed Projects, tall,
+     spanning the full height of the left stack. -->
 <div class="section">
   <div class="split">
-    <div class="card">
-      <h3>Composition of completed residential units by source</h3>
-      <p>Gross completed units only; removals (banked or converted) are not shown here.</p>
-      <div id="main-chart" style="height:480px;"></div>
+    <div class="left-stack">
+      <div class="card">
+        <h3>Composition of completed residential units by source</h3>
+        <p>Gross completed units only; removals (banked or converted) are charted below.</p>
+        <div id="main-chart" style="height:480px;"></div>
+      </div>
+      <div class="card">
+        <h3>Residential units removed by year</h3>
+        <p>To Bank (left) and To Conversion (right) as faceted area charts. Both series are negative. 2013-2025 totals: -103 To Bank + -7 To Conversion = -110 net removed.</p>
+        <div id="removed-chart" style="height:340px;"></div>
+      </div>
     </div>
-    <div class="card">
+    <div class="card right-tall">
       <h3>Major completed projects</h3>
       <p>Residential units completed by year.</p>
       <div class="proj-list" id="proj-list"></div>
     </div>
   </div>
-
-  <!-- Removed-by-year chart: units returned to the pool via Banking or
-       Converted to another commodity. Sign-flipped so the bars go down,
-       making the additive/subtractive nature obvious next to the chart above. -->
-  <div class="card" style="margin-top: 16px;">
-    <h3>Residential units removed by year</h3>
-    <p>Units returned to the pool via <strong>Banking</strong> or <strong>Converted</strong> to a different commodity. Sign-flipped (negative) so the visual reads as subtraction from the chart above. Per the analyst's FINAL RES SUMMARY: 2013-2025 totals are -103 Banked + -7 Converted = -110 removed.</p>
-    <div id="removed-chart" style="height:300px;"></div>
-  </div>
 </div>
 
 <!-- Footnote -->
 <div class="footnote">
-  <strong>Data:</strong> <code>from_analyst/FINAL RES SUMMARY 2012 to 2025.xlsx</code> - Summary sheet <em>Added Residential Units</em> rows + <em>Major Completed Projects</em> column. Ultimate source: <code>dbo.TdrTransaction</code>, <code>dbo.ParcelPermitBankedDevelopmentRight</code>, <code>dbo.ResidentialBonusUnit*</code> in Corral, aggregated by year &times; movement type, filtered to SFRUU + MFRUU. See <a href="../erd/dashboards_to_schema_trace.md" style="color:var(--trpa-blue);">dashboards_to_schema_trace.md</a> for the trace.
+  <strong>Source:</strong> live from <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/11" style="color:var(--trpa-blue);">Cumulative_Accounting layer 11</a> ("Development Right Residential Units by Source"). 98 rows = 14 years x 7 source/direction combos. Normalized from the analyst's <code>FINAL RES SUMMARY 2012 to 2025.xlsx</code> via <code>scripts/convert_residential_additions.py</code>.
+  <br><strong>Major Completed Projects</strong> sidebar: live from <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/16" style="color:var(--trpa-blue);">Cumulative_Accounting layer 16</a> ("Development Right Residential Projects"). 26 rows (year x project), normalized from analyst PPTX + xlsx narrative by <code>scripts/convert_residential_projects.py</code>.
   <br><strong>Related:</strong> <a href="https://trpa.maps.arcgis.com/apps/dashboards/ddfe13ef914a48288bb4bc37c6b57936" style="color:var(--trpa-blue);">TRPA Development Rights Dashboard</a>.
 </div>
 
@@ -210,53 +216,117 @@ const TRPA = {
 };
 
 // ─────────────────────────────────────────
-// DATA - from the analyst's FINAL RES SUMMARY 2012 to 2025.xlsx, Summary sheet
-// "Added Residential Units from {Source}" rows
+// DATA - residential additions / removals per year, per source
 // ─────────────────────────────────────────
-const YEARS = [2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025];
+// Live from Cumulative_Accounting layer 11 (Development Right Residential
+// Units by Source). 98 rows = 14 years (2012-2025) x 7 source/direction
+// combos. Source-of-load is the analyst's FINAL RES SUMMARY xlsx, normalized
+// by scripts/convert_residential_additions.py and pushed to SDE. loadAdditions()
+// reshapes the long-form rows into the per-year arrays the existing
+// renderFacet / renderCombined / renderRemovedArea functions consume.
+const RESIDENTIAL_ADDITIONS_URL = 'https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/11/query'
+  + '?where=1%3D1'
+  + '&outFields=Year%2CDirection%2CSource%2CUnits'
+  + '&orderByFields=Year%2CDirection%2CSource'
+  + '&returnGeometry=false&f=json';
 
-const SOURCES = [
-  { key: 'allocations', name: 'Allocations',  color: TRPA.blue,
-    data:  [51, 56, 88, 72, 66, 76, 64, 103, 69, 83, 47, 50, 62] },
-  { key: 'bonus',       name: 'Bonus Units',  color: TRPA.forest,
-    data:  [ 0, 48,  0,  0,  0,  0,  9,   1,  1,  4,  4, 70, 85] },
-  { key: 'transfers',   name: 'Transfers',    color: TRPA.orange,
-    data:  [ 1,  3,  7,  4,  8,  6,  8,  43, 10,  7, 10, 15, 16] },
-  { key: 'conversions', name: 'Conversions',  color: TRPA.earth,
-    data:  [ 1,  2,  4, 10,  3,  0,  3,  19, 27,  2, 17, 42, 31] },
-  { key: 'banked',      name: 'From Banked',  color: TRPA.purple,
-    data:  [ 5,  8,  3,  3,  3,  5, 14,  32, 29,  7, 28, 13, 21] },
-];
+let YEARS   = [];   // populated by loadAdditions()
+let SOURCES = [];   // [{ key, name, color, data: [year-aligned] }, ...] - 5 Added rows
+let REMOVED = [];   // [{ key, name, color, data: [year-aligned] }, ...] - 2 Removed rows
 
-// Removed by year - from the analyst's FINAL RES SUMMARY Summary sheet
-// "Banked" and "Converted" rows. Sign-flipped (already negative) so the bars
-// render downward and read as subtractive next to the additions chart.
-// 2013-2025 totals: -103 Banked + -7 Converted = -110 net Removed.
-const REMOVED = [
-  { key: 'banked_out', name: 'Banked',    color: TRPA.brick,
-    data:  [-4, -5, -14, -21, -8, -20, -8, -3, -2, -4, -4, -4, -6] },
-  { key: 'converted',  name: 'Converted', color: TRPA.earth,
-    data:  [ 0,  0,   0,   0,  0,   0,  0, -1, -4,  0,  0,  0, -2] },
-];
+// Stable visual identity per source. Keys must match the layer 11 Source field
+// values (case-sensitive). Added series + Removed series share key namespaces
+// where the semantics overlap (Banked added vs Banked removed); display names
+// disambiguate.
+const ADDED_META = {
+  'Allocations': { key: 'allocations', name: 'Allocations', color: TRPA.blue   },
+  'Bonus Units': { key: 'bonus',       name: 'Bonus Units', color: TRPA.forest },
+  'Transfers':   { key: 'transfers',   name: 'Transfers',   color: TRPA.orange },
+  'Conversions': { key: 'conversions', name: 'Conversions', color: TRPA.earth  },
+  'Banked':      { key: 'banked',      name: 'From Banked', color: TRPA.purple },
+};
+const REMOVED_META = {
+  'Banked':    { key: 'to_bank', name: 'To Bank',       color: TRPA.brick },
+  'Converted': { key: 'to_conv', name: 'To Conversion', color: TRPA.earth },
+};
 
-// Major completed projects (PPTX slide 4 + the analyst's Summary "Major Completed Projects" row)
-const PROJECTS = [
-  { yr: 2014, items: ['Aspens: 48 units (47 affordable, 1 moderate)'] },
-  { yr: 2016, items: ['Peak 10: 10 units'] },
-  { yr: 2018, items: ['Sierra Colina: 1 unit'] },
-  { yr: 2019, items: ['Tahoe City Marina: 10 units', 'Sierra Colina: 4 units'] },
-  { yr: 2020, items: ['Beach Club: 25 units', 'Wildwood Commons: 23 units', 'Gondola Vista: 20 units', 'Sierra Colina: 5 units'] },
-  { yr: 2021, items: ['Beach Club: 21 units', 'Sierra Colina: 6 units', 'WoodVista: 6 units', 'Tahoe Cedars: 4 units'] },
-  { yr: 2022, items: ['Emerald Bay Cabins: 6 units', 'Sierra Colina: 3 units'] },
-  { yr: 2023, items: ['Beach Club: 24 units', 'Sierra Colina: 6 units'] },
-  { yr: 2024, items: ['Sugar Pine: 69 units (67 affordable)', 'Birds Nest: 21 MF units (affordable)', '395 N Lake: 12 MF units', 'Sierra Colina: 11 units', 'Beach Club: 8 units'] },
-  { yr: 2025, items: ['Sugar Pine: 60 units (59 affordable)', 'LTCC Dorms: 41 units (19 affordable / 1 achievable)', 'Beach Club: 16 units', 'Sierra Colina: 8 units'] },
-];
+async function loadAdditions() {
+  const r = await fetch(RESIDENTIAL_ADDITIONS_URL, { cache: 'no-cache' });
+  if (!r.ok) throw new Error('residential additions: HTTP ' + r.status);
+  const js = await r.json();
+  // Accept both formats: { rows: [...] } from local JSON OR ESRI features
+  // payload { features: [{ attributes: {...} }, ...] } from layer 11.
+  const rows = Array.isArray(js.rows) ? js.rows
+             : Array.isArray(js.features) ? js.features.map(f => f.attributes)
+             : [];
+  if (!rows.length) throw new Error('no rows in residential additions payload');
+
+  // Build year list from data (drop years with all zeros - the dashboard's
+  // 2012 column is structurally zero since the source xlsx doesn't carry a
+  // 2012 baseline addition number).
+  const allYears = [...new Set(rows.map(r => r.Year))].sort((a, b) => a - b);
+  YEARS = allYears.filter(y => rows.some(r => r.Year === y && r.Units !== 0));
+
+  // Reshape long-form rows into per-source year-aligned arrays.
+  const byKey = (meta) => Object.fromEntries(Object.keys(meta).map(k => [k, YEARS.map(() => 0)]));
+  const added   = byKey(ADDED_META);
+  const removed = byKey(REMOVED_META);
+  for (const row of rows) {
+    const yIdx = YEARS.indexOf(row.Year);
+    if (yIdx < 0) continue;
+    if (row.Direction === 'Added'   && added[row.Source]  ) added[row.Source][yIdx]   = row.Units;
+    if (row.Direction === 'Removed' && removed[row.Source]) removed[row.Source][yIdx] = row.Units;
+  }
+  SOURCES = Object.entries(ADDED_META  ).map(([s, m]) => ({ ...m, data: added[s]   }));
+  REMOVED = Object.entries(REMOVED_META).map(([s, m]) => ({ ...m, data: removed[s] }));
+}
+
+// Major completed projects: live from Cumulative_Accounting layer 16
+// (Development Right Residential Projects). 26 rows = (year, project).
+// Source-of-load is analyst PPTX slide 4 + xlsx narrative, codified in
+// scripts/convert_residential_projects.py.
+const RESIDENTIAL_PROJECTS_URL = 'https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/16/query'
+  + '?where=1%3D1'
+  + '&outFields=Year%2CProjectName%2CUnits%2CNotes%2CDescription'
+  + '&orderByFields=Year%2CProjectName'
+  + '&returnGeometry=false&f=json';
+let PROJECTS = [];   // [{ yr, items: [Description, ...] }, ...] - grouped by year for the renderer
+
+async function loadProjects() {
+  const r = await fetch(RESIDENTIAL_PROJECTS_URL, { cache: 'no-cache' });
+  if (!r.ok) throw new Error('residential projects: HTTP ' + r.status);
+  const js = await r.json();
+  const rows = Array.isArray(js.rows)     ? js.rows
+             : Array.isArray(js.features) ? js.features.map(f => f.attributes)
+             : [];
+  if (!rows.length) throw new Error('no rows in residential projects payload');
+  // Group rows by Year into the existing {yr, items} shape so renderProjects
+  // can stay essentially unchanged. Sort each year's items alphabetically by
+  // ProjectName for stable display.
+  const byYear = new Map();
+  for (const r of rows) {
+    const yr = r.Year;
+    if (!byYear.has(yr)) byYear.set(yr, []);
+    byYear.get(yr).push(r);
+  }
+  PROJECTS = [...byYear.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([yr, items]) => ({
+      yr,
+      items: items
+        .sort((a, b) => a.ProjectName.localeCompare(b.ProjectName))
+        .map(r => r.Description || (r.ProjectName + ': ' + r.Units + ' units' + (r.Notes ? ' (' + r.Notes + ')' : ''))),
+    }));
+}
 
 // ─────────────────────────────────────────
 // CHART RENDERING
 // ─────────────────────────────────────────
-const plotFont = { family: '"Open Sans", system-ui, sans-serif', color: TRPA.navy, size: 12 };
+const plotFont  = { family: '"Open Sans", system-ui, sans-serif', color: TRPA.navy, size: 12 };
+// Shared hover styling - white background, ice border, navy text. Pair with
+// hovermode: 'x unified' on every chart so the year (x-axis) reads as the
+// tooltip header and each series shows as a row underneath.
+const HOVERLABEL = { bgcolor: '#ffffff', bordercolor: TRPA.ice, font: { color: TRPA.navy, family: '"Open Sans"', size: 12 } };
 
 let mode = 'facet';
 
@@ -296,6 +366,7 @@ function renderCombined() {
     plot_bgcolor:  'rgba(0,0,0,0)',
     margin: { t: 16, r: 24, b: 56, l: 56 },
     hovermode: 'x unified',
+    hoverlabel: HOVERLABEL,
     xaxis: {
       title: { text: 'Year', font: { size: 12 } },
       tickmode: 'linear', dtick: 1,
@@ -317,17 +388,16 @@ function renderCombined() {
 // FACET MODE - one small chart per source, 3x2 grid
 // ─────────────────────────────────────────
 function renderFacet() {
-  // 6th panel: total completed units per year (element-wise sum across sources).
-  // All panels share one Y range so the total reads as comparable to its parts.
-  const totalSeries = {
-    key: 'total', name: 'Total Completed', color: TRPA.navy,
-    data: YEARS.map((_, idx) => SOURCES.reduce((sum, s) => sum + s.data[idx], 0)),
-  };
-  const panels = [...SOURCES, totalSeries];
+  // Five addition sources only. The Net Change panel was removed (per Ken's
+  // 2026-05-15 note: a total panel pulls the shared y-axis scale upward and
+  // crushes the individual stories). The removed series (To Bank + To
+  // Conversion) render as their own full-width charts below this grid -
+  // renderRemovedCharts() handles them.
+  const panels = [...SOURCES];
   const maxY = Math.max(...panels.flatMap(s => s.data));
   const yMax = Math.ceil(maxY / 10) * 10 + 5;
 
-  // 3 columns x 2 rows - 5 sources + 1 total = all 6 cells filled
+  // 3 columns x 2 rows = 6 cells; 5 panels = one empty cell in the bottom-right.
   const COLS = 3, ROWS = 2;
   const traces = [];
   const annotations = [];
@@ -443,36 +513,136 @@ function renderProjects() {
 }
 
 // ─────────────────────────────────────────
-// REMOVED-BY-YEAR (Banked + Converted, sign-flipped down)
+// REMOVED FACETS - To Bank (left) and To Conversion (right) as two area
+// facets side-by-side. Independent y-axes so the small-magnitude Converted
+// series stays legible next to Bank. Titles sit above each panel in paper
+// coords (margin.t reserved) so they never overlap chart data.
 // ─────────────────────────────────────────
-function renderRemoved() {
-  const traces = REMOVED.map(r => ({
-    name:  r.name,
-    type:  'bar',
-    x:     YEARS,
-    y:     r.data,
-    marker:{ color: r.color },
-    hovertemplate: '<b>%{y}</b> units<extra>' + r.name + ' &middot; %{x}</extra>',
-  }));
-  Plotly.react('removed-chart', traces, {
-    barmode: 'stack',
-    font: { family: '"Open Sans", system-ui, sans-serif', color: TRPA.navy },
+function renderRemovedArea() {
+  const panels = REMOVED;  // [To Bank, To Conversion]
+  const traces = [];
+  const annotations = [];
+  const axes = {};
+  const gap = 0.08;
+  const cellW = (1 - gap) / 2;
+
+  panels.forEach((s, i) => {
+    const xref = i === 0 ? 'x' : 'x' + (i + 1);
+    const yref = i === 0 ? 'y' : 'y' + (i + 1);
+    const total = s.data.reduce((a, b) => a + b, 0);
+    const minY  = Math.min(...s.data);
+    const yFloor = Math.floor(minY / 5) * 5 - 2;
+    // Side-by-side: split x-domain into two halves with a gap between them
+    const x0 = i * (cellW + gap);
+    const x1 = x0 + cellW;
+
+    traces.push({
+      name: s.name, type: 'scatter', mode: 'lines',
+      x: YEARS, y: s.data,
+      xaxis: xref, yaxis: yref,
+      line: { color: s.color, width: 1.5 },
+      fill: 'tozeroy',
+      fillcolor: hexA(s.color, 0.55),
+      showlegend: false,
+      hovertemplate: '<b>%{y}</b> units<extra>' + s.name + '</extra>',
+    });
+    // Title centered above each panel, in paper coords so it lives in the
+    // top margin (margin.t below) and never overlaps the area fill.
+    annotations.push({
+      xref: 'paper', yref: 'paper',
+      x: (x0 + x1) / 2, y: 1.0,
+      xanchor: 'center', yanchor: 'bottom',
+      text: '<b>' + s.name + '</b>  <span style="color:#8a9bb2;font-size:10px">· ' + total.toLocaleString() + ' total</span>',
+      showarrow: false,
+      font: { color: s.color, size: 12, family: '"Open Sans"' },
+    });
+    axes['xaxis' + (i === 0 ? '' : (i + 1))] = {
+      domain: [x0, x1],
+      anchor: yref,
+      tickmode: 'array', tickvals: YEARS, ticktext: YEARS.map(String),
+      gridcolor: '#eef1f6', linecolor: TRPA.ice, tickfont: { size: 9, color: TRPA.navy },
+    };
+    axes['yaxis' + (i === 0 ? '' : (i + 1))] = {
+      domain: [0, 1],
+      anchor: xref,
+      range: [yFloor, 1],
+      gridcolor: '#eef1f6', linecolor: TRPA.ice, tickfont: { size: 9, color: TRPA.navy },
+      zeroline: true, zerolinecolor: '#d8dde6', zerolinewidth: 1.5,
+    };
+  });
+
+  Plotly.newPlot('removed-chart', traces, Object.assign({
+    font: plotFont,
     paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
-    margin: { t: 8, r: 20, b: 36, l: 56 },
-    xaxis: { tickmode: 'array', tickvals: YEARS, ticktext: YEARS.map(String), gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 10 } },
-    yaxis: { title: { text: 'Units removed', font: { size: 11 } }, gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 10 }, zeroline: true, zerolinecolor: TRPA.ice, zerolinewidth: 1 },
-    legend: { orientation: 'h', y: -0.2, font: { size: 11 } },
+    margin: { t: 36, r: 18, b: 36, l: 50 },  // t=36 reserves space for the title strip above the panels
+    hoverlabel: HOVERLABEL,
     hovermode: 'x unified',
-  }, { responsive: true, displayModeBar: false });
+    annotations,
+  }, axes), { responsive: true, displayModeBar: false });
+}
+
+// ─────────────────────────────────────────
+// KPIs (derived from SOURCES + REMOVED)
+// ─────────────────────────────────────────
+function renderKPIs() {
+  if (!YEARS.length) return;
+  const yrFrom = YEARS[0];
+  const yrTo   = YEARS[YEARS.length - 1];
+  const span   = yrTo - yrFrom + 1;
+
+  // KPI 1: total completed across the visible range
+  const sumAll = SOURCES.reduce((s, src) => s + src.data.reduce((a, b) => a + b, 0), 0);
+  document.getElementById('kpi-range').textContent     = yrFrom + '-' + yrTo;
+  document.getElementById('kpi-total').textContent     = sumAll.toLocaleString();
+  document.getElementById('kpi-total-sub').textContent = 'Avg ' + Math.round(sumAll / span).toLocaleString() + ' units/yr across ' + span + ' years';
+
+  // KPI 2: largest source overall
+  const ranked = SOURCES.map(s => ({ name: s.name, total: s.data.reduce((a, b) => a + b, 0) })).sort((a, b) => b.total - a.total);
+  const top = ranked[0];
+  const pct = sumAll ? Math.round(100 * top.total / sumAll) : 0;
+  document.getElementById('kpi-largest').textContent     = top.total.toLocaleString();
+  document.getElementById('kpi-largest-sub').textContent = 'From ' + top.name + ' · ' + pct + ' percent of total additions';
+
+  // KPI 3: 2024-25 bonus surge (last 2 years of Bonus Units)
+  const bonusSrc = SOURCES.find(s => s.key === 'bonus');
+  let bonusSurge = 0;
+  if (bonusSrc) {
+    const lastTwo = bonusSrc.data.slice(-2);
+    bonusSurge = lastTwo.reduce((a, b) => a + b, 0);
+  }
+  document.getElementById('kpi-bonus').textContent = bonusSurge.toLocaleString();
+
+  // KPI 4: added units in the latest year + comparison to 2nd-latest
+  const latestIdx = YEARS.length - 1;
+  const prevIdx   = Math.max(0, YEARS.length - 2);
+  const latestAdd = SOURCES.reduce((s, src) => s + (src.data[latestIdx] || 0), 0);
+  const prevAdd   = SOURCES.reduce((s, src) => s + (src.data[prevIdx]   || 0), 0);
+  document.getElementById('kpi-latest-year').textContent = 'in ' + YEARS[latestIdx];
+  document.getElementById('kpi-latest').textContent      = latestAdd.toLocaleString();
+  const sub = latestAdd > prevAdd
+    ? 'Up from ' + prevAdd.toLocaleString() + ' in ' + YEARS[prevIdx]
+    : latestAdd < prevAdd
+      ? 'Down from ' + prevAdd.toLocaleString() + ' in ' + YEARS[prevIdx]
+      : 'Same as ' + YEARS[prevIdx];
+  document.getElementById('kpi-latest-sub').textContent = sub;
 }
 
 // ─────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    await Promise.all([loadAdditions(), loadProjects()]);
+  } catch (e) {
+    console.error('residential additions/projects load failed:', e);
+    document.querySelector('#main-chart').innerHTML =
+      '<div style="padding:24px;color:' + TRPA.brick + ';">Data load error: ' + e.message + '</div>';
+    return;
+  }
+  renderKPIs();
   render();
   renderProjects();
-  renderRemoved();
+  renderRemovedArea();
 });
 </script>
 </body>

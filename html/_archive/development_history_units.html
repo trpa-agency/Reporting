@@ -267,6 +267,7 @@ function drawAreaChart(yearIdx) {
     paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
     margin: { t: 10, r: 18, b: 36, l: 56 },
     hovermode: 'x unified',
+    hoverlabel: { bgcolor: '#ffffff', bordercolor: TRPA.ice, font: { color: TRPA.navy, family: 'Open Sans', size: 12 } },
     xaxis: { gridcolor: '#eef1f6', linecolor: '#d8dde6', range: [MIN_YEAR, MAX_YEAR] },
     yaxis: { gridcolor: '#eef1f6', linecolor: '#d8dde6', title: { text: 'Cumulative units', font: { size: 11 } }, tickformat: ',' },
     showlegend: false,
@@ -305,12 +306,14 @@ function drawHistoChart(year) {
     marker: { color: colors },
     text: cats.map(c => buckets[c].toLocaleString()),
     textposition: 'outside',
-    hovertemplate: '%{x} unit(s): %{y:,} buildings<extra></extra>'
+    hovertemplate: '<b>%{y:,}</b> buildings<extra>%{x} unit(s) each</extra>'
   };
   const layout = {
     font: { family: 'Open Sans, system-ui, sans-serif', color: TRPA.navy, size: 12 },
     paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
     margin: { t: 16, r: 18, b: 36, l: 56 },
+    hovermode: 'x unified',
+    hoverlabel: { bgcolor: '#ffffff', bordercolor: TRPA.ice, font: { color: TRPA.navy, family: 'Open Sans', size: 12 } },
     xaxis: { title: { text: 'Units per building', font: { size: 11 } } },
     yaxis: { gridcolor: '#eef1f6', linecolor: '#d8dde6', tickformat: ',' },
     bargap: 0.3

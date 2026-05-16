@@ -1,0 +1,29 @@
+{
+  "asOfDate": "2026-05-15",
+  "rows": [
+    {
+      "CommodityCode": "RES",
+      "Commodity": "Residential allocations",
+      "Units": 698,
+      "Unit": "units",
+      "AsOfDate": "2026-05-15",
+      "SourceNote": "analyst tally; path-to-live = layer 4 Construction_Status + 1987 RP equivalent"
+    },
+    {
+      "CommodityCode": "CFA",
+      "Commodity": "Commercial floor area",
+      "Units": 46962,
+      "Unit": "sq ft",
+      "AsOfDate": "2026-05-15",
+      "SourceNote": "analyst tally; path-to-live = layer 4 Construction_Status + 1987 RP equivalent"
+    },
+    {
+      "CommodityCode": "TAU",
+      "Commodity": "Tourist accommodation units",
+      "Units": 138,
+      "Unit": "units",
+      "AsOfDate": "2026-05-15",
+      "SourceNote": "analyst tally; path-to-live = layer 4 Construction_Status + 1987 RP equivalent"
+    }
+  ]
+}

@@ -1,0 +1,292 @@
+{
+  "asOfDate": "May 12, 2026",
+  "sourceFile": "regional_plan_allocations.json",
+  "rows": [
+    {
+      "Commodity": "Residential Allocations",
+      "CommodityCode": "RES",
+      "Plan": "Combined",
+      "Pool": "Placer County",
+      "Group": "Jurisdiction",
+      "RegionalPlanMaximum": 2037,
+      "AssignedToProjects": 1688,
+      "NotAssigned": 349,
+      "AsOfDate": "May 12, 2026"
+    },
+    {
+      "Commodity": "Residential Allocations",
+      "CommodityCode": "RES",
+      "Plan": "Combined",
+      "Pool": "Washoe County",
+      "Group": "Jurisdiction",
+      "RegionalPlanMaximum": 1141,
+      "AssignedToProjects": 1006,
+      "NotAssigned": 135,
+      "AsOfDate": "May 12, 2026"
+    },
+    {
+      "Commodity": "Residential Allocations",
+      "CommodityCode": "RES",
+      "Plan": "Combined",
+      "Pool": "Douglas County",
+      "Group": "Jurisdiction",
+      "RegionalPlanMaximum": 556,
+      "AssignedToProjects": 463,
+      "NotAssigned": 93,
+      "AsOfDate": "May 12, 2026"
+    },
+    {
+      "Commodity": "Residential Allocations",
+      "CommodityCode": "RES",
+      "Plan": "Combined",
+      "Pool": "El Dorado County",
+      "Group": "Jurisdiction",
+      "RegionalPlanMaximum": 2914,
+      "AssignedToProjects": 2816,
+      "NotAssigned": 98,
+      "AsOfDate": "May 12, 2026"
+    },
+    {
+      "Commodity": "Residential Allocations",
+      "CommodityCode": "RES",
+      "Plan": "Combined",
+      "Pool": "City of South Lake Tahoe",
+      "Group": "Jurisdiction",
+      "RegionalPlanMaximum": 884,
+      "AssignedToProjects": 698,
+      "NotAssigned": 186,
+      "AsOfDate": "May 12, 2026"
+    },
+    {
+      "Commodity": "Residential Allocations",
+      "CommodityCode": "RES",
+      "Plan": "Combined",
+      "Pool": "TRPA Allocation Incentive Pool",
+      "Group": "TRPA pools",
+      "RegionalPlanMaximum": 385,
+      "AssignedToProjects": 231,
+      "NotAssigned": 154,
+      "AsOfDate": "May 12, 2026"
+    },
+    {
+      "Commodity": "Residential Allocations",
+      "CommodityCode": "RES",
+      "Plan": "Combined",
+      "Pool": "Unreleased Allocations",
+      "Group": "Unreleased",
+      "RegionalPlanMaximum": 770,
+      "AssignedToProjects": 0,
+      "NotAssigned": 770,
+      "AsOfDate": "May 12, 2026"
+    },
+    {
+      "Commodity": "Residential Bonus Units",
+      "CommodityCode": "RBU",
+      "Plan": "Combined",
+      "Pool": "Placer County",
+      "Group": "Assigned to Community Plan/Area Plans",
+      "RegionalPlanMaximum": 90,
+      "AssignedToProjects": 49,
+      "NotAssigned": 41,
+      "AsOfDate": "May 12, 2026"
+    },
+    {
+      "Commodity": "Residential Bonus Units",
+      "CommodityCode": "RBU",
+      "Plan": "Combined",
+      "Pool": "Washoe County",
+      "Group": "Assigned to Community Plan/Area Plans",
+      "RegionalPlanMaximum": 180,
+      "AssignedToProjects": 64,
+      "NotAssigned": 116,
+      "AsOfDate": "May 12, 2026"
+    },
+    {
+      "Commodity": "Residential Bonus Units",
+      "CommodityCode": "RBU",
+      "Plan": "Combined",
+      "Pool": "Douglas County",
+      "Group": "Assigned to Community Plan/Area Plans",
+      "RegionalPlanMaximum": 130,
+      "AssignedToProjects": 63,
+      "NotAssigned": 67,
+      "AsOfDate": "May 12, 2026"
+    },
+    {
+      "Commodity": "Residential Bonus Units",
+      "CommodityCode": "RBU",
+      "Plan": "Combined",
+      "Pool": "El Dorado County",
+      "Group": "Assigned to Community Plan/Area Plans",
+      "RegionalPlanMaximum": 0,
+      "AssignedToProjects": 0,
+      "NotAssigned": 0,
+      "AsOfDate": "May 12, 2026"
+    },
+    {
+      "Commodity": "Residential Bonus Units",
+      "CommodityCode": "RBU",
+      "Plan": "Combined",
+      "Pool": "City of South Lake Tahoe",
+      "Group": "Assigned to Community Plan/Area Plans",
+      "RegionalPlanMaximum": 165,
+      "AssignedToProjects": 151,
+      "NotAssigned": 14,
+      "AsOfDate": "May 12, 2026"
+    },
+    {
+      "Commodity": "Residential Bonus Units",
+      "CommodityCode": "RBU",
+      "Plan": "Combined",
+      "Pool": "TRPA Bonus Unit Pools",
+      "Group": "Assigned to TRPA Bonus Unit Pools",
+      "RegionalPlanMaximum": 1435,
+      "AssignedToProjects": 933,
+      "NotAssigned": 502,
+      "AsOfDate": "May 12, 2026"
+    },
+    {
+      "Commodity": "Commercial Floor Area",
+      "CommodityCode": "CFA",
+      "Plan": "Combined",
+      "Pool": "Placer County",
+      "Group": "Assigned to Community Plan/Area Plans",
+      "RegionalPlanMaximum": 201232,
+      "AssignedToProjects": 131913,
+      "NotAssigned": 69319,
+      "AsOfDate": "May 12, 2026"
+    },
+    {
+      "Commodity": "Commercial Floor Area",
+      "CommodityCode": "CFA",
+      "Plan": "Combined",
+      "Pool": "Washoe County",
+      "Group": "Assigned to Community Plan/Area Plans",
+      "RegionalPlanMaximum": 89906,
+      "AssignedToProjects": 88106,
+      "NotAssigned": 1800,
+      "AsOfDate": "May 12, 2026"
+    },
+    {
+      "Commodity": "Commercial Floor Area",
+      "CommodityCode": "CFA",
+      "Plan": "Combined",
+      "Pool": "Douglas County",
+      "Group": "Assigned to Community Plan/Area Plans",
+      "RegionalPlanMaximum": 81550,
+      "AssignedToProjects": 48030,
+      "NotAssigned": 33520,
+      "AsOfDate": "May 12, 2026"
+    },
+    {
+      "Commodity": "Commercial Floor Area",
+      "CommodityCode": "CFA",
+      "Plan": "Combined",
+      "Pool": "El Dorado County",
+      "Group": "Assigned to Community Plan/Area Plans",
+      "RegionalPlanMaximum": 51400,
+      "AssignedToProjects": 18005,
+      "NotAssigned": 33395,
+      "AsOfDate": "May 12, 2026"
+    },
+    {
+      "Commodity": "Commercial Floor Area",
+      "CommodityCode": "CFA",
+      "Plan": "Combined",
+      "Pool": "City of South Lake Tahoe",
+      "Group": "Assigned to Community Plan/Area Plans",
+      "RegionalPlanMaximum": 130028,
+      "AssignedToProjects": 116359,
+      "NotAssigned": 13669,
+      "AsOfDate": "May 12, 2026"
+    },
+    {
+      "Commodity": "Commercial Floor Area",
+      "CommodityCode": "CFA",
+      "Plan": "Combined",
+      "Pool": "TRPA Special Projects Pool",
+      "Group": "Assigned to TRPA Special Projects/Community Enhancement Pool",
+      "RegionalPlanMaximum": 245884,
+      "AssignedToProjects": 108693,
+      "NotAssigned": 137191,
+      "AsOfDate": "May 12, 2026"
+    },
+    {
+      "Commodity": "Commercial Floor Area",
+      "CommodityCode": "CFA",
+      "Plan": "Combined",
+      "Pool": "Unreleased CFA from 2012 Plan",
+      "Group": "Unreleased",
+      "RegionalPlanMaximum": 200000,
+      "AssignedToProjects": 0,
+      "NotAssigned": 200000,
+      "AsOfDate": "May 12, 2026"
+    },
+    {
+      "Commodity": "Tourist Accommodation Units",
+      "CommodityCode": "TAU",
+      "Plan": "Combined",
+      "Pool": "Placer County",
+      "Group": "Assigned to Community Plan/Area Plans",
+      "RegionalPlanMaximum": 37,
+      "AssignedToProjects": 0,
+      "NotAssigned": 37,
+      "AsOfDate": "May 12, 2026"
+    },
+    {
+      "Commodity": "Tourist Accommodation Units",
+      "CommodityCode": "TAU",
+      "Plan": "Combined",
+      "Pool": "Washoe County",
+      "Group": "Assigned to Community Plan/Area Plans",
+      "RegionalPlanMaximum": 33,
+      "AssignedToProjects": 0,
+      "NotAssigned": 33,
+      "AsOfDate": "May 12, 2026"
+    },
+    {
+      "Commodity": "Tourist Accommodation Units",
+      "CommodityCode": "TAU",
+      "Plan": "Combined",
+      "Pool": "Douglas County",
+      "Group": "Assigned to Community Plan/Area Plans",
+      "RegionalPlanMaximum": 50,
+      "AssignedToProjects": 25,
+      "NotAssigned": 25,
+      "AsOfDate": "May 12, 2026"
+    },
+    {
+      "Commodity": "Tourist Accommodation Units",
+      "CommodityCode": "TAU",
+      "Plan": "Combined",
+      "Pool": "El Dorado County",
+      "Group": "Assigned to Community Plan/Area Plans",
+      "RegionalPlanMaximum": 10,
+      "AssignedToProjects": 0,
+      "NotAssigned": 10,
+      "AsOfDate": "May 12, 2026"
+    },
+    {
+      "Commodity": "Tourist Accommodation Units",
+      "CommodityCode": "TAU",
+      "Plan": "Combined",
+      "Pool": "City of South Lake Tahoe",
+      "Group": "Assigned to Community Plan/Area Plans",
+      "RegionalPlanMaximum": 25,
+      "AssignedToProjects": 0,
+      "NotAssigned": 25,
+      "AsOfDate": "May 12, 2026"
+    },
+    {
+      "Commodity": "Tourist Accommodation Units",
+      "CommodityCode": "TAU",
+      "Plan": "Combined",
+      "Pool": "TRPA Tourist Bonus Unit Pool",
+      "Group": "Assigned to TRPA Tourist Bonus Unit Pool",
+      "RegionalPlanMaximum": 240,
+      "AssignedToProjects": 166,
+      "NotAssigned": 74,
+      "AsOfDate": "May 12, 2026"
+    }
+  ]
+}

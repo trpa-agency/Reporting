@@ -8,11 +8,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
 <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.0/dist/ag-grid-community.min.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.0/styles/ag-grid.css"/>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.0/styles/ag-theme-alpine.css"/>
-<link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css"/>
-<script src="https://js.arcgis.com/4.29/"></script>
 <style>
 :root {
   /* TRPA brand palette (PMS 285C primary) */
@@ -173,7 +168,6 @@ header h1 span { color: var(--trpa-blue); }
 .bar-pct   { font-size: 0.69rem; color: var(--text-light); }
 
 /* ── Grid ── */
-#grid-container { height: 400px; }
 .dl-btn {
   padding: 5px 14px; border: 1.5px solid var(--border); border-radius: 4px;
   background: #fff; font-family: inherit; font-size: 0.78rem;
@@ -231,8 +225,6 @@ header h1 span { color: var(--trpa-blue); }
 <div class="tab-nav-wrapper">
   <button class="tab-btn active" onclick="switchTab('overview',this)">Overview</button>
   <button class="tab-btn"        onclick="switchTab('charts',  this)">Charts</button>
-  <button class="tab-btn"        onclick="switchTab('map',     this)">Map</button>
-  <button class="tab-btn"        onclick="switchTab('table',   this)">Data Table</button>
 </div>
 
 <!-- Shared filter bar: visible on Overview + Charts, hidden on Map + Data Table -->
@@ -254,7 +246,10 @@ header h1 span { color: var(--trpa-blue); }
   </div>
 </div>
 
-<!-- Charts Tab -->
+<!-- Charts Tab: Sankey + jurisdiction stacked bar + per-jurisdiction summary
+     table. Map + Data Table tabs were removed - the row-level grid added
+     visual noise without informational value the cards above don't already
+     give, and the parcel map needed a hard rebuild to be useful. -->
 <div class="tab-panel" id="tab-charts">
   <div class="ctrl-bar">
     <span class="ctrl-label">Type</span>
@@ -278,41 +273,7 @@ header h1 span { color: var(--trpa-blue); }
         <div id="bar-chart" style="height:400px;"></div>
       </div>
     </div>
-  </div>
-</div>
-
-<!-- Map Tab -->
-<div class="tab-panel" id="tab-map">
-  <div class="ctrl-bar">
-    <span class="ctrl-label">Type</span>
-    <select id="type-map" class="ctrl-select" onchange="applyCommodity('map')">
-      <option value="residential">Residential</option>
-      <option value="commercial">Commercial</option>
-      <option value="tourist">Tourist</option>
-    </select>
-    <div class="ctrl-divider"></div>
-    <span class="ctrl-label">Status</span>
-    <select id="filter-status-map" class="ctrl-select" onchange="applyMapFilters()">
-      <option value="all">All states</option>
-      <option value="Allocated">Allocated to Private Development</option>
-      <option value="In Pool">Jurisdiction pool</option>
-      <option value="TRPA Pool">TRPA pool</option>
-      <option value="Unreleased">Unreleased</option>
-    </select>
-    <div class="ctrl-divider"></div>
-    <span class="ctrl-label">Jurisdiction</span>
-    <select id="filter-juris-map" class="ctrl-select" onchange="applyMapFilters()"><option value="all">All</option></select>
-    <span class="ctrl-count" id="map-count">- parcels</span>
-  </div>
-  <div class="section" style="padding-top:16px;">
-    <div id="map-view" style="height:520px;border-radius:8px;overflow:hidden;border:1px solid var(--border);"></div>
-  </div>
-</div>
-
-<!-- Data Table Tab -->
-<div class="tab-panel" id="tab-table">
-  <div class="section" style="padding-bottom:0;">
-    <div class="card" style="margin-bottom:20px;">
+    <div class="card" style="margin-top: 20px;">
       <h3 id="dd-title">Pool summary by jurisdiction</h3>
       <p id="dd-sub">Total authorized units per pool, allocation status, and utilization rate</p>
       <table class="dd-table">
@@ -330,39 +291,13 @@ header h1 span { color: var(--trpa-blue); }
       </table>
     </div>
   </div>
-  <div class="section" style="padding-top:0;">
-    <div class="ctrl-bar" style="background:var(--bg);border:1px solid var(--border);border-radius:8px 8px 0 0;padding:10px 16px;margin-bottom:0;">
-      <span class="ctrl-label">Type</span>
-      <select id="type-tbl" class="ctrl-select" onchange="applyCommodity('table')">
-        <option value="residential">Residential</option>
-        <option value="commercial">Commercial</option>
-        <option value="tourist">Tourist</option>
-      </select>
-      <span class="ctrl-label">Jurisdiction</span>
-      <select id="filter-juris-tbl" class="ctrl-select" onchange="applyTableFilters()"><option value="all">All</option></select>
-      <span class="ctrl-label">Status</span>
-      <select id="filter-status-tbl" class="ctrl-select" onchange="applyTableFilters()">
-        <option value="all">All</option>
-        <option value="Allocated">Allocated to private development</option>
-        <option value="In Pool">Jurisdiction pool</option>
-        <option value="TRPA Pool">TRPA pool</option>
-        <option value="Unreleased">Unreleased</option>
-      </select>
-      <span class="ctrl-count" id="tbl-count">- records</span>
-      <button class="dl-btn" onclick="downloadCSV()">&#8595; CSV</button>
-    </div>
-    <div class="ag-theme-alpine" style="border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;overflow:hidden;box-shadow:var(--shadow);">
-      <div id="grid-container"></div>
-    </div>
-  </div>
 </div>
 
 <!-- Footnote -->
 <div class="footnote">
-  <strong>Source:</strong> <a href="https://parcels.laketahoeinfo.org/ResidentialAllocation/Manage">Lake Tahoe Info Parcel Tracker, Residential Allocation Tracking</a>.
-  <strong>Latest pool balances:</strong> <a href="https://parcels.laketahoeinfo.org/DevelopmentRightPool/DevelopmentRightPoolBalanceReport">Pool Balance Report</a>.
-  Per-allocation detail by jurisdiction pool; region-wide totals on the <a href="tahoe-development-tracker.html">Tahoe Development Tracker</a>.
-  Banked development rights are a separate pool from these allocations and are surfaced on the Tracker.
+  <strong>Overview cards:</strong> <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/10">layer 10</a> (Development Right Allocation Balances) filtered to <code>Source='Grand Total'</code>; analyst snapshot as of <span id="balances-as-of">&hellip;</span>.
+  <strong>Charts tab residential</strong> sankey + per-jurisdiction bar: row-level <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/4">layer 4</a> (Allocation_Status + Construction_Status + Development_Right_Pool).
+  <strong>Charts tab CFA + TAU:</strong> synthesized from <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/12">layer 12</a> aggregates (Development Right Pool Balances). Banked development is tracked separately; see the <a href="tahoe-development-tracker.html">Tahoe Development Tracker</a>.
 </div>
 
 <script>
@@ -392,7 +327,8 @@ let currentType   = 'residential';
 let rawData       = [];   // active type's records
 let resData       = [];   // residential records (loaded once)
 let cfaTauAllData = [];   // all CFA + TAU records (loaded once, filtered by type)
-let gridApi       = null;
+let balancesData  = {};   // CommodityCode -> Layer 10 Grand Total row (drives Overview cards)
+let balancesAsOf  = '';   // analyst's as-of date for the Overview snapshot
 let activePills   = new Set();
 let sliderYear    = 2025;
 
@@ -402,18 +338,17 @@ let sliderYear    = 2025;
 // Residential: 2,600 = 2012 Plan additional Board authorization (of 8,687 since-1987 cumulative max)
 // Commercial:  1,000,000 sq ft = since-1987 cumulative CFA max
 // Tourist:     400 = since-1987 cumulative TBU max
-const TOTAL_AUTH = { residential: 2600, commercial: 1000000, tourist: 400 };
+// RBU:         2,000 = 1987 Regional Plan Residential Bonus Unit cap
+const TOTAL_AUTH = { residential: 2600, commercial: 1000000, tourist: 400, rbu: 2000 };
 
-const TYPE_UNIT = { residential: 'units', commercial: 'sq ft', tourist: 'units' };
+const TYPE_UNIT = { residential: 'units', commercial: 'sq ft', tourist: 'units', rbu: 'units' };
 
-// Sub-text under the Total card per commodity. Ken's wording (2026-05-14
-// review): each commodity's authorization composes 1987 + 2012; the sub-text
-// spells out both eras explicitly so the cards below read as 2012-era
-// activity.
+// Sub-text under the Total card per commodity. Concise (1987 + 2012 RP combined).
 const TYPE_DESC = {
-  residential: '1987 Regional Plan provided 6,087 residential allocations; 2012 Regional Plan added 2,600 residential allocations for a total of 8,687',
-  commercial:  '1987 Regional Plan provided 800,000 square feet of Commercial Floor Area; 2012 Regional Plan added 200,000 square feet for a total of 1,000,000',
-  tourist:     '1987 Regional Plan provided 400 Tourist Accommodation Bonus Units; no additional units added in the 2012 Regional Plan',
+  residential: '6,087 (1987 RP) + 2,600 (2012 RP)',
+  commercial:  '800,000 sq ft (1987 RP) + 200,000 sq ft (2012 RP)',
+  tourist:     '400 (1987 RP); no additional in 2012 RP',
+  rbu:         '1,400 (1987 RP) + 600 (2012 RP)',
 };
 
 // Type-aware accent color for KPI #2 (Available in Pools)
@@ -421,14 +356,30 @@ const TYPE_ACCENT = {
   residential: TRPA.blue,
   commercial:  TRPA.earth,
   tourist:     TRPA.purple,
+  rbu:         TRPA.olive,
 };
 
-// Residential allocations: served from this repo (../data/raw_data/) so
-// the dashboard tracks the canonical CSV without depending on a branch URL.
-// Source xlsx (the analyst's refresh): data/raw_data/residentialAllocationGridExport_fromAnalyst.xlsx
-// Converted by:               parcel_development_history_etl/scripts/convert_allocation_grid.py
-const RES_URL     = '../data/raw_data/residentialAllocationGridExport.csv';
-const CFA_TAU_URL = 'https://raw.githubusercontent.com/trpa-agency/Reporting/MTB-Edits/data/raw_data/CFA_TAU_allocations.csv';
+// Overview cards: live from Cumulative_Accounting layer 10 (Development Right
+// Allocation Balances) filtered to Source='Grand Total' so the 4 commodity
+// rows reflect the since-1987 totals as published by the analyst's snapshot.
+// Layer 10 is the analyst's xlsx normalized into 12 rows (Grand Total +
+// 1987 RP + 2012 RP, each x 4 commodities).
+const BALANCES_URL = 'https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/10/query'
+  + '?where=' + encodeURIComponent("Source='Grand Total'")
+  + '&outFields=*&returnGeometry=false&f=json';
+
+// Charts tab residential Sankey + per-jurisdiction bar: row-level layer 4
+// (carries Issuance_Year so the slider can filter dynamically).
+const RES_LAYER4_URL = 'https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/4/query';
+
+// Charts tab CFA + TAU Sankey + per-jurisdiction bar: synthesized from layer 12
+// aggregates (Layer 12 = pool-grain, current-state). Year slider doesn't apply
+// to CFA/TAU (no temporal field on layer 12; synthesized rows carry year=1900
+// so they always pass `r.year <= sliderYear`). Jurisdiction pills still apply.
+const CFA_TAU_LAYER12_URL = 'https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/12/query'
+  + '?where=' + encodeURIComponent("CommodityCode IN ('CFA','TAU')")
+  + '&outFields=CommodityCode%2CPool%2CGroup_%2CRegionalPlanMaximum%2CAssignedToProjects%2CNotAssigned'
+  + '&returnGeometry=false&f=json';
 
 // Per the framing (2026-05-11): TRPA pool is its own pre-jurisdiction state,
 // not a 6th jurisdiction. Five real jurisdiction pools below; TRPA-held
@@ -468,6 +419,7 @@ function poolCodeToJuris(code) {
   const map = {
     TRPA: 'TRPA',
     CSLT: 'City of South Lake Tahoe',
+    SLT:  'City of South Lake Tahoe',   // layer 4 uses 'SLT'; legacy CSV used 'CSLT'
     WA:   'Washoe County',
     DG:   'Douglas County',
     EL:   'El Dorado County',
@@ -489,93 +441,125 @@ function fmtValFor(n, commodity) {
 }
 
 // ─────────────────────────────────────────
-// PARSERS
+// FETCHERS + PARSERS
 // ─────────────────────────────────────────
-// Cols: 0=ID 1=PoolCode 2=Year 3=Type 4=Seq 5=AllocStatus 6=Transaction 7=Pool 8=PrevTrx 9=APN 10=ConstructionStatus
-// Maps the raw allocation/pool combinations into a 4-state framing:
-//   Allocated to Private Development = Allocation Status 'Allocated' (drawn to a parcel)
-//   Jurisdiction pool        = 'Unallocated' AND Pool is a county/CSLT pool
-//   TRPA pool                = 'Unallocated' in "Residential Allocation - TRPA Pool"
-//   Unreleased               = Allocation Status 'Unreleased' (held centrally, not yet released)
+// Live load of the 2012 RP residential allocation grid from layer 4. The four-
+// state framing the dashboard uses maps to Layer 4 fields as follows:
+//   Allocated to Private Development = Allocation_Status='Allocated' (drawn to a parcel)
+//   Jurisdiction pool                = Allocation_Status='Unallocated' AND Development_Right_Pool != 'TRPA'
+//   TRPA pool                        = Allocation_Status='Unallocated' AND Development_Right_Pool  = 'TRPA'
+//   Unreleased                       = Allocation_Status='Unreleased'  (held centrally, not yet released)
 // `isTrpaReserve` stays the union of TRPA Pool + Unreleased (i.e. "no
 // jurisdiction") so jurisdiction-filtering code downstream is untouched;
 // the `status` field carries the 4-way distinction.
-// Construction Status (col 10) is intentionally not surfaced here - that
-// belongs to the "Total Development Tracking" view, not allocation tracking.
-function parseResCSV(text) {
-  return text.trim().split('\n').slice(1).map(line => {
-    const c = line.split(',');
-    const year      = parseInt(c[2]);
-    const statusRaw = (c[5] || '').trim();
-    const poolName  = (c[7] || '').trim();
-    const isTrpaPool   = poolName.includes('TRPA Pool');
-    const isUnreleased = statusRaw === 'Unreleased';
-    const isUnalloc    = statusRaw === 'Unallocated';
-    const isAlloc      = statusRaw === 'Allocated';
-
-    // Non-jurisdiction union: unreleased TBD, or sitting unallocated in the
-    // explicit "Residential Allocation - TRPA Pool". Drives year/jurisdiction
-    // nulling and `isTrpaReserve`; the 4-way `status` below splits it further.
-    const inTrpaState = isUnreleased || (isTrpaPool && isUnalloc);
-
-    // Pre-2012 rows are out of 2012-Plan scope; drop unless they're TRPA-held
-    // (unreleased rows have no year by definition).
-    if (!inTrpaState && (!year || year < 2012)) return null;
-
-    let status;
-    if (isUnreleased)                 status = 'Unreleased';     // held centrally, not yet released
-    else if (isTrpaPool && isUnalloc) status = 'TRPA Pool';      // unallocated in the TRPA Pool
-    else if (isAlloc)                 status = 'Allocated';      // = Allocated to Private Development
-    else                              status = 'In Pool';        // = Jurisdiction pool
-
-    return {
-      id:            (c[0] || '').trim(),
-      year:          inTrpaState ? null : year,
-      type:          'residential',
-      status,
-      statusRaw,
-      jurisdiction:  inTrpaState ? null : poolToJuris(poolName),
-      pool:          poolName,
-      transaction:   (c[6] || '').trim(),
-      apn:           (c[9] || '').trim(),
-      qty:           1,
-      isTrpaReserve: inTrpaState,
-    };
-  }).filter(Boolean);
+async function fetchResidentialFromLayer4() {
+  const params =
+      '?where=1%3D1'
+    + '&outFields=Residential_Allocation_Number,Development_Right_Pool,Pool,Issuance_Year,'
+    + 'Allocation_Status,Construction_Status,Receiving_Parcel_APN,Transaction_'
+    + '&returnGeometry=false&f=json';
+  // Layer 4 has ~2,600 records and the server's maxRecordCount = 2000; paginate.
+  const out = [];
+  let offset = 0;
+  while (true) {
+    const url = RES_LAYER4_URL + params + '&resultOffset=' + offset + '&resultRecordCount=2000';
+    const r   = await fetch(url, { cache: 'no-cache' });
+    if (!r.ok) throw new Error('Layer 4: HTTP ' + r.status);
+    const js   = await r.json();
+    const feats = js.features || [];
+    if (!feats.length) break;
+    out.push(...feats);
+    offset += feats.length;
+    if (feats.length < 2000) break;
+  }
+  return out.map(f => layer4FeatureToRow(f.attributes));
 }
 
-// Cols: 0=Transaction Number 1=Development Right 2=Jurisdiction Pool 3=Transaction Status 4=Created Year 5=Allocated Quantity
-function parseCfaTauCSV(text) {
-  return text.trim().split('\n').slice(1).map(line => {
-    const c = line.split(',');
-    if (c.length < 6) return null;
-    const devRight  = (c[1] || '').trim();
-    const poolCode  = (c[2] || '').trim();
-    const statusRaw = (c[3] || '').trim();
-    const year      = parseInt(c[4]);
-    const qty       = parseInt(c[5]) || 0;
-    const type      = devRight.includes('Commercial') ? 'commercial' :
-                      devRight.includes('Tourist')    ? 'tourist'    : null;
-    if (!type) return null;
-    // TRPA Draft = central reserve, not yet distributed to a jurisdiction
-    const isTrpaReserve = poolCode === 'TRPA' && statusRaw === 'Draft';
-    // Mirror parseResCSV: TRPA-held rows must carry status 'TRPA Pool' or the
-    // KPI / Sankey / bar logic (which keys off status) never counts them -
-    // getJurisRows already excludes isTrpaReserve rows from the jurisdiction
-    // buckets, so without this they fall through the cracks entirely.
-    return {
-      id:            (c[0] || '').trim(),
-      year,
-      type,
-      status:        isTrpaReserve            ? 'TRPA Pool' :
-                     statusRaw === 'Approved' ? 'Allocated' : 'In Pool',
-      statusRaw,
-      jurisdiction:  isTrpaReserve ? null : poolCodeToJuris(poolCode),
-      pool:          poolCode,
-      qty,
-      isTrpaReserve,
-    };
-  }).filter(Boolean);
+function layer4FeatureToRow(a) {
+  const poolCode  = (a.Development_Right_Pool || '').trim();
+  const poolName  = (a.Pool                   || '').trim();
+  const isTrpaPool = poolCode === 'TRPA';
+  const allocStatus = (a.Allocation_Status || '').trim();
+
+  let status;
+  if (allocStatus === 'Allocated')                       status = 'Allocated';
+  else if (allocStatus === 'Unreleased')                 status = 'Unreleased';
+  else if (allocStatus === 'Unallocated' && isTrpaPool)  status = 'TRPA Pool';
+  else                                                   status = 'In Pool';
+
+  const isTrpaReserve = (status === 'TRPA Pool' || status === 'Unreleased');
+  // Unreleased rows are placeholder padding with no real year. TRPA Pool rows
+  // DO carry an Issuance_Year (year the slot was assigned to the central
+  // pool), so preserve it - the year slider depends on it.
+  const yearOut = (status === 'Unreleased') ? null
+                : (a.Issuance_Year != null ? parseInt(a.Issuance_Year) : null);
+
+  // jurisdiction = null when the row is sourced from / sitting in the TRPA
+  // central state (TRPA pool code OR unreleased). Mirrors the legacy CSV path
+  // where `poolToJuris('Residential Allocation - TRPA Pool')` returned null.
+  // Critical so Allocated-drawn-from-TRPA-pool rows get counted via the
+  // `trpaDrawn` branch in computeCommodity() instead of being dropped by the
+  // jurisdiction-pills filter.
+  const jurisdiction = (isTrpaPool || status === 'Unreleased') ? null
+                       : poolCodeToJuris(poolCode);
+
+  return {
+    id:            (a.Residential_Allocation_Number || '').toString(),
+    year:          yearOut,
+    type:          'residential',
+    status,
+    statusRaw:     allocStatus,
+    constructionStatus: (a.Construction_Status || '').trim(),
+    jurisdiction,
+    pool:          poolName,
+    transaction:   (a.Transaction_ || '').trim(),
+    apn:           (a.Receiving_Parcel_APN || '').trim(),
+    qty:           1,
+    isTrpaReserve,
+  };
+}
+
+// CFA + TAU charts source: synthesize row-shape data from layer 12 aggregates.
+// Layer 12 returns one row per (Commodity, Pool) with RegionalPlanMaximum /
+// AssignedToProjects / NotAssigned. The Charts tab's Sankey + bar + drawdown
+// table iterate over `rawData` and sum `qty`, so we emit one synthesized row
+// per (pool, status) combo carrying the aggregate count as qty. The same
+// downstream code paths work unchanged.
+//
+// Pool -> jurisdiction mapping uses the existing poolToJuris() which keys on
+// substring matches in the pool name (e.g., "Placer County" -> 'Placer County',
+// "TRPA Special Projects Pool" -> null).
+async function fetchCfaTauFromLayer12() {
+  const r = await fetch(CFA_TAU_LAYER12_URL, { cache: 'no-cache' });
+  if (!r.ok) throw new Error('Layer 12 CFA/TAU: HTTP ' + r.status);
+  const js = await r.json();
+  const out = [];
+  for (const f of (js.features || [])) {
+    const a       = f.attributes || {};
+    const type    = a.CommodityCode === 'CFA' ? 'commercial' :
+                    a.CommodityCode === 'TAU' ? 'tourist'    : null;
+    if (!type) continue;
+    const pool      = a.Pool || '';
+    const group     = a.Group_ || a.Group || '';
+    const assigned  = a.AssignedToProjects || 0;
+    const notAssig  = a.NotAssigned        || 0;
+    const isUnrel   = group === 'Unreleased' || pool.toLowerCase().includes('unreleased');
+    const isTrpaPool = !isUnrel && (group.includes('TRPA') || pool.includes('TRPA'));
+    const juris      = (isUnrel || isTrpaPool) ? null : poolToJuris(pool);
+    // Synthesized rows: year=1900 so they always pass `r.year <= sliderYear`
+    // (Layer 12 is current-state; no temporal dimension to slice).
+    const base = { type, year: 1900, pool, isTrpaReserve: isUnrel || isTrpaPool };
+    if (isUnrel) {
+      if (notAssig > 0) out.push({ ...base, status: 'Unreleased', jurisdiction: null, qty: notAssig });
+    } else if (isTrpaPool) {
+      if (assigned > 0) out.push({ ...base, status: 'Allocated', jurisdiction: null, qty: assigned });
+      if (notAssig > 0) out.push({ ...base, status: 'TRPA Pool', jurisdiction: null, qty: notAssig });
+    } else {
+      if (assigned > 0) out.push({ ...base, status: 'Allocated', jurisdiction: juris, qty: assigned });
+      if (notAssig > 0) out.push({ ...base, status: 'In Pool',   jurisdiction: juris, qty: notAssig });
+    }
+  }
+  return out;
 }
 
 // ─────────────────────────────────────────
@@ -617,13 +601,14 @@ function syncAllPill() {
 }
 
 // Click on "All" → activate every jurisdiction.
+// (Pills + slider only drive the Charts tab; Overview cards are the static
+// Grand Total snapshot from layer 10.)
 function toggleAllPills() {
   document.querySelectorAll('.juris-pill[data-juris]').forEach(p => {
     p.classList.add('active');
     activePills.add(p.dataset.juris);
   });
   document.querySelector('#pill-all').classList.add('active');
-  renderCommodityRows();
   renderSankey();
   renderBar();
 }
@@ -644,26 +629,27 @@ function togglePill(btn) {
     p.classList.toggle('active', p.dataset.juris === j);
   });
   syncAllPill();
-  renderCommodityRows();
   renderSankey();
   renderBar();
 }
 
 // ─────────────────────────────────────────
-// YEAR SLIDER
+// YEAR SLIDER (Charts tab only)
 // ─────────────────────────────────────────
 function setSliderYear(val) {
   sliderYear = parseInt(val);
   document.querySelector('#slider-val').textContent = sliderYear;
   const yl = document.querySelector('#sankey-year-label');
   if (yl) yl.textContent = sliderYear;
-  renderCommodityRows();
   renderSankey();
   renderBar();
 }
 
 function initSlider() {
-  const years = [...resData, ...cfaTauAllData].map(r => r.year).filter(y => y > 0);
+  // Residential carries real Issuance_Years from layer 4. CFA/TAU rows are
+  // synthesized from layer 12 aggregates with a sentinel year=1900 (so
+  // `r.year <= sliderYear` always passes); exclude them from the year range.
+  const years = resData.map(r => r.year).filter(y => y && y >= 2012);
   const maxY  = years.length ? Math.max(...years) : 2025;
   sliderYear  = maxY;
   const sl    = document.querySelector('#year-slider');
@@ -683,90 +669,56 @@ function getJurisRows(data, yr) {
 // OVERVIEW + CHARTS - shared rendering helpers
 // ─────────────────────────────────────────
 const plotFont  = { family: '"Open Sans", system-ui, sans-serif', color: TRPA.navy, size: 12 };
+// Shared hover styling: white background, ice border, navy text. Pair with
+// hovermode 'x unified' so the x-value reads as the tooltip header.
+const HOVERLABEL = { bgcolor: '#ffffff', bordercolor: TRPA.ice, font: { color: TRPA.navy, family: '"Open Sans"', size: 12 } };
 const plotPaper = 'rgba(0,0,0,0)';
 
 const COMMODITIES = [
   { key: 'residential', label: 'Residential allocations' },
+  { key: 'rbu',         label: 'Residential bonus units' },
   { key: 'commercial',  label: 'Commercial floor area' },
   { key: 'tourist',     label: 'Tourist accommodation' },
 ];
 
-// Total / Allocated / Jurisdiction pool / TRPA-held for one commodity, honoring
-// the year slider and the active jurisdiction pills. Lifted from the old KPI
-// arithmetic, looped per commodity instead of one active type.
-function computeCommodity(commodity) {
-  const data = commodity === 'residential'
-    ? resData
-    : cfaTauAllData.filter(r => r.type === commodity);
-  const total = TOTAL_AUTH[commodity];
-
-  const jurisRows = getJurisRows(data, sliderYear)
-    .filter(r => activePills.has(r.jurisdiction));
-  const allocated = sumQty(jurisRows.filter(r => r.status === 'Allocated'));
-  const available = sumQty(jurisRows.filter(r => r.status === 'In Pool'));
-
-  // With ALL jurisdiction pills active, also count Allocated rows drawn
-  // straight from the TRPA Pool (jurisdiction = null) so the four cards sum
-  // to the cap. With a jurisdiction filtered, those are excluded.
-  const allJurisActive = activePills.size === JURIS_ORDER.length;
-  const trpaDrawn = allJurisActive
-    ? sumQty(data.filter(r => r.status === 'Allocated' && !r.jurisdiction && (r.year || 0) <= sliderYear))
-    : 0;
-
-  const trpaPoolHeld = sumQty(data.filter(r => r.status === 'TRPA Pool'));
-  const unreleased   = sumQty(data.filter(r => r.status === 'Unreleased'));
-
-  return {
-    total,
-    allocated: allocated + trpaDrawn,
-    available,
-    trpaPoolHeld, unreleased,
-    trpaHeld: trpaPoolHeld + unreleased,
-  };
+// Fetch the 4 Grand Total rows from layer 10. Each row carries the snapshot
+// totals (since-1987 cumulative): TotalAuthorized / AllocatedToPrivate /
+// JurisdictionPool / TRPAPool / Unreleased. The Overview cards render
+// directly from these; no client-side aggregation.
+async function fetchBalances() {
+  const r  = await fetch(BALANCES_URL, { cache: 'no-cache' });
+  if (!r.ok) throw new Error('Balances layer 10: HTTP ' + r.status);
+  const js = await r.json();
+  balancesData = {};
+  for (const f of (js.features || [])) {
+    const a = f.attributes || {};
+    if (a.CommodityCode) balancesData[a.CommodityCode] = a;
+    if (a.AsOfDate)      balancesAsOf = a.AsOfDate;
+  }
 }
 
-// The Overview: three rows of summary cards, one row per commodity.
-// Per Ken's 2026-05-14 review:
-//   - Residential: 5 cards (Total / Allocated / Jurisdiction pool / TRPA pool / Unreleased)
-//   - CFA: 5 cards (Total / Allocated / Jurisdiction pool / TRPA pool / Unreleased - the 200k CFA reserved for 2012-RP use after 1987 is exhausted)
-//   - TAU: 4 cards (no separate unreleased)
-// Banked development rights are a separate pool and are NOT surfaced on this
-// page (allocations and banked are distinct).
-const CFA_UNRELEASED = 200000;  // 2012 Regional Plan CFA reserved (Not for Use until 1987 CFA is exhausted), per layer 5
+// Overview: 4 rows of summary cards, one per commodity, sourced from layer 10
+// Grand Total (since-1987 cumulative). Filters (year slider, jurisdiction
+// pills) DON'T apply to these cards - the snapshot is static. The Charts tab
+// is where the slider + pills are active.
 function renderCommodityRows() {
-  const allJurisActive = activePills.size === JURIS_ORDER.length;
-  const filterNote = allJurisActive
-    ? ''
-    : ' (' + activePills.size + ' of ' + JURIS_ORDER.length + ' jurisdictions)';
-
   document.querySelector('#commodity-rows').innerHTML = COMMODITIES.map(c => {
-    const m = computeCommodity(c.key);
-
-    const totalLabel = c.key === 'residential' ? 'Total authorized' : 'Total Authorized';
-    const totalSub   = TYPE_DESC[c.key];
-
-    // Static-pool note - TRPA pool amounts don't meter annually like the
-    // jurisdiction pools.
-    const trpaStaticNote = 'static; not metered annually';
+    // Map commodity key -> layer 10 CommodityCode
+    const code = c.key === 'residential' ? 'RES'
+               : c.key === 'commercial'  ? 'CFA'
+               : c.key === 'tourist'     ? 'TAU'
+               : c.key === 'rbu'         ? 'RBU' : null;
+    const row = balancesData[code] || {};
+    const showUnreleased = (row.Unreleased || 0) > 0;
 
     const cards = [
-      { label: totalLabel, value: m.total, accent: TRPA.navy, sub: totalSub },
-      { label: 'Allocated to private development', value: m.allocated, accent: TRPA.forest, sub: 'allocated to a parcel' + filterNote },
-      { label: 'Jurisdiction pool', value: m.available, accent: TYPE_ACCENT[c.key], sub: 'available in jurisdiction pools' + filterNote },
+      { label: 'Total Authorized',                 value: row.TotalAuthorized    || 0, accent: TRPA.navy,          sub: TYPE_DESC[c.key] },
+      { label: 'Allocated to private development', value: row.AllocatedToPrivate || 0, accent: TRPA.forest,        sub: 'allocated to a parcel' },
+      { label: 'Jurisdiction pool',                value: row.JurisdictionPool   || 0, accent: TYPE_ACCENT[c.key], sub: 'available in jurisdiction pools' },
+      { label: 'TRPA pool',                        value: row.TRPAPool           || 0, accent: TRPA.ice,           sub: 'held in TRPA pool' },
     ];
-
-    // Residential: split TRPA-held into TRPA pool (154) + Unreleased (770) per Ken
-    if (c.key === 'residential') {
-      cards.push({ label: 'TRPA pool',  value: m.trpaPoolHeld, accent: TRPA.ice,    sub: trpaStaticNote });
-      cards.push({ label: 'Unreleased', value: m.unreleased,   accent: TRPA.purple, sub: 'reserved for future release' });
-    } else if (c.key === 'commercial') {
-      // CFA: TRPA pool from jurisdiction-less Allocated/TRPA-Pool rows, plus
-      // a hardcoded Unreleased card for the 200k reserved 2012-RP CFA.
-      cards.push({ label: 'TRPA pool',  value: m.trpaHeld,        accent: TRPA.ice,    sub: 'held in TRPA pool · ' + trpaStaticNote });
-      cards.push({ label: 'Unreleased', value: CFA_UNRELEASED,    accent: TRPA.purple, sub: 'reserved for future release (not for use until 1987 CFA is used)' });
-    } else {
-      // TAU: 4 cards (no unreleased)
-      cards.push({ label: 'TRPA pool',  value: m.trpaHeld, accent: TRPA.ice, sub: 'held in TRPA pool · ' + trpaStaticNote });
+    if (showUnreleased) {
+      cards.push({ label: 'Unreleased', value: row.Unreleased, accent: TRPA.purple, sub: 'reserved for future release' });
     }
 
     return '<div class="comm-row">' +
@@ -887,6 +839,7 @@ function renderSankey() {
   }], {
     font: plotFont, paper_bgcolor: plotPaper,
     margin: { t: 8, r: 8, b: 8, l: 8 },
+    hoverlabel: HOVERLABEL,
   }, { responsive: true, displayModeBar: false });
 }
 
@@ -921,30 +874,31 @@ function renderBar() {
       name: 'Allocated to Private Development',
       type: 'bar', x: xLabels, y: [...allocated, trpaAlloc],
       marker: { color: TRPA.forest },
-      hovertemplate: '<b>%{y:,}</b> allocated to private development<extra>%{x}</extra>',
+      hovertemplate: '<b>%{y:,}</b> ' + (currentType === 'commercial' ? 'sq ft' : 'units') + '<extra>Allocated</extra>',
     },
     {
       name: 'Jurisdiction Pool',
       type: 'bar', x: xLabels, y: [...available, 0],
       marker: { color: TRPA.orange },
-      hovertemplate: '<b>%{y:,}</b> in jurisdiction pool<extra>%{x}</extra>',
+      hovertemplate: '<b>%{y:,}</b> ' + (currentType === 'commercial' ? 'sq ft' : 'units') + '<extra>Jurisdiction pool</extra>',
     },
     {
       name: 'TRPA Pool',
       type: 'bar', x: xLabels, y: [...juris.map(() => 0), notAssigned],
       marker: { color: TRPA.ice },
-      hovertemplate: '<b>%{y:,}</b> unallocated in the TRPA Pool<extra></extra>',
+      hovertemplate: '<b>%{y:,}</b> ' + (currentType === 'commercial' ? 'sq ft' : 'units') + '<extra>TRPA pool</extra>',
     },
     {
       name: 'Unreleased',
       type: 'bar', x: xLabels, y: [...juris.map(() => 0), unreleased],
       marker: { color: TRPA.purple },
-      hovertemplate: '<b>%{y:,}</b> unreleased (held centrally by TRPA)<extra></extra>',
+      hovertemplate: '<b>%{y:,}</b> ' + (currentType === 'commercial' ? 'sq ft' : 'units') + '<extra>Unreleased</extra>',
     },
   ], {
     font: plotFont, paper_bgcolor: plotPaper, plot_bgcolor: plotPaper,
     margin: { t: 16, r: 16, b: 60, l: 60 },
     barmode: 'stack', hovermode: 'x unified',
+    hoverlabel: HOVERLABEL,
     xaxis: { gridcolor: '#e8edf4', linecolor: TRPA.border, tickfont: { size: 11 } },
     yaxis: { gridcolor: '#e8edf4', linecolor: TRPA.border, tickfont: { size: 11 }, rangemode: 'tozero',
              title: { text: yTitle, font: { size: 11 } } },
@@ -1032,161 +986,6 @@ function renderDrawdownTable() {
 }
 
 // ─────────────────────────────────────────
-// AG GRID
-// ─────────────────────────────────────────
-function getColDefs() {
-  if (currentType === 'residential') {
-    return [
-      { field: 'id',           headerName: 'Alloc. ID',    width: 150, sortable: true, filter: 'agTextColumnFilter' },
-      { field: 'year',         headerName: 'Year',         width: 80,  sortable: true, filter: 'agNumberColumnFilter' },
-      { field: 'jurisdiction', headerName: 'Jurisdiction', flex: 1,    sortable: true, filter: 'agTextColumnFilter' },
-      { field: 'pool',         headerName: 'Pool',         flex: 1.5,  sortable: true, filter: 'agTextColumnFilter' },
-      { field: 'status',       headerName: 'State',        width: 200, sortable: true, filter: 'agTextColumnFilter',
-        valueFormatter: p => ({ 'Allocated': 'Allocated to Private Development', 'In Pool': 'Jurisdiction pool', 'TRPA Pool': 'TRPA pool', 'Unreleased': 'Unreleased' })[p.value] || p.value,
-        cellStyle: p => ({
-          color: ({ 'Allocated': TRPA.forest, 'In Pool': TRPA.orange, 'TRPA Pool': TRPA.navy, 'Unreleased': TRPA.purple })[p.value] || TRPA.navy,
-          fontWeight: '600'
-        }) },
-      { field: 'transaction',  headerName: 'Transaction',  flex: 1,    sortable: true, filter: 'agTextColumnFilter' },
-      { field: 'apn',          headerName: 'APN',          flex: 1,    sortable: true, filter: 'agTextColumnFilter' },
-    ];
-  } else {
-    const qtyLabel = currentType === 'commercial' ? 'Sq Ft (CFA)' : 'Bonus Units';
-    return [
-      { field: 'id',           headerName: 'Transaction #', width: 190, sortable: true, filter: 'agTextColumnFilter' },
-      { field: 'year',         headerName: 'Year',          width: 80,  sortable: true, filter: 'agNumberColumnFilter' },
-      { field: 'jurisdiction', headerName: 'Jurisdiction',  flex: 1,    sortable: true, filter: 'agTextColumnFilter',
-        valueFormatter: p => p.value || 'TRPA Reserve' },
-      { field: 'pool',         headerName: 'Pool Code',     width: 110, sortable: true, filter: 'agTextColumnFilter' },
-      { field: 'statusRaw',    headerName: 'Status',        width: 120, sortable: true, filter: 'agTextColumnFilter',
-        cellStyle: p => ({ color: p.value === 'Approved' ? TRPA.forest : TRPA.orange, fontWeight: '600' }) },
-      { field: 'qty',          headerName: qtyLabel,        width: 140, sortable: true, filter: 'agNumberColumnFilter',
-        valueFormatter: p => (p.value || 0).toLocaleString() },
-    ];
-  }
-}
-
-function initGrid() {
-  if (gridApi) { try { gridApi.destroy(); } catch(e){} gridApi = null; }
-  gridApi = agGrid.createGrid(document.querySelector('#grid-container'), {
-    columnDefs: getColDefs(), rowData: rawData,
-    pagination: true, paginationPageSize: 25, paginationPageSizeSelector: [10, 25, 50, 100],
-    defaultColDef: { resizable: true }, animateRows: true, rowHeight: 36, headerHeight: 42,
-  });
-}
-
-function applyTableFilters() {
-  const juris  = document.querySelector('#filter-juris-tbl').value;
-  const status = document.querySelector('#filter-status-tbl').value;
-  const filtered = rawData.filter(r =>
-    (juris  === 'all' || r.jurisdiction === juris) &&
-    (status === 'all' || r.status === status)
-  );
-  if (gridApi) gridApi.setGridOption('rowData', filtered);
-  document.querySelector('#tbl-count').innerHTML = '<strong>' + filtered.length.toLocaleString() + '</strong> records';
-}
-
-function downloadCSV() {
-  const h = currentType === 'residential'
-    ? ['id','year','jurisdiction','pool','status','statusRaw','transaction','apn']
-    : ['id','year','jurisdiction','pool','statusRaw','qty'];
-  const csv = [h.join(','), ...rawData.map(r =>
-    h.map(f => '"' + String(r[f] ?? '').replace(/"/g, '""') + '"').join(',')
-  )].join('\r\n');
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
-  a.download = currentType + '_allocations.csv';
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-}
-
-function populateJurisFilters() {
-  const order = activeJurisOrder();
-  ['#filter-juris-tbl', '#filter-juris-map'].forEach(id => {
-    const el = document.querySelector(id);
-    if (!el) return;
-    el.innerHTML = '<option value="all">All Jurisdictions</option>';
-    order.forEach(j => {
-      const o = document.createElement('option');
-      o.value = j; o.textContent = j; el.appendChild(o);
-    });
-  });
-}
-
-// ─────────────────────────────────────────
-// MAP - TRPA brand markers
-// ─────────────────────────────────────────
-let mapView = null, parcelsLayer = null, mapInit = false;
-// Per type: cluster + parcel-fill RGBA (matching the type accent)
-const TYPE_FILL = {
-  residential: [0,   114, 206, 0.55],   // TRPA blue
-  commercial:  [180, 126, 0,   0.55],   // TRPA earth
-  tourist:     [123, 106, 138, 0.55],   // TRPA purple
-};
-
-function initMap() {
-  if (mapInit) return;
-  mapInit = true;
-  require(['esri/Map','esri/views/MapView','esri/layers/FeatureLayer'], (EsriMap, MapView, FeatureLayer) => {
-    const map = new EsriMap({ basemap: 'gray-vector' });
-    mapView = new MapView({ container: 'map-view', map, center: [-120.00, 39.09], zoom: 10 });
-    const [r, g, b] = TYPE_FILL[currentType];
-    parcelsLayer = new FeatureLayer({
-      url: 'https://maps.trpa.org/server/rest/services/Parcels/FeatureServer/0',
-      outFields: ['APN'],
-      renderer: {
-        type: 'simple',
-        symbol: { type: 'simple-fill', color: TYPE_FILL[currentType], outline: { color: [0, 59, 113, 0.8], width: 0.6 } },
-      },
-      definitionExpression: '1=0',
-      featureReduction: {
-        type: 'cluster',
-        clusterRadius: '80px',
-        symbol: {
-          type: 'simple-marker',
-          style: 'circle',
-          color: [r, g, b, 0.85],
-          outline: { color: [255,255,255,0.9], width: 1.5 },
-        },
-        labelingInfo: [{
-          labelExpressionInfo: { expression: '$feature.cluster_count' },
-          symbol: {
-            type: 'text',
-            color: '#ffffff',
-            font: { weight: 'bold', family: 'Open Sans, sans-serif', size: '11px' },
-          },
-          labelPlacement: 'center-center',
-        }],
-        popupTemplate: {
-          title: '{cluster_count} parcels',
-          content: 'This cluster contains <b>{cluster_count}</b> allocated parcels.',
-        },
-      },
-    });
-    map.add(parcelsLayer);
-    mapView.when(() => applyMapFilters());
-  });
-}
-
-function applyMapFilters() {
-  const status = (document.querySelector('#filter-status-map') || {}).value || 'all';
-  const juris  = (document.querySelector('#filter-juris-map')  || {}).value || 'all';
-  const filtered = rawData.filter(r =>
-    (status === 'all' || r.status === status) &&
-    (juris  === 'all' || r.jurisdiction === juris) && r.apn
-  );
-  const apns = [...new Set(filtered.map(r => r.apn).filter(Boolean))];
-  const el   = document.querySelector('#map-count');
-  if (!parcelsLayer) { if (el) el.innerHTML = '<strong>' + apns.length + '</strong> APNs'; return; }
-  if (!apns.length)  { parcelsLayer.definitionExpression = '1=0'; if (el) el.innerHTML = '<strong>0</strong> parcels'; return; }
-  const q = apns.map(a => "'" + String(a).replace(/'/g, "''") + "'").join(',');
-  parcelsLayer.definitionExpression = 'APN IN (' + q + ')';
-  if (el) el.innerHTML = '<strong>' + apns.length + '</strong> parcels matched';
-  parcelsLayer.queryExtent({ where: parcelsLayer.definitionExpression })
-    .then(r => { if (r.extent && mapView) mapView.goTo(r.extent.expand(1.3)); })
-    .catch(() => {});
-}
-
-// ─────────────────────────────────────────
 // TAB + COMMODITY SWITCHING
 // ─────────────────────────────────────────
 function switchTab(name, btn) {
@@ -1196,14 +995,9 @@ function switchTab(name, btn) {
   btn.classList.add('active');
 
   // Shared filter bar (year slider + jurisdiction pills) applies to Overview
-  // and Charts; hide it on Map and Data Table (those have their own filters).
-  document.querySelector('#shared-filter-bar').style.display =
-    (name === 'overview' || name === 'charts') ? 'flex' : 'none';
+  // and Charts; both are the only tabs now (Map + Data Table retired).
+  document.querySelector('#shared-filter-bar').style.display = 'flex';
 
-  // Map, Data Table, and Charts each carry their own commodity selector;
-  // re-sync the shared currentType / rawData to the entered tab's selection.
-  if (name === 'map')   { applyCommodity('map'); initMap(); }
-  if (name === 'table') { applyCommodity('table'); }
   if (name === 'charts') {
     applyCommodity('charts');
     // Plotly needs a resize hint after a hidden -> visible transition
@@ -1214,37 +1008,19 @@ function switchTab(name, btn) {
   }
 }
 
-// Map and Data Table are per-commodity; the Overview shows all three at once.
-// applyCommodity points the shared currentType / rawData at the tab's selected
-// commodity, then re-renders just that tab.
+// The Charts tab carries its own commodity selector; applyCommodity points
+// the shared currentType / rawData at the entered tab's selection and
+// re-renders the Sankey + bar + Pool summary table.
 function applyCommodity(tab) {
-  const selId = tab === 'map'    ? '#type-map'
-              : tab === 'table'  ? '#type-tbl'
-              : tab === 'charts' ? '#type-charts'
-              :                    null;
-  const sel = selId ? document.querySelector(selId) : null;
+  const sel = document.querySelector('#type-charts');
   currentType = sel ? sel.value : 'residential';
   rawData = currentType === 'residential'
     ? resData
     : cfaTauAllData.filter(r => r.type === currentType);
 
-  if (tab === 'map') {
-    if (parcelsLayer) {
-      parcelsLayer.renderer = {
-        type: 'simple',
-        symbol: { type: 'simple-fill', color: TYPE_FILL[currentType], outline: { color: [0, 59, 113, 0.8], width: 0.6 } },
-      };
-    }
-    applyMapFilters();
-  } else if (tab === 'charts') {
-    renderSankey();
-    renderBar();
-  } else {
-    populateJurisFilters();
-    renderDrawdownTable();
-    initGrid();
-    document.querySelector('#tbl-count').innerHTML = '<strong>' + rawData.length.toLocaleString() + '</strong> records';
-  }
+  renderSankey();
+  renderBar();
+  renderDrawdownTable();
 }
 
 // ─────────────────────────────────────────
@@ -1254,15 +1030,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   const bar = document.querySelector('#loading-bar');
   try {
     if (bar) bar.style.width = '20%';
-    const [resResp, cfaTauResp] = await Promise.all([
-      fetch(RES_URL,     { cache: 'no-cache' }),
-      fetch(CFA_TAU_URL, { cache: 'no-cache' }),
+    const [resRows, cfaTauRows] = await Promise.all([
+      fetchResidentialFromLayer4(),     // live: layer 4 (Charts tab residential Sankey + bar)
+      fetchCfaTauFromLayer12(),         // live: layer 12 (Charts tab CFA/TAU Sankey + bar, synthesized)
+      fetchBalances(),                  // live: layer 10 Grand Total snapshot (Overview cards)
     ]);
-    if (!resResp.ok)    throw new Error('Residential data: HTTP ' + resResp.status);
-    if (!cfaTauResp.ok) throw new Error('CFA/TAU data: HTTP ' + cfaTauResp.status);
     if (bar) bar.style.width = '65%';
-    resData       = parseResCSV(await resResp.text());
-    cfaTauAllData = parseCfaTauCSV(await cfaTauResp.text());
+    resData       = resRows;
+    cfaTauAllData = cfaTauRows;
     rawData       = resData;
     if (bar) bar.style.width = '100%';
   } catch (e) {
@@ -1274,9 +1049,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   document.querySelector('#loading-overlay').style.display = 'none';
   initSlider();
-  buildPills();              // populate activePills before the Overview reads it
-  renderCommodityRows();     // Overview tab: the 3 commodity rows
-  applyCommodity('table');   // Data Table tab: drawdown table + grid + filters
+  buildPills();              // populate activePills (used by the Charts tab; Overview is static)
+  renderCommodityRows();     // Overview tab: 4 commodity rows from layer 10 Grand Total
+  const asOfEl = document.querySelector('#balances-as-of');
+  if (asOfEl && balancesAsOf) asOfEl.textContent = balancesAsOf;
+  applyCommodity('charts');  // pre-render Sankey + bar + Pool summary so they're ready when user clicks the tab
 });
 </script>
 </body>
