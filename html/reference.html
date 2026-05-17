@@ -72,9 +72,49 @@ th { background: var(--trpa-navy); color: #fff; font-weight: 600; text-align: le
 td { padding: 8px 12px; border-top: 1px solid var(--border); font-size: 0.82rem; vertical-align: top; }
 td code { font-size: 0.78em; }
 tr:nth-child(even) td { background: #fafbfd; }
-.data-sources-wrap { overflow-x: auto; }
-table.data-sources { font-size: 0.78rem; min-width: 1080px; }
-table.data-sources th, table.data-sources td { padding: 7px 10px; }
+/* The data-sources + dashboard-inventory tables are wider than the section
+   container at desktop sizes (the table content forces ~1390px; section is
+   1280px). Wrap scrolls horizontally; visible custom scrollbar + right-edge
+   fade gradient make "scroll for more" obvious (default OS scrollbars are
+   often hidden until you actually scroll, which makes the table look
+   "cut off" with no affordance). */
+.data-sources-wrap {
+  overflow-x: auto;
+  position: relative;
+  scrollbar-color: var(--trpa-blue) var(--bg);
+  scrollbar-width: thin;
+  border-radius: 6px;
+  /* Subtle inset shadow on the right edge as a "more content this way" hint */
+  background:
+    linear-gradient(to right, var(--surface) 30%, rgba(255, 255, 255, 0)),
+    linear-gradient(to right, rgba(255, 255, 255, 0), var(--surface) 70%) 100% 0,
+    radial-gradient(farthest-side at 100% 50%, rgba(0, 59, 113, 0.18), rgba(0, 59, 113, 0)) 100% 0;
+  background-repeat: no-repeat;
+  background-size: 40px 100%, 40px 100%, 16px 100%;
+  background-attachment: local, local, scroll;
+}
+.data-sources-wrap::-webkit-scrollbar { height: 12px; }
+.data-sources-wrap::-webkit-scrollbar-track { background: var(--bg); border-radius: 6px; }
+.data-sources-wrap::-webkit-scrollbar-thumb { background: var(--trpa-blue); border-radius: 6px; }
+.data-sources-wrap::-webkit-scrollbar-thumb:hover { background: var(--trpa-navy); }
+
+table.data-sources { font-size: 0.78rem; table-layout: fixed; width: 100%; }
+table.data-sources th, table.data-sources td {
+  padding: 7px 10px;
+  /* Allow long content (URLs, file paths inside <code>, dashboard-name
+     middle-dot strings) to break/wrap inside cells instead of forcing the
+     table to grow horizontally. Combined with table-layout: fixed above,
+     this caps each column to the % defined in the header and wraps text
+     within. Eliminates the previous ~192px of horizontal overflow. */
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+table.data-sources code {
+  /* code blocks (file paths like data/processed_data/foo.csv) shouldn't force
+     their cell wider than the column width; allow them to break on any char. */
+  word-break: break-all;
+  white-space: normal;
+}
 table.data-sources td.muted { color: var(--text-light); }
 .section-group { background: var(--trpa-ice); color: var(--trpa-navy); font-weight: 700; font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; }
 .section-group td { background: var(--trpa-ice) !important; padding: 6px 10px; border-top: 1px solid var(--border); }
@@ -167,22 +207,6 @@ footer { padding: 16px 40px 28px; font-size: 0.72rem; color: var(--text-light); 
 </header>
 
 <div class="section">
-
-  <!-- Two-purpose distinction banner: index.html (this page) is the technical
-       reference; start.html is the audience-question entry point. The two are
-       complementary, not duplicates. -->
-  <div style="background:linear-gradient(135deg, var(--trpa-navy) 0%, var(--trpa-blue) 100%); color:#fff; border-radius:10px; padding:24px 28px; margin-bottom:24px; box-shadow:var(--shadow); display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap;">
-    <div style="flex:1; min-width:280px;">
-      <div style="font-size:0.66rem; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; opacity:0.85; margin-bottom:6px;">Two entry points, one ecosystem</div>
-      <div style="font-size:1.05rem; line-height:1.5;">
-        <strong style="color:#fff;">Looking for a dashboard to answer a question?</strong>
-        <span style="opacity:0.92;"> &rarr; <a href="index.html" style="color:#fff; text-decoration:underline; font-weight:600;">index.html</a> (decision tree by audience + question)</span><br>
-        <strong style="color:#fff;">Looking for what data feeds the dashboards?</strong>
-        <span style="opacity:0.92;"> &rarr; you're in the right place</span>
-      </div>
-    </div>
-    <a href="index.html" style="display:inline-block; padding:10px 18px; background:#fff; color:var(--trpa-navy); text-decoration:none; font-size:0.85rem; font-weight:700; border-radius:4px; letter-spacing:0.04em; white-space:nowrap;">Go to the home page &rarr;</a>
-  </div>
 
   <div class="intro">
     <strong>This is the technical reference for the TRPA cumulative-accounting dashboards.</strong> Inventory of data sources, REST layer catalog, refresh pipelines, and the canonical-schema roadmap. Built for data engineers / analysts / auditors who need to know <em>where the numbers come from</em>.
