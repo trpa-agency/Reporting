@@ -97,42 +97,11 @@ header h1 span { color: var(--trpa-orange); }  /* highlight word: orange against
 .card p { font-size: 0.73rem; color: var(--text-light); margin-bottom: 14px; }
 .card p strong { color: var(--text-mid); }
 
-/* Gauge grid */
-.gauge-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-.gauge-card {
-  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
-  padding: 16px 12px 14px; box-shadow: var(--shadow); position: relative; min-height: 280px;
-}
-.gauge-accent { position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 8px 8px 0 0; }
-.gauge-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); text-align: center; margin-bottom: 4px; padding-top: 4px; }
-.gauge-value {
-  font-size: 1.9rem; font-weight: 700; color: var(--text-dark);
-  letter-spacing: -0.02em; line-height: 1;
-  font-variant-numeric: tabular-nums;
-  text-align: center;
-  margin: 0 0 4px;
-}
-.gauge-sub { font-size: 0.74rem; color: var(--text-mid); text-align: center; margin-top: 2px; }
-.gauge-sub strong { color: var(--text-dark); font-weight: 600; }
-
-/* Toggle bar */
-.toggle-bar { display: flex; gap: 6px; margin: 2px 0 14px; flex-wrap: wrap; }
-.toggle-btn {
-  padding: 5px 12px; border: 1.5px solid var(--border); border-radius: 4px;
-  background: #fff; font-family: inherit; font-size: 0.76rem; color: var(--text-mid);
-  cursor: pointer;
-}
-.toggle-btn:hover { border-color: var(--trpa-blue); color: var(--trpa-blue); }
-.toggle-btn.active { background: var(--trpa-navy); border-color: var(--trpa-navy); color: #fff; }
-
-/* Summary mini-cards */
-.summary-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 6px; }
-.live-card { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; position: relative; }
-.live-card .live-accent { position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 6px 6px 0 0; }
-.live-card .live-label { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-light); margin-bottom: 4px; padding-top: 4px; }
-.live-card .live-value { font-size: 1.55rem; font-weight: 700; color: var(--text-dark); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
-.live-card .live-pct   { font-size: 0.72rem; color: var(--text-mid); margin-top: 2px; }
-@media (max-width: 900px) { .summary-row { grid-template-columns: 1fr; } }
+/* Dead CSS pruned 2026-05-16: gauge-grid / gauge-card / gauge-value /
+   gauge-sub / toggle-bar / toggle-btn / summary-row / live-card classes were
+   left over from the pre-restructure gauge layout. The current page is the
+   4-section roman-numeral grid (i/ii/iii/iv) using .existing-card; none of
+   the gauge classes were referenced in the HTML body. */
 
 .footnote {
   padding: 14px 40px 22px; font-size: 0.72rem; color: var(--text-light);
@@ -140,11 +109,7 @@ header h1 span { color: var(--trpa-orange); }  /* highlight word: orange against
 }
 .footnote code { background: var(--bg); padding: 1px 5px; border-radius: 3px; font-size: 0.7rem; }
 
-@media (max-width: 1100px) {
-  .gauge-grid { grid-template-columns: 1fr 1fr; }
-}
 @media (max-width: 700px) {
-  .gauge-grid { grid-template-columns: 1fr; }
   header .header-content, .section, .footnote { padding-left: 16px; padding-right: 16px; }
 }
 </style>
