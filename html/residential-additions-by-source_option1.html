@@ -192,7 +192,7 @@ header h1 span { color: var(--trpa-ice); }  /* highlight word: ice on navy ~9:1 
   <div class="header-accent"></div>
   <div class="header-content">
     <div>
-      <div class="header-eyebrow">Tahoe Regional Planning Agency &middot; <a href="residential-additions-by-source.html" style="color:var(--trpa-ice);text-decoration:underline;">switch to original layout</a></div>
+      <div class="header-eyebrow">Tahoe Regional Planning Agency &middot; <a href="residential-additions-by-source.html" style="color:var(--trpa-ice);text-decoration:underline;">switch to Option A layout</a></div>
       <h1>Residential Additions <span>by Source</span><span class="title-info" aria-label="What does this dashboard show?">
         <span class="title-info-icon">?</span>
         <div class="title-info-popover">
@@ -281,7 +281,7 @@ header h1 span { color: var(--trpa-ice); }  /* highlight word: ice on navy ~9:1 
   <strong>Related views:</strong>
   <a href="development_history.html">&harr; Development History (year-over-year change per commodity)</a>
   <a href="tahoe-development-tracker.html">&larr; Tahoe Development Tracker (basin totals)</a>
-  <a href="start.html">All dashboards</a>
+  <a href="index.html">All dashboards</a>
 </div>
 
 <!-- Footnote: link text is the layer / table NAME (not "layer N"), so hrefs
@@ -552,18 +552,9 @@ function renderSourceStrip() {
   });
 }
 
-// Highlight the 2024-25 bonus surge inflection in line mode
-function bonusAnnotation() {
-  return [{
-    x: 2024.5, y: 78,
-    text: 'Bonus units overtake<br>allocations as #1 source',
-    showarrow: true, arrowhead: 2, arrowcolor: TRPA.forest, arrowwidth: 1.5,
-    ax: -90, ay: -40,
-    font: { color: TRPA.forest, size: 10.5, family: '"Open Sans"' },
-    bgcolor: 'rgba(255,255,255,0.95)',
-    bordercolor: TRPA.forest, borderwidth: 1, borderpad: 4,
-  }];
-}
+// (bonusAnnotation() removed - it was the 2024-25 inflection callout for
+// the combined-line mode; Combined mode was retired in Option 1 so the
+// function had no callers left.)
 
 // hex + alpha → rgba string for Plotly fillcolor
 function hexA(hex, a) {

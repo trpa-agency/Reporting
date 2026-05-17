@@ -458,7 +458,7 @@ header h1 span { color: var(--trpa-ice); }  /* highlight word: ice on navy ~9:1 
   <a href="../allocation-tracking.html">&rarr; Allocation Tracking (per-commodity detail)</a>
   <a href="../pool-balance-cards.html">&rarr; Pool Balance Cards (per-pool drilldown)</a>
   <a href="../development_history.html">&rarr; Development History (year-over-year trends)</a>
-  <a href="../start.html">All dashboards</a>
+  <a href="../index.html">All dashboards</a>
 </div>
 
 <!-- Footnote: link text is the layer / table NAME (not "layer N"), so the
@@ -555,10 +555,13 @@ function fmtCompact(n) {
 //   res -> residential (Ken folds RES + RBU together; the residential explainer covers both)
 //   cfa -> commercial_floor_area
 //   tau -> tourist_accommodation_units
+// Note: file lives in html/_archive/ so "../../" gets us back up to the
+// repo root where content/explainers/ sits. (Was "../" before the file
+// moved to _archive/.)
 const EXPLAINER_URLS = {
-  res: '../content/explainers/pool-balance-cards/residential.md',
-  cfa: '../content/explainers/pool-balance-cards/commercial_floor_area.md',
-  tau: '../content/explainers/pool-balance-cards/tourist_accommodation_units.md',
+  res: '../../content/explainers/pool-balance-cards/residential.md',
+  cfa: '../../content/explainers/pool-balance-cards/commercial_floor_area.md',
+  tau: '../../content/explainers/pool-balance-cards/tourist_accommodation_units.md',
 };
 let EXPLAINERS = Object.fromEntries(
   Object.keys(EXPLAINER_URLS).map(k => [k, '<p><em>Loading explainer&hellip;</em></p>'])
