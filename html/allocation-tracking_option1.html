@@ -3,11 +3,13 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Allocation Tracking - TRPA</title>
+<title>Allocation Tracking (Option 1) - TRPA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
 <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>  <!-- renders the commodity explainer markdown into the tile-info hover popovers -->
+
 <style>
 :root {
   /* TRPA brand palette (PMS 285C primary) */
@@ -51,7 +53,7 @@ header { background: var(--trpa-navy); color: #fff; display: flex; align-items: 
   text-transform: uppercase; color: var(--trpa-ice); margin-bottom: 7px;
 }
 header h1 { font-weight: 700; font-size: 1.85rem; line-height: 1.15; letter-spacing: -0.02em; }
-header h1 span { color: var(--trpa-orange); }  /* highlight word: orange against navy = ~4.6:1 contrast (trpa-blue on navy was ~2.5:1, failed WCAG AA) */
+header h1 span { color: var(--trpa-ice); }  /* highlight word: ice on navy ~9:1 contrast - softer than orange variant (used on the other dashboards for comparison) */
 .header-sub { font-size: 0.82rem; color: var(--trpa-ice); margin-top: 6px; opacity: 0.85; }
 .header-meta { font-size: 0.75rem; color: var(--trpa-ice); text-align: right; line-height: 1.7; opacity: 0.85; }
 .live-badge {
@@ -60,7 +62,177 @@ header h1 span { color: var(--trpa-orange); }  /* highlight word: orange against
   padding: 3px 8px; border-radius: 2px; margin-bottom: 6px;
 }
 
-/* ── Commodity rows (Overview tab) ── */
+/* ── Commodity stacked-bar tiles (Option 1 Overview redesign, v2)
+   Replaced the donut variant (2026-05-16): donut/pie reads slice angles which
+   the eye judges poorly with 4 segments. Horizontal stacked bar lets the user
+   compare segment LENGTHS, which read 3-4x more accurately. Same idiom the
+   Tracker uses for its pipeline bars, so the two dashboards visually rhyme.
+   Hero number sits above the bar (cap + unit sublabel); segments live in the
+   bar; per-segment breakdown sits in a 3-column legend below (name | value | %). */
+.donut-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;
+}
+@media (max-width: 980px) { .donut-grid { grid-template-columns: 1fr; } }
+.donut-tile {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  padding: 22px 24px 20px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column;
+}
+.donut-tile-name {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--trpa-navy); margin-bottom: 4px;
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* "What is this commodity?" hover popover. Tiny ? icon next to the commodity
+   name; on hover reveals a wider card with the markdown explainer rendered
+   from content/explainers/pool-balance-cards/*.md. Sharing those files with
+   the pool-balance-cards dashboard means content the analyst writes once
+   flows to both places automatically. */
+.tile-info {
+  position: relative; display: inline-flex; vertical-align: middle;
+}
+.tile-info-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--trpa-ice); color: var(--trpa-navy);
+  font-size: 0.68rem; font-weight: 700;
+  cursor: help; transition: background 0.12s, color 0.12s;
+  letter-spacing: 0; text-transform: none;
+}
+.tile-info-icon:hover { background: var(--trpa-blue); color: #fff; }
+.tile-info-popover {
+  position: absolute; top: calc(100% + 10px); left: -4px;
+  width: 380px; max-width: calc(100vw - 80px);
+  background: #fff; border: 1px solid var(--trpa-ice); border-radius: 6px;
+  padding: 16px 18px;
+  box-shadow: 0 4px 20px rgba(0, 59, 113, 0.15);
+  font-size: 0.82rem; line-height: 1.55; color: var(--text-mid);
+  letter-spacing: 0; text-transform: none;  /* reset the eyebrow's uppercase */
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.15s, transform 0.15s;
+  z-index: 100;
+}
+.tile-info-popover h3 {
+  font-size: 0.95rem; font-weight: 700; color: var(--text-dark); margin-bottom: 8px;
+}
+.tile-info-popover p { margin-bottom: 8px; }
+.tile-info-popover p:last-child { margin-bottom: 0; }
+.tile-info-popover a {
+  color: var(--trpa-blue);
+  overflow-wrap: anywhere;  /* defensive backstop: long URLs without spaces still wrap, won't overflow the 380px card */
+}
+.tile-info-popover strong { color: var(--text-dark); font-weight: 600; }
+.tile-info-popover em { color: var(--text-light); font-style: italic; }
+.tile-info:hover .tile-info-popover {
+  opacity: 1; pointer-events: auto;  /* lets the user move into the popover without it closing */
+  transform: translateY(-2px);
+}
+/* Caret pointing up from the popover to the icon */
+.tile-info::after {
+  content: ''; position: absolute;
+  top: calc(100% + 4px); left: 4px;
+  border: 6px solid transparent; border-bottom-color: var(--trpa-ice);
+  opacity: 0; pointer-events: none; transition: opacity 0.15s;
+  z-index: 101;
+}
+.tile-info:hover::after { opacity: 1; }
+.donut-tile-desc { font-size: 0.78rem; color: var(--text-mid); margin-bottom: 14px; line-height: 1.45; }
+
+/* Hero row: big cap number + sublabel that carries the unit ("sq ft total
+   since-1987 authorized" / "units total since-1987 authorized"). Putting the
+   unit in the label keeps the hero number tight ("1M" vs "1,000,000 sq ft"). */
+.tile-hero {
+  display: flex; align-items: baseline; gap: 14px; margin-bottom: 12px;
+  border-bottom: 1px solid var(--border); padding-bottom: 14px;
+}
+.tile-hero-value {
+  font-size: 2.5rem; font-weight: 700; color: var(--text-dark);
+  letter-spacing: -0.02em; line-height: 1; font-variant-numeric: tabular-nums;
+}
+.tile-hero-label {
+  font-size: 0.78rem; color: var(--text-mid); line-height: 1.35;
+}
+.tile-hero-label strong { color: var(--text-dark); font-weight: 600; }
+
+/* Stacked horizontal bar: one rounded track, segments share the row, hover
+   brightens the segment. flex values are the raw counts so widths are
+   proportional automatically (no manual percent math). */
+.tile-stack {
+  display: flex; height: 32px; border-radius: 6px; overflow: visible;
+  background: var(--bg); border: 1px solid var(--border); margin-bottom: 14px;
+  position: relative;   /* container for the absolute-positioned tooltips below */
+}
+.tile-stack-segment {
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 0.78rem; font-weight: 700;
+  white-space: nowrap; font-variant-numeric: tabular-nums;
+  transition: filter 0.15s; min-width: 0;
+  position: relative;
+}
+/* First/last segment keep the rounded corners (overflow:visible above lets
+   the tooltip escape, so we have to clip the segments themselves). */
+.tile-stack-segment:first-child { border-radius: 6px 0 0 6px; }
+.tile-stack-segment:last-child  { border-radius: 0 6px 6px 0; }
+.tile-stack-segment:only-child  { border-radius: 6px; }
+.tile-stack-segment:hover { filter: brightness(1.08); }
+/* Custom hover tooltip: white card, ice border, navy text. Matches the
+   Plotly hoverlabel styling we use on the Deep Dive charts so the two tabs
+   feel consistent. No native title-attribute delay. */
+.tile-stack-segment::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+  background: #fff;
+  border: 1px solid var(--trpa-ice);
+  color: var(--trpa-navy);
+  font-size: 0.78rem; font-weight: 600;
+  padding: 7px 11px; border-radius: 4px;
+  white-space: nowrap;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.12s, transform 0.12s;
+  z-index: 10;
+  box-shadow: 0 2px 10px rgba(0, 59, 113, 0.15);
+}
+.tile-stack-segment:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-2px);
+}
+/* Caret pointing down from the tooltip to the segment */
+.tile-stack-segment::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 2px); left: 50%; transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--trpa-ice);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.12s;
+  z-index: 10;
+}
+.tile-stack-segment:hover::before { opacity: 1; }
+
+/* 3-column legend: swatch+name | value | %. Right-aligns the numerics so
+   they form a clean vertical column the eye can scan top-to-bottom. */
+.tile-legend {
+  display: grid; grid-template-columns: 1fr auto auto;
+  row-gap: 7px; column-gap: 14px;
+  font-size: 0.85rem; color: var(--text-mid);
+}
+.tile-legend-name {
+  display: flex; align-items: center; gap: 8px;
+  font-weight: 600; color: var(--text-dark);
+}
+.tile-legend-name .swatch { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; }
+.tile-legend-value {
+  font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text-dark);
+  text-align: right; white-space: nowrap;
+}
+.tile-legend-pct {
+  font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text-mid);
+  text-align: right; white-space: nowrap; min-width: 38px;
+}
+
+/* ── Commodity rows (Overview tab; legacy original layout, not used in Option 1) ── */
 .comm-row { margin-bottom: 22px; }
 .comm-row:last-child { margin-bottom: 0; }
 .comm-row-label {
@@ -220,12 +392,12 @@ header h1 span { color: var(--trpa-orange); }  /* highlight word: orange against
   <div class="header-accent"></div>
   <div class="header-content">
     <div>
-      <div class="header-eyebrow">Tahoe Regional Planning Agency &middot; <a href="allocation-tracking_option1.html" style="color:var(--trpa-ice);text-decoration:underline;">switch to Option 1 layout</a></div>
+      <div class="header-eyebrow">Tahoe Regional Planning Agency &middot; <a href="allocation-tracking.html" style="color:var(--trpa-ice);text-decoration:underline;">switch to original layout</a></div>
       <h1>Allocation <span>Tracking</span></h1>
-      <div class="header-sub" id="header-sub">Residential, commercial, and tourist allocations: authorized, allocated, and pool balances by jurisdiction.</div>
+      <div class="header-sub" id="header-sub">Residential, commercial, and tourist allocations: authorized, allocated, and pool balances by jurisdiction. <em>Option 1: donut-chart Overview variant.</em></div>
     </div>
     <div class="header-meta">
-      <div class="live-badge">Live Data</div>
+      <div class="live-badge">Live Data (Option 1)</div>
     </div>
   </div>
 </header>
@@ -236,14 +408,14 @@ header h1 span { color: var(--trpa-orange); }  /* highlight word: orange against
   <button class="tab-btn"        onclick="switchTab('charts',  this)">Deep Dive</button>
 </div>
 
-<!-- Overview Tab: layer 10 Grand Total snapshot. Static "since 1987"
-     totals; intentionally NO filter chrome - the year slider + jurisdiction
-     pills only act on Deep Dive's Sankey/bar/table, so they live inside that
-     panel (was previously a shared bar above both tabs, which read as dead
-     controls here and confused users). -->
+<!-- Overview Tab (Option 1: stacked-bar tiles): layer 10 Grand Total snapshot.
+     Static "since 1987" totals; intentionally NO filter chrome - the year
+     slider + jurisdiction pills only act on Deep Dive, so they live inside
+     that panel (was previously a shared bar above both tabs, which read as
+     dead controls here and confused users). -->
 <div class="tab-panel active" id="tab-overview">
   <div class="section">
-    <div id="commodity-rows"></div>
+    <div id="commodity-donuts" class="donut-grid"></div>
   </div>
 </div>
 
@@ -315,11 +487,13 @@ header h1 span { color: var(--trpa-orange); }  /* highlight word: orange against
   <a href="start.html">All dashboards</a>
 </div>
 
-<!-- Footnote -->
+<!-- Footnote: link text is the layer / table NAME (not "layer N"), so the
+     hrefs can be swapped to tahoeopendata.org download links later without
+     also re-writing the visible copy. -->
 <div class="footnote">
-  <strong>Overview cards:</strong> <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/10">layer 10</a> (Development Right Allocation Balances) filtered to <code>Source='Grand Total'</code>; analyst snapshot as of <span id="balances-as-of">&hellip;</span>.
-  <strong>Charts tab residential</strong> sankey + per-jurisdiction bar: row-level <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/4">layer 4</a> (Allocation_Status + Construction_Status + Development_Right_Pool).
-  <strong>Charts tab CFA + TAU:</strong> synthesized from <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/12">layer 12</a> aggregates (Development Right Pool Balances). Banked development is tracked separately; see the <a href="tahoe-development-tracker.html">Tahoe Development Tracker</a>.
+  <strong>Overview cards:</strong> <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/10">Development Right Allocation Balances</a> filtered to <code>Source='Grand Total'</code>; analyst snapshot as of <span id="balances-as-of">&hellip;</span>.
+  <strong>Deep Dive residential</strong> sankey + per-jurisdiction bar: row-level <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/4">Allocations 2012 Regional Plan</a>.
+  <strong>Deep Dive CFA + TAU:</strong> synthesized from <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/12">Development Right Pool Balances</a> aggregates. Banked development is tracked separately; see the <a href="tahoe-development-tracker.html">Tahoe Development Tracker</a>.
 </div>
 
 <script>
@@ -365,14 +539,12 @@ const TOTAL_AUTH = { residential: 2600, commercial: 1000000, tourist: 400, rbu: 
 
 const TYPE_UNIT = { residential: 'units', commercial: 'sq ft', tourist: 'units', rbu: 'units' };
 
-// Sub-text under the Total card per commodity. Verbose per Ken's 2026-05 ask:
-// state both Regional Plan eras explicitly with the total, so the snapshot
-// reads cleanly without prior context.
+// Sub-text under the Total card per commodity. Concise (1987 + 2012 RP combined).
 const TYPE_DESC = {
-  residential: '1987 Regional Plan provided 6,087 residential allocations; 2012 Regional Plan added 2,600 residential allocations for a total of 8,687',
-  commercial:  '1987 Regional Plan provided 800,000 square feet of Commercial Floor Area; 2012 Regional Plan added 200,000 square feet for a total of 1,000,000',
-  tourist:     '1987 Regional Plan provided 400 Tourist Accommodation Bonus Units; no additional units added in the 2012 Regional Plan',
-  rbu:         '1987 Regional Plan provided 1,400 Residential Bonus Units; 2012 Regional Plan added 600 for a total of 2,000',
+  residential: '6,087 (1987 RP) + 2,600 (2012 RP)',
+  commercial:  '800,000 sq ft (1987 RP) + 200,000 sq ft (2012 RP)',
+  tourist:     '400 (1987 RP); no additional in 2012 RP',
+  rbu:         '1,400 (1987 RP) + 600 (2012 RP)',
 };
 
 // Type-aware accent color for KPI #2 (Available in Pools)
@@ -725,45 +897,148 @@ async function fetchBalances() {
 // Grand Total (since-1987 cumulative). Filters (year slider, jurisdiction
 // pills) DON'T apply to these cards - the snapshot is static. The Charts tab
 // is where the slider + pills are active.
+// Per-commodity explainer markdown. Sourced from the pool-balance-cards
+// content folder so the analyst maintains a single canonical copy of "what
+// is this commodity?" content; we just render it into hover popovers here.
+// Keys match the local commodity keys (residential / rbu / commercial / tourist);
+// URLs point at the underlying file names (which use the longer SDE-style names).
+const EXPLAINER_URLS = {
+  residential: '../content/explainers/pool-balance-cards/residential.md',
+  rbu:         '../content/explainers/pool-balance-cards/residential_bonus_units.md',
+  commercial:  '../content/explainers/pool-balance-cards/commercial_floor_area.md',
+  tourist:     '../content/explainers/pool-balance-cards/tourist_accommodation_units.md',
+};
+// commodity key -> rendered HTML (filled in by loadExplainers; consumed by
+// renderCommodityRows when it stamps the popover content). Initialized to a
+// graceful placeholder so the popover is never empty even if the fetch races.
+let EXPLAINERS = Object.fromEntries(
+  Object.keys(EXPLAINER_URLS).map(k => [k, '<p><em>Loading explainer&hellip;</em></p>'])
+);
+
+async function loadExplainers() {
+  const entries = await Promise.all(
+    Object.entries(EXPLAINER_URLS).map(async ([key, url]) => {
+      try {
+        const r = await fetch(url, { cache: 'no-cache' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const md = await r.text();
+        return [key, marked.parse(md)];
+      } catch (e) {
+        console.warn('Explainer load failed for ' + key + ':', e.message);
+        return [key, '<p><em>Explainer unavailable (' + e.message + ').</em></p>'];
+      }
+    })
+  );
+  EXPLAINERS = Object.fromEntries(entries);
+}
+
+// Compact formatter for big hero numbers: 1,000,000 -> "1M", 1,500,000 -> "1.5M".
+// Below 1M we keep full comma format because "8,687" reads cleaner than "8.7K"
+// at the residential / RBU / TAU range. The legend keeps full precise values
+// since there's horizontal room there.
+function fmtCompact(n) {
+  if (n == null) return '0';
+  if (n >= 1_000_000) {
+    const m = n / 1_000_000;
+    return (m % 1 === 0 ? m.toFixed(0) : m.toFixed(1)) + 'M';
+  }
+  return n.toLocaleString();
+}
+
 function renderCommodityRows() {
-  document.querySelector('#commodity-rows').innerHTML = COMMODITIES.map(c => {
-    // Map commodity key -> layer 10 CommodityCode
-    const code = c.key === 'residential' ? 'RES'
-               : c.key === 'commercial'  ? 'CFA'
-               : c.key === 'tourist'     ? 'TAU'
-               : c.key === 'rbu'         ? 'RBU' : null;
-    const row = balancesData[code] || {};
-    const showUnreleased = (row.Unreleased || 0) > 0;
+  // Option 1 variant v2 (stacked bar): each tile gets a hero cap number, a
+  // single horizontal stacked bar showing the 4-state breakdown
+  // (Allocated / Jurisdiction pool / TRPA pool / Unreleased), then a
+  // legend table. Unit (sq ft / units) lives in the hero sublabel so the
+  // hero number stays tight ("1M" not "1,000,000 sq ft").
+  const grid = document.querySelector('#commodity-donuts');
+  if (!grid) return;
+  grid.innerHTML = COMMODITIES.map(c =>
+    '<div class="donut-tile" data-commodity="' + c.key + '">'
+    +   '<div class="donut-tile-name">' + c.label
+    +     '<span class="tile-info" aria-label="What is ' + c.label + '?">'
+    +       '<span class="tile-info-icon">?</span>'
+    +       '<div class="tile-info-popover" id="tile-' + c.key + '-popover">'
+    +         (EXPLAINERS[c.key] || '<p><em>Loading explainer&hellip;</em></p>')
+    +       '</div>'
+    +     '</span>'
+    +   '</div>'
+    +   '<div class="donut-tile-desc">' + TYPE_DESC[c.key] + '</div>'
+    +   '<div class="tile-hero">'
+    +     '<div class="tile-hero-value" id="tile-' + c.key + '-cap">&hellip;</div>'
+    +     '<div class="tile-hero-label" id="tile-' + c.key + '-caplabel">&hellip;</div>'
+    +   '</div>'
+    +   '<div class="tile-stack" id="tile-' + c.key + '-stack"></div>'
+    +   '<div class="tile-legend" id="tile-' + c.key + '-legend"></div>'
+    + '</div>'
+  ).join('');
 
-    // Residential + CFA TRPA pools are static (assigned to the pool once, not
-    // metered annually); call this out so a viewer doesn't expect the number
-    // to move year-over-year. TAU + RBU have no TRPA pool, so the note doesn't
-    // surface there.
-    const trpaPoolSub = (c.key === 'residential' || c.key === 'commercial')
-      ? 'held in TRPA pool<br><em style="color:var(--text-light);font-size:0.66rem;">static; not metered annually</em>'
-      : 'held in TRPA pool';
-    const cards = [
-      { label: 'Total Authorized',                 value: row.TotalAuthorized    || 0, accent: TRPA.navy,          sub: TYPE_DESC[c.key] },
-      { label: 'Allocated to private development', value: row.AllocatedToPrivate || 0, accent: TRPA.forest,        sub: 'allocated to a parcel' },
-      { label: 'Jurisdiction pool',                value: row.JurisdictionPool   || 0, accent: TYPE_ACCENT[c.key], sub: 'available in jurisdiction pools' },
-      { label: 'TRPA pool',                        value: row.TRPAPool           || 0, accent: TRPA.ice,           sub: trpaPoolSub },
-    ];
-    if (showUnreleased) {
-      cards.push({ label: 'Unreleased', value: row.Unreleased, accent: TRPA.purple, sub: 'reserved for future release' });
-    }
+  COMMODITIES.forEach(c => renderCommodityStack(c));
+}
 
-    return '<div class="comm-row">' +
-      '<div class="comm-row-label">' + c.label + '</div>' +
-      '<div class="comm-cards">' +
-      cards.map(k =>
-        '<div class="comm-card">' +
-          '<div class="kpi-accent" style="background:' + k.accent + '"></div>' +
-          '<div class="kpi-label">' + k.label + '</div>' +
-          '<div class="kpi-value">' + fmtValFor(k.value, c.key) + '</div>' +
-          '<div class="kpi-sub">' + k.sub + '</div>' +
-        '</div>'
-      ).join('') +
-      '</div></div>';
+// Called after loadExplainers resolves: swap each tile's popover content
+// from "Loading..." to the rendered markdown. Lets the markdown fetch be
+// non-blocking on initial render (tiles paint immediately with the data
+// fetches; popovers backfill when their content arrives).
+function updateExplainers() {
+  COMMODITIES.forEach(c => {
+    const el = document.getElementById('tile-' + c.key + '-popover');
+    if (el && EXPLAINERS[c.key]) el.innerHTML = EXPLAINERS[c.key];
+  });
+}
+
+function renderCommodityStack(c) {
+  const code = c.key === 'residential' ? 'RES'
+             : c.key === 'commercial'  ? 'CFA'
+             : c.key === 'tourist'     ? 'TAU'
+             : c.key === 'rbu'         ? 'RBU' : null;
+  const row = balancesData[code] || {};
+  const unit = c.key === 'commercial' ? 'sq ft' : 'units';
+
+  // Build segments. Unreleased only appears if > 0 (RBU + TAU have 0).
+  const segments = [
+    { name: 'Allocated to private', value: row.AllocatedToPrivate || 0, color: TRPA.forest },
+    { name: 'Jurisdiction pool',    value: row.JurisdictionPool   || 0, color: TYPE_ACCENT[c.key] },
+    { name: 'TRPA pool',            value: row.TRPAPool           || 0, color: TRPA.ice },
+  ];
+  if ((row.Unreleased || 0) > 0) {
+    segments.push({ name: 'Unreleased', value: row.Unreleased, color: TRPA.purple });
+  }
+  const cap = row.TotalAuthorized || 0;
+  const segTotal = segments.reduce((s, x) => s + x.value, 0);
+
+  // Hero: compact cap number + sublabel with unit
+  document.getElementById('tile-' + c.key + '-cap').textContent = fmtCompact(cap);
+  document.getElementById('tile-' + c.key + '-caplabel').innerHTML =
+    '<strong>' + unit + '</strong> total since-1987 authorized';
+
+  // Stacked bar: one segment per state, flex value = raw count so widths
+  // are proportional automatically. Inline number appears only when the
+  // segment is wide enough to hold it cleanly; otherwise the legend below
+  // carries it. Threshold: 14% of total (matches the Tracker pipeline bar).
+  document.getElementById('tile-' + c.key + '-stack').innerHTML = segments.map(s => {
+    const pct = segTotal ? (s.value / segTotal) * 100 : 0;
+    const showInline = pct >= 14;
+    // data-tooltip drives the styled CSS hover tooltip (.tile-stack-segment::after).
+    // Format: "<segment name>: <value> <unit> (<pct>%)" so the name reads first,
+    // since that's what the user is hovering to identify.
+    const tip = s.name + ': ' + s.value.toLocaleString() + ' ' + unit + ' (' + pct.toFixed(1) + '%)';
+    return '<div class="tile-stack-segment" style="flex:' + s.value
+      + ';background:' + s.color + '"'
+      + ' data-tooltip="' + tip + '">'
+      + (showInline ? s.value.toLocaleString() : '')
+      + '</div>';
+  }).join('');
+
+  // Legend: 3-column grid (name+swatch | value | %)
+  document.getElementById('tile-' + c.key + '-legend').innerHTML = segments.map(s => {
+    const pct = segTotal ? (s.value / segTotal) * 100 : 0;
+    return '<div class="tile-legend-name">'
+      +   '<div class="swatch" style="background:' + s.color + '"></div>'
+      +   s.name
+      + '</div>'
+      + '<div class="tile-legend-value">' + s.value.toLocaleString() + '</div>'
+      + '<div class="tile-legend-pct">' + pct.toFixed(0) + '%</div>';
   }).join('');
 }
 
@@ -1084,6 +1359,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   const asOfEl = document.querySelector('#balances-as-of');
   if (asOfEl && balancesAsOf) asOfEl.textContent = balancesAsOf;
   applyCommodity('charts');  // pre-render Sankey + bar + Pool summary so they're ready when user clicks the tab
+
+  // Markdown explainers load in the background (non-blocking) and backfill
+  // each tile's popover content when ready. Tiles paint immediately with
+  // "Loading explainer..." until this resolves; a failed fetch leaves a
+  // graceful "Explainer unavailable" message in place.
+  loadExplainers().then(updateExplainers);
 });
 </script>
 </body>

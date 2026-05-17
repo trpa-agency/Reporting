@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Where to Start - TRPA Cumulative Accounting</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --trpa-blue:    #0072CE;
+  --trpa-navy:    #003B71;
+  --trpa-earth:   #B47E00;
+  --trpa-forest:  #4A6118;
+  --trpa-brick:   #9C3E27;
+  --trpa-olive:   #B5A64C;
+  --trpa-orange:  #E87722;
+  --trpa-purple:  #7B6A8A;
+  --trpa-ice:     #B4CBE8;
+  --bg:           #f5f7fa;
+  --surface:      #ffffff;
+  --border:       #e1e7ee;
+  --text-dark:    #003B71;
+  --text-mid:     #5d6c7e;
+  --text-light:   #8a9bb2;
+  --shadow:       0 2px 16px rgba(0, 59, 113, 0.08);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg); color: var(--text-dark);
+  -webkit-font-smoothing: antialiased; line-height: 1.55;
+}
+a { color: var(--trpa-blue); }
+
+/* Header */
+header { background: var(--trpa-navy); color: #fff; display: flex; align-items: stretch; }
+.header-accent { width: 8px; flex-shrink: 0; background: linear-gradient(180deg, var(--trpa-forest) 0%, var(--trpa-blue) 50%, var(--trpa-orange) 100%); }
+.header-content { padding: 30px 40px 26px; flex: 1; }
+.eyebrow { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--trpa-ice); margin-bottom: 8px; }
+header h1 { font-weight: 700; font-size: 2.1rem; line-height: 1.15; letter-spacing: -0.02em; }
+header h1 span { color: var(--trpa-orange); }  /* highlight word: orange against navy = ~4.6:1 contrast (trpa-blue on navy was ~2.5:1, failed WCAG AA) */
+.subtitle { font-size: 0.92rem; color: var(--trpa-ice); margin-top: 10px; opacity: 0.92; max-width: 780px; }
+
+/* "What is this ecosystem?" hover popover on the page title. Mirrors the
+   title-info pattern from the other dashboards' option1 variants - one
+   click-free affordance for "wait, what is this thing?" */
+.title-info { position: relative; display: inline-flex; align-items: center; vertical-align: middle; margin-left: 12px; }
+.title-info-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--trpa-ice); color: var(--trpa-navy);
+  font-size: 0.9rem; font-weight: 700;
+  cursor: help; transition: background 0.12s, color 0.12s;
+}
+.title-info-icon:hover { background: #fff; color: var(--trpa-navy); }
+.title-info-popover {
+  position: absolute; top: calc(100% + 10px); left: -4px;
+  width: 460px; max-width: calc(100vw - 80px);
+  background: #fff; border: 1px solid var(--trpa-ice); border-radius: 6px;
+  padding: 18px 20px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+  font-size: 0.88rem; line-height: 1.55; color: var(--text-mid);
+  letter-spacing: 0; text-transform: none; font-weight: 400;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.15s, transform 0.15s;
+  z-index: 100;
+}
+.title-info-popover strong { color: var(--text-dark); font-weight: 600; }
+.title-info-popover p { margin-bottom: 8px; }
+.title-info-popover p:last-child { margin-bottom: 0; }
+.title-info:hover .title-info-popover { opacity: 1; pointer-events: auto; transform: translateY(-2px); }
+.title-info::after {
+  content: ''; position: absolute;
+  top: calc(100% + 4px); left: 4px;
+  border: 6px solid transparent; border-bottom-color: var(--trpa-ice);
+  opacity: 0; pointer-events: none; transition: opacity 0.15s;
+  z-index: 101;
+}
+.title-info:hover::after { opacity: 1; }
+
+/* Generic "?" hover popover for the reference banner (start vs index
+   distinction). Same idiom as ctrl-info / btn-info from other dashboards. */
+.banner-info { position: relative; display: inline-flex; align-items: center; margin-left: 6px; vertical-align: middle; }
+.banner-info-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--trpa-ice); color: var(--trpa-navy);
+  font-size: 0.68rem; font-weight: 700;
+  cursor: help; transition: background 0.12s, color 0.12s;
+}
+.banner-info-icon:hover { background: var(--trpa-blue); color: #fff; }
+.banner-info-popover {
+  position: absolute; top: calc(100% + 10px); right: 0;
+  width: 360px; max-width: calc(100vw - 80px);
+  background: #fff; border: 1px solid var(--trpa-ice); border-radius: 6px;
+  padding: 13px 16px;
+  box-shadow: 0 4px 20px rgba(0, 59, 113, 0.15);
+  font-size: 0.82rem; line-height: 1.55; color: var(--text-mid);
+  font-weight: 400; letter-spacing: 0; text-transform: none; text-align: left;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.15s, transform 0.15s;
+  z-index: 100;
+}
+.banner-info-popover strong { color: var(--text-dark); font-weight: 600; }
+.banner-info:hover .banner-info-popover { opacity: 1; pointer-events: auto; transform: translateY(-2px); }
+
+/* Layouts row: bottom-of-card nav, restyled (2026-05-16) to "pop" more per
+   feedback. Each option becomes a discrete button-pill with the audience
+   accent color as a left edge stripe. Stacked vertically so multi-word
+   descriptions stay readable; hover fills with the accent color. Links sit
+   above the .qcard-link overlay (z-index:2) so a click on a specific
+   Option goes to THAT layout, while clicking elsewhere on the card goes to
+   the canonical Option A. */
+.qcard-layouts {
+  margin-top: auto;
+  padding-top: 14px; border-top: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 6px;
+}
+.qcard-layouts-label {
+  font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text-light); font-size: 0.6rem;
+  margin-bottom: 2px;
+}
+.qcard-layouts a {
+  position: relative; z-index: 2;
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px;
+  background: rgba(0, 59, 113, 0.04);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent, var(--trpa-blue));
+  border-radius: 4px;
+  color: var(--text-dark);
+  font-size: 0.78rem; font-weight: 600;
+  text-decoration: none;
+  transition: background 0.12s, color 0.12s, transform 0.12s, border-color 0.12s, box-shadow 0.12s;
+}
+.qcard-layouts a:hover {
+  background: var(--accent, var(--trpa-blue));
+  color: #fff;
+  border-color: var(--accent, var(--trpa-blue));
+  transform: translateX(2px);
+  box-shadow: 0 2px 8px rgba(0, 59, 113, 0.15);
+}
+.qcard-layouts a .opt-name { font-weight: 700; }
+.qcard-layouts a .opt-sep { color: var(--text-light); font-weight: 400; }
+.qcard-layouts a .opt-desc { color: var(--text-mid); font-weight: 400; flex: 1; }
+.qcard-layouts a:hover .opt-name,
+.qcard-layouts a:hover .opt-sep,
+.qcard-layouts a:hover .opt-desc { color: inherit; }
+.qcard-layouts .sep { display: none; }   /* the old "·" between inline links - no longer used */
+
+/* qcard-link: a full-card transparent overlay that catches clicks anywhere
+   on the card except where the layouts links sit (which have higher z-index).
+   Lets the entire card area act as a single primary link without nesting
+   <a> inside <a>. */
+.qcard-link {
+  position: absolute; inset: 0; z-index: 1;
+  text-decoration: none; color: inherit;
+}
+
+/* Page sections */
+.section { padding: 32px 40px 18px; max-width: 1280px; margin: 0 auto; }
+h2 { font-size: 1.4rem; font-weight: 700; color: var(--trpa-navy); margin-bottom: 8px; }
+.tagline { font-size: 0.95rem; color: var(--text-mid); margin-bottom: 22px; font-style: italic; }
+
+/* Audience banner: 4 stripes, each a track */
+.audience-bar {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 0; margin-bottom: 28px; border-radius: 8px; overflow: hidden;
+  background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow);
+}
+.audience-stripe {
+  padding: 14px 18px; text-align: center; border-right: 1px solid var(--border);
+}
+.audience-stripe:last-child { border-right: none; }
+.audience-name {
+  font-size: 0.66rem; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; margin-bottom: 4px;
+}
+.audience-desc { font-size: 0.78rem; color: var(--text-mid); line-height: 1.4; }
+.audience-stripe.exec { border-top: 4px solid var(--trpa-navy); }
+.audience-stripe.ops  { border-top: 4px solid var(--trpa-blue); }
+.audience-stripe.trend { border-top: 4px solid var(--trpa-forest); }
+.audience-stripe.audit { border-top: 4px solid var(--trpa-orange); }
+
+/* Question cards: the decision tree. align-items: stretch (default) makes
+   every grid cell take the row's tallest natural height; align-self + 100%
+   then lets the qcard fill that cell completely so every card in a row is
+   the same height. */
+.qcards { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; align-items: stretch; }
+/* Force the first Audit card to start at column 1 so both audit cards land
+   on the same (final) row together. CSS sibling combinator overrides the
+   second audit back to auto-flow so it naturally sits next to the first.
+   At 3-col viewport this leaves the trailing column of row 2 empty -
+   functions as visual breathing room separating Trends from Audit. */
+.qcard.audit { grid-column-start: 1; }
+.qcard.audit + .qcard.audit { grid-column-start: auto; }
+.qcard {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  padding: 22px 26px 24px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; gap: 12px;
+  position: relative; overflow: hidden; transition: transform 0.12s, box-shadow 0.12s;
+  height: 100%;   /* fill the grid cell; combined with align-items:stretch above gives equal-height rows */
+}
+.qcard:hover { transform: translateY(-2px); box-shadow: 0 4px 24px rgba(0, 59, 113, 0.12); }
+.qcard::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  background: var(--accent, var(--trpa-blue));
+}
+.qcard.exec  { --accent: var(--trpa-navy); }
+.qcard.ops   { --accent: var(--trpa-blue); }
+.qcard.trend { --accent: var(--trpa-forest); }
+.qcard.audit { --accent: var(--trpa-orange); }
+
+/* Content elements sit above the .qcard-link overlay so hover effects (and
+   any nested links) work naturally. Pointer-events:none on inert text lets
+   the click pass through to the link overlay below.
+
+   Hierarchy (top to bottom):
+     audience -> tiny uppercase tag in the audience accent color
+     title    -> dashboard NAME (the primary identifier)
+     question -> the "why would I look?" question this dashboard answers, italic, muted
+     desc     -> one-sentence summary of what it shows, smaller still
+*/
+.qcard-audience, .qcard-title, .qcard-question, .qcard-desc {
+  position: relative; z-index: 2; pointer-events: none;
+}
+.qcard-audience {
+  font-size: 0.62rem; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--accent, var(--trpa-blue));
+  margin-bottom: -4px;
+}
+.qcard-title {
+  font-size: 1.15rem; font-weight: 700; color: var(--text-dark);
+  line-height: 1.25; letter-spacing: -0.01em;
+}
+.qcard-question {
+  font-size: 0.85rem; font-weight: 600; color: var(--text-mid);
+  line-height: 1.4; font-style: italic;
+  margin-top: -6px;   /* sits tucked just under the title */
+}
+.qcard-desc { font-size: 0.78rem; color: var(--text-light); line-height: 1.5; }
+/* qcard-cta retired (the arrow + dashboard-name row). The layouts row at
+   the bottom is now the only nav affordance besides the click-anywhere
+   overlay. */
+
+/* Archive section: compact cards for older / superseded dashboards. Smaller
+   than .qcards (monochrome, no audience accent, no Layouts row) so the
+   primary cards above stay the visual focus. Grows over time as the
+   accepted option from each Option A/B/C set is promoted and the rejected
+   variants move down here. */
+.archive-section { margin-top: 40px; }
+.archive-heading {
+  font-size: 1.05rem; font-weight: 700; color: var(--text-mid);
+  margin-bottom: 4px;
+  display: flex; align-items: center; gap: 8px;
+}
+.archive-heading::before {
+  content: ""; display: inline-block; width: 18px; height: 2px;
+  background: var(--border); border-radius: 1px;
+}
+.archive-tagline {
+  font-size: 0.84rem; color: var(--text-light); font-style: italic;
+  margin-bottom: 16px; max-width: 720px;
+}
+.archive-cards {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px; align-items: stretch;
+}
+.archive-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+  padding: 14px 16px;
+  display: flex; flex-direction: column; gap: 6px;
+  text-decoration: none; color: var(--text-mid);
+  transition: border-color 0.12s, color 0.12s, transform 0.12s, box-shadow 0.12s;
+  height: 100%;
+}
+.archive-card:hover {
+  border-color: var(--trpa-blue); color: var(--trpa-blue);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 12px rgba(0, 59, 113, 0.08);
+}
+.archive-card-meta {
+  font-size: 0.6rem; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--text-light);
+}
+.archive-card-name {
+  font-size: 0.86rem; font-weight: 700; color: var(--text-dark);
+}
+.archive-card-desc {
+  font-size: 0.74rem; color: var(--text-light); line-height: 1.45;
+}
+
+/* Reference footer */
+.reference-banner {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 16px 22px; margin-top: 28px;
+  display: flex; align-items: center; justify-content: space-between; gap: 18px;
+  flex-wrap: wrap;
+}
+.reference-banner-text {
+  font-size: 0.88rem; color: var(--text-mid); line-height: 1.5;
+}
+.reference-banner-text strong { color: var(--text-dark); }
+.reference-banner a {
+  display: inline-block; padding: 8px 16px; background: var(--trpa-navy); color: #fff;
+  text-decoration: none; font-size: 0.82rem; font-weight: 600; border-radius: 4px;
+  letter-spacing: 0.04em; white-space: nowrap;
+}
+.reference-banner a:hover { background: var(--trpa-blue); }
+
+footer {
+  padding: 18px 40px 28px; font-size: 0.74rem; color: var(--text-light);
+  border-top: 1px solid var(--border); background: var(--surface); margin-top: 28px;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .audience-bar { grid-template-columns: 1fr 1fr; }
+  .audience-stripe { border-right: none; border-bottom: 1px solid var(--border); }
+}
+@media (max-width: 600px) {
+  .audience-bar { grid-template-columns: 1fr; }
+  h1 { font-size: 1.6rem; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-accent"></div>
+  <div class="header-content">
+    <div class="eyebrow">Tahoe Regional Planning Agency &middot; Cumulative Accounting</div>
+    <h1>Where to <span>Start</span><span class="title-info" aria-label="What is this ecosystem?">
+      <span class="title-info-icon">?</span>
+      <div class="title-info-popover">
+        <strong>The TRPA Cumulative Accounting dashboard ecosystem.</strong>
+        <p>Seven dashboards, each focused on one question. Color-coded by audience: <strong>Executive</strong> for headlines, <strong>Operations</strong> for per-commodity detail, <strong>Trends</strong> for year-over-year, <strong>Audit</strong> for per-APN lineage.</p>
+        <p>Several dashboards have alternative layouts (Original / Option 1 / Option 2). Each card below lists the available variants. The eyebrow link inside each dashboard lets you switch between them at any time.</p>
+      </div>
+    </span></h1>
+    <div class="subtitle">
+      Pick the question you want to answer. All numbers are live from the TRPA Cumulative Accounting service - no stale spreadsheets in the loop.
+    </div>
+  </div>
+</header>
+
+<div class="section">
+
+  <!-- Audience legend strip: 4 stripes, color-coded; one-line desc per tier. -->
+  <div class="audience-bar" aria-label="Audience legend">
+    <div class="audience-stripe exec">
+      <div class="audience-name" style="color:var(--trpa-navy)">Executive</div>
+      <div class="audience-desc">Headline view. Board-ready.</div>
+    </div>
+    <div class="audience-stripe ops">
+      <div class="audience-name" style="color:var(--trpa-blue)">Operations</div>
+      <div class="audience-desc">Per-commodity, per-pool detail.</div>
+    </div>
+    <div class="audience-stripe trend">
+      <div class="audience-name" style="color:var(--trpa-forest)">Trends</div>
+      <div class="audience-desc">Year-over-year change + sources.</div>
+    </div>
+    <div class="audience-stripe audit">
+      <div class="audience-name" style="color:var(--trpa-orange)">Audit</div>
+      <div class="audience-desc">Per-APN lineage + corrections.</div>
+    </div>
+  </div>
+
+  <h2>What do you want to know?</h2>
+  <p class="tagline">Each card is one question with the dashboard that answers it. Color-coded by audience.</p>
+
+  <div class="qcards">
+
+    <div class="qcard exec">
+      <a class="qcard-link" href="tahoe-development-tracker.html" aria-label="Tahoe Development Tracker"></a>
+      <div class="qcard-audience">Executive</div>
+      <div class="qcard-title">Tahoe Development Tracker</div>
+      <div class="qcard-question">How much has been built? How much more can be built?</div>
+      <div class="qcard-desc">Total built + banked + remaining allocations for each commodity. See whether Tahoe is approaching the Regional Plan caps.</div>
+      <div class="qcard-layouts">
+        <span class="qcard-layouts-label">Layouts</span>
+        <a href="tahoe-development-tracker.html"><span class="opt-name">Option A</span><span class="opt-sep">&middot;</span><span class="opt-desc">four sections of cards</span></a>
+        <a href="tahoe-development-tracker_option2.html"><span class="opt-name">Option C</span><span class="opt-sep">&middot;</span><span class="opt-desc">three tiles + banked section</span></a>
+      </div>
+    </div>
+
+    <div class="qcard ops">
+      <a class="qcard-link" href="allocation-tracking.html" aria-label="Allocation Tracking"></a>
+      <div class="qcard-audience">Operations</div>
+      <div class="qcard-title">Allocation Tracking</div>
+      <div class="qcard-question">Has growth stayed within the limits of the Regional Plan? What's the balance of each rights pool?</div>
+      <div class="qcard-desc">Per-commodity accounting against the Regional Plan caps: total authorized, allocated, jurisdiction pool, TRPA pool, unreleased.</div>
+      <div class="qcard-layouts">
+        <span class="qcard-layouts-label">Layouts</span>
+        <a href="allocation-tracking.html"><span class="opt-name">Option A</span><span class="opt-sep">&middot;</span><span class="opt-desc">card grid by commodity</span></a>
+        <a href="allocation-tracking_option1.html"><span class="opt-name">Option B</span><span class="opt-sep">&middot;</span><span class="opt-desc">stacked-bar tiles + hover explainers</span></a>
+      </div>
+    </div>
+
+    <div class="qcard ops">
+      <a class="qcard-link" href="pool-balance-cards.html" aria-label="Pool Balance Cards"></a>
+      <div class="qcard-audience">Operations</div>
+      <div class="qcard-title">Pool Balance Cards</div>
+      <div class="qcard-question">How is each rights pool tracking against its cap, by jurisdiction?</div>
+      <div class="qcard-desc">One card per pool, by jurisdiction. Max, assigned, and what's still available. Residential pools open a per-year metering chart.</div>
+      <div class="qcard-layouts">
+        <span class="qcard-layouts-label">Layouts</span>
+        <a href="pool-balance-cards.html"><span class="opt-name">Option A</span><span class="opt-sep">&middot;</span><span class="opt-desc">always-visible explainer panel</span></a>
+        <a href="pool-balance-cards_option1.html"><span class="opt-name">Option B</span><span class="opt-sep">&middot;</span><span class="opt-desc">explainer on button hover, compact numbers</span></a>
+      </div>
+    </div>
+
+    <div class="qcard trend">
+      <a class="qcard-link" href="residential-additions-by-source.html" aria-label="Residential Additions by Source"></a>
+      <div class="qcard-audience">Trends</div>
+      <div class="qcard-title">Residential Additions by Source</div>
+      <div class="qcard-question">Where did the rights come from for every residential unit built in a year?</div>
+      <div class="qcard-desc">5-source breakdown (Allocations / Bonus Units / Transfers / Conversions / From Banked) plus a removed-units chart for the full ledger.</div>
+      <div class="qcard-layouts">
+        <span class="qcard-layouts-label">Layouts</span>
+        <a href="residential-additions-by-source.html"><span class="opt-name">Option A</span><span class="opt-sep">&middot;</span><span class="opt-desc">facet + combined toggle</span></a>
+        <a href="residential-additions-by-source_option1.html"><span class="opt-name">Option B</span><span class="opt-sep">&middot;</span><span class="opt-desc">facet only + per-source hover explainers</span></a>
+      </div>
+    </div>
+
+    <div class="qcard trend">
+      <a class="qcard-link" href="development_history.html" aria-label="Development History"></a>
+      <div class="qcard-audience">Trends</div>
+      <div class="qcard-title">Development History</div>
+      <div class="qcard-question">How much was added or removed each year?</div>
+      <div class="qcard-desc">Year-over-year net change per commodity + the cumulative trajectory. Year slider and jurisdiction pills scope the basin or one county.</div>
+      <div class="qcard-layouts">
+        <span class="qcard-layouts-label">Layouts</span>
+        <a href="development_history.html"><span class="opt-name">Option A</span><span class="opt-sep">&middot;</span><span class="opt-desc">standard KPIs + charts</span></a>
+        <a href="development_history_option1.html"><span class="opt-name">Option B</span><span class="opt-sep">&middot;</span><span class="opt-desc">compact numbers + KPI hover tooltips</span></a>
+      </div>
+    </div>
+
+    <div class="qcard audit">
+      <a class="qcard-link" href="qa-change-rationale.html" aria-label="QA Change Rationale"></a>
+      <div class="qcard-audience">Audit</div>
+      <div class="qcard-title">QA Change Rationale</div>
+      <div class="qcard-question">Why did this number change?</div>
+      <div class="qcard-desc">5,925-row audit log of 2023 + 2026 QA correction campaigns. Filterable by APN, change type, year.</div>
+    </div>
+
+    <div class="qcard audit">
+      <a class="qcard-link" href="genealogy_solver/" aria-label="Genealogy Solver"></a>
+      <div class="qcard-audience">Audit</div>
+      <div class="qcard-title">Genealogy Solver</div>
+      <div class="qcard-question">How is this parcel connected to others?</div>
+      <div class="qcard-desc">APN lineage lookup. Single APN or batch CSV; renders parcel polygons on a map with 2025 cross-reference inline.</div>
+    </div>
+
+  </div>
+
+  <!-- Archive: superseded / older dashboards. Lives below the active set
+       so the primary entry points stay the visual focus. Will grow as the
+       chosen Option A/B/C is promoted and the rejected variants move here. -->
+  <div class="archive-section">
+    <div class="archive-heading">Archive</div>
+    <div class="archive-tagline">Older or superseded dashboards. Kept for reference; not the canonical answer to any of the questions above. Variants we don't choose from the Option A/B/C sets will also move here.</div>
+    <div class="archive-cards">
+
+      <a class="archive-card" href="_archive/residential-allocations-dashboard.html">
+        <div class="archive-card-meta">Allocations &middot; legacy</div>
+        <div class="archive-card-name">Tahoe Residential Allocations (legacy)</div>
+        <div class="archive-card-desc">Earlier per-jurisdiction allocation overview; superseded by today's Allocation Tracking + Pool Balance Cards.</div>
+      </a>
+
+      <a class="archive-card" href="_archive/allocation_drawdown.html">
+        <div class="archive-card-meta">Allocations &middot; prototype</div>
+        <div class="archive-card-name">Residential Allocation Drawdown</div>
+        <div class="archive-card-desc">Stacked-area chart prototype - 8 jurisdiction pools, 2013-2025 drawdown. The first stack/brand proof that became Pool Balance Cards.</div>
+      </a>
+
+      <a class="archive-card" href="_archive/public-allocation-availability.html">
+        <div class="archive-card-meta">Allocations &middot; public</div>
+        <div class="archive-card-name">Residential Allocation Availability</div>
+        <div class="archive-card-desc">Public-facing 5-jurisdiction allocation balance map. Dan's "Why would I look?" answer was "I don't know" - parked here pending a clearer public-facing framing.</div>
+      </a>
+
+      <a class="archive-card" href="_archive/development_history_buildings.html">
+        <div class="archive-card-meta">History &middot; buildings</div>
+        <div class="archive-card-name">Development History (Buildings)</div>
+        <div class="archive-card-desc">Tahoe Basin building footprints by construction era; year-slider playback. Spatial-first view, complement to the units-first Development History.</div>
+      </a>
+
+      <a class="archive-card" href="_archive/development_history_units.html">
+        <div class="archive-card-meta">History &middot; units</div>
+        <div class="archive-card-name">Development History (Units)</div>
+        <div class="archive-card-desc">Residential unit completions joined to building footprints by APN; units split across footprints by square footage.</div>
+      </a>
+
+      <a class="archive-card" href="_archive/tahoe-development-tracker_option1.html">
+        <div class="archive-card-meta">Tracker &middot; rejected Option B</div>
+        <div class="archive-card-name">Tahoe Development Tracker (Option B)</div>
+        <div class="archive-card-desc">Three-tile commodity-first layout with stacked-bar pipelines + ice accent. Rejected in favor of Option C (which adds an explicit Banked Development Rights section).</div>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- Reference banner: pointer to the full index.html documentation -->
+  <div class="reference-banner">
+    <div class="reference-banner-text">
+      <strong>Looking for the full reference?</strong>
+      Data sources by REST layer, refresh pipelines, canonical-schema roadmap, and architecture docs - all in one place.<span class="banner-info" aria-label="When to use start vs index">
+        <span class="banner-info-icon">?</span>
+        <div class="banner-info-popover">
+          <strong>start.html</strong> is the entry point - "what do you want to know?" with a dashboard per question.
+          <br><br>
+          <strong>index.html</strong> is the data inventory - "what's served from each REST layer?" with the full schema + refresh story.
+          <br><br>
+          Use start when answering a question; use index when planning a new dashboard or auditing where a number comes from.
+        </div>
+      </span>
+    </div>
+    <a href="index.html">Go to index.html &rarr;</a>
+  </div>
+
+</div>
+
+<footer>
+  Base URL: <code>https://trpa-agency.github.io/Reporting/html/</code> &middot;
+  Source: <a href="https://github.com/trpa-agency/Reporting/tree/MTB-Edits/html">trpa-agency/Reporting on GitHub</a>
+</footer>
+
+</body>
+</html>

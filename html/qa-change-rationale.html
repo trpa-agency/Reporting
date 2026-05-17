@@ -41,7 +41,7 @@ header { background: var(--trpa-navy); color: #fff; display: flex; align-items: 
 .header-content { padding: 26px 40px 22px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex: 1; }
 .header-eyebrow { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--trpa-ice); margin-bottom: 7px; }
 header h1 { font-weight: 700; font-size: 1.85rem; line-height: 1.15; letter-spacing: -0.02em; }
-header h1 span { color: var(--trpa-blue); }
+header h1 span { color: var(--trpa-orange); }  /* highlight word: orange against navy = ~4.6:1 contrast (trpa-blue on navy was ~2.5:1, failed WCAG AA) */
 .header-sub { font-size: 0.82rem; color: var(--trpa-ice); margin-top: 6px; opacity: 0.9; max-width: 760px; }
 .header-meta { font-size: 0.75rem; color: var(--trpa-ice); text-align: right; line-height: 1.7; opacity: 0.85; white-space: nowrap; }
 .live-badge { display: inline-block; background: var(--trpa-forest); color: #fff; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; margin-bottom: 6px; }
@@ -90,6 +90,15 @@ header h1 span { color: var(--trpa-blue); }
   line-height: 1.6; background: var(--surface); border-top: 1px solid var(--border);
 }
 .footnote code { background: var(--bg); padding: 1px 5px; border-radius: 3px; font-size: 0.7rem; }
+/* "Related views" cross-link strip; sits between main content + footnote */
+.related-dashboards {
+  padding: 14px 40px; background: var(--bg); border-top: 1px solid var(--border);
+  font-size: 0.82rem; color: var(--text-mid);
+  display: flex; gap: 18px; flex-wrap: wrap; align-items: center;
+}
+.related-dashboards strong { color: var(--text-dark); font-weight: 700; }
+.related-dashboards a { color: var(--trpa-blue); text-decoration: none; font-weight: 600; }
+.related-dashboards a:hover { text-decoration: underline; }
 
 @media (max-width: 1100px) {
   .split { grid-template-columns: 1fr; }
@@ -194,6 +203,12 @@ header h1 span { color: var(--trpa-blue); }
       <div id="cat-chart" style="height:480px;"></div>
     </div>
   </div>
+</div>
+
+<div class="related-dashboards">
+  <strong>Related views:</strong>
+  <a href="genealogy_solver/">&harr; Genealogy Solver (per-APN lineage)</a>
+  <a href="start.html">All dashboards</a>
 </div>
 
 <div class="footnote">

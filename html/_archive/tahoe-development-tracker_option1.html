@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Tahoe Development Tracker (Option 1) - TRPA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>  <!-- renders the commodity explainer markdown into the tile-info hover popovers -->
+
+<style>
+:root {
+  --trpa-blue:    #0072CE;
+  --trpa-navy:    #003B71;
+  --trpa-earth:   #B47E00;
+  --trpa-forest:  #4A6118;
+  --trpa-brick:   #9C3E27;
+  --trpa-olive:   #B5A64C;
+  --trpa-orange:  #E87722;
+  --trpa-purple:  #7B6A8A;
+  --trpa-ice:     #B4CBE8;
+  --bg:           #f5f7fa;
+  --surface:      #ffffff;
+  --border:       #e1e7ee;
+  --text-dark:    #003B71;
+  --text-mid:     #5d6c7e;
+  --text-light:   #8a9bb2;
+  --shadow:       0 2px 16px rgba(0, 59, 113, 0.08);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg); color: var(--text-dark); min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+header { background: var(--trpa-navy); color: #fff; display: flex; align-items: stretch; }
+.header-accent { width: 8px; flex-shrink: 0; background: linear-gradient(180deg, var(--trpa-forest) 0%, var(--trpa-blue) 50%, var(--trpa-orange) 100%); }
+.header-content { padding: 26px 40px 22px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex: 1; }
+.header-eyebrow { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--trpa-ice); margin-bottom: 7px; }
+header h1 { font-weight: 700; font-size: 1.85rem; line-height: 1.15; letter-spacing: -0.02em; }
+header h1 span { color: var(--trpa-ice); }  /* highlight word: ice on navy ~9:1 contrast - matches the allocation-tracking_option1 variant for visual consistency between the two option1 dashboards */
+.header-sub { font-size: 0.82rem; color: var(--trpa-ice); margin-top: 6px; opacity: 0.9; max-width: 760px; }
+.header-meta { font-size: 0.75rem; color: var(--trpa-ice); text-align: right; line-height: 1.7; opacity: 0.85; white-space: nowrap; }
+.live-badge { display: inline-block; background: var(--trpa-forest); color: #fff; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; margin-bottom: 6px; }
+
+/* Section padding */
+.section { padding: 24px 40px; }
+
+/* Commodity-first hero layout (2026-05-16 redesign). Three large tiles in a
+   row (one per commodity). Each tile leads with the existing-on-the-ground
+   headline, then a stacked-bar visualization of the development pipeline
+   beyond what is built. Replaces the previous 4-roman-numeral-sections
+   layout (12 numeric cards). */
+.intro-text {
+  font-size: 0.86rem; color: var(--text-mid); line-height: 1.55;
+  padding: 0 40px; max-width: 920px; margin-bottom: 4px;
+}
+.intro-text strong { color: var(--text-dark); }
+
+.commodity-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;
+}
+.commodity-tile {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  padding: 22px 24px 20px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; gap: 0;
+}
+.tile-name {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--trpa-navy); margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* "What is this commodity?" hover popover. Tiny ? icon next to the commodity
+   name; on hover reveals a wider card with the markdown explainer rendered
+   from content/explainers/pool-balance-cards/*.md (shared with allocation-
+   tracking_option1 + pool-balance-cards). Single canonical source of explainer
+   content for the whole dashboard ecosystem. */
+.tile-info {
+  position: relative; display: inline-flex; vertical-align: middle;
+}
+.tile-info-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--trpa-ice); color: var(--trpa-navy);
+  font-size: 0.68rem; font-weight: 700;
+  cursor: help; transition: background 0.12s, color 0.12s;
+  letter-spacing: 0; text-transform: none;
+}
+.tile-info-icon:hover { background: var(--trpa-blue); color: #fff; }
+.tile-info-popover {
+  position: absolute; top: calc(100% + 10px); left: -4px;
+  width: 380px; max-width: calc(100vw - 80px);
+  background: #fff; border: 1px solid var(--trpa-ice); border-radius: 6px;
+  padding: 16px 18px;
+  box-shadow: 0 4px 20px rgba(0, 59, 113, 0.15);
+  font-size: 0.82rem; line-height: 1.55; color: var(--text-mid);
+  letter-spacing: 0; text-transform: none;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.15s, transform 0.15s;
+  z-index: 100;
+}
+.tile-info-popover h3 { font-size: 0.95rem; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; }
+.tile-info-popover p { margin-bottom: 8px; }
+.tile-info-popover p:last-child { margin-bottom: 0; }
+.tile-info-popover a {
+  color: var(--trpa-blue);
+  overflow-wrap: anywhere;  /* defensive backstop against unbreakable URLs */
+}
+.tile-info-popover strong { color: var(--text-dark); font-weight: 600; }
+.tile-info-popover em { color: var(--text-light); font-style: italic; }
+.tile-info:hover .tile-info-popover {
+  opacity: 1; pointer-events: auto;
+  transform: translateY(-2px);
+}
+.tile-info::after {
+  content: ''; position: absolute;
+  top: calc(100% + 4px); left: 4px;
+  border: 6px solid transparent; border-bottom-color: var(--trpa-ice);
+  opacity: 0; pointer-events: none; transition: opacity 0.15s;
+  z-index: 101;
+}
+.tile-info:hover::after { opacity: 1; }
+
+/* Hero row: big "existing today" number + sublabel with unit + as-of year.
+   Compact format (49,018 / 6.6M / 10,761) keeps the hero number tight even
+   for CFA's 7-digit value. */
+.tile-hero {
+  display: flex; align-items: baseline; gap: 14px;
+  padding-bottom: 16px; border-bottom: 1px solid var(--border); margin-bottom: 14px;
+}
+.tile-hero-value {
+  font-size: 2.5rem; font-weight: 700; color: var(--text-dark);
+  letter-spacing: -0.02em; line-height: 1; font-variant-numeric: tabular-nums;
+}
+.tile-hero-label {
+  font-size: 0.78rem; color: var(--text-mid); line-height: 1.35;
+}
+.tile-hero-label strong { color: var(--text-dark); font-weight: 600; }
+
+.tile-pipeline-label {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text-mid); margin-bottom: 8px;
+}
+
+/* Horizontal stacked bar showing the 3-segment pipeline (Banked / Reserved /
+   In pools). Flex values are the raw counts so widths are proportional
+   automatically. Matches allocation-tracking_option1's tile-stack idiom so
+   the two dashboards visually rhyme. */
+.tile-stack {
+  display: flex; height: 32px; border-radius: 6px; overflow: visible;
+  background: var(--bg); border: 1px solid var(--border); margin-bottom: 14px;
+  position: relative;
+}
+.tile-stack-segment {
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 0.78rem; font-weight: 700;
+  white-space: nowrap; font-variant-numeric: tabular-nums;
+  transition: filter 0.15s; min-width: 0;
+  position: relative;
+}
+.tile-stack-segment:first-child { border-radius: 6px 0 0 6px; }
+.tile-stack-segment:last-child  { border-radius: 0 6px 6px 0; }
+.tile-stack-segment:only-child  { border-radius: 6px; }
+.tile-stack-segment:hover { filter: brightness(1.08); }
+/* Styled hover tooltip on each segment (replaces native title attribute).
+   Matches the Plotly hoverlabel styling on other dashboards: white card,
+   ice border, navy text. */
+.tile-stack-segment::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+  background: #fff;
+  border: 1px solid var(--trpa-ice);
+  color: var(--trpa-navy);
+  font-size: 0.78rem; font-weight: 600;
+  padding: 7px 11px; border-radius: 4px;
+  white-space: nowrap;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.12s, transform 0.12s;
+  z-index: 10;
+  box-shadow: 0 2px 10px rgba(0, 59, 113, 0.15);
+}
+.tile-stack-segment:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-2px);
+}
+.tile-stack-segment::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 2px); left: 50%; transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--trpa-ice);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.12s;
+  z-index: 10;
+}
+.tile-stack-segment:hover::before { opacity: 1; }
+
+/* 3-column legend underneath the stacked bar: name+swatch | value | %. */
+.tile-legend {
+  display: grid; grid-template-columns: 1fr auto auto;
+  row-gap: 7px; column-gap: 14px;
+  font-size: 0.82rem; color: var(--text-mid);
+}
+.tile-legend-name {
+  display: flex; align-items: center; gap: 8px;
+  font-weight: 600; color: var(--text-dark);
+}
+.tile-legend-name .swatch { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; }
+.tile-legend-value {
+  font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text-dark);
+  text-align: right; white-space: nowrap;
+}
+.tile-legend-pct {
+  font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text-mid);
+  text-align: right; white-space: nowrap; min-width: 38px;
+}
+
+/* Basin context banner at the top - high-level "Tahoe at a glance" */
+.basin-banner {
+  margin: 16px 40px 0;
+  background: linear-gradient(135deg, var(--trpa-navy) 0%, var(--trpa-blue) 100%);
+  color: #fff; border-radius: 10px; padding: 22px 28px;
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  flex-wrap: wrap; box-shadow: var(--shadow);
+}
+.basin-banner-label {
+  font-size: 0.66rem; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; opacity: 0.85; margin-bottom: 6px;
+}
+.basin-banner-title { font-size: 1.4rem; font-weight: 700; line-height: 1.2; }
+.basin-banner-stats {
+  display: flex; gap: 28px; flex-wrap: wrap;
+}
+.basin-stat { text-align: center; }
+.basin-stat-value {
+  font-size: 1.75rem; font-weight: 700; line-height: 1;
+  letter-spacing: -0.02em; font-variant-numeric: tabular-nums;
+}
+.basin-stat-label {
+  font-size: 0.7rem; opacity: 0.85; margin-top: 4px;
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+
+.tile-footer {
+  font-size: 0.76rem; color: var(--text-mid); line-height: 1.55;
+  border-top: 1px dashed var(--border); padding-top: 14px; margin-top: 16px;
+}
+.tile-footer strong { color: var(--text-dark); }
+.tile-footer .footer-link { display: block; margin-top: 8px; font-size: 0.74rem; }
+.tile-footer .footer-link a { color: var(--trpa-blue); text-decoration: none; }
+.tile-footer .footer-link a:hover { text-decoration: underline; }
+
+@media (max-width: 1100px) { .commodity-grid { grid-template-columns: 1fr; } }
+
+/* Conversion note: callout below all four sections */
+.conversion-note {
+  background: var(--bg); border-left: 4px solid var(--trpa-orange); border-radius: 4px;
+  padding: 14px 20px; margin: 0 40px 24px;
+}
+.conversion-note p { font-size: 0.85rem; color: var(--text-mid); line-height: 1.55; }
+.conversion-note strong { color: var(--text-dark); }
+
+/* Banked by-jurisdiction table */
+.banked-table {
+  width: 100%; border-collapse: collapse; margin-top: 16px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  overflow: hidden; box-shadow: var(--shadow); font-size: 0.85rem;
+}
+.banked-table th, .banked-table td { padding: 9px 14px; border-top: 1px solid var(--border); text-align: right; font-variant-numeric: tabular-nums; }
+.banked-table th { background: var(--bg); color: var(--text-mid); font-weight: 700; letter-spacing: 0.04em; font-size: 0.7rem; text-transform: uppercase; }
+.banked-table th:first-child, .banked-table td:first-child { text-align: left; font-variant-numeric: normal; }
+.banked-table tr:first-child th { border-top: none; }
+.banked-table tr.total-row td { font-weight: 700; color: var(--text-dark); background: var(--bg); }
+.banked-table td.empty { color: var(--text-light); }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px 24px; box-shadow: var(--shadow); }
+.card h3 { font-size: 0.95rem; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
+.card p { font-size: 0.73rem; color: var(--text-light); margin-bottom: 14px; }
+.card p strong { color: var(--text-mid); }
+
+/* Gauge grid */
+.gauge-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.gauge-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 16px 12px 14px; box-shadow: var(--shadow); position: relative; min-height: 280px;
+}
+.gauge-accent { position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 8px 8px 0 0; }
+.gauge-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); text-align: center; margin-bottom: 4px; padding-top: 4px; }
+.gauge-value {
+  font-size: 1.9rem; font-weight: 700; color: var(--text-dark);
+  letter-spacing: -0.02em; line-height: 1;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  margin: 0 0 4px;
+}
+.gauge-sub { font-size: 0.74rem; color: var(--text-mid); text-align: center; margin-top: 2px; }
+.gauge-sub strong { color: var(--text-dark); font-weight: 600; }
+
+/* Toggle bar */
+.toggle-bar { display: flex; gap: 6px; margin: 2px 0 14px; flex-wrap: wrap; }
+.toggle-btn {
+  padding: 5px 12px; border: 1.5px solid var(--border); border-radius: 4px;
+  background: #fff; font-family: inherit; font-size: 0.76rem; color: var(--text-mid);
+  cursor: pointer;
+}
+.toggle-btn:hover { border-color: var(--trpa-blue); color: var(--trpa-blue); }
+.toggle-btn.active { background: var(--trpa-navy); border-color: var(--trpa-navy); color: #fff; }
+
+/* Summary mini-cards */
+.summary-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 6px; }
+.live-card { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; position: relative; }
+.live-card .live-accent { position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 6px 6px 0 0; }
+.live-card .live-label { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-light); margin-bottom: 4px; padding-top: 4px; }
+.live-card .live-value { font-size: 1.55rem; font-weight: 700; color: var(--text-dark); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.live-card .live-pct   { font-size: 0.72rem; color: var(--text-mid); margin-top: 2px; }
+@media (max-width: 900px) { .summary-row { grid-template-columns: 1fr; } }
+
+.footnote {
+  padding: 14px 40px 22px; font-size: 0.72rem; color: var(--text-light);
+  line-height: 1.6; background: var(--surface); border-top: 1px solid var(--border); margin-top: 24px;
+}
+.footnote code { background: var(--bg); padding: 1px 5px; border-radius: 3px; font-size: 0.7rem; }
+/* "Related views" cross-link strip; sits between main content + footnote */
+.related-dashboards {
+  padding: 14px 40px; background: var(--bg); border-top: 1px solid var(--border);
+  font-size: 0.82rem; color: var(--text-mid);
+  display: flex; gap: 18px; flex-wrap: wrap; align-items: center;
+}
+.related-dashboards strong { color: var(--text-dark); font-weight: 700; }
+.related-dashboards a { color: var(--trpa-blue); text-decoration: none; font-weight: 600; }
+.related-dashboards a:hover { text-decoration: underline; }
+
+@media (max-width: 1100px) {
+  .gauge-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 700px) {
+  .gauge-grid { grid-template-columns: 1fr; }
+  header .header-content, .section, .footnote { padding-left: 16px; padding-right: 16px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-accent"></div>
+  <div class="header-content">
+    <div>
+      <div class="header-eyebrow">Tahoe Regional Planning Agency &middot; <em style="color:var(--trpa-ice);opacity:0.85;font-style:italic;">archived layout</em> &middot; <a href="../tahoe-development-tracker.html" style="color:var(--trpa-ice);text-decoration:underline;">Option A (4 sections)</a> &middot; <a href="../tahoe-development-tracker_option2.html" style="color:var(--trpa-ice);text-decoration:underline;">Option C (3 tiles + banked)</a></div>
+      <h1>Tahoe <span>Development Tracker</span></h1>
+      <div class="header-sub">
+        Residential, bonus, tourist, and commercial development assigned to projects across the Tahoe Region. <em>Option 1: donut-chart visual variant.</em>
+      </div>
+    </div>
+    <div class="header-meta">
+      <div class="live-badge">A1 / Headline (Option 1)</div>
+    </div>
+  </div>
+</header>
+
+<!-- Option 1 hero layout (2026-05-16 design variant): same data, more
+     visual. Basin-wide context banner up top + 3 commodity tiles, each
+     with a Plotly donut chart showing the pipeline composition with the
+     "existing today" number centered in the donut hole. Different visual
+     register from the CSS-bar original; same REST data sources. -->
+<div class="basin-banner">
+  <div>
+    <div class="basin-banner-label">Tahoe Region &middot; Basin-wide at a glance</div>
+    <div class="basin-banner-title">Three commodities. One pipeline.</div>
+  </div>
+  <div class="basin-banner-stats">
+    <div class="basin-stat">
+      <div class="basin-stat-value" id="basin-res-cap">&hellip;</div>
+      <div class="basin-stat-label">since-1987 residential cap</div>
+    </div>
+    <div class="basin-stat">
+      <div class="basin-stat-value" id="basin-cfa-cap">&hellip;</div>
+      <div class="basin-stat-label">since-1987 CFA cap (sf)</div>
+    </div>
+    <div class="basin-stat">
+      <div class="basin-stat-value" id="basin-tau-cap">&hellip;</div>
+      <div class="basin-stat-label">since-1987 tourist cap</div>
+    </div>
+  </div>
+</div>
+
+<div class="intro-text" style="margin-top:18px;">
+  <strong>Where Tahoe Region development stands.</strong> Each tile leads with what is built on the ground today, then shows the development pipeline beyond - what is banked on parcels, what is reserved but not yet constructed, and what remains in jurisdiction + TRPA pools.
+</div>
+
+<div class="section">
+  <div class="commodity-grid">
+
+    <div class="commodity-tile" data-commodity="res">
+      <div class="tile-name">Residential
+        <span class="tile-info" aria-label="What is residential development?">
+          <span class="tile-info-icon">?</span>
+          <div class="tile-info-popover" id="info-res-popover"><p><em>Loading explainer&hellip;</em></p></div>
+        </span>
+      </div>
+      <div class="tile-hero">
+        <div class="tile-hero-value" id="hero-res-existing">&hellip;</div>
+        <div class="tile-hero-label"><strong>units</strong> built as of <span id="hero-res-year">&hellip;</span></div>
+      </div>
+      <div class="tile-pipeline-label">Pipeline beyond what is built</div>
+      <div class="tile-stack" id="hero-res-stack"></div>
+      <div class="tile-legend" id="hero-res-legend"></div>
+      <div class="tile-footer" id="hero-res-footer">&hellip;</div>
+    </div>
+
+    <div class="commodity-tile" data-commodity="cfa">
+      <div class="tile-name">Commercial Floor Area
+        <span class="tile-info" aria-label="What is commercial floor area?">
+          <span class="tile-info-icon">?</span>
+          <div class="tile-info-popover" id="info-cfa-popover"><p><em>Loading explainer&hellip;</em></p></div>
+        </span>
+      </div>
+      <div class="tile-hero">
+        <div class="tile-hero-value" id="hero-cfa-existing">&hellip;</div>
+        <div class="tile-hero-label"><strong>sq ft</strong> built as of <span id="hero-cfa-year">&hellip;</span></div>
+      </div>
+      <div class="tile-pipeline-label">Pipeline beyond what is built</div>
+      <div class="tile-stack" id="hero-cfa-stack"></div>
+      <div class="tile-legend" id="hero-cfa-legend"></div>
+      <div class="tile-footer" id="hero-cfa-footer">&hellip;</div>
+    </div>
+
+    <div class="commodity-tile" data-commodity="tau">
+      <div class="tile-name">Tourist Accommodation
+        <span class="tile-info" aria-label="What is a tourist accommodation unit?">
+          <span class="tile-info-icon">?</span>
+          <div class="tile-info-popover" id="info-tau-popover"><p><em>Loading explainer&hellip;</em></p></div>
+        </span>
+      </div>
+      <div class="tile-hero">
+        <div class="tile-hero-value" id="hero-tau-existing">&hellip;</div>
+        <div class="tile-hero-label"><strong>units</strong> built as of <span id="hero-tau-year">&hellip;</span></div>
+      </div>
+      <div class="tile-pipeline-label">Pipeline beyond what is built</div>
+      <div class="tile-stack" id="hero-tau-stack"></div>
+      <div class="tile-legend" id="hero-tau-legend"></div>
+      <div class="tile-footer" id="hero-tau-footer">&hellip;</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="section conversion-note">
+  <p><strong>Note:</strong> These existing and remaining balances and total development potential for each type of development will vary due to permitted conversions between development right categories.</p>
+</div>
+
+<div class="related-dashboards">
+  <strong>Related views:</strong>
+  <a href="../allocation-tracking.html">&rarr; Allocation Tracking (per-commodity detail)</a>
+  <a href="../pool-balance-cards.html">&rarr; Pool Balance Cards (per-pool drilldown)</a>
+  <a href="../development_history.html">&rarr; Development History (year-over-year trends)</a>
+  <a href="../start.html">All dashboards</a>
+</div>
+
+<!-- Footnote: link text is the layer / table NAME (not "layer N"), so the
+     hrefs can be swapped to tahoeopendata.org download links later without
+     also re-writing the visible copy. -->
+<div class="footnote">
+  <strong>Sources:</strong> Tahoe Regional Planning Agency; Lake Tahoe Regional Plan, Policy DP-2.2 and Code Section 50.4.1; <a href="https://parcels.laketahoeinfo.org/DevelopmentRightPool/DevelopmentRightPoolBalanceReport" style="color:var(--trpa-blue)">Development Right Pool Balance Report</a>.
+  <br><strong>Existing</strong> (headline number per tile): live sums from <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/0" style="color:var(--trpa-blue)">Parcel Development History</a>. Chained query: max(YEAR) then sum <code>Residential_Units</code> / <code>CommercialFloorArea_SqFt</code> / <code>TouristAccommodation_Units</code> at that year.
+  <br><strong>Banked</strong> (first bar segment): live from <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/9" style="color:var(--trpa-blue)">Development Right Banked By Jurisdiction</a>. Residential combines MFRUU + SFRUU. The per-APN <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/7" style="color:var(--trpa-blue)">Banked Development Rights</a> totals can differ; see <code>data/qa_data/banked_reconciliation_summary.md</code>.
+  <br><strong>Reserved, not constructed</strong> (second bar segment): live from <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/15" style="color:var(--trpa-blue)">Development Right Reserved Not Constructed</a>. Analyst-tally snapshot today; true derivation = <code>Construction_Status='Not Completed'</code> on the 2012 RP allocation grid + a 1987 RP equivalent that doesn't yet exist as row-level data.
+  <br><strong>In pools</strong> (third bar segment): live from <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/10" style="color:var(--trpa-blue)">Development Right Allocation Balances</a> filtered to <code>Source='Grand Total'</code>; sums <code>TotalBalanceRemaining</code> per commodity (residential includes RBU per the analyst's framing).
+  <br><strong>Since-1987 capacity</strong> (tile footer): from the same Allocation Balances query, <code>TotalAuthorized</code> + <code>AllocatedToPrivate</code> per commodity.
+</div>
+
+<script>
+const TRPA = {
+  blue:'#0072CE', navy:'#003B71', earth:'#B47E00', forest:'#4A6118',
+  brick:'#9C3E27', olive:'#B5A64C', orange:'#E87722', purple:'#7B6A8A',
+  ice:'#B4CBE8',
+};
+// Banked development rights: live from Cumulative_Accounting layer 9
+// ("Development Right Banked By Jurisdiction"). 24-row long-form table
+// (6 jurisdictions x 4 commodities). Source-of-load was
+// data/processed_data/banked_long.csv (the analyst's Apr 2026 snapshot).
+const BANKED_REST_URL = 'https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/9/query'
+  + '?where=1%3D1'
+  + '&outFields=Jurisdiction%2CCommodity%2CValue'
+  + '&returnGeometry=false&f=json';
+
+// Section iv "Not reserved and not released": live from Cumulative_Accounting
+// layer 10 ("Development Right Allocation Balances", Source='Grand Total').
+// Section iv values = TotalBalanceRemaining per commodity, with residential
+// = RES + RBU (Ken's framing folds bonus units into residential).
+const BALANCES_URL = 'https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/10/query'
+  + '?where=' + encodeURIComponent("Source='Grand Total'")
+  + '&outFields=CommodityCode%2CTotalAuthorized%2CAllocatedToPrivate%2CTotalBalanceRemaining%2CAsOfDate'
+  + '&returnGeometry=false&f=json';
+
+// Section iii "Reserved, not constructed": live from Cumulative_Accounting
+// layer 15 (Development Right Reserved Not Constructed). 3 rows, one per
+// commodity. Path to true derivation: needs Construction_Status field on
+// layer 3 (1987 RP allocations) plus full row-level coverage on layer 4
+// (only 2012 RP residential today).
+const RESERVED_NOT_CONSTRUCTED_URL = 'https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/15/query'
+  + '?where=1%3D1'
+  + '&outFields=CommodityCode%2CCommodity%2CUnits%2CUnit%2CAsOfDate'
+  + '&returnGeometry=false&f=json';
+
+// Cumulative_Accounting layer 0 = Parcel Development History, the system of
+// record for what is on the ground (one row per parcel-year). The Existing
+// Development section sums Residential_Units / TouristAccommodation_Units /
+// CommercialFloorArea_SqFt across all parcels at the most recent YEAR.
+const PDH_URL = 'https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/0/query';
+const PDH_MAXYEAR_URL = PDH_URL
+  + '?where=1%3D1'
+  + '&outStatistics=' + encodeURIComponent(JSON.stringify([{
+      statisticType: 'max',
+      onStatisticField: 'YEAR',
+      outStatisticFieldName: 'max_year'
+    }]))
+  + '&returnGeometry=false&f=json';
+function pdhTotalsUrl(year) {
+  return PDH_URL
+    + '?where=' + encodeURIComponent('YEAR=' + year)
+    + '&outStatistics=' + encodeURIComponent(JSON.stringify([
+        { statisticType: 'sum', onStatisticField: 'Residential_Units',          outStatisticFieldName: 'res' },
+        { statisticType: 'sum', onStatisticField: 'TouristAccommodation_Units', outStatisticFieldName: 'tau' },
+        { statisticType: 'sum', onStatisticField: 'CommercialFloorArea_SqFt',   outStatisticFieldName: 'cfa' },
+      ]))
+    + '&returnGeometry=false&f=json';
+}
+function fmt(n) {
+  if (n == null) return '0';
+  return n >= 1000 ? Math.round(n).toLocaleString() : String(n);
+}
+
+// Compact formatter for big hero numbers. CFA's "6,583,769 sq ft" is the
+// driving case - that's why this exists. Below 1M we keep full comma format
+// because "49,018" reads cleaner than "49K" at the residential / tourist range.
+// Legend keeps full precise values (there's horizontal room).
+function fmtCompact(n) {
+  if (n == null) return '0';
+  if (n >= 1_000_000) {
+    const m = n / 1_000_000;
+    return (m % 1 === 0 ? m.toFixed(0) : m.toFixed(1)) + 'M';
+  }
+  return Math.round(n).toLocaleString();
+}
+
+// Per-commodity explainer markdown. Sourced from the pool-balance-cards
+// content folder so the analyst maintains a single canonical copy of "what
+// is this commodity?" content; renders into hover popovers here.
+// Tracker keys map to pool-balance-cards file names:
+//   res -> residential (Ken folds RES + RBU together; the residential explainer covers both)
+//   cfa -> commercial_floor_area
+//   tau -> tourist_accommodation_units
+const EXPLAINER_URLS = {
+  res: '../content/explainers/pool-balance-cards/residential.md',
+  cfa: '../content/explainers/pool-balance-cards/commercial_floor_area.md',
+  tau: '../content/explainers/pool-balance-cards/tourist_accommodation_units.md',
+};
+let EXPLAINERS = Object.fromEntries(
+  Object.keys(EXPLAINER_URLS).map(k => [k, '<p><em>Loading explainer&hellip;</em></p>'])
+);
+
+async function loadExplainers() {
+  const entries = await Promise.all(
+    Object.entries(EXPLAINER_URLS).map(async ([key, url]) => {
+      try {
+        const r = await fetch(url, { cache: 'no-cache' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const md = await r.text();
+        return [key, marked.parse(md)];
+      } catch (e) {
+        console.warn('Explainer load failed for ' + key + ':', e.message);
+        return [key, '<p><em>Explainer unavailable (' + e.message + ').</em></p>'];
+      }
+    })
+  );
+  EXPLAINERS = Object.fromEntries(entries);
+}
+
+// Backfill the per-tile popover HTML after loadExplainers resolves. Tiles
+// paint immediately with "Loading..." until then.
+function updateExplainers() {
+  Object.keys(EXPLAINER_URLS).forEach(code => {
+    const el = document.getElementById('info-' + code + '-popover');
+    if (el && EXPLAINERS[code]) el.innerHTML = EXPLAINERS[code];
+  });
+}
+
+// ── Data fetchers (one per REST source; each returns a normalized shape) ───
+
+async function fetchExisting() {
+  // PDH layer 0: chain max(YEAR) then sum the 3 commodity fields at that year.
+  const yr = await fetch(PDH_MAXYEAR_URL, { cache: 'no-cache' });
+  if (!yr.ok) throw new Error('PDH max-year HTTP ' + yr.status);
+  const yrJ = await yr.json();
+  const maxYear = Number(yrJ.features?.[0]?.attributes?.max_year);
+  if (!Number.isFinite(maxYear)) throw new Error('PDH max-year missing');
+  const tr = await fetch(pdhTotalsUrl(maxYear), { cache: 'no-cache' });
+  if (!tr.ok) throw new Error('PDH totals HTTP ' + tr.status);
+  const a = (await tr.json()).features?.[0]?.attributes || {};
+  return { year: maxYear, res: Number(a.res) || 0, cfa: Number(a.cfa) || 0, tau: Number(a.tau) || 0 };
+}
+
+async function fetchBanked() {
+  // Layer 9: 24 rows (jurisdiction x commodity). Sum to commodity totals.
+  // Residential combines MFRUU + SFRUU per the analyst's framing.
+  const r = await fetch(BANKED_REST_URL, { cache: 'no-cache' });
+  if (!r.ok) throw new Error('Banked layer 9 HTTP ' + r.status);
+  const j = await r.json();
+  const totals = { MFRUU: 0, SFRUU: 0, CFA: 0, TAU: 0 };
+  for (const f of (j.features || [])) {
+    const a = f.attributes || {};
+    if (a.Commodity in totals) totals[a.Commodity] += Number(a.Value) || 0;
+  }
+  return { res: totals.MFRUU + totals.SFRUU, cfa: totals.CFA, tau: totals.TAU };
+}
+
+async function fetchReserved() {
+  // Layer 15: 3 rows (per commodity). Hardcoded-from-analyst tally for now.
+  const r = await fetch(RESERVED_NOT_CONSTRUCTED_URL, { cache: 'no-cache' });
+  if (!r.ok) throw new Error('Reserved layer 15 HTTP ' + r.status);
+  const js = await r.json();
+  const rows = (js.features || []).map(f => f.attributes);
+  const byCode = Object.fromEntries(rows.map(r => [r.CommodityCode, r]));
+  return { res: byCode.RES?.Units || 0, cfa: byCode.CFA?.Units || 0, tau: byCode.TAU?.Units || 0 };
+}
+
+async function fetchBalances() {
+  // Layer 10 Grand Total: TotalBalanceRemaining (pools) + TotalAuthorized
+  // + AllocatedToPrivate for the since-1987 cap context in the tile footer.
+  const r = await fetch(BALANCES_URL, { cache: 'no-cache' });
+  if (!r.ok) throw new Error('Balances layer 10 HTTP ' + r.status);
+  const j = await r.json();
+  const byCode = {};
+  for (const f of (j.features || [])) {
+    const a = f.attributes || {};
+    if (a.CommodityCode) byCode[a.CommodityCode] = a;
+  }
+  return byCode;
+}
+
+// ── Tile renderer (stacked-bar variant; replaced Plotly donut 2026-05-16) ──
+// Donut/pie reads slice angles which the eye judges poorly with 3+ segments.
+// Horizontal stacked bar lets the viewer compare segment LENGTHS, which read
+// 3-4x more accurately. Same idiom that allocation-tracking_option1 uses for
+// its pool-state tiles, so the two dashboards visually rhyme.
+
+// Resolve TRPA CSS variable colors to actual hex strings (segment fills,
+// swatch backgrounds, etc.). One-time lookup at call site.
+function cssVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+function renderTile(code, d) {
+  // Hero existing number (compact format) + year. Unit lives in the hero label
+  // markup already (set in HTML). "6,583,769" -> "6.6M" for CFA; under 1M
+  // stays as full comma format because "49,018" reads cleaner than "49K".
+  document.getElementById('hero-' + code + '-existing').textContent = fmtCompact(d.existing);
+  document.getElementById('hero-' + code + '-year').textContent     = d.year;
+
+  // Pipeline segments (3): Banked / Reserved / In pools
+  const segments = [
+    { key: 'banked',   name: 'Banked',   value: d.banked,   color: cssVar('--trpa-olive')  },
+    { key: 'reserved', name: 'Reserved', value: d.reserved, color: cssVar('--trpa-orange') },
+    { key: 'pools',    name: 'In pools', value: d.pools,    color: cssVar('--trpa-blue')   },
+  ];
+  const pipelineTotal = segments.reduce((s, x) => s + x.value, 0);
+
+  // Stacked bar: one segment per pipeline state. Flex value = raw count so
+  // widths are proportional automatically. Inline label appears only when
+  // wide enough (>= 14% of total); otherwise the legend below carries it.
+  // Styled hover tooltip via data-tooltip + ::after pseudo-element (matches
+  // the Plotly hoverlabel styling on the data is unit-aware).
+  document.getElementById('hero-' + code + '-stack').innerHTML = segments.map(s => {
+    const pct = pipelineTotal ? (s.value / pipelineTotal) * 100 : 0;
+    const showInline = pct >= 14;
+    const tip = s.name + ': ' + s.value.toLocaleString() + ' ' + d.unit + ' (' + pct.toFixed(1) + '%)';
+    return '<div class="tile-stack-segment" style="flex:' + s.value
+      + ';background:' + s.color + '"'
+      + ' data-tooltip="' + tip + '">'
+      + (showInline ? s.value.toLocaleString() : '')
+      + '</div>';
+  }).join('');
+
+  // 3-column legend: name+swatch | value | %
+  document.getElementById('hero-' + code + '-legend').innerHTML = segments.map(s => {
+    const pct = pipelineTotal ? (s.value / pipelineTotal) * 100 : 0;
+    return '<div class="tile-legend-name">'
+      +   '<div class="swatch" style="background:' + s.color + '"></div>'
+      +   s.name
+      + '</div>'
+      + '<div class="tile-legend-value">' + s.value.toLocaleString() + '</div>'
+      + '<div class="tile-legend-pct">' + pct.toFixed(0) + '%</div>';
+  }).join('');
+
+  // Footer: pipeline total + since-1987 cap context. Compact format on the
+  // big since-1987 numbers (CFA 1,000,000 -> 1M; CFA 511,106 stays as-is).
+  const pctAlloc = d.capTotal ? Math.round(d.capAllocated / d.capTotal * 100) : 0;
+  document.getElementById('hero-' + code + '-footer').innerHTML =
+    '<div><strong>' + fmtCompact(pipelineTotal) + ' ' + d.unit + '</strong> total pipeline (banked + reserved + in pools).</div>'
+    + '<div style="margin-top:6px;">Since 1987 Regional Plan: <strong>' + fmtCompact(d.capTotal) + ' ' + d.unit
+    + '</strong> authorized; <strong>' + fmtCompact(d.capAllocated) + '</strong> allocated to date'
+    + (d.capTotal ? ' (' + pctAlloc + '%)' : '') + '.</div>'
+    + (d.footerNote ? '<div style="margin-top:6px;font-size:0.72rem;color:var(--text-light);">' + d.footerNote + '</div>' : '')
+    + '<div class="footer-link"><a href="' + d.footerLink + '">' + d.footerLinkLabel + '</a></div>';
+}
+
+// Basin-wide banner: 3 since-1987 caps. Pulled from layer 10 same call.
+// Compact format on CFA's 1,000,000 -> "1M" keeps the banner balanced
+// (residential cap 10,687 and tourist 400 don't get compacted).
+function renderBasinBanner(balances) {
+  const resCap = (balances.RES?.TotalAuthorized || 0) + (balances.RBU?.TotalAuthorized || 0);
+  const cfaCap = balances.CFA?.TotalAuthorized || 0;
+  const tauCap = balances.TAU?.TotalAuthorized || 0;
+  document.getElementById('basin-res-cap').textContent = fmtCompact(resCap);
+  document.getElementById('basin-cfa-cap').textContent = fmtCompact(cfaCap);
+  document.getElementById('basin-tau-cap').textContent = fmtCompact(tauCap);
+}
+
+// ── Boot ───────────────────────────────────────────────────────────────────
+// Fetch all 4 data sources in parallel, then build 3 commodity-first hero
+// tiles. Each tile collapses what used to be 4 numbered sections into a
+// single visual story (headline + pipeline bar + cap context).
+async function main() {
+  // Sensible fallbacks if any source fails (matches 2026-05-15 known values).
+  const fbExisting = { year: 2025, res: 49018, cfa: 6583769, tau: 10761 };
+  const fbBanked   = { res: 399,    cfa: 326776, tau: 1501 };
+  const fbReserved = { res: 698,    cfa: 46962,  tau: 138 };
+  const fbBalances = {
+    RES: { TotalBalanceRemaining: 1778, TotalAuthorized: 8687,    AllocatedToPrivate: 6909 },
+    RBU: { TotalBalanceRemaining: 740,  TotalAuthorized: 2000,    AllocatedToPrivate: 1260 },
+    CFA: { TotalBalanceRemaining: 488894, TotalAuthorized: 1000000, AllocatedToPrivate: 511106 },
+    TAU: { TotalBalanceRemaining: 204,  TotalAuthorized: 400,     AllocatedToPrivate: 196 },
+  };
+
+  let existing, banked, reserved, balances;
+  try {
+    [existing, banked, reserved, balances] = await Promise.all([
+      fetchExisting().catch(e => { console.warn('existing:', e.message); return fbExisting; }),
+      fetchBanked().catch(  e => { console.warn('banked:',   e.message); return fbBanked;   }),
+      fetchReserved().catch(e => { console.warn('reserved:', e.message); return fbReserved; }),
+      fetchBalances().catch(e => { console.warn('balances:', e.message); return fbBalances; }),
+    ]);
+  } catch (e) {
+    console.error('tile data fetch failed:', e);
+    existing = fbExisting; banked = fbBanked; reserved = fbReserved; balances = fbBalances;
+  }
+
+  // Basin-wide banner (since-1987 caps across all 3 commodities)
+  renderBasinBanner(balances);
+
+  // Residential tile (RES + RBU combined per Ken's framing)
+  renderTile('res', {
+    existing: existing.res, year: existing.year,
+    banked: banked.res, reserved: reserved.res,
+    pools: (balances.RES?.TotalBalanceRemaining || 0) + (balances.RBU?.TotalBalanceRemaining || 0),
+    unit: 'units',
+    capTotal: (balances.RES?.TotalAuthorized   || 0) + (balances.RBU?.TotalAuthorized   || 0),
+    capAllocated: (balances.RES?.AllocatedToPrivate || 0) + (balances.RBU?.AllocatedToPrivate || 0),
+    footerNote: 'Residential figures roll Residential Allocations + Residential Bonus Units together.',
+    footerLink: 'allocation-tracking.html',
+    footerLinkLabel: 'Drilldown: Allocation Tracking dashboard →',
+  });
+  // Commercial Floor Area
+  renderTile('cfa', {
+    existing: existing.cfa, year: existing.year,
+    banked: banked.cfa, reserved: reserved.cfa,
+    pools: balances.CFA?.TotalBalanceRemaining || 0,
+    unit: 'sq ft',
+    capTotal: balances.CFA?.TotalAuthorized   || 0,
+    capAllocated: balances.CFA?.AllocatedToPrivate || 0,
+    footerNote: '',
+    footerLink: 'pool-balance-cards.html',
+    footerLinkLabel: 'Drilldown: Pool Balance Cards →',
+  });
+  // Tourist Accommodation
+  renderTile('tau', {
+    existing: existing.tau, year: existing.year,
+    banked: banked.tau, reserved: reserved.tau,
+    pools: balances.TAU?.TotalBalanceRemaining || 0,
+    unit: 'units',
+    capTotal: balances.TAU?.TotalAuthorized   || 0,
+    capAllocated: balances.TAU?.AllocatedToPrivate || 0,
+    footerNote: 'Pre-1987 stock dominates the existing total; the since-1987 cap (400) covers post-1987 additions only.',
+    footerLink: 'pool-balance-cards.html',
+    footerLinkLabel: 'Drilldown: Pool Balance Cards →',
+  });
+
+  // Markdown explainers load in the background (non-blocking) and backfill
+  // each tile's "?" popover content when ready. Failed fetch leaves a
+  // graceful "Explainer unavailable" message in place.
+  loadExplainers().then(updateExplainers);
+}
+document.addEventListener('DOMContentLoaded', main);
+</script>
+</body>
+</html>

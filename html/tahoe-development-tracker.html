@@ -38,7 +38,7 @@ header { background: var(--trpa-navy); color: #fff; display: flex; align-items: 
 .header-content { padding: 26px 40px 22px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex: 1; }
 .header-eyebrow { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--trpa-ice); margin-bottom: 7px; }
 header h1 { font-weight: 700; font-size: 1.85rem; line-height: 1.15; letter-spacing: -0.02em; }
-header h1 span { color: var(--trpa-blue); }
+header h1 span { color: var(--trpa-orange); }  /* highlight word: orange against navy = ~4.6:1 contrast (trpa-blue on navy was ~2.5:1, failed WCAG AA) */
 .header-sub { font-size: 0.82rem; color: var(--trpa-ice); margin-top: 6px; opacity: 0.9; max-width: 760px; }
 .header-meta { font-size: 0.75rem; color: var(--trpa-ice); text-align: right; line-height: 1.7; opacity: 0.85; white-space: nowrap; }
 .live-badge { display: inline-block; background: var(--trpa-forest); color: #fff; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; margin-bottom: 6px; }
@@ -155,7 +155,7 @@ header h1 span { color: var(--trpa-blue); }
   <div class="header-accent"></div>
   <div class="header-content">
     <div>
-      <div class="header-eyebrow">Tahoe Regional Planning Agency</div>
+      <div class="header-eyebrow">Tahoe Regional Planning Agency &middot; <a href="tahoe-development-tracker_option2.html" style="color:var(--trpa-ice);text-decoration:underline;">switch to Option C layout</a></div>
       <h1>Tahoe <span>Development Tracker</span></h1>
       <div class="header-sub">
         Residential, bonus, tourist, and commercial development assigned to projects across the Tahoe Region.
