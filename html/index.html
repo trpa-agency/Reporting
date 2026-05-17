@@ -42,7 +42,7 @@ header { background: var(--trpa-navy); color: #fff; display: flex; align-items: 
 .header-content { padding: 28px 40px 24px; flex: 1; }
 .eyebrow { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--trpa-ice); margin-bottom: 6px; }
 h1 { font-weight: 700; font-size: 1.95rem; line-height: 1.15; letter-spacing: -0.02em; }
-h1 span { color: var(--trpa-blue); }
+h1 span { color: var(--trpa-orange); }  /* highlight word: orange against navy = ~4.6:1 contrast (trpa-blue on navy was ~2.5:1, failed WCAG AA) */
 .subtitle { font-size: 0.86rem; color: var(--trpa-ice); margin-top: 8px; opacity: 0.92; max-width: 760px; }
 
 .section { padding: 28px 40px 12px; max-width: 1280px; }
@@ -109,6 +109,8 @@ footer { padding: 16px 40px 28px; font-size: 0.72rem; color: var(--text-light); 
 
 <div class="section">
   <div class="intro">
+    <strong>This is the reference document</strong> &mdash; complete dashboard inventory, REST layer catalog, and architecture roadmap. <strong>For a guided "where to start" entry point, see <a href="start.html">start.html</a></strong> instead (decision tree by audience + question).
+    <br><br>
     <strong>Active set:</strong> 7 dashboards (&starf; marks the primary view in each track). <strong>Every active visualization reads live REST</strong> against the <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer">Cumulative_Accounting</a> service (17 layers, 0-16) or its TRPA-hosted siblings; no analyst xlsx in the runtime loop.
     Repo: <a href="https://github.com/trpa-agency/Reporting">trpa-agency/Reporting</a>
   </div>

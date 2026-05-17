@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Residential Additions by Source - TRPA</title>
+<title>Residential Additions by Source (Option 1) - TRPA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
@@ -48,7 +48,71 @@ header { background: var(--trpa-navy); color: #fff; display: flex; align-items: 
 .header-content { padding: 26px 40px 22px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex: 1; }
 .header-eyebrow { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--trpa-ice); margin-bottom: 7px; }
 header h1 { font-weight: 700; font-size: 1.85rem; line-height: 1.15; letter-spacing: -0.02em; }
-header h1 span { color: var(--trpa-orange); }  /* highlight word: orange against navy = ~4.6:1 contrast (trpa-blue on navy was ~2.5:1, failed WCAG AA) */
+header h1 span { color: var(--trpa-ice); }  /* highlight word: ice on navy ~9:1 contrast - matches the other option1 variants for visual consistency */
+
+/* "What does this dashboard show?" hover popover on the page title. White
+   card pops against the navy header chrome with high contrast. Matches the
+   pattern from tracker_option2's title-info. */
+.title-info { position: relative; display: inline-flex; align-items: center; vertical-align: middle; margin-left: 12px; }
+.title-info-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--trpa-ice); color: var(--trpa-navy);
+  font-size: 0.85rem; font-weight: 700;
+  cursor: help; transition: background 0.12s, color 0.12s;
+}
+.title-info-icon:hover { background: #fff; color: var(--trpa-navy); }
+.title-info-popover {
+  position: absolute; top: calc(100% + 10px); left: -4px;
+  width: 420px; max-width: calc(100vw - 80px);
+  background: #fff; border: 1px solid var(--trpa-ice); border-radius: 6px;
+  padding: 16px 18px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+  font-size: 0.86rem; line-height: 1.55; color: var(--text-mid);
+  letter-spacing: 0; text-transform: none; font-weight: 400;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.15s, transform 0.15s;
+  z-index: 100;
+}
+.title-info-popover strong { color: var(--text-dark); font-weight: 600; }
+.title-info-popover p { margin-bottom: 8px; }
+.title-info-popover p:last-child { margin-bottom: 0; }
+.title-info:hover .title-info-popover { opacity: 1; pointer-events: auto; transform: translateY(-2px); }
+.title-info::after {
+  content: ''; position: absolute;
+  top: calc(100% + 4px); left: 4px;
+  border: 6px solid transparent; border-bottom-color: var(--trpa-ice);
+  opacity: 0; pointer-events: none; transition: opacity 0.15s;
+  z-index: 101;
+}
+.title-info:hover::after { opacity: 1; }
+
+/* Source-explainer strip: rendered below the facet chart as a self-contained
+   legend. Each source line shows the chart color swatch, the source name in
+   bold, and a one-phrase plain-language definition inline. Replaces the
+   earlier per-badge "?" hover popover pattern (the 320px popovers were
+   overflowing the card on right-side badges); inline text is always visible
+   AND avoids the positioning problem. */
+.source-strip {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 6px 18px;
+  margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--border);
+}
+.source-strip-label {
+  grid-column: 1 / -1;   /* full-width row above the source items */
+  font-size: 0.66rem; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--text-light); margin-bottom: 2px;
+}
+.source-badge {
+  display: flex; align-items: baseline; gap: 8px;
+  font-size: 0.78rem; line-height: 1.45;
+}
+.source-badge-swatch {
+  width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0;
+  position: relative; top: 1px;
+}
+.source-badge-name { font-weight: 700; color: var(--text-dark); white-space: nowrap; }
+.source-badge-brief { color: var(--text-mid); }
 .header-sub { font-size: 0.82rem; color: var(--trpa-ice); margin-top: 6px; opacity: 0.9; max-width: 760px; }
 .header-meta { font-size: 0.75rem; color: var(--trpa-ice); text-align: right; line-height: 1.7; opacity: 0.85; white-space: nowrap; }
 .live-badge { display: inline-block; background: var(--trpa-forest); color: #fff; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; margin-bottom: 6px; }
@@ -128,14 +192,21 @@ header h1 span { color: var(--trpa-orange); }  /* highlight word: orange against
   <div class="header-accent"></div>
   <div class="header-content">
     <div>
-      <div class="header-eyebrow">Tahoe Regional Planning Agency &middot; <a href="residential-additions-by-source_option1.html" style="color:var(--trpa-ice);text-decoration:underline;">switch to Option 1 layout</a></div>
-      <h1>Residential Additions <span>by Source</span></h1>
+      <div class="header-eyebrow">Tahoe Regional Planning Agency &middot; <a href="residential-additions-by-source.html" style="color:var(--trpa-ice);text-decoration:underline;">switch to original layout</a></div>
+      <h1>Residential Additions <span>by Source</span><span class="title-info" aria-label="What does this dashboard show?">
+        <span class="title-info-icon">?</span>
+        <div class="title-info-popover">
+          <strong>Where Tahoe Region residential units came from each year.</strong>
+          <p>Each panel below tracks one funding source - allocations from the standard pool, bonus units for affordable housing, transfers from other parcels, conversions from non-residential rights, and rights pulled from the banked reserve.</p>
+          <p>The chart underneath shows residential units <strong>removed</strong> each year (banked or converted to other uses), so you can see net change per year.</p>
+        </div>
+      </span></h1>
       <div class="header-sub">
         Where completed residential units came from each year, 2013&ndash;2025.
       </div>
     </div>
     <div class="header-meta">
-      <div class="live-badge">2026 Cycle</div>
+      <div class="live-badge">2026 Cycle (Option 1)</div>
     </div>
   </div>
 </header>
@@ -168,12 +239,10 @@ header h1 span { color: var(--trpa-orange); }  /* highlight word: orange against
   </div>
 </div>
 
-<!-- Toggle -->
-<div class="toggle-bar">
-  <span class="toggle-label">View</span>
-  <button class="toggle-btn active" id="btn-facet" onclick="setMode('facet')">Facet (one per source)</button>
-  <button class="toggle-btn"        id="btn-lines" onclick="setMode('lines')">Combined</button>
-</div>
+<!-- Toggle bar removed in Option 1: only the facet view is shown (one panel
+     per source). The combined-overlay mode dropped because faceted reads
+     more cleanly for source-level trends, and removing the toggle frees
+     vertical space + simplifies the chrome. -->
 
 <!-- Main: LEFT column stacks Composition over Banked/Conversion (both at the
      wider 2fr width); RIGHT column carries Major Completed Projects, tall,
@@ -183,8 +252,15 @@ header h1 span { color: var(--trpa-orange); }  /* highlight word: orange against
     <div class="left-stack">
       <div class="card">
         <h3>Composition of completed residential units by source</h3>
-        <p>Gross completed units only; removals (banked or converted) are charted below.</p>
+        <p>Gross completed units only; removals (banked or converted) are charted below. Hover the "?" next to each source name below the chart for what that source means.</p>
         <div id="main-chart" style="height:480px;"></div>
+        <!-- Source-explainer strip: 5 badges, one per source. Each carries
+             a swatch matching the chart color, the source name, and a "?"
+             icon whose hover reveals a plain-language explainer. Populated
+             by renderSourceStrip() once the data shape settles. -->
+        <div class="source-strip" id="source-strip">
+          <span class="source-strip-label">Sources:</span>
+        </div>
       </div>
       <div class="card">
         <h3>Residential units removed by year</h3>
@@ -208,9 +284,12 @@ header h1 span { color: var(--trpa-orange); }  /* highlight word: orange against
   <a href="start.html">All dashboards</a>
 </div>
 
+<!-- Footnote: link text is the layer / table NAME (not "layer N"), so hrefs
+     can be swapped to tahoeopendata.org download links later without
+     re-writing visible copy. -->
 <div class="footnote">
-  <strong>Source:</strong> live from <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/11" style="color:var(--trpa-blue);">Cumulative_Accounting layer 11</a> ("Development Right Residential Units by Source"). 98 rows = 14 years x 7 source/direction combos. Normalized from the analyst's <code>FINAL RES SUMMARY 2012 to 2025.xlsx</code> via <code>scripts/convert_residential_additions.py</code>.
-  <br><strong>Major Completed Projects</strong> sidebar: live from <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/16" style="color:var(--trpa-blue);">Cumulative_Accounting layer 16</a> ("Development Right Residential Projects"). 26 rows (year x project), normalized from analyst PPTX + xlsx narrative by <code>scripts/convert_residential_projects.py</code>.
+  <strong>Composition + removed-units charts:</strong> live from <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/11" style="color:var(--trpa-blue);">Development Right Residential Units by Source</a> (14 years x 7 source/direction combos).
+  <br><strong>Major Completed Projects</strong> sidebar: live from <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/16" style="color:var(--trpa-blue);">Development Right Residential Projects</a> (year x project rows).
   <br><strong>Related:</strong> <a href="https://trpa.maps.arcgis.com/apps/dashboards/ddfe13ef914a48288bb4bc37c6b57936" style="color:var(--trpa-blue);">TRPA Development Rights Dashboard</a>.
 </div>
 
@@ -343,61 +422,11 @@ const plotFont  = { family: '"Open Sans", system-ui, sans-serif', color: TRPA.na
 // tooltip header and each series shows as a row underneath.
 const HOVERLABEL = { bgcolor: '#ffffff', bordercolor: TRPA.ice, font: { color: TRPA.navy, family: '"Open Sans"', size: 12 } };
 
-let mode = 'facet';
-
-function setMode(m) {
-  mode = m;
-  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
-  const btn = document.querySelector('#btn-' + m);
-  if (btn) btn.classList.add('active');
-  // Use newPlot (not react) when switching between modes so subplot axes are
-  // re-created cleanly. Also wipes prior chart state so undefined-prop edge
-  // cases in Plotly.react can't bite us.
-  Plotly.purge('main-chart');
-  render();
-}
-
-function render() {
-  if (mode === 'facet') return renderFacet();
-  return renderCombined();
-}
-
-// "Combined" - all sources on one chart with markers, year-unified hover
-function renderCombined() {
-  const traces = SOURCES.map(s => ({
-    name: s.name,
-    type: 'scatter',
-    mode: 'lines+markers',
-    x: YEARS,
-    y: s.data,
-    line:   { color: s.color, width: 2.5 },
-    marker: { color: s.color, size: 7, line: { color: '#fff', width: 1 } },
-    hovertemplate: '<b>%{y:,}</b> units<extra>' + s.name + '</extra>',
-  }));
-
-  const layout = {
-    font: plotFont,
-    paper_bgcolor: 'rgba(0,0,0,0)',
-    plot_bgcolor:  'rgba(0,0,0,0)',
-    margin: { t: 16, r: 24, b: 56, l: 56 },
-    hovermode: 'x unified',
-    hoverlabel: HOVERLABEL,
-    xaxis: {
-      title: { text: 'Year', font: { size: 12 } },
-      tickmode: 'linear', dtick: 1,
-      gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 11 },
-    },
-    yaxis: {
-      title: { text: 'Completed residential units', font: { size: 12 } },
-      gridcolor: '#e8edf4', linecolor: TRPA.ice, tickfont: { size: 11 },
-      rangemode: 'tozero',
-    },
-    legend: { orientation: 'h', y: -0.18, font: { size: 11 }, traceorder: 'normal' },
-    annotations: bonusAnnotation(),
-  };
-
-  Plotly.newPlot('main-chart', traces, layout, { responsive: true, displayModeBar: false });
-}
+// Option 1 only renders the faceted view (one panel per source). The
+// Combined toggle + setMode/renderCombined dropped: with one view, the
+// toggle bar was dead chrome and setMode wasn't needed. render() now just
+// calls renderFacet directly from the boot sequence.
+function render() { renderFacet(); }
 
 // ─────────────────────────────────────────
 // FACET MODE - one small chart per source, 3x2 grid
@@ -493,6 +522,36 @@ function renderFacet() {
   Plotly.newPlot('main-chart', traces, layout, { responsive: true, displayModeBar: false });
 }
 
+// Source-explainer briefs: one short phrase per source, always visible inline
+// in the strip below the chart. Shorter than the earlier popover content
+// (which had to fit a 320px floating card); these read at a glance without
+// requiring hover, and they don't overflow the chart card.
+const SOURCE_BRIEFS = {
+  allocations: 'annually-released from county / city pools',
+  bonus:       'awarded for affordable / workforce projects',
+  transfers:   'existing rights moved between parcels',
+  conversions: 'non-residential rights converted to residential',
+  banked:      'pulled from the banked reserve for a new parcel',
+};
+
+function renderSourceStrip() {
+  const strip = document.querySelector('#source-strip');
+  if (!strip) return;
+  // Keep the "Sources:" label that's already in the markup; append the badges.
+  strip.querySelectorAll('.source-badge').forEach(b => b.remove());
+  SOURCES.forEach(s => {
+    const brief = SOURCE_BRIEFS[s.key] || '';
+    const badge = document.createElement('div');
+    badge.className = 'source-badge';
+    badge.innerHTML =
+      '<span class="source-badge-swatch" style="background:' + s.color + '"></span>'
+      + '<span><span class="source-badge-name">' + s.name + '</span>'
+      + (brief ? ' <span class="source-badge-brief">&middot; ' + brief + '</span>' : '')
+      + '</span>';
+    strip.appendChild(badge);
+  });
+}
+
 // Highlight the 2024-25 bonus surge inflection in line mode
 function bonusAnnotation() {
   return [{
@@ -543,9 +602,13 @@ function renderRemovedArea() {
 
   // SHARED y-axis range across both panels so the 0 line aligns horizontally.
   // Previously each panel computed its own yFloor from its own min, which made
-  // 0 land at different fractional positions and the baselines looked misaligned.
+  // 0 land at different fractional positions (To Bank at ~0.92, To Conversion
+  // at ~0.83) and the baselines looked misaligned. Using the global min gives
+  // both panels the same scale; To Conversion's smaller-magnitude data shows
+  // as a shallower dip but its zero line is on the same horizontal as Bank's.
   const globalMin = Math.min(...panels.flatMap(p => p.data));
   const yFloor = Math.floor(globalMin / 5) * 5 - 2;
+  const yTop = 1;   // small positive pad above 0 for breathing room
 
   panels.forEach((s, i) => {
     const xref = i === 0 ? 'x' : 'x' + (i + 1);
@@ -584,7 +647,7 @@ function renderRemovedArea() {
     axes['yaxis' + (i === 0 ? '' : (i + 1))] = {
       domain: [0, 1],
       anchor: xref,
-      range: [yFloor, 1],
+      range: [yFloor, yTop],   // SHARED across both panels
       gridcolor: '#eef1f6', linecolor: TRPA.ice, tickfont: { size: 9, color: TRPA.navy },
       zeroline: true, zerolinecolor: '#d8dde6', zerolinewidth: 1.5,
     };
@@ -660,6 +723,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   renderKPIs();
   render();
+  renderSourceStrip();   // 5 per-source badges with "?" hover explainers below the facet chart
   renderProjects();
   renderRemovedArea();
 });

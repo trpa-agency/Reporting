@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Development History - TRPA</title>
+<title>Development History (Option 1) - TRPA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
@@ -40,7 +40,109 @@ header { background: var(--trpa-navy); color: #fff; display: flex; align-items: 
 .header-content { padding: 26px 40px 22px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex: 1; }
 .header-eyebrow { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--trpa-ice); margin-bottom: 7px; }
 header h1 { font-weight: 700; font-size: 1.85rem; line-height: 1.15; letter-spacing: -0.02em; }
-header h1 span { color: var(--trpa-orange); }  /* highlight word: orange against navy = ~4.6:1 contrast (trpa-blue on navy was ~2.5:1, failed WCAG AA) */
+header h1 span { color: var(--trpa-ice); }  /* highlight word: ice on navy ~9:1 contrast - matches the other option1 variants for visual consistency */
+
+/* "What does this dashboard show?" hover popover on the page title. */
+.title-info { position: relative; display: inline-flex; align-items: center; vertical-align: middle; margin-left: 12px; }
+.title-info-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--trpa-ice); color: var(--trpa-navy);
+  font-size: 0.85rem; font-weight: 700;
+  cursor: help; transition: background 0.12s, color 0.12s;
+}
+.title-info-icon:hover { background: #fff; color: var(--trpa-navy); }
+.title-info-popover {
+  position: absolute; top: calc(100% + 10px); left: -4px;
+  width: 440px; max-width: calc(100vw - 80px);
+  background: #fff; border: 1px solid var(--trpa-ice); border-radius: 6px;
+  padding: 16px 18px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+  font-size: 0.86rem; line-height: 1.55; color: var(--text-mid);
+  letter-spacing: 0; text-transform: none; font-weight: 400;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.15s, transform 0.15s;
+  z-index: 100;
+}
+.title-info-popover strong { color: var(--text-dark); font-weight: 600; }
+.title-info-popover p { margin-bottom: 8px; }
+.title-info-popover p:last-child { margin-bottom: 0; }
+.title-info:hover .title-info-popover { opacity: 1; pointer-events: auto; transform: translateY(-2px); }
+.title-info::after {
+  content: ''; position: absolute;
+  top: calc(100% + 4px); left: 4px;
+  border: 6px solid transparent; border-bottom-color: var(--trpa-ice);
+  opacity: 0; pointer-events: none; transition: opacity 0.15s;
+  z-index: 101;
+}
+.title-info:hover::after { opacity: 1; }
+
+/* Inline "?" affordance for ctrl-bar labels (e.g., Jurisdictions ?  for the
+   Carson County context). 14px ice circle on a light background. */
+.ctrl-info { position: relative; display: inline-flex; align-items: center; margin-left: 5px; vertical-align: middle; }
+.ctrl-info-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--trpa-ice); color: var(--trpa-navy);
+  font-size: 0.6rem; font-weight: 700;
+  cursor: help; transition: background 0.12s, color 0.12s;
+  letter-spacing: 0; text-transform: none;
+}
+.ctrl-info-icon:hover { background: var(--trpa-blue); color: #fff; }
+.ctrl-info-popover {
+  position: absolute; top: calc(100% + 10px); left: -8px;
+  width: 340px; max-width: calc(100vw - 80px);
+  background: #fff; border: 1px solid var(--trpa-ice); border-radius: 6px;
+  padding: 12px 14px;
+  box-shadow: 0 4px 20px rgba(0, 59, 113, 0.15);
+  font-size: 0.8rem; line-height: 1.5; color: var(--text-mid);
+  letter-spacing: 0; text-transform: none; font-weight: 400;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.15s, transform 0.15s;
+  z-index: 100;
+}
+.ctrl-info-popover strong { color: var(--text-dark); font-weight: 600; }
+.ctrl-info:hover .ctrl-info-popover { opacity: 1; pointer-events: auto; transform: translateY(-2px); }
+.ctrl-info::after {
+  content: ''; position: absolute;
+  top: calc(100% + 4px); left: 0;
+  border: 6px solid transparent; border-bottom-color: var(--trpa-ice);
+  opacity: 0; pointer-events: none; transition: opacity 0.15s;
+  z-index: 101;
+}
+.ctrl-info:hover::after { opacity: 1; }
+
+/* Styled hover tooltip on each KPI card. Replaces the implicit "you have to
+   stare at the slider to know what this means" with an at-a-glance preview
+   of the year + change-from-prior context. Matches the segment tooltip
+   styling on the other option1 variants. */
+.kpi-card { position: relative; }
+.kpi-card::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+  background: #fff; border: 1px solid var(--trpa-ice);
+  color: var(--trpa-navy);
+  font-size: 0.78rem; font-weight: 600;
+  padding: 7px 11px; border-radius: 4px;
+  white-space: pre-line; text-align: left;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.12s, transform 0.12s;
+  z-index: 50;
+  box-shadow: 0 2px 10px rgba(0, 59, 113, 0.15);
+}
+.kpi-card:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-2px);
+}
+.kpi-card::before {
+  content: ''; position: absolute;
+  bottom: calc(100% + 2px); left: 50%; transform: translateX(-50%);
+  border: 6px solid transparent; border-top-color: var(--trpa-ice);
+  opacity: 0; pointer-events: none; transition: opacity 0.12s;
+  z-index: 50;
+}
+.kpi-card:hover::before { opacity: 1; }
 .header-sub { font-size: 0.82rem; color: var(--trpa-ice); margin-top: 6px; opacity: 0.9; max-width: 760px; }
 .header-meta { font-size: 0.75rem; color: var(--trpa-ice); text-align: right; line-height: 1.7; opacity: 0.85; white-space: nowrap; }
 .live-badge { display: inline-block; background: var(--trpa-forest); color: #fff; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; }
@@ -131,14 +233,22 @@ header h1 span { color: var(--trpa-orange); }  /* highlight word: orange against
   <div class="header-accent"></div>
   <div class="header-content">
     <div>
-      <div class="header-eyebrow">Tahoe Regional Planning Agency &middot; <a href="development_history_option1.html" style="color:var(--trpa-ice);text-decoration:underline;">switch to Option 1 layout</a></div>
-      <h1>Development <span>History</span></h1>
+      <div class="header-eyebrow">Tahoe Regional Planning Agency &middot; <a href="development_history.html" style="color:var(--trpa-ice);text-decoration:underline;">switch to original layout</a></div>
+      <h1>Development <span>History</span><span class="title-info" aria-label="What does this dashboard show?">
+        <span class="title-info-icon">?</span>
+        <div class="title-info-popover">
+          <strong>Year-over-year and cumulative trends in basin development.</strong>
+          <p>The <strong>KPI cards</strong> show the on-the-ground totals at the year you've selected with the slider.</p>
+          <p>The <strong>top chart</strong> is year-over-year change - how much was added (or removed) each year, per commodity. Negative bars (in brick) are net removals.</p>
+          <p>The <strong>bottom chart</strong> is the cumulative trajectory over time, zoomed into the data range so trends read clearly. Absolute totals stay in the KPI cards above.</p>
+        </div>
+      </span></h1>
       <div class="header-sub">
         Year-over-year change in residential, commercial, and tourist development across the Tahoe Region. Live from the Parcel Development History layer.
       </div>
     </div>
     <div class="header-meta">
-      <div class="live-badge">Live Data</div>
+      <div class="live-badge">Live Data (Option 1)</div>
     </div>
   </div>
 </header>
@@ -151,7 +261,13 @@ header h1 span { color: var(--trpa-orange); }  /* highlight word: orange against
     <span class="slider-val" id="slider-val">2025</span>
   </div>
   <div class="ctrl-divider"></div>
-  <span class="ctrl-label">Jurisdictions</span>
+  <span class="ctrl-label">Jurisdictions<span class="ctrl-info" aria-label="Why isn't Carson City a pill?">
+    <span class="ctrl-info-icon">?</span>
+    <div class="ctrl-info-popover">
+      <strong>Carson City is included in the "All" total but doesn't have its own pill.</strong>
+      Carson does not receive Tahoe Regional Plan allocations and shows constant 4 residential units / 0 CFA / 0 TAU throughout the period - it would be a flatline pill. Including it in "All" keeps the basin total aligned with the Tahoe Development Tracker headline.
+    </div>
+  </span></span>
   <div class="juris-pills" id="juris-pills"></div>
 </div>
 
@@ -198,8 +314,8 @@ header h1 span { color: var(--trpa-orange); }  /* highlight word: orange against
 </div>
 
 <div class="footnote">
-  <strong>Data:</strong> live from <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/0">Cumulative_Accounting layer 0 (Parcel Development History)</a>. The page sums <code>Residential_Units</code>, <code>CommercialFloorArea_SqFt</code>, and <code>TouristAccommodation_Units</code> across all parcels, grouped by <code>YEAR</code> and <code>JURISDICTION</code>. The jurisdiction filter scopes the totals; the year slider pins to the "as of" year for the KPIs (the charts always show the full 2012-2025 trajectory).
-  <br>Carson County values are excluded from the jurisdiction pills (Carson does not receive Tahoe Regional Plan allocations and shows constant 4 residential units / 0 CFA / 0 TAU). Year-over-year change can be negative when banked or converted units exceed new construction in a given jurisdiction.
+  <strong>Data:</strong> live from <a href="https://maps.trpa.org/server/rest/services/Cumulative_Accounting/MapServer/0">Parcel Development History</a>, summed per commodity x year x jurisdiction. The jurisdiction filter scopes totals; the slider pins the "as of" year for the KPIs (the charts always show the full 2012-2025 trajectory).
+  <br>Year-over-year change can be negative when banked or converted units exceed new construction in a given jurisdiction. Carson City context: hover the "?" next to the Jurisdictions label above.
 </div>
 
 <script>
@@ -305,6 +421,17 @@ const fmt = (n) => {
   const a = Math.round(n);
   return a.toLocaleString();
 };
+// Compact formatter for big hero numbers on the KPI cards. CFA at 6.5M sq ft
+// is the driver. Below 1M we keep full comma format so residential's 49K
+// reads as "49,018" not "49K" (full precision is meaningful at that scale).
+const fmtCompact = (n) => {
+  if (n == null) return '0';
+  if (n >= 1_000_000) {
+    const m = n / 1_000_000;
+    return (m % 1 === 0 ? m.toFixed(0) : m.toFixed(1)) + 'M';
+  }
+  return Math.round(n).toLocaleString();
+};
 const fmtSigned = (n) => {
   const a = Math.round(n);
   if (a > 0)  return '+' + a.toLocaleString();
@@ -366,10 +493,39 @@ function setSliderYear(val) {
 function renderKPIs() {
   const tot = totalsByYear();
   const v   = tot[sliderYear] || { res: 0, cfa: 0, tau: 0 };
+  // Prior-year deltas drive the hover tooltip context (e.g., "+215 since 2024").
+  const prevYr = sliderYear - 1;
+  const prev   = tot[prevYr] || null;
+  const dRes   = prev ? v.res - prev.res : 0;
+  const dCfa   = prev ? v.cfa - prev.cfa : 0;
+  const dTau   = prev ? v.tau - prev.tau : 0;
 
-  document.getElementById('kpi-res').textContent = fmt(v.res);
-  document.getElementById('kpi-cfa').textContent = fmt(v.cfa);
-  document.getElementById('kpi-tau').textContent = fmt(v.tau);
+  // Compact hero numbers on the cards; full precision on the hover tooltip.
+  // CFA's 6,583,769 -> "6.6M" keeps the card tight; residential/tourist stay
+  // under the 1M threshold so they render full comma-formatted.
+  document.getElementById('kpi-res').textContent = fmtCompact(v.res);
+  document.getElementById('kpi-cfa').textContent = fmtCompact(v.cfa);
+  document.getElementById('kpi-tau').textContent = fmtCompact(v.tau);
+
+  // Per-card hover tooltips: full precision + prior-year delta + active filter.
+  const filterSummary = activePills.size === JURIS_BASIN.length
+    ? 'All jurisdictions (full basin)'
+    : 'Filtered: ' + [...activePills].map(c => JURIS_SHORT[c] || c).join(', ');
+  const setTip = (id, label, full, delta, unit) => {
+    const card = document.getElementById(id)?.closest('.kpi-card');
+    if (!card) return;
+    const sign = delta > 0 ? '+' : delta < 0 ? '' : '';
+    const lines = [
+      label + ' as of ' + sliderYear,
+      fmt(full) + ' ' + unit + ' on the ground',
+      prev ? (sign + fmt(delta) + ' ' + unit + ' since ' + prevYr) : 'No prior year (' + sliderYear + ' is baseline)',
+      filterSummary,
+    ];
+    card.setAttribute('data-tooltip', lines.join('\n'));
+  };
+  setTip('kpi-res', 'Residential', v.res, dRes, 'units');
+  setTip('kpi-cfa', 'Commercial floor area', v.cfa, dCfa, 'sq ft');
+  setTip('kpi-tau', 'Tourist accommodation', v.tau, dTau, 'units');
 }
 
 // Facet chart: 3 panels, one per commodity, year-over-year delta as bars.
